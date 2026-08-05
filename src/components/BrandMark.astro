@@ -1,0 +1,55 @@
+---
+/**
+ * The Saito mark — a sumi-e ensō with an S brushed through it.
+ *
+ * Supplied as two flat PNGs; `scripts/optimise-media.mjs` knocks out the baked
+ * backgrounds, preserves the red accent stroke, and crops each to the ink's
+ * real bounding box so the mark optically centres against type.
+ *
+ * Use `variant="light"` on dark surfaces and `"dark"` on cream.
+ */
+import { srcset, src } from '../lib/images';
+
+interface Props {
+  variant?: 'light' | 'dark';
+  size?: number;
+  class?: string;
+  alt?: string;
+  loading?: 'lazy' | 'eager';
+  sizes?: string;
+}
+
+const {
+  variant = 'light',
+  size = 40,
+  class: className = '',
+  alt = '',
+  loading = 'eager',
+  sizes,
+} = Astro.props;
+
+const slug = `logo-${variant}`;
+---
+
+<img
+  class={`brand-mark ${className}`}
+  src={src(slug)}
+  srcset={srcset(slug) || undefined}
+  sizes={sizes ?? `${size}px`}
+  alt={alt}
+  aria-hidden={alt ? undefined : 'true'}
+  width={size}
+  height={size}
+  loading={loading}
+  decoding={loading === 'eager' ? 'sync' : 'async'}
+/>
+
+<style>
+  .brand-mark {
+    display: block;
+    width: 100%;
+    height: auto;
+    aspect-ratio: 1;
+    object-fit: contain;
+  }
+</style>

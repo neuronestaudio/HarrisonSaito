@@ -173,31 +173,41 @@ function initImageParallax() {
 /* ------------------------------------------------------------------ ensō */
 
 /**
- * 円相 — the Zen circle, drawn in a single unbroken breath and deliberately
- * left open. The stroke draws in step with scroll progress and closes exactly
- * as the reader reaches the end of the twelve weeks.
+ * 円相 — the ensō, which is also the brand mark: a brushed circle with an S
+ * through it. It paints itself in clockwise as you scroll, sweeping from the
+ * red accent at roughly ten o'clock. On the programme page the circle closes
+ * exactly as the reader reaches the twelfth week.
+ *
+ * The sweep is a conic-gradient mask driven by a CSS custom property. GSAP
+ * writes the value on each tick rather than interpolating the property itself,
+ * which avoids needing @property registration for browser-side interpolation.
  */
 function initEnso() {
-  const ensos = document.querySelectorAll<SVGPathElement>('[data-enso-path]');
+  const ensos = document.querySelectorAll<HTMLElement>('[data-enso]');
 
-  ensos.forEach((path) => {
-    const len = path.getTotalLength();
-    path.style.strokeDasharray = `${len}`;
-
+  ensos.forEach((el) => {
     if (reduceMotion) {
-      path.style.strokeDashoffset = '0';
+      el.style.setProperty('--enso-sweep', '360deg');
       return;
     }
 
-    path.style.strokeDashoffset = `${len}`;
-    const scope = path.closest('[data-enso-scope]') || path.closest('.section');
+    // The hero mark is already at the top of the page, so a scroll-linked
+    // sweep would be complete before the visitor did anything. It paints in
+    // on load instead, as part of the hero timeline.
+    if (el.closest('[data-hero]')) return;
 
-    gsap.to(path, {
-      strokeDashoffset: 0,
+    const state = { sweep: 0 };
+    el.style.setProperty('--enso-sweep', '0deg');
+
+    const scope = el.closest('[data-enso-scope]') || el.closest('.section') || el.parentElement;
+
+    gsap.to(state, {
+      sweep: 360,
       ease: 'none',
+      onUpdate: () => el.style.setProperty('--enso-sweep', `${state.sweep}deg`),
       scrollTrigger: {
         trigger: scope,
-        start: 'top 75%',
+        start: 'top 78%',
         end: 'bottom 85%',
         scrub: 0.6,
       },
@@ -275,6 +285,21 @@ function initHero() {
   if (!hero) return;
 
   if (reduceMotion) return;
+
+  // The brand mark is brushed in a single stroke, so it arrives that way —
+  // painting clockwise from the red accent while the headline rises.
+  const heroEnso = hero.querySelector<HTMLElement>('[data-enso]');
+  if (heroEnso) {
+    const state = { sweep: 0 };
+    heroEnso.style.setProperty('--enso-sweep', '0deg');
+    gsap.to(state, {
+      sweep: 360,
+      duration: 2.4,
+      delay: 0.35,
+      ease: 'power2.inOut',
+      onUpdate: () => heroEnso.style.setProperty('--enso-sweep', `${state.sweep}deg`),
+    });
+  }
 
   const tl = gsap.timeline({ defaults: { ease: 'power3.out' } });
   tl.from('[data-hero-eyebrow]', { y: 18, opacity: 0, duration: 0.9, delay: 0.15 })

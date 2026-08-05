@@ -7,6 +7,7 @@
  * These are real anchors to real URLs.
  */
 import { NAV, SITE } from '../data/site';
+import BrandMark from './BrandMark.astro';
 
 const current = Astro.url.pathname.replace(/\/$/, '') || '/';
 const isActive = (href: string) => current === href || (href !== '/' && current.startsWith(href));
@@ -15,15 +16,8 @@ const isActive = (href: string) => current === href || (href !== '/' && current.
 <header class="nav" data-nav>
   <div class="nav__inner">
     <a class="nav__brand" href="/" aria-label="Harrison Saito — home">
-      <span class="nav__mark" aria-hidden="true">
-        <svg viewBox="0 0 40 40" width="30" height="30" fill="none">
-          <path
-            d="M31 9.5 A 13.5 13.5 0 1 0 33.4 18"
-            stroke="currentColor"
-            stroke-width="2.4"
-            stroke-linecap="round"
-          ></path>
-        </svg>
+      <span class="nav__mark">
+        <BrandMark variant="light" size={38} />
       </span>
       <span class="nav__name">Harrison Saito</span>
     </a>
@@ -111,7 +105,16 @@ const isActive = (href: string) => current === href || (href !== '/' && current.
     flex-shrink: 0;
   }
 
-  .nav__mark { color: var(--gold); display: grid; place-items: center; }
+  /* The mark is brushed white with a red accent — it carries itself, so it
+     gets no gold tint. Slight scale on hover so the brand feels alive. */
+  .nav__mark {
+    display: grid;
+    place-items: center;
+    width: 38px;
+    flex-shrink: 0;
+    transition: transform var(--dur) var(--ease-out-expo);
+  }
+  .nav__brand:hover .nav__mark { transform: rotate(-8deg) scale(1.06); }
 
   .nav__name {
     font-family: var(--font-display);

@@ -161,7 +161,9 @@ const schema = graph(
 
   {/* -------------------------------------------------------------- CTA */}
   <section class="section section--warm close" data-section="close">
-    <div class="close__enso" aria-hidden="true"><Enso opacity={0.18} strokeWidth={4} /></div>
+    {/* Cream section — the mark needs its dark variant, and a little more
+        presence than it needs on ink, where it reads against the dark. */}
+    <div class="close__enso" aria-hidden="true"><Enso opacity={0.2} variant="dark" /></div>
     <div class="container container--narrow text-center" data-reveal>
       <h2 class="display-l">If something here resonated, reach out.</h2>
       <p class="lede close__sub">

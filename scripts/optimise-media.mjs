@@ -93,24 +93,141 @@ async function emitResponsive(file, slug, widths) {
   );
 }
 
+const DROP = path.join(ROOT, 'brand-drop');
+const INK_BG = { r: 26, g: 23, b: 20, alpha: 1 }; // --ink-900, matches theme-color
+
+/**
+ * Turn a supplied logo into a transparent, tightly-cropped asset.
+ *
+ * The files we were given are flat 1254px PNGs with the background baked in —
+ * white behind the dark version, black behind the light one — and the mark
+ * sitting off-centre with ~290px of dead space along the bottom. Dropped
+ * straight into the nav that would render as a visible box floating above its
+ * own baseline, so both problems get fixed here:
+ *
+ *   1. alpha is derived from distance to the background colour, which keeps
+ *      the red accent stroke opaque instead of fading it out the way a
+ *      luminance key would;
+ *   2. the result is cropped to the ink's real bounding box so the mark
+ *      optically centres against text.
+ */
+async function knockOutBackground(file, { onWhite }) {
+  const input = path.join(DROP, file);
+  const { data, info } = await sharp(input)
+    .ensureAlpha()
+    .raw()
+    .toBuffer({ resolveWithObject: true });
+
+  const { width, height, channels } = info;
+  const out = Buffer.alloc(width * height * 4);
+
+  let minX = width, minY = height, maxX = 0, maxY = 0;
+
+  for (let y = 0; y < height; y++) {
+    for (let x = 0; x < width; x++) {
+      const i = (y * width + x) * channels;
+      const r = data[i], g = data[i + 1], b = data[i + 2];
+
+      // Distance from the background. Using min/max across channels rather
+      // than luminance is what preserves the red brush accent.
+      const alpha = onWhite ? 255 - Math.min(r, g, b) : Math.max(r, g, b);
+
+      const o = (y * width + x) * 4;
+      out[o] = r;
+      out[o + 1] = g;
+      out[o + 2] = b;
+      out[o + 3] = alpha;
+
+      if (alpha > 24) {
+        if (x < minX) minX = x;
+        if (x > maxX) maxX = x;
+        if (y < minY) minY = y;
+        if (y > maxY) maxY = y;
+      }
+    }
+  }
+
+  // Square the crop around the mark so it scales predictably, with a hair of
+  // breathing room so the brush edges are not clipped.
+  const cx = (minX + maxX) / 2;
+  const cy = (minY + maxY) / 2;
+  const side = Math.max(maxX - minX, maxY - minY) * 1.06;
+  const left = Math.max(0, Math.round(cx - side / 2));
+  const top = Math.max(0, Math.round(cy - side / 2));
+  const size = Math.min(Math.round(side), width - left, height - top);
+
+  return sharp(out, { raw: { width, height, channels: 4 } })
+    .extract({ left, top, width: size, height: size })
+    .png();
+}
+
+async function buildLogo() {
+  if (!existsSync(path.join(DROP, 'Logo-w.png'))) {
+    console.warn('  ! no logo in brand-drop/ — skipping');
+    return false;
+  }
+
+  // Light mark (white ink + red accent) for the dark nav, footer and hero.
+  const light = await knockOutBackground('Logo-w.png', { onWhite: false });
+  // Dark mark for cream sections.
+  const dark = await knockOutBackground('Logo-b.png', { onWhite: true });
+
+  for (const [name, img] of [['logo-light', light], ['logo-dark', dark]]) {
+    for (const w of [64, 128, 256, 512]) {
+      await img
+        .clone()
+        .resize(w, w)
+        .webp({ quality: 92, effort: 6, alphaQuality: 100 })
+        .toFile(path.join(IMG_OUT, `${name}-${w}.webp`));
+    }
+    await img
+      .clone()
+      .resize(512, 512)
+      .webp({ quality: 92, effort: 6, alphaQuality: 100 })
+      .toFile(path.join(IMG_OUT, `${name}.webp`));
+
+    // PNG copy kept for the share card and anywhere WebP alpha is awkward.
+    await img.clone().resize(512, 512).png().toFile(path.join(IMG_OUT, `${name}-512.png`));
+
+    const size = (await fs.stat(path.join(IMG_OUT, `${name}-512.webp`))).size;
+    console.log(`  ${name.padEnd(12)} transparent, square-cropped, 512px ${bytes(size)}`);
+  }
+  return true;
+}
+
 async function buildFavicons() {
-  // The mark is a gold ensō on near-black — drawn here rather than shipped as
-  // a binary so it stays versionable and re-generatable.
-  const enso = Buffer.from(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
-  <rect width="512" height="512" fill="#1a1714"/>
-  <path d="M362 132 A 160 160 0 1 0 388 232"
-        fill="none" stroke="#d9a441" stroke-width="30" stroke-linecap="round"
-        transform="rotate(-18 256 256)"/>
-</svg>`);
+  const source = path.join(IMG_OUT, 'logo-light-512.png');
+  if (!existsSync(source)) {
+    console.warn('  ! no processed logo — run buildLogo first');
+    return;
+  }
+
+  // The mark sits on the site's warm near-black rather than transparency:
+  // browser tab strips are light in light mode, and a white brush mark on
+  // white would disappear entirely.
+  const plate = async (s, pad) =>
+    sharp({
+      create: { width: s, height: s, channels: 4, background: INK_BG },
+    })
+      .composite([
+        {
+          input: await sharp(source)
+            .resize(Math.round(s * pad), Math.round(s * pad))
+            .toBuffer(),
+          gravity: 'center',
+        },
+      ])
+      .png();
 
   const sizes = [16, 32, 48, 180, 192, 512];
   for (const s of sizes) {
     const name = s === 180 ? 'apple-touch-icon.png' : `favicon-${s}.png`;
-    await sharp(enso).resize(s, s).png().toFile(path.join(ROOT, 'public', name));
+    // Small sizes get less padding or the mark turns to mush.
+    const pad = s <= 32 ? 0.94 : s <= 48 ? 0.88 : 0.8;
+    await (await plate(s, pad)).toFile(path.join(ROOT, 'public', name));
   }
-  // favicon.ico — 32px PNG payload is accepted by every current browser.
-  await sharp(enso).resize(32, 32).png().toFile(path.join(ROOT, 'public', 'favicon.ico'));
-  console.log(`  favicons: ${sizes.join(', ')} + apple-touch-icon + favicon.ico`);
+  await (await plate(32, 0.94)).toFile(path.join(ROOT, 'public', 'favicon.ico'));
+  console.log(`  favicons: ${sizes.join(', ')} + apple-touch-icon + favicon.ico (real mark on ink)`);
 }
 
 async function buildOgImage() {
@@ -127,13 +244,11 @@ async function buildOgImage() {
     <defs>
       <linearGradient id="v" x1="0" y1="0" x2="0" y2="1">
         <stop offset="0%"  stop-color="#0d0b09" stop-opacity="0.30"/>
-        <stop offset="55%" stop-color="#0d0b09" stop-opacity="0.60"/>
-        <stop offset="100%" stop-color="#0d0b09" stop-opacity="0.90"/>
+        <stop offset="55%" stop-color="#0d0b09" stop-opacity="0.62"/>
+        <stop offset="100%" stop-color="#0d0b09" stop-opacity="0.92"/>
       </linearGradient>
     </defs>
     <rect width="1200" height="630" fill="url(#v)"/>
-    <path d="M980 120 A 92 92 0 1 0 995 178" fill="none" stroke="#d9a441"
-          stroke-opacity="0.85" stroke-width="9" stroke-linecap="round"/>
     <text x="80" y="392" font-family="Georgia, 'Times New Roman', serif" font-size="82"
           fill="#f4f0e9">Harrison Saito</text>
     <text x="80" y="452" font-family="Helvetica, Arial, sans-serif" font-size="25"
@@ -142,8 +257,20 @@ async function buildOgImage() {
           font-style="italic" fill="#c9c2b6">How you do anything is how you do everything.</text>
   </svg>`);
 
+  const composites = [{ input: overlay, top: 0, left: 0 }];
+
+  // The real brand mark, dropped into the right-hand third of the card.
+  const mark = path.join(IMG_OUT, 'logo-light-512.png');
+  if (existsSync(mark)) {
+    composites.push({
+      input: await sharp(mark).resize(300, 300).toBuffer(),
+      top: 165,
+      left: 810,
+    });
+  }
+
   await sharp(base)
-    .composite([{ input: overlay, top: 0, left: 0 }])
+    .composite(composites)
     .jpeg({ quality: 86, mozjpeg: true })
     .toFile(path.join(ROOT, 'public', 'og-image.jpg'));
 
@@ -198,17 +325,26 @@ async function buildVideo() {
 }
 
 async function main() {
+  // Brand assets change far more often than photography or the hero video,
+  // and re-encoding the video takes minutes. `--logo` does just the branding.
+  const logoOnly = process.argv.includes('--logo');
+
   await ensureDirs();
 
-  console.log('\nImages -> WebP (responsive)');
-  for (const [file, slug] of Object.entries(IMAGES)) {
-    await emitResponsive(file, slug, WIDTHS);
+  if (!logoOnly) {
+    console.log('\nImages -> WebP (responsive)');
+    for (const [file, slug] of Object.entries(IMAGES)) {
+      await emitResponsive(file, slug, WIDTHS);
+    }
+
+    console.log('\nAvatars -> WebP');
+    for (const [file, slug] of Object.entries(AVATARS)) {
+      await emitResponsive(file, slug, AVATAR_WIDTHS);
+    }
   }
 
-  console.log('\nAvatars -> WebP');
-  for (const [file, slug] of Object.entries(AVATARS)) {
-    await emitResponsive(file, slug, AVATAR_WIDTHS);
-  }
+  console.log('\nBrand mark');
+  await buildLogo();
 
   console.log('\nFavicons');
   await buildFavicons();
@@ -216,8 +352,10 @@ async function main() {
   console.log('\nShare card');
   await buildOgImage();
 
-  console.log('\nHero video');
-  await buildVideo();
+  if (!logoOnly) {
+    console.log('\nHero video');
+    await buildVideo();
+  }
 
   console.log('\nDone.\n');
 }

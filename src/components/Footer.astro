@@ -8,6 +8,7 @@
  * audience, particularly parents (M9).
  */
 import { SITE, NAV } from '../data/site';
+import BrandMark from './BrandMark.astro';
 
 const year = new Date().getFullYear();
 ---
@@ -15,6 +16,9 @@ const year = new Date().getFullYear();
 <footer class="footer">
   <div class="container footer__inner">
     <div class="footer__brand">
+      <a href="/" class="footer__mark" aria-label="Harrison Saito — home">
+        <BrandMark variant="light" size={56} loading="lazy" />
+      </a>
       <a href="/" class="footer__name">Harrison Saito</a>
       <p class="footer__tagline">Educator. Martial Artist. Coach.</p>
       <p class="footer__loc">
@@ -94,6 +98,15 @@ const year = new Date().getFullYear();
     gap: clamp(2.25rem, 4vw, 3.5rem);
     grid-template-columns: 1fr;
   }
+
+  .footer__mark {
+    display: block;
+    width: 56px;
+    margin-bottom: 1.1rem;
+    opacity: 0.9;
+    transition: opacity var(--dur-fast) ease, transform var(--dur) var(--ease-out-expo);
+  }
+  .footer__mark:hover { opacity: 1; transform: rotate(-8deg); }
 
   .footer__name {
     font-family: var(--font-display);

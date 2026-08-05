@@ -11,6 +11,7 @@
     "preview": "astro preview",
     "astro": "astro",
     "media": "node scripts/optimise-media.mjs",
+    "media:logo": "node scripts/optimise-media.mjs --logo",
     "fonts": "node scripts/fetch-fonts.mjs",
     "audit": "node scripts/audit-check.mjs",
     "shots": "node scripts/shots.mjs",

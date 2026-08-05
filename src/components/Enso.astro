@@ -1,22 +1,30 @@
 ---
 /**
- * 円相 — the ensō.
+ * 円相 — the ensō, as the actual brand mark.
  *
- * In Zen the circle is painted in a single uninterrupted breath and left open;
- * the gap is the point. Here the stroke draws in step with scroll progress, so
- * on the programme page it closes exactly as the reader reaches week twelve.
+ * This started as a hand-drawn SVG circle, on the reasoning that the ensō was
+ * the right motif for the work. Harrison's real logo turned out to *be* an
+ * ensō — a brushed circle with an S through it — so the drawn stand-in was
+ * retired and the mark itself now does the job.
  *
- * The path is a hand-tuned cubic approximation of a brush circle rather than a
- * true arc — the radius wobbles slightly and the stroke is left open at roughly
- * eleven o'clock, which is what stops it reading as a plain SVG ring.
+ * A PNG cannot stroke-draw the way an SVG path can, so the reveal is done with
+ * a conic-gradient mask that sweeps clockwise from roughly ten o'clock, where
+ * the red accent sits. The effect is the same one the drawn version had, and
+ * better: the thing painting itself in is the brand, not a generic circle.
+ *
+ * Props are unchanged from the SVG version so every call site still works.
  */
+import BrandMark from './BrandMark.astro';
+
 interface Props {
   size?: string;
   class?: string;
-  /** Scroll-drawn (default) or already complete. */
+  /** Scroll-swept (default) or already complete. */
   animate?: boolean;
-  stroke?: string;
   opacity?: number;
+  variant?: 'light' | 'dark';
+  /** Retained for API compatibility with the previous SVG implementation. */
+  stroke?: string;
   strokeWidth?: number;
 }
 
@@ -24,59 +32,45 @@ const {
   size = '100%',
   class: className = '',
   animate = true,
-  stroke = 'var(--gold)',
   opacity = 1,
-  strokeWidth = 7,
+  variant = 'light',
 } = Astro.props;
-
-// Open circle: starts just past 12 o'clock, sweeps clockwise all the way round,
-// stopping short so the ends never quite meet.
-const d = `
-  M 168 34
-  C 244 34 302 92 302 166
-  C 302 244 242 300 166 300
-  C 88 300 30 242 30 164
-  C 30 92 84 38 152 34
-`;
 ---
 
-<svg
+<div
   class={`enso ${className}`}
-  viewBox="0 0 332 332"
-  width={size}
-  height={size}
-  fill="none"
+  style={`width:${size};opacity:${opacity}`}
+  data-enso={animate ? '' : undefined}
   aria-hidden="true"
-  style={`opacity:${opacity}`}
 >
-  <defs>
-    <linearGradient id="enso-ink" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0%" stop-color={stroke} stop-opacity="0.55"></stop>
-      <stop offset="45%" stop-color={stroke} stop-opacity="1"></stop>
-      <stop offset="100%" stop-color={stroke} stop-opacity="0.35"></stop>
-    </linearGradient>
-    <filter id="enso-brush" x="-12%" y="-12%" width="124%" height="124%">
-      {/* Roughens the edge so it reads as a loaded brush, not a vector ring. */}
-      <feTurbulence type="fractalNoise" baseFrequency="0.028" numOctaves="3" seed="7" result="n" />
-      <feDisplacementMap in="SourceGraphic" in2="n" scale="4.5" xChannelSelector="R" yChannelSelector="G" />
-    </filter>
-  </defs>
-
-  <path
-    d={d}
-    stroke="url(#enso-ink)"
-    stroke-width={strokeWidth}
-    stroke-linecap="round"
-    filter="url(#enso-brush)"
-    data-enso-path={animate ? '' : undefined}
-    style={animate ? undefined : 'stroke-dasharray:none;stroke-dashoffset:0'}
-  ></path>
-</svg>
+  <BrandMark variant={variant} size={512} loading="lazy" sizes="(max-width: 768px) 60vw, 34vw" />
+</div>
 
 <style>
   .enso {
+    --enso-sweep: 360deg;
     display: block;
     max-width: 100%;
-    overflow: visible;
+    aspect-ratio: 1;
+  }
+
+  /* Unswept until the observer arms it, so a no-JS visitor sees the whole mark. */
+  .enso[data-enso] {
+    -webkit-mask-image: conic-gradient(
+      from -115deg,
+      #000 0deg,
+      #000 calc(var(--enso-sweep) - 14deg),
+      transparent var(--enso-sweep)
+    );
+    mask-image: conic-gradient(
+      from -115deg,
+      #000 0deg,
+      #000 calc(var(--enso-sweep) - 14deg),
+      transparent var(--enso-sweep)
+    );
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .enso[data-enso] { -webkit-mask-image: none; mask-image: none; }
   }
 </style>

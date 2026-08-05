@@ -14,3 +14,8 @@ _source/
 
 # Visual-check output from `npm run shots`.
 _shots/
+
+# Raw brand assets awaiting processing. Only the optimised output in public/
+# is committed. See brand-drop/README.md.
+brand-drop/*
+!brand-drop/README.md

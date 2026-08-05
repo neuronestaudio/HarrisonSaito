@@ -33,10 +33,18 @@ First checkout also needs the media pipeline, which reads the raw assets scraped
 
 ```bash
 npm run media        # WebP + responsive sizes, favicons, og:image, hero video (needs ffmpeg)
+npm run media:logo   # branding only — skips the slow video re-encode
 npm run fonts        # self-host Cormorant Garamond + Nunito Sans
 ```
 
-Both are committed as output, so you only re-run them when source assets change.
+All are committed as output, so you only re-run them when source assets change.
+
+### Replacing the logo
+
+Drop a new file into `brand-drop/` (see the README in there) and run `npm run media:logo`. The
+pipeline knocks the baked background out to real transparency, preserves the red accent stroke,
+crops to the ink's bounding box, and regenerates the nav mark, footer mark, full favicon set and
+the social share card in one pass.
 
 ## Verification
 
@@ -91,8 +99,10 @@ accent, zero border radius. Cormorant Garamond for display, Nunito Sans for body
 
 Three signature elements:
 
-- **The ensō (円相)** — a scroll-drawn open Zen circle. On `/mens-coaching` the stroke completes
-  exactly as the reader reaches week twelve.
+- **The ensō (円相)** — which is the brand mark itself: a brushed circle with an S through it, with
+  a small red accent stroke. It paints itself in clockwise via an animated conic mask. In the hero
+  that runs on load; on `/mens-coaching` it is scroll-linked and completes exactly as the reader
+  reaches week twelve.
 - **The calligraphy wash** — oversized kanji at 3–6% opacity drifting at their own scroll rates.
   Vocabulary comes from the actual work (守破離, 道, 心, 継承, 傷), never decorative filler.
 - **The Shu-Ha-Ri timeline** — the section pins and the three phases travel horizontally, so the
