@@ -29,7 +29,7 @@ import {
 
 const title = 'HSC English Tutor & Youth Mentor | Chatswood, Sydney — Harrison Saito';
 const description =
-  'HSC English tutoring and youth mentoring in Chatswood, Sydney, from a practising high school teacher. Confidence, clarity and performance under pressure. 1:1 from $120/hr.';
+  'HSC English tutoring and youth mentoring in Chatswood, Sydney, from a practising high school teacher. Confidence, clarity and performance under pressure.';
 
 const offers = OFFERS.filter((o) => o.audience === 'youth');
 
@@ -63,7 +63,6 @@ const schema = graph(
     serviceType: 'Tutoring and youth mentoring',
     description,
     url: '/hsc-tutoring',
-    price: 120,
   }),
   faqSchema(faqs),
   videoSchema({
@@ -175,8 +174,8 @@ const schema = graph(
         <p class="eyebrow">Mentoring</p>
         <h2 class="display-l">How it works.</h2>
         <p class="lede">
-          Sessions are one-to-one and priced openly. No lock-in packages, no discovery call required
-          to find out the rate.
+          Sessions are one-to-one, with no lock-in packages. Tell me where your child is at and
+          we will work out what they actually need.
         </p>
       </header>
 

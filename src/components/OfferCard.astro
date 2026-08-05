@@ -26,9 +26,11 @@ const { offer, featured = false } = Astro.props;
   <h3 class="offer__name">{offer.name}</h3>
   <p class="offer__desc">{offer.description}</p>
 
+  {/* Where the price used to sit. It now carries the shape of the commitment
+      instead — a number here is an objection raised before any case has been
+      made, and it belongs on the call. */}
   <div class="offer__price">
-    <span class="offer__amount">{offer.price}</span>
-    <span class="offer__unit">{offer.unit}</span>
+    <span class="offer__commitment">{offer.commitment}</span>
   </div>
 
   <a
@@ -131,20 +133,15 @@ const { offer, featured = false } = Astro.props;
   }
   .offer--featured .offer__price { border-top-color: oklch(100% 0 0 / 0.14); }
 
-  .offer__amount {
+  .offer__commitment {
     font-family: var(--font-display);
-    font-size: var(--step-3);
+    font-size: var(--step-1);
+    font-style: italic;
     font-weight: 300;
-    line-height: 1;
+    line-height: 1.2;
+    color: var(--gold-deep);
   }
-  .offer--featured .offer__amount { color: var(--gold); }
-
-  .offer__unit {
-    font-size: var(--step--1);
-    color: var(--text-on-paper-faint);
-    letter-spacing: 0.06em;
-  }
-  .offer--featured .offer__unit { color: var(--text-on-ink-faint); }
+  .offer--featured .offer__commitment { color: var(--gold); }
 
   .offer__cta { margin-top: 0.4rem; }
 

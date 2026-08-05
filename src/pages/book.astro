@@ -37,9 +37,9 @@ const fields = [
     type: 'select' as const,
     required: true,
     options: [
-      '1:1 Life Coaching ($150/hr)',
+      '1:1 Life Coaching',
       'Return to Self — 12-week programme',
-      'HSC & Youth Mentoring ($120/hr)',
+      'HSC & Youth Mentoring',
       'Martial arts training',
       'Something else',
     ],
@@ -196,8 +196,8 @@ const fields = [
     const select = document.querySelector<HTMLSelectElement>('select[name="service"]');
     if (select) {
       const match: Record<string, string> = {
-        hsc: 'HSC & Youth Mentoring ($120/hr)',
-        coaching: '1:1 Life Coaching ($150/hr)',
+        hsc: 'HSC & Youth Mentoring',
+        coaching: '1:1 Life Coaching',
         programme: 'Return to Self — 12-week programme',
         martial: 'Martial arts training',
       };

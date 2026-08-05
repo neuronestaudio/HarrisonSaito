@@ -40,9 +40,20 @@ const STACK = 9;
 ---
 
 <div class="book" data-book style={`--book-count:${total}`}>
-  {/* ---------------------------------------------------------- the room */}
+  {/* ----------------------------------------------------------- the room
+      One backdrop per chapter, cross-fading as the leaf turns, so the book
+      moves through seven different rooms rather than sitting in one. Each is
+      a picture the chapter does NOT print on its own pages — the environment
+      around the book, not a repeat of what is in it. */}
   <div class="book__room" aria-hidden="true">
-    <img class="book__room-plate" src="/img/dark-dojo.webp" alt="" loading="lazy" decoding="async" />
+    {
+      CHAPTERS.map((c, i) => (
+        <span class="book__plate" data-plate data-index={i} style={`--tone:${c.tone}`}>
+          <img src={`/img/room/${c.bg}.webp`} alt="" loading={i < 2 ? 'eager' : 'lazy'} decoding="async" />
+          <span class="book__plate-tone"></span>
+        </span>
+      ))
+    }
     <span class="book__room-wash"></span>
     <span class="book__key-light"></span>
   </div>
@@ -242,20 +253,41 @@ const STACK = 9;
     mask-image: radial-gradient(ellipse 58% 56% at 50% 46%, #000 34%, transparent 76%);
   }
 
-  .book.is-live .book__room-plate {
+  /* Plates are stacked and cross-faded; --o is written by JS from the turn. */
+  .book.is-live .book__plate {
+    position: absolute;
+    inset: 0;
+    opacity: var(--o, 0);
+    will-change: opacity;
+  }
+  .book.is-live .book__plate:first-child { opacity: var(--o, 1); }
+
+  .book.is-live .book__plate img {
     width: 100%;
     height: 100%;
     object-fit: cover;
-    filter: blur(28px) saturate(0.45) brightness(0.3);
-    transform: scale(1.2);
+    /* The source is 112px wide, so the upscale does most of the blurring;
+       this just smooths the remaining blockiness. */
+    /* Bright enough that the room change actually registers as you turn a
+       page, dark enough that the paper still wins the contrast. */
+    filter: blur(14px) brightness(0.58) saturate(1.15);
+    transform: scale(1.15);
+  }
+
+  .book.is-live .book__plate-tone {
+    position: absolute;
+    inset: 0;
+    background: var(--tone);
+    mix-blend-mode: color;
+    opacity: 0.55;
   }
 
   .book.is-live .book__room-wash {
     position: absolute;
     inset: 0;
     background:
-      radial-gradient(ellipse 60% 55% at 50% 42%, oklch(30% 0.02 60 / 0.5), transparent 70%),
-      linear-gradient(to bottom, oklch(11% 0.008 55 / 0.5), oklch(11% 0.008 55 / 0.9));
+      radial-gradient(ellipse 60% 55% at 50% 42%, oklch(30% 0.02 60 / 0.32), transparent 70%),
+      linear-gradient(to bottom, oklch(11% 0.008 55 / 0.34), oklch(11% 0.008 55 / 0.82));
   }
 
   .book.is-live .book__key-light {
@@ -453,6 +485,7 @@ const STACK = 9;
     const object = book.querySelector<HTMLElement>('[data-book-object]')!;
     const leaves = Array.from(book.querySelectorAll<HTMLElement>('[data-leaf]'));
     const stacked = Array.from(book.querySelectorAll<HTMLElement>('[data-spread]'));
+    const plates = Array.from(book.querySelectorAll<HTMLElement>('[data-plate]'));
 
     const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     const wide = window.matchMedia('(min-width: 900px)').matches;
@@ -501,6 +534,18 @@ const STACK = 9;
        */
       const shadeFor = (deg: number) => Math.sin((Math.abs(deg) / 180) * Math.PI);
 
+      /**
+       * Cross-fade the room backdrops. `pos` is a continuous chapter index, so
+       * a plate is fully lit at its own index and gone one chapter either
+       * side — adjacent plates overlap through the middle of every turn.
+       */
+      const paintRoom = (pos: number) => {
+        plates.forEach((plate, i) => {
+          const o = Math.max(0, 1 - Math.abs(pos - i));
+          plate.style.setProperty('--o', o.toFixed(3));
+        });
+      };
+
       const tl = gsap.timeline({
         scrollTrigger: {
           trigger: viewport,
@@ -513,6 +558,7 @@ const STACK = 9;
           onUpdate: (self) => {
             markChapter(Math.round(self.progress * turns));
             hint?.classList.toggle('is-faded', self.progress > 0.02);
+            paintRoom(self.progress * turns);
           },
         },
       });
@@ -608,6 +654,8 @@ const STACK = 9;
           object.style.setProperty('--cam-z', `${(-2.4 + self.progress * 3).toFixed(2)}deg`);
         },
       });
+
+      paintRoom(0);
     }
 
     markChapter(0);

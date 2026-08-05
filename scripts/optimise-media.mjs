@@ -281,6 +281,53 @@ async function buildFilmPosters() {
   console.log(`  ${films.length} film posters at 480 + 960  ${bytes(total)} total`);
 }
 
+/**
+ * Backdrops for the book's room, one per chapter.
+ *
+ * These are deliberately tiny — 112px wide. They get scaled to full bleed and
+ * blurred in CSS, so resolution is wasted bytes, and seven full-size plates
+ * each carrying a 28px CSS blur is genuinely expensive to composite every
+ * frame while the camera is tracking the pointer. At this size the upscale
+ * does most of the blurring for free.
+ */
+async function buildBookBackdrops() {
+  const OUT = path.join(IMG_OUT, 'room');
+  await fs.mkdir(OUT, { recursive: true });
+
+  const slugs = [
+    // the book's seven rooms
+    'dark-dojo',
+    'buddha',
+    'phase-return',
+    'karate-group',
+    'naruto-group',
+    'hero-poster',
+    'phase-integrate',
+    // the archetype coverflow's five backdrops
+    'portrait-shoji',
+    'father-son-portrait',
+    'coaching-dharma',
+    'karate-training',
+  ];
+
+  let total = 0;
+  for (const slug of slugs) {
+    const source = path.join(IMG_OUT, `${slug}.webp`);
+    if (!existsSync(source)) {
+      console.warn(`  ! no source for backdrop ${slug}`);
+      continue;
+    }
+    const out = path.join(OUT, `${slug}.webp`);
+    await sharp(source)
+      .resize({ width: 112 })
+      .modulate({ saturation: 0.7, brightness: 0.85 })
+      .webp({ quality: 62, effort: 6 })
+      .toFile(out);
+    total += (await fs.stat(out)).size;
+  }
+  console.log(`  ${slugs.length} room backdrops at 112px  ${bytes(total)} total`);
+}
+
 async function buildLogo() {
   if (!existsSync(path.join(DROP, 'Logo-w.png'))) {
     console.warn('  ! no logo in brand-drop/ — skipping');
@@ -458,6 +505,8 @@ async function main() {
     await buildYouTubeStills();
     console.log('\nFilm posters');
     await buildFilmPosters();
+    console.log('\nBackdrops');
+    await buildBookBackdrops();
     console.log('\nDone.\n');
     return;
   }
@@ -478,6 +527,9 @@ async function main() {
 
     console.log('\nFilm posters');
     await buildFilmPosters();
+
+    console.log('\nBackdrops');
+    await buildBookBackdrops();
   }
 
   console.log('\nBrand mark');

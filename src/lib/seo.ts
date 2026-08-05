@@ -95,12 +95,13 @@ export function localBusinessSchema() {
     hasOfferCatalog: {
       '@type': 'OfferCatalog',
       name: 'Coaching & Mentoring',
+      // No `price` here on purpose. Pricing is not published on the site, and
+      // emitting it in structured data would leak it straight back into search
+      // results — defeating the point and contradicting the page.
       itemListElement: OFFERS.map((o) => ({
         '@type': 'Offer',
         name: o.name,
         description: o.description,
-        price: o.priceValue,
-        priceCurrency: 'AUD',
         url: `${SITE.domain}${o.href}`,
         availability: 'https://schema.org/InStock',
       })),
@@ -164,8 +165,6 @@ export function courseSchema() {
     inLanguage: 'en-AU',
     offers: {
       '@type': 'Offer',
-      price: 3600,
-      priceCurrency: 'AUD',
       category: 'Paid',
       availability: 'https://schema.org/InStock',
     },

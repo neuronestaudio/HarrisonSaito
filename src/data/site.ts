@@ -61,9 +61,15 @@ export type Offer = {
   id: string;
   number: string;
   name: string;
-  price: string;
-  unit: string;
+  /**
+   * Pricing is deliberately NOT shown on the site. For a $3,600 programme a
+   * number on the page is an objection raised before any case has been made,
+   * and it is answered properly on the call. `priceValue` is retained because
+   * it is the conversion value reported to GA4 and Meta — it never renders.
+   */
   priceValue: number;
+  /** What the commitment is, in time rather than dollars. */
+  commitment: string;
   description: string;
   cta: string;
   href: string;
@@ -75,9 +81,8 @@ export const OFFERS: Offer[] = [
     id: 'life-coaching',
     number: '01',
     name: '1:1 Life Coaching',
-    price: '$150',
-    unit: '/ hour',
     priceValue: 150,
+    commitment: 'Session by session',
     description:
       'Using Karate and Buddhist philosophy for inner work, nervous system regulation, and breaking the people-pleasing pattern. Session-based, at your pace.',
     cta: 'Book a Discovery Chat',
@@ -88,9 +93,8 @@ export const OFFERS: Offer[] = [
     id: 'return-to-self',
     number: '02',
     name: 'Return to Self',
-    price: '$3,600',
-    unit: '/ 12 weeks',
     priceValue: 3600,
+    commitment: '12 weeks · three phases',
     description:
       '12 weeks. Three phases: Separate, Return, Integrate. A structured programme using martial arts, Buddhism, and honest inner work.',
     cta: 'Apply',
@@ -101,9 +105,8 @@ export const OFFERS: Offer[] = [
     id: 'hsc-mentoring',
     number: '03',
     name: '1:1 HSC & Youth Mentoring',
-    price: '$120',
-    unit: '/ hour',
     priceValue: 120,
+    commitment: 'Weekly, one-to-one',
     description:
       'English tutoring, mindset coaching, and mentoring for students navigating the pressures of the HSC and adolescence. Confidence, clarity, and performance under pressure.',
     cta: 'Book a Session',
@@ -574,11 +577,14 @@ export type Archetype = {
   through: string;
   image: string;
   imageAlt: string;
+  /** Colour cast for this archetype's backdrop in the coverflow. */
+  grade: string;
 };
 
 export const ARCHETYPES: Archetype[] = [
   {
     id: 'performer',
+    grade: 'oklch(30% 0.024 250)',
     number: '01',
     name: 'The Performer',
     kanji: '仮面',
@@ -596,6 +602,7 @@ export const ARCHETYPES: Archetype[] = [
   },
   {
     id: 'dutiful-son',
+    grade: 'oklch(31% 0.042 62)',
     number: '02',
     name: 'The Dutiful Son',
     kanji: '孝',
@@ -613,6 +620,7 @@ export const ARCHETYPES: Archetype[] = [
   },
   {
     id: 'peacekeeper',
+    grade: 'oklch(30% 0.03 150)',
     number: '03',
     name: 'The Peacekeeper',
     kanji: '和',
@@ -629,6 +637,7 @@ export const ARCHETYPES: Archetype[] = [
   },
   {
     id: 'achiever',
+    grade: 'oklch(28% 0.032 268)',
     number: '04',
     name: 'The Achiever',
     kanji: '功',
@@ -645,6 +654,7 @@ export const ARCHETYPES: Archetype[] = [
   },
   {
     id: 'held-fist',
+    grade: 'oklch(29% 0.05 30)',
     number: '05',
     name: 'The Held Fist',
     kanji: '怒',
@@ -685,6 +695,14 @@ export type Chapter = {
   credential?: string;
   image: string;
   imageAlt: string;
+  /**
+   * The room the book is sitting in for this chapter. Deliberately never the
+   * same picture as the page itself — it is the environment around the book,
+   * not a repeat of what is printed on it. Cross-fades as the leaf turns.
+   */
+  bg: string;
+  /** Colour cast for that room, so the mood shifts chapter to chapter. */
+  tone: string;
 };
 
 export const CHAPTERS: Chapter[] = [
@@ -700,6 +718,8 @@ export const CHAPTERS: Chapter[] = [
     ],
     image: 'portrait-shoji',
     imageAlt: 'Harrison Saito seated against a shoji screen',
+    bg: 'dark-dojo',
+    tone: 'oklch(30% 0.022 250)',
   },
   {
     number: '二',
@@ -712,8 +732,12 @@ export const CHAPTERS: Chapter[] = [
       'He gave me discipline. He gave me martial arts. He gave me Buddhism. He also gave me people-pleasing, suppressed rage, and a five-year-old frozen inside a grown man’s body.',
     ],
     credential: 'Lineage — Japanese Buddhist and martial tradition, first-hand',
-    image: 'father-son-still',
-    imageAlt: 'Harrison Saito sitting beside his father',
+    // The 4:3 crop, not the wide band — a book page is a tall slot and the
+    // band would centre-crop to an empty room.
+    image: 'father-son-portrait',
+    imageAlt: 'Harrison Saito seated at his father’s bedside',
+    bg: 'buddha',
+    tone: 'oklch(31% 0.042 62)',
   },
   {
     number: '三',
@@ -727,6 +751,8 @@ export const CHAPTERS: Chapter[] = [
     ],
     image: 'ink-wash',
     imageAlt: 'Sumi-e ink wash',
+    bg: 'phase-return',
+    tone: 'oklch(24% 0.014 32)',
   },
   {
     number: '四',
@@ -741,6 +767,8 @@ export const CHAPTERS: Chapter[] = [
     credential: '2nd Dan black belt, Karate',
     image: 'karate-training',
     imageAlt: 'Harrison Saito training karate in a white gi',
+    bg: 'karate-group',
+    tone: 'oklch(27% 0.03 265)',
   },
   {
     number: '五',
@@ -755,6 +783,8 @@ export const CHAPTERS: Chapter[] = [
     credential: 'M.Teach (Secondary) · B.Com · practising high school teacher',
     image: 'youth-tutoring',
     imageAlt: 'Harrison Saito teaching two students at a table with laptops',
+    bg: 'naruto-group',
+    tone: 'oklch(30% 0.032 118)',
   },
   {
     number: '六',
@@ -769,6 +799,8 @@ export const CHAPTERS: Chapter[] = [
     credential: 'Featured on SBS World News',
     image: 'sbs-group',
     imageAlt: 'Harrison Saito with the group featured in the SBS World News segment',
+    bg: 'hero-poster',
+    tone: 'oklch(28% 0.03 232)',
   },
   {
     number: '七',
@@ -783,6 +815,8 @@ export const CHAPTERS: Chapter[] = [
     credential: '10+ years coaching · Chatswood, NSW',
     image: 'coaching-dharma',
     imageAlt: 'Two men seated on tatami before a Buddhist altar',
+    bg: 'phase-integrate',
+    tone: 'oklch(33% 0.045 76)',
   },
 ];
 

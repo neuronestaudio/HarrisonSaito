@@ -1,0 +1,162 @@
+---
+/**
+ * Archetype emblems.
+ *
+ * Drawn rather than photographed. Five bespoke marks in the language of 家紋
+ * (kamon) — the circular Japanese family crest — which is the right form here
+ * for three reasons: it is already the brand's visual grammar (the logo is a
+ * brushed circle), a crest reads as an identity rather than an illustration,
+ * and it scales to any size without another photo shoot.
+ *
+ * Each is built from the same kit — an outer seal ring, a brushed opening in
+ * that ring echoing the ensō, and an inner figure that states the pattern — so
+ * the five read as one set rather than five separate icons.
+ *
+ * Every path carries pathLength="1", so the draw-on animation can use a single
+ * dasharray value regardless of the path's real length.
+ */
+interface Props {
+  id: string;
+  class?: string;
+}
+
+const { id, class: className = '' } = Astro.props;
+---
+
+<svg
+  class={`emblem ${className}`}
+  viewBox="0 0 200 200"
+  fill="none"
+  aria-hidden="true"
+  data-emblem={id}
+>
+  <defs>
+    <linearGradient id={`em-ink-${id}`} x1="0" y1="0" x2="0.9" y2="1">
+      <stop offset="0%" stop-color="var(--gold-light)" stop-opacity="0.95"></stop>
+      <stop offset="55%" stop-color="var(--gold)" stop-opacity="1"></stop>
+      <stop offset="100%" stop-color="var(--gold-deep)" stop-opacity="0.7"></stop>
+    </linearGradient>
+    <filter id={`em-brush-${id}`} x="-10%" y="-10%" width="120%" height="120%">
+      <feTurbulence type="fractalNoise" baseFrequency="0.05" numOctaves="2" seed="4" result="n" />
+      <feDisplacementMap in="SourceGraphic" in2="n" scale="1.6" xChannelSelector="R" yChannelSelector="G" />
+    </filter>
+  </defs>
+
+  <g
+    stroke={`url(#em-ink-${id})`}
+    stroke-linecap="round"
+    stroke-linejoin="round"
+    filter={`url(#em-brush-${id})`}
+  >
+    {/* The seal ring, left open at the top like an ensō — common to all five. */}
+    <path
+      d="M136 26 A 84 84 0 1 0 158 62"
+      stroke-width="2.6"
+      opacity="0.55"
+      pathLength="1"
+      data-em-ring
+    ></path>
+
+    {
+      id === 'performer' && (
+        <>
+          {/* 仮面 — a face divided: one half drawn, one half only implied. */}
+          <path d="M100 52 C 132 52 146 76 146 104 C 146 134 126 152 100 152" stroke-width="5" pathLength="1" data-em-draw />
+          <path
+            d="M100 52 C 68 52 54 76 54 104 C 54 134 74 152 100 152"
+            stroke-width="5"
+            stroke-dasharray="7 9"
+            opacity="0.42"
+            pathLength="1"
+            data-em-draw
+          />
+          <path d="M100 44 L 100 160" stroke-width="1.6" opacity="0.5" pathLength="1" data-em-draw />
+          <path d="M118 92 C 124 88 132 88 138 92" stroke-width="4" pathLength="1" data-em-draw />
+        </>
+      )
+    }
+
+    {
+      id === 'dutiful-son' && (
+        <>
+          {/* 孝 — the smaller form held inside the larger, tethered to it. */}
+          <circle cx="100" cy="78" r="27" stroke-width="4.5" pathLength="1" data-em-draw />
+          <path d="M100 105 L 100 132" stroke-width="3" opacity="0.7" pathLength="1" data-em-draw />
+          <circle cx="100" cy="146" r="15" stroke-width="4.5" pathLength="1" data-em-draw />
+          <path d="M62 78 C 62 46 138 46 138 78" stroke-width="2.2" opacity="0.45" pathLength="1" data-em-draw />
+        </>
+      )
+    }
+
+    {
+      id === 'peacekeeper' && (
+        <>
+          {/* 和 — still water. Rings spreading from a centre that never moves. */}
+          <circle cx="100" cy="104" r="10" stroke-width="4.5" pathLength="1" data-em-draw />
+          <path d="M62 104 A 38 38 0 0 1 138 104" stroke-width="3.4" opacity="0.85" pathLength="1" data-em-draw />
+          <path d="M138 104 A 38 38 0 0 1 62 104" stroke-width="3.4" opacity="0.4" stroke-dasharray="6 8" pathLength="1" data-em-draw />
+          <path d="M46 104 A 54 54 0 0 1 154 104" stroke-width="2.4" opacity="0.5" pathLength="1" data-em-draw />
+          <path d="M100 46 L 100 62" stroke-width="2.6" opacity="0.55" pathLength="1" data-em-draw />
+        </>
+      )
+    }
+
+    {
+      id === 'achiever' && (
+        <>
+          {/* 功 — the ascending rungs, and the summit that keeps receding. */}
+          <path d="M60 148 L 140 148" stroke-width="4.5" pathLength="1" data-em-draw />
+          <path d="M68 124 L 132 124" stroke-width="4" opacity="0.85" pathLength="1" data-em-draw />
+          <path d="M76 100 L 124 100" stroke-width="3.5" opacity="0.7" pathLength="1" data-em-draw />
+          <path d="M84 76 L 116 76" stroke-width="3" opacity="0.5" pathLength="1" data-em-draw />
+          <path d="M92 54 L 108 54" stroke-width="2.4" opacity="0.3" stroke-dasharray="4 6" pathLength="1" data-em-draw />
+        </>
+      )
+    }
+
+    {
+      id === 'held-fist' && (
+        <>
+          {/* 怒 — a spiral wound inward and held. It does not release. */}
+          <path
+            d="M100 154 C 68 154 48 132 48 104 C 48 78 68 60 96 60 C 120 60 136 76 136 98 C 136 116 122 130 104 130 C 90 130 80 120 80 106 C 80 96 88 88 98 88"
+            stroke-width="5"
+            pathLength="1"
+            data-em-draw
+          />
+          <circle cx="104" cy="97" r="4.5" stroke-width="3" pathLength="1" data-em-draw />
+        </>
+      )
+    }
+  </g>
+</svg>
+
+<style>
+  .emblem {
+    display: block;
+    width: 100%;
+    height: 100%;
+    overflow: visible;
+  }
+
+  /* Drawn on when the card comes into view. pathLength="1" means one dash
+     value works for every path regardless of its real geometry. */
+  .emblem [data-em-draw],
+  .emblem [data-em-ring] {
+    stroke-dasharray: 1;
+    stroke-dashoffset: 1;
+    transition: stroke-dashoffset 1.5s var(--ease-out-expo);
+  }
+
+  /* The mark inks itself in when its card becomes the selected one. */
+  :global(.ac__card.is-active) .emblem [data-em-ring] { stroke-dashoffset: 0; }
+  :global(.ac__card.is-active) .emblem [data-em-draw] {
+    stroke-dashoffset: 0;
+    transition-delay: 260ms;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .emblem [data-em-draw],
+    .emblem [data-em-ring] { stroke-dashoffset: 0; transition: none; }
+  }
+</style>

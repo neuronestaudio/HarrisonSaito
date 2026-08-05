@@ -27,7 +27,7 @@ import {
 
 const title = "Men's Life Coach Sydney | Return to Self — Harrison Saito";
 const description =
-  "Men's life coaching in Chatswood, Sydney. Return to Self is a 12-week programme using karate, Buddhism and structured inner work for men who are done performing. 1:1 coaching from $150/hr.";
+  "Men's life coaching in Chatswood, Sydney. Return to Self is a 12-week programme using karate, Buddhism and structured inner work for men who are done performing.";
 
 const offers = OFFERS.filter((o) => o.audience === 'adults');
 
@@ -41,8 +41,8 @@ const faqs = [
     a: 'No. Karate is used as a method for working with the nervous system, attention and pressure. Plenty of men arrive having never trained. The physical practice is adapted to the person in front of me.',
   },
   {
-    q: 'What does Return to Self cost?',
-    a: 'The 12-week programme is $3,600. Session-based 1:1 life coaching is $150 per hour. Pricing is published rather than held back for a sales call.',
+    q: 'How much does it cost?',
+    a: 'We cover that on the first conversation, once I understand what you are actually carrying and whether I can help. I will not put you through a pitch to get to it — ask directly and I will answer directly.',
   },
   {
     q: 'Where do sessions happen?',
@@ -61,7 +61,6 @@ const schema = graph(
     serviceType: 'Life coaching',
     description,
     url: '/mens-coaching',
-    price: 150,
   }),
   courseSchema(),
   faqSchema(faqs),
