@@ -73,6 +73,19 @@ These are outside what a repo can close:
 - The `hello@harrisonsaito.com.au` address used throughout needs to exist, or be changed in
   `src/data/site.ts`.
 
+## Needs Harrison's sign-off
+
+- **The archetypes** on the home page (`ARCHETYPES` in `src/data/site.ts`) — The Performer, The
+  Dutiful Son, The Peacekeeper, The Achiever, The Held Fist. This is client-facing psychological
+  framing, so nothing was invented: each one is a named pattern taken from a sentence he already
+  wrote, and each carries its `source` line in the data. It is a taxonomy of his own copy rather
+  than a borrowed framework. He still has to agree to the names.
+- **The Shu-Ha-Ri framing** (`PHASES`) — an editorial addition mapping the classical budo model
+  onto his three phases. Removable cleanly from the same file.
+- **Eight videos are deliberately excluded** from the archive: the "AQWMV" anime music videos from
+  fifteen years ago. They are still public on his channel. If he wants them gone from the internet
+  as well as from this site, that is his call to make.
+
 ## Open decisions
 
 - **Booking tool.** `/book` renders a request form today. Set `PUBLIC_BOOKING_URL` to a Cal.com or

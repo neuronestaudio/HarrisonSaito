@@ -1,0 +1,420 @@
+---
+/**
+ * The patterns — a horizontal, parallax-layered carousel.
+ *
+ * Purpose is self-recognition, not decoration. A cold visitor arriving from an
+ * ad does not yet know they are the customer; naming the pattern they are
+ * living in is what makes them realise it. That is also literally the first
+ * move of the programme — Harrison's own Phase 1 language is "self-trust
+ * begins when you can tell the difference between an inherited reaction and
+ * what you genuinely think, feel and value". You cannot separate a pattern you
+ * cannot name.
+ *
+ * Every archetype is drawn from a sentence he already wrote; see ARCHETYPES in
+ * data/site.ts, where each carries its `source` line. Still needs his sign-off.
+ *
+ * Motion: three layers move at different rates as the track scrolls — the
+ * photograph slowest, the kanji fastest, the card body between them. On touch
+ * and under reduced motion it degrades to a plain snap-scroller.
+ */
+import { ARCHETYPES } from '../data/site';
+import { srcset, src } from '../lib/images';
+---
+
+<div class="ar" data-archetypes>
+  <div class="ar__track" data-ar-track>
+    {
+      ARCHETYPES.map((a, i) => (
+        <article class="ar__card" data-ar-card data-index={i}>
+          <div class="ar__media">
+            <img
+              class="ar__photo"
+              data-ar-photo
+              src={src(a.image)}
+              srcset={srcset(a.image) || undefined}
+              sizes="(max-width: 900px) 88vw, 34vw"
+              alt={a.imageAlt}
+              width="800"
+              height="1000"
+              loading={i < 2 ? 'eager' : 'lazy'}
+              decoding="async"
+            />
+            <span class="ar__scrim" aria-hidden="true" />
+            <span class="ar__kanji" data-ar-kanji aria-hidden="true">
+              {a.kanji}
+            </span>
+            <span class="ar__number" aria-hidden="true">
+              {a.number}
+            </span>
+          </div>
+
+          <div class="ar__body" data-ar-body>
+            <p class="ar__romaji">
+              <span lang="ja">{a.kanji}</span>
+              <em>{a.romaji}</em>
+              <span class="ar__meaning">— {a.kanjiMeaning}</span>
+            </p>
+
+            <h3 class="ar__name">{a.name}</h3>
+
+            <p class="ar__recognise">{a.recognise}</p>
+
+            <dl class="ar__detail">
+              <div>
+                <dt>What it costs</dt>
+                <dd>{a.cost}</dd>
+              </div>
+              <div>
+                <dt>The way through</dt>
+                <dd>{a.through}</dd>
+              </div>
+            </dl>
+          </div>
+        </article>
+      ))
+    }
+  </div>
+
+  <div class="ar__controls">
+    <div class="ar__progress" aria-hidden="true">
+      <span class="ar__progress-bar" data-ar-progress></span>
+    </div>
+
+    <div class="ar__nav">
+      <span class="ar__count" data-ar-count>01 / {String(ARCHETYPES.length).padStart(2, '0')}</span>
+      <button class="ar__btn" type="button" data-ar-prev aria-label="Previous pattern" disabled>
+        <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"
+          ><path
+            d="M15 6l-6 6 6 6"
+            stroke="currentColor"
+            stroke-width="1.8"
+            fill="none"
+            stroke-linecap="round"
+            stroke-linejoin="round"></path></svg
+        >
+      </button>
+      <button class="ar__btn" type="button" data-ar-next aria-label="Next pattern">
+        <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"
+          ><path
+            d="M9 6l6 6-6 6"
+            stroke="currentColor"
+            stroke-width="1.8"
+            fill="none"
+            stroke-linecap="round"
+            stroke-linejoin="round"></path></svg
+        >
+      </button>
+    </div>
+  </div>
+</div>
+
+<style>
+  .ar { position: relative; }
+
+  .ar__track {
+    display: flex;
+    gap: clamp(1rem, 2.5vw, 2rem);
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    scrollbar-width: none;
+    padding-bottom: 1rem;
+    cursor: grab;
+    scroll-behavior: smooth;
+  }
+  .ar__track::-webkit-scrollbar { display: none; }
+  .ar__track.is-dragging { cursor: grabbing; scroll-behavior: auto; scroll-snap-type: none; }
+
+  .ar__card {
+    flex: 0 0 auto;
+    width: min(88vw, 30rem);
+    scroll-snap-align: center;
+    display: grid;
+    grid-template-rows: auto 1fr;
+    background: oklch(21% 0.01 55 / 0.5);
+    border: 1px solid var(--rule-on-ink);
+    border-top: 2px solid oklch(75% 0.12 75 / 0.45);
+    overflow: hidden;
+    transition: border-color var(--dur) var(--ease-out-expo);
+  }
+  .ar__card:hover { border-top-color: var(--gold); }
+
+  /* ---- media ---- */
+  .ar__media {
+    position: relative;
+    aspect-ratio: 4 / 3;
+    overflow: hidden;
+    isolation: isolate;
+  }
+
+  .ar__photo {
+    width: 100%;
+    height: 118%;              /* headroom for the parallax drift */
+    object-fit: cover;
+    filter: saturate(0.72) contrast(1.06) brightness(0.72);
+    will-change: transform;
+  }
+
+  .ar__scrim {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+      to bottom,
+      oklch(11% 0.008 55 / 0.25),
+      oklch(21% 0.01 55 / 0.92)
+    );
+  }
+
+  .ar__kanji {
+    position: absolute;
+    inset-block-end: -0.16em;
+    inset-inline-start: 0.04em;
+    font-family: var(--font-jp);
+    font-size: clamp(6rem, 13vw, 10rem);
+    line-height: 1;
+    color: var(--gold);
+    opacity: 0.2;
+    pointer-events: none;
+    will-change: transform;
+  }
+
+  .ar__number {
+    position: absolute;
+    inset-block-start: 1rem;
+    inset-inline-end: 1.15rem;
+    font-family: var(--font-display);
+    font-size: 1.6rem;
+    color: oklch(75% 0.12 75 / 0.7);
+    letter-spacing: 0.05em;
+  }
+
+  /* ---- body ---- */
+  .ar__body {
+    padding: clamp(1.5rem, 3vw, 2.25rem);
+    display: grid;
+    align-content: start;
+    gap: 1rem;
+    will-change: transform;
+  }
+
+  .ar__romaji {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 0.5rem;
+    font-size: 0.78rem;
+    color: var(--text-on-ink-faint);
+  }
+  .ar__romaji [lang='ja'] { font-family: var(--font-jp); font-size: 1.05rem; color: var(--gold); }
+  .ar__romaji em { font-style: italic; letter-spacing: 0.08em; color: var(--text-on-ink-muted); }
+  .ar__meaning { opacity: 0.8; }
+
+  .ar__name {
+    font-size: var(--step-3);
+    font-weight: 300;
+    line-height: 1.1;
+    color: var(--text-on-ink);
+  }
+
+  .ar__recognise {
+    font-family: var(--font-display);
+    font-size: var(--step-1);
+    font-style: italic;
+    font-weight: 300;
+    line-height: 1.5;
+    color: var(--gold-light);
+  }
+
+  .ar__detail { display: grid; gap: 1rem; margin: 0; }
+  .ar__detail dt {
+    font-size: 0.68rem;
+    font-weight: 700;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 0.35rem;
+  }
+  .ar__detail dd {
+    margin: 0;
+    font-size: var(--step--1);
+    line-height: 1.7;
+    color: var(--text-on-ink-muted);
+  }
+
+  /* ---- controls ---- */
+  .ar__controls {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    margin-top: clamp(1.5rem, 3vw, 2.25rem);
+  }
+
+  .ar__progress {
+    flex: 1;
+    height: 1px;
+    background: var(--rule-on-ink);
+    position: relative;
+    overflow: hidden;
+  }
+  .ar__progress-bar {
+    position: absolute;
+    inset-block: 0;
+    inset-inline-start: 0;
+    width: 20%;
+    background: var(--gold);
+    transform-origin: left;
+    transition: transform var(--dur) var(--ease-out-expo);
+  }
+
+  .ar__nav { display: flex; align-items: center; gap: 0.6rem; }
+
+  .ar__count {
+    font-size: 0.72rem;
+    letter-spacing: 0.16em;
+    color: var(--text-on-ink-faint);
+    font-variant-numeric: tabular-nums;
+    margin-right: 0.5rem;
+  }
+
+  .ar__btn {
+    width: 42px;
+    height: 42px;
+    display: grid;
+    place-items: center;
+    background: transparent;
+    border: 1px solid var(--rule-on-ink);
+    color: var(--text-on-ink-muted);
+    cursor: pointer;
+    transition: border-color var(--dur-fast) ease, color var(--dur-fast) ease;
+  }
+  .ar__btn:hover:not(:disabled) { border-color: var(--gold); color: var(--gold); }
+  .ar__btn:disabled { opacity: 0.25; cursor: default; }
+
+  @media (min-width: 900px) {
+    .ar__card { width: min(46vw, 34rem); }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .ar__track { scroll-behavior: auto; }
+    .ar__photo, .ar__kanji, .ar__body { transform: none !important; will-change: auto; }
+  }
+</style>
+
+<script>
+  import { track } from '../scripts/tracking';
+
+  const root = document.querySelector<HTMLElement>('[data-archetypes]');
+  if (root) {
+    const trackEl = root.querySelector<HTMLElement>('[data-ar-track]')!;
+    const cards = Array.from(root.querySelectorAll<HTMLElement>('[data-ar-card]'));
+    const bar = root.querySelector<HTMLElement>('[data-ar-progress]')!;
+    const countEl = root.querySelector<HTMLElement>('[data-ar-count]')!;
+    const prev = root.querySelector<HTMLButtonElement>('[data-ar-prev]')!;
+    const next = root.querySelector<HTMLButtonElement>('[data-ar-next]')!;
+
+    const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const pad = (n: number) => String(n).padStart(2, '0');
+
+    let current = 0;
+    const seen = new Set<number>();
+
+    /**
+     * Layered parallax. Each card's distance from the viewport centre drives
+     * three different translation rates, so the photograph lags behind the
+     * text and the kanji runs ahead of it — depth without a 3D context.
+     */
+    function paint() {
+      const mid = trackEl.scrollLeft + trackEl.clientWidth / 2;
+      let closest = 0;
+      let closestDist = Infinity;
+
+      cards.forEach((card, i) => {
+        const centre = card.offsetLeft + card.offsetWidth / 2;
+        const dist = centre - mid;
+        const norm = dist / trackEl.clientWidth; // ~-1 .. 1
+
+        if (Math.abs(dist) < closestDist) {
+          closestDist = Math.abs(dist);
+          closest = i;
+        }
+
+        if (reduce) return;
+
+        const photo = card.querySelector<HTMLElement>('[data-ar-photo]');
+        const kanji = card.querySelector<HTMLElement>('[data-ar-kanji]');
+        const body = card.querySelector<HTMLElement>('[data-ar-body]');
+
+        if (photo) photo.style.transform = `translate3d(${norm * -34}px, 0, 0) scale(1.08)`;
+        if (kanji) kanji.style.transform = `translate3d(${norm * 62}px, 0, 0)`;
+        if (body) body.style.transform = `translate3d(${norm * 18}px, 0, 0)`;
+      });
+
+      if (closest !== current) {
+        current = closest;
+        countEl.textContent = `${pad(current + 1)} / ${pad(cards.length)}`;
+        bar.style.transform = `scaleX(${((current + 1) / cards.length) * 5})`;
+        prev.disabled = current === 0;
+        next.disabled = current === cards.length - 1;
+
+        if (!seen.has(current)) {
+          seen.add(current);
+          track('archetype_view', {
+            archetype: cards[current].querySelector('.ar__name')?.textContent?.trim(),
+            position: current + 1,
+            page_path: location.pathname,
+          });
+        }
+      }
+    }
+
+    let ticking = false;
+    trackEl.addEventListener(
+      'scroll',
+      () => {
+        if (ticking) return;
+        ticking = true;
+        requestAnimationFrame(() => {
+          paint();
+          ticking = false;
+        });
+      },
+      { passive: true }
+    );
+
+    const goTo = (i: number) => {
+      const card = cards[Math.max(0, Math.min(i, cards.length - 1))];
+      if (!card) return;
+      trackEl.scrollTo({
+        left: card.offsetLeft - (trackEl.clientWidth - card.offsetWidth) / 2,
+        behavior: 'smooth',
+      });
+    };
+
+    prev.addEventListener('click', () => goTo(current - 1));
+    next.addEventListener('click', () => goTo(current + 1));
+
+    // Drag to scroll.
+    let down = false;
+    let startX = 0;
+    let startScroll = 0;
+    trackEl.addEventListener('pointerdown', (e) => {
+      down = true;
+      startX = e.clientX;
+      startScroll = trackEl.scrollLeft;
+      trackEl.classList.add('is-dragging');
+    });
+    trackEl.addEventListener('pointermove', (e) => {
+      if (!down) return;
+      trackEl.scrollLeft = startScroll - (e.clientX - startX);
+    });
+    const end = () => {
+      down = false;
+      trackEl.classList.remove('is-dragging');
+    };
+    trackEl.addEventListener('pointerup', end);
+    trackEl.addEventListener('pointerleave', end);
+
+    bar.style.transform = `scaleX(${(1 / cards.length) * 5})`;
+    paint();
+    window.addEventListener('resize', paint);
+  }
+</script>

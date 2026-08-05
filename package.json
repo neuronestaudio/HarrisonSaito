@@ -12,6 +12,8 @@
     "astro": "astro",
     "media": "node scripts/optimise-media.mjs",
     "media:logo": "node scripts/optimise-media.mjs --logo",
+    "media:stills": "node scripts/optimise-media.mjs --stills",
+    "yt": "node scripts/scrape-youtube.mjs && node scripts/fetch-thumbs.mjs",
     "fonts": "node scripts/fetch-fonts.mjs",
     "audit": "node scripts/audit-check.mjs",
     "shots": "node scripts/shots.mjs",

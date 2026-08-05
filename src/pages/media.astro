@@ -1,30 +1,36 @@
 ---
 /**
- * Media — films, interviews and guided practice.
+ * Films & archive.
  *
- * All seven videos now load as facades (audit H4). The legacy page mounted
- * every one of them as a live iframe on load.
+ * Was a grid of eight thumbnails; now the full catalogue of twenty-one, in an
+ * interactive carousel grouped by facet — The Son, The Teacher, The
+ * Practitioner, The Poet, The Voice — so the archive answers "who is this
+ * person" rather than just listing uploads.
+ *
+ * Deliberately excluded: eight "AQWMV" anime music videos from fifteen years
+ * ago. They are still public on the channel, but they are teenage-era uploads
+ * and do not belong next to a $3,600 coaching programme.
  */
 import Base from '../layouts/Base.astro';
 import Calligraphy from '../components/Calligraphy.astro';
-import YouTubeFacade from '../components/YouTubeFacade.astro';
+import FilmCarousel from '../components/FilmCarousel.astro';
 import Picture from '../components/Picture.astro';
-import { MEDIA, SITE } from '../data/site';
+import Enso from '../components/Enso.astro';
+import { FILMS, FACETS, SITE } from '../data/site';
 import { graph, videoSchema, breadcrumbSchema, personSchema } from '../lib/seo';
 
-const title = 'Media — SBS World News, Films & Guided Practice | Harrison Saito';
+const title = 'Films & Archive — SBS World News, Teaching & Practice | Harrison Saito';
 const description =
-  'Harrison Saito on SBS World News, plus short films on fatherhood and trauma, poetry, and a five-minute guided chakra meditation.';
-
-const featured = MEDIA.find((m) => m.featured)!;
-const rest = MEDIA.filter((m) => !m.featured);
+  'Twenty-one films: SBS World News, a father and son healing on camera, full HSC teaching sessions, guided meditation and spoken poetry. The whole archive, grouped by facet.';
 
 const schema = graph(
   personSchema(),
-  ...MEDIA.map((m) => videoSchema(m)),
+  ...FILMS.filter((f) => f.featured || f.facet === 'voice').map((f) =>
+    videoSchema({ id: f.id, title: f.title, description: f.note })
+  ),
   breadcrumbSchema([
     { name: 'Home', url: '/' },
-    { name: 'Media', url: '/media' },
+    { name: 'Films', url: '/media' },
   ])
 );
 ---
@@ -32,83 +38,55 @@ const schema = graph(
 <Base title={title} description={description} path="/media" schema={schema}>
   <section class="section page-hero section--deep" data-section="hero">
     <Calligraphy set="close" scale={1.2} seed={8} words={['VOICE']} />
+    <div class="page-hero__enso" aria-hidden="true"><Enso opacity={0.14} /></div>
 
     <div class="container">
       <div data-reveal>
-        <p class="eyebrow">Media</p>
+        <p class="eyebrow">Films &amp; Archive</p>
         <h1 class="display-xl page-hero__title">
           <span class="split-line"><span>See the work.</span></span>
         </h1>
         <p class="lede page-hero__lede">
-          Interviews, short films, poetry and guided practice.
+          {FILMS.length} films across {FACETS.length} threads — the son, the teacher, the
+          practitioner, the poet and the voice. Nothing here is a showreel; most of it is the work
+          itself, filmed as it happened.
         </p>
       </div>
     </div>
   </section>
 
-  {/* ---------------------------------------------------------- featured */}
-  <section class="section" data-section="featured">
-    <div class="container">
-      <header class="feature__head" data-reveal>
-        <p class="eyebrow">As Seen On</p>
-        <h2 class="display-l">SBS World News.</h2>
-        <p class="lede feature__lede">
-          An interview about youth and adult mental health, broadcast nationally.
-        </p>
-      </header>
-
-      <div class="feature__frame" data-reveal>
-        <YouTubeFacade
-          id={featured.id}
-          title={featured.title}
-          label={featured.label}
-          description={featured.description}
-        />
-      </div>
-
-      <div class="feature__still" data-reveal data-ink-reveal>
-        <Picture
-          slug="sbs-group"
-          alt="Harrison Saito with the group featured in the SBS World News segment"
-          sizes="(max-width: 900px) 100vw, 70vw"
-          parallax={8}
-        />
-      </div>
+  {/* --------------------------------------------------------- carousel */}
+  <section class="section section--ink" data-section="archive">
+    <div class="container container--wide" data-reveal>
+      <FilmCarousel />
     </div>
   </section>
 
-  {/* ------------------------------------------------------------- grid */}
-  <section class="section section--ink" data-section="library">
+  {/* ------------------------------------------------------------- still */}
+  <section class="section" data-section="sbs">
     <div class="container">
-      <header class="library__head" data-reveal>
-        <p class="eyebrow">Everything Else</p>
-        <h2 class="display-l">Films, poetry &amp; practice.</h2>
-      </header>
+      <div class="sbs">
+        <div class="sbs__text" data-reveal>
+          <p class="eyebrow">As Seen On</p>
+          <h2 class="display-m">SBS World News.</h2>
+          <p class="lede sbs__lede">
+            A national broadcast interview on youth and adult mental health, and on martial arts as a
+            way into both.
+          </p>
+          <p class="sbs__note">
+            Media enquiries and speaking:
+            <a class="link-underline" href={`mailto:${SITE.email}`}>{SITE.email}</a>
+          </p>
+        </div>
 
-      <div class="library" data-reveal-stagger="110">
-        {
-          rest.map((m) => (
-            <div>
-              <YouTubeFacade
-                id={m.id}
-                title={m.title}
-                label={m.label}
-                description={m.description}
-                thumb="hq"
-              />
-            </div>
-          ))
-        }
-      </div>
-
-      <div class="library__more" data-reveal>
-        <a
-          class="btn btn--ghost"
-          href={SITE.youtube}
-          target="_blank"
-          rel="noopener noreferrer"
-          data-track="cta_click"
-          data-track-label="Media — YouTube channel">View All on YouTube</a>
+        <div class="sbs__media" data-reveal data-ink-reveal>
+          <Picture
+            slug="sbs-group"
+            alt="Harrison Saito with the group featured in the SBS World News segment"
+            sizes="(max-width: 900px) 100vw, 48vw"
+            parallax={9}
+          />
+        </div>
       </div>
     </div>
   </section>
@@ -121,7 +99,17 @@ const schema = graph(
         No pitch. No pressure. Just a conversation about where you are and what you're looking for.
       </p>
       <div class="close__ctas">
-        <a class="btn btn--lg" href="/book" data-track="cta_click" data-track-label="Media — Book">Start a Conversation</a>
+        <a class="btn btn--lg" href="/book" data-track="cta_click" data-track-label="Films — Book"
+          >Start a Conversation</a
+        >
+        <a
+          class="btn btn--lg btn--ghost"
+          href={SITE.youtube}
+          target="_blank"
+          rel="noopener noreferrer"
+          data-track="cta_click"
+          data-track-label="Films — YouTube channel">Subscribe on YouTube</a
+        >
       </div>
     </div>
   </section>
@@ -131,34 +119,36 @@ const schema = graph(
   .page-hero {
     position: relative;
     padding-block: clamp(8rem, 18vh, 12rem) clamp(4rem, 9vw, 7rem);
-    min-height: 52svh;
+    min-height: 55svh;
     display: flex;
     align-items: flex-end;
   }
-  .page-hero__lede { margin-top: 1.5rem; max-width: 40ch; }
-
-  .feature__head { margin-bottom: clamp(2rem, 4vw, 3rem); }
-  .feature__lede { margin-top: 1.25rem; max-width: 48ch; }
-  .feature__frame { max-width: 62rem; }
-  .feature__still {
-    margin-top: clamp(2.5rem, 5vw, 4rem);
-    overflow: hidden;
-    aspect-ratio: 16 / 9;
-    max-width: 62rem;
+  .page-hero__enso {
+    position: absolute;
+    inset-block-start: 40%;
+    inset-inline-end: -5rem;
+    width: clamp(18rem, 34vw, 32rem);
+    pointer-events: none;
+    z-index: 0;
   }
-  .feature__still :global(img) { width: 100%; height: 100%; object-fit: cover; }
+  .page-hero__lede { margin-top: 1.5rem; max-width: 56ch; }
 
-  .library__head { margin-bottom: clamp(2.5rem, 5vw, 4rem); }
-  .library { display: grid; gap: clamp(1.75rem, 3.5vw, 3rem); }
-  .library__more { margin-top: clamp(2.5rem, 5vw, 4rem); text-align: center; }
+  .sbs { display: grid; gap: clamp(2.5rem, 5vw, 4rem); align-items: center; }
+  .sbs__lede { margin-top: 1.25rem; max-width: 44ch; }
+  .sbs__note { margin-top: 1.75rem; font-size: var(--step--1); color: var(--text-on-paper-faint); }
+  .sbs__media { overflow: hidden; aspect-ratio: 4 / 3; }
+  .sbs__media :global(img) { width: 100%; height: 100%; object-fit: cover; }
 
   .close__sub { margin: 1.5rem auto 0; max-width: 44ch; }
-  .close__ctas { margin-top: 2.5rem; display: flex; justify-content: center; }
-
-  @media (min-width: 760px) {
-    .library { grid-template-columns: repeat(2, 1fr); }
+  .close__ctas {
+    margin-top: 2.5rem;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    justify-content: center;
   }
-  @media (min-width: 1150px) {
-    .library { grid-template-columns: repeat(3, 1fr); }
+
+  @media (min-width: 900px) {
+    .sbs { grid-template-columns: 1fr 1fr; }
   }
 </style>

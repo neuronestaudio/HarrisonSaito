@@ -109,6 +109,24 @@ Three signature elements:
   reader physically moves through Separate → Return → Integrate. Degrades to a vertical stack
   below 900px and under `prefers-reduced-motion`.
 
+Three interactive set-pieces sit on top of that:
+
+- **The book** (`/about`) — seven chapters as a scroll-driven bilingual art book. Left page carries
+  the kanji and the text, right page the photograph. Each leaf rotates about its spine in 3D as you
+  scroll, and each chapter establishes a different dimension of credibility rather than repeating
+  the same register seven times. Stacks vertically below 900px.
+- **The archetypes** (`/`) — a parallax carousel of the five patterns men arrive with. Three layers
+  move at different rates: photograph slowest, kanji fastest, card body between them.
+- **The film archive** (`/media`) — all 21 films grouped into five facets (The Son, The Teacher,
+  The Practitioner, The Poet, The Voice), with a cinematic stage and a draggable rail.
+
+### Where the media comes from
+
+`scripts/scrape-youtube.mjs` reads the public catalogue off
+[@Harrison_saito](https://www.youtube.com/@Harrison_saito) by parsing `ytInitialData` — no API key.
+`npm run media` then crops section stills out of those thumbnails (cutting away YouTube's burned-in
+captions) and generates local film posters, so the carousel does not depend on Google's CDN.
+
 ### Motion rule
 
 Nothing ever animates from `opacity: 0`. Reveals start at `0.3` and only add. This was audit finding

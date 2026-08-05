@@ -51,6 +51,48 @@ const AVATARS = {
 const WIDTHS = [480, 768, 1200, 1920];
 const AVATAR_WIDTHS = [96, 192];
 
+/**
+ * Stills lifted from Harrison's own YouTube uploads (scripts/scrape-youtube.mjs).
+ *
+ * The two section images inherited from the old site did not survive review —
+ * one was a crop of men with their faces cut off, the other a Naruto
+ * face-swap that read as a joke on a page selling $3,600 of men's coaching.
+ * These replace them with real documentary frames of the actual work.
+ *
+ * `crop` is in source pixels and exists to cut away YouTube's burned-in
+ * caption text, which sits in the lower third of a 1280x720 thumbnail.
+ */
+const YT_STILLS = {
+  'coaching-dharma': {
+    id: 'a8vYjut3mk4',
+    // Two men seated on tatami before a butsudan. Caption starts around y=487.
+    crop: { left: 300, top: 0, width: 780, height: 487 },
+  },
+  'youth-tutoring': {
+    id: 'C5uB6BtNJZ4',
+    // Clean frame, no caption — just recomposed to 16:10.
+    crop: { left: 64, top: 0, width: 1152, height: 720 },
+  },
+  'portrait-shoji': {
+    id: 'nR62SogKKA0',
+    crop: { left: 0, top: 0, width: 1280, height: 720 },
+  },
+  'father-son-still': {
+    id: '8vj462byS5w',
+    // Captioned at both ends — "Japan <-> Australia" across the top and
+    // "Father & Son Heal" near the bottom. Only the middle band is clean:
+    // y 200-540, since the lower caption starts around y 555.
+    crop: { left: 0, top: 200, width: 1280, height: 340 },
+  },
+  'father-son-portrait': {
+    id: '8vj462byS5w',
+    // A 4:3 crop of the same frame for card slots, where the wide band would
+    // centre-crop to an empty room. This is Harrison alone, seated, watching
+    // his father — and it sits right of the lower caption, so it stays clean.
+    crop: { left: 820, top: 170, width: 460, height: 345 },
+  },
+};
+
 const bytes = (n) => `${(n / 1024).toFixed(0)} KB`;
 
 async function ensureDirs() {
@@ -159,6 +201,84 @@ async function knockOutBackground(file, { onWhite }) {
   return sharp(out, { raw: { width, height, channels: 4 } })
     .extract({ left, top, width: size, height: size })
     .png();
+}
+
+/** Section stills cropped out of YouTube thumbnails. */
+async function buildYouTubeStills() {
+  const THUMBS = path.join(ROOT, '_source', 'youtube', 'thumbs');
+  if (!existsSync(THUMBS)) {
+    console.warn('  ! no scraped thumbnails — run scripts/scrape-youtube.mjs first');
+    return;
+  }
+
+  for (const [slug, cfg] of Object.entries(YT_STILLS)) {
+    const input = path.join(THUMBS, `${cfg.id}.jpg`);
+    if (!existsSync(input)) {
+      console.warn(`  ! missing ${cfg.id}.jpg for ${slug}`);
+      continue;
+    }
+
+    const base = sharp(input).extract(cfg.crop);
+    let total = 0;
+    for (const w of [480, 768, 1200]) {
+      if (w > cfg.crop.width) continue;
+      const out = path.join(IMG_OUT, `${slug}-${w}.webp`);
+      await base.clone().resize({ width: w }).webp({ quality: 80, effort: 6 }).toFile(out);
+      total += (await fs.stat(out)).size;
+    }
+    await base
+      .clone()
+      .resize({ width: Math.min(cfg.crop.width, 1600) })
+      .webp({ quality: 82, effort: 6 })
+      .toFile(path.join(IMG_OUT, `${slug}.webp`));
+
+    console.log(
+      `  ${slug.padEnd(20)} from ${cfg.id}  ${cfg.crop.width}x${cfg.crop.height}  ${bytes(total)}`
+    );
+  }
+}
+
+/**
+ * Local posters for every film in the carousel.
+ *
+ * Hotlinking i.ytimg.com would work, but it makes the most visually prominent
+ * component on the site depend on a third-party CDN, leaks a request to Google
+ * before consent, and delivers whatever grade YouTube happens to serve. These
+ * are colour-matched to the rest of the site instead.
+ */
+async function buildFilmPosters() {
+  const SRC = path.join(ROOT, '_source', 'youtube');
+  const THUMBS = path.join(SRC, 'thumbs');
+  const listPath = path.join(SRC, 'thumbs.json');
+  if (!existsSync(listPath)) {
+    console.warn('  ! no thumbs.json — run scripts/scrape-youtube.mjs first');
+    return;
+  }
+
+  const POSTER_OUT = path.join(IMG_OUT, 'film');
+  await fs.mkdir(POSTER_OUT, { recursive: true });
+
+  const films = JSON.parse(await fs.readFile(listPath, 'utf8')).filter(
+    (f) => f.thumb && !/^AQWMV/.test(f.title)
+  );
+
+  let total = 0;
+  for (const f of films) {
+    const input = path.join(THUMBS, `${f.id}.jpg`);
+    if (!existsSync(input)) continue;
+
+    for (const w of [480, 960]) {
+      const out = path.join(POSTER_OUT, `${f.id}-${w}.webp`);
+      await sharp(input)
+        .resize({ width: w, height: Math.round((w * 9) / 16), fit: 'cover' })
+        .modulate({ saturation: 0.88 })
+        .webp({ quality: 74, effort: 6 })
+        .toFile(out);
+      total += (await fs.stat(out)).size;
+    }
+  }
+
+  console.log(`  ${films.length} film posters at 480 + 960  ${bytes(total)} total`);
 }
 
 async function buildLogo() {
@@ -326,10 +446,21 @@ async function buildVideo() {
 
 async function main() {
   // Brand assets change far more often than photography or the hero video,
-  // and re-encoding the video takes minutes. `--logo` does just the branding.
+  // and re-encoding the video takes minutes. `--logo` does just the branding,
+  // `--stills` just the YouTube-derived imagery.
   const logoOnly = process.argv.includes('--logo');
+  const stillsOnly = process.argv.includes('--stills');
 
   await ensureDirs();
+
+  if (stillsOnly) {
+    console.log('\nYouTube stills');
+    await buildYouTubeStills();
+    console.log('\nFilm posters');
+    await buildFilmPosters();
+    console.log('\nDone.\n');
+    return;
+  }
 
   if (!logoOnly) {
     console.log('\nImages -> WebP (responsive)');
@@ -341,6 +472,12 @@ async function main() {
     for (const [file, slug] of Object.entries(AVATARS)) {
       await emitResponsive(file, slug, AVATAR_WIDTHS);
     }
+
+    console.log('\nYouTube stills');
+    await buildYouTubeStills();
+
+    console.log('\nFilm posters');
+    await buildFilmPosters();
   }
 
   console.log('\nBrand mark');

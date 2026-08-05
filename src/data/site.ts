@@ -41,11 +41,16 @@ export const WHATSAPP = {
 
 /* ------------------------------------------------------------------ nav */
 
+/**
+ * "The Story" rather than "About": the URL stays /about for search and
+ * convention, but the label people click reads like an invitation instead of a
+ * form field, and matches how the page actually presents itself — as a book.
+ */
 export const NAV = [
   { label: "Men's Coaching", href: '/mens-coaching' },
   { label: 'HSC & Youth', href: '/hsc-tutoring' },
-  { label: 'About', href: '/about' },
-  { label: 'Media', href: '/media' },
+  { label: 'The Story', href: '/about' },
+  { label: 'Films', href: '/media' },
   { label: 'Testimonials', href: '/testimonials' },
   { label: 'Contact', href: '/contact' },
 ] as const;
@@ -307,6 +312,218 @@ export const MEDIA: MediaItem[] = [
   { id: 'nR62SogKKA0', label: 'Vision', title: 'My vision for the youth (made in 2024)' },
 ];
 
+/* ---------------------------------------------------------------- films */
+
+/**
+ * The full catalogue, scraped from youtube.com/@Harrison_saito
+ * (scripts/scrape-youtube.mjs) and grouped into facets.
+ *
+ * Two deliberate exclusions: the eight "AQWMV" anime music videos from fifteen
+ * years ago, which are teenage-era uploads and do not belong on a site selling
+ * $3,600 of men's coaching; and nothing else — every current upload is here.
+ *
+ * Facets exist so the carousel can answer "which part of Harrison is this?"
+ * rather than presenting twenty videos as an undifferentiated grid.
+ */
+export type Facet = 'son' | 'teacher' | 'practitioner' | 'poet' | 'voice';
+
+export const FACETS: {
+  id: Facet;
+  label: string;
+  kanji: string;
+  romaji: string;
+  blurb: string;
+}[] = [
+  {
+    id: 'son',
+    label: 'The Son',
+    kanji: '父',
+    romaji: 'chichi',
+    blurb:
+      'The relationship everything else grew out of. A war-survivor father, a Buddhist monk, and the work of healing that in real time — on camera.',
+  },
+  {
+    id: 'teacher',
+    label: 'The Teacher',
+    kanji: '教',
+    romaji: 'kyō',
+    blurb:
+      'Real HSC sessions, unedited. How he actually teaches writing, confidence and self-awareness to students under exam pressure.',
+  },
+  {
+    id: 'practitioner',
+    label: 'The Practitioner',
+    kanji: '道',
+    romaji: 'dō',
+    blurb:
+      'Karate, meditation and dharma as method rather than decoration — including guiding a Navy officer through deep meditation.',
+  },
+  {
+    id: 'poet',
+    label: 'The Poet',
+    kanji: '詩',
+    romaji: 'shi',
+    blurb:
+      'Short spoken pieces on trauma, avoidance, grief and light. The material underneath the coaching language.',
+  },
+  {
+    id: 'voice',
+    label: 'The Voice',
+    kanji: '声',
+    romaji: 'koe',
+    blurb:
+      'Broadcast on SBS World News, and his own case for what schools could be if they valued the person before the mark.',
+  },
+];
+
+export type Film = {
+  id: string;
+  title: string;
+  facet: Facet;
+  duration?: string;
+  year?: string;
+  note?: string;
+  /** Not on his own channel — SBS's upload, or an unlisted cut. */
+  external?: boolean;
+  featured?: boolean;
+  /**
+   * A clean still from `public/img`, used on the carousel's large stage in
+   * place of the YouTube poster. Most of his thumbnails carry burned-in
+   * caption text, which is fine at rail size but cheapens a cinematic hero.
+   */
+  still?: string;
+};
+
+export const FILMS: Film[] = [
+  // --- the son -----------------------------------------------------------
+  {
+    id: '8vj462byS5w',
+    title: 'Growing Up Between Japan & Australia: A Father & Son Talk & Heal',
+    facet: 'son',
+    duration: '37:17',
+    still: 'father-son-still',
+    note: 'The conversation that sits underneath everything else on this site.',
+    featured: true,
+  },
+  {
+    id: 'm-r7VUuoBfc',
+    title: 'How to heal your dad (and yourself)',
+    facet: 'son',
+    external: true,
+    note: 'The short cut of the father & son conversation.',
+  },
+  {
+    id: 'P9OBnCGvX9w',
+    title: 'How your parental relationships affect all your relationships',
+    facet: 'son',
+    duration: '20:47',
+  },
+  {
+    id: '8ffiaSBHgBw',
+    title: 'シドニー日本人 | お父さんとの関係について',
+    facet: 'son',
+    duration: '3:17',
+    note: 'In Japanese — on the average Japanese father-son relationship.',
+  },
+  {
+    id: 'CFk4p611JlM',
+    title: 'Rest In Peace, Brad',
+    facet: 'son',
+    duration: '4:39',
+    note: 'In loving memory of Bradley Dean Shackleton (1988–2026).',
+  },
+
+  // --- the teacher -------------------------------------------------------
+  {
+    id: 'C5uB6BtNJZ4',
+    title: 'How I teach writing, confidence & self-awareness',
+    facet: 'teacher',
+    duration: '15:25',
+    still: 'youth-tutoring',
+    note: 'A full hour-long HSC English session, in Sydney.',
+    featured: true,
+  },
+  {
+    id: 'uaABp5yRGN8',
+    title: 'Live HSC Mentoring: How You Do Anything Is How You Do Everything',
+    facet: 'teacher',
+    duration: '26:41',
+  },
+  {
+    id: 'O-Fz8r2NGj8',
+    title: 'How to improve your flow of writing',
+    facet: 'teacher',
+    duration: '24:08',
+  },
+  {
+    id: 'ELmFlEQ3QCc',
+    title: 'Carpool English tutoring (vlog)',
+    facet: 'teacher',
+    duration: '17:16',
+  },
+  {
+    id: 'hywICxRjm-8',
+    title: 'Focusing on understanding above anything else',
+    facet: 'teacher',
+    duration: '4:31',
+  },
+
+  // --- the practitioner --------------------------------------------------
+  {
+    id: 'a8vYjut3mk4',
+    title: 'Guiding a Navy officer through deep meditation and therapy via dharma',
+    facet: 'practitioner',
+    duration: '7:10',
+    still: 'coaching-dharma',
+    featured: true,
+  },
+  {
+    id: 'XJ5Xjqmdvo8',
+    title: '5 Minute Guided Chakra Meditation',
+    facet: 'practitioner',
+    duration: '5:08',
+    note: 'Breath, presence and awareness. Five minutes — just breathe.',
+  },
+
+  // --- the poet ----------------------------------------------------------
+  {
+    id: 'gYdUjZLQzWc',
+    title: 'Trauma, love and beyond',
+    facet: 'poet',
+    external: true,
+    note: '“There’s some challenges we just couldn’t face…”',
+  },
+  { id: 'gHXWlbAdnRI', title: 'Pierce the heart of darkness with light', facet: 'poet', duration: '1:10' },
+  { id: '-POPLo20h2c', title: 'It takes 3 cuts to chop down a tree', facet: 'poet', duration: '1:19' },
+  { id: 'PmaaoFUPMLQ', title: 'In the forest’s hands (into madness)', facet: 'poet', duration: '1:04' },
+  { id: 'rPJIrF2NQnE', title: 'Farmer and life', facet: 'poet', duration: '1:25' },
+  { id: 'cOKfhTqfzjc', title: 'Reflection: Lucid dreaming', facet: 'poet', duration: '0:52' },
+
+  // --- the voice ---------------------------------------------------------
+  {
+    id: 'YnHlcZLzu50',
+    title: 'SBS World News',
+    facet: 'voice',
+    external: true,
+    note: 'National broadcast interview on youth and adult mental health, and martial arts.',
+    featured: true,
+  },
+  {
+    id: 'nR62SogKKA0',
+    title: 'My vision for the youth',
+    facet: 'voice',
+    duration: '2:44',
+    still: 'portrait-shoji',
+    year: '2024',
+  },
+  {
+    id: 'yLh_R1g5uks',
+    title: 'I dream of schools valuing…',
+    facet: 'voice',
+    external: true,
+  },
+];
+
 export const VIDEO_IDS = {
   sbsWorldNews: 'YnHlcZLzu50',
   dream: 'yLh_R1g5uks',
@@ -324,6 +541,249 @@ export const CREDENTIALS = [
   { value: '2nd Dan', label: 'Black Belt' },
   { value: 'M.Teach', label: '(Secondary)' },
   { value: 'B.Com', label: 'Commerce' },
+];
+
+/* ----------------------------------------------------------- archetypes */
+
+/**
+ * The patterns men arrive with.
+ *
+ * DRAFT — needs Harrison's sign-off before launch. This is client-facing
+ * psychological framing, so nothing here is invented: every archetype is a
+ * named pattern taken directly from a sentence he already wrote on the old
+ * site, quoted in `source`. It is a taxonomy of his own copy, not a borrowed
+ * framework bolted on top of it.
+ *
+ * The reason this earns a place on the page rather than being decoration:
+ * his own Phase 1 language is "self-trust begins when you can tell the
+ * difference between an inherited reaction and what you genuinely think, feel
+ * and value". You cannot separate a pattern you cannot name. Naming it is the
+ * first move of the actual programme.
+ */
+export type Archetype = {
+  id: string;
+  number: string;
+  name: string;
+  kanji: string;
+  romaji: string;
+  kanjiMeaning: string;
+  /** The line of Harrison's own copy this is drawn from. */
+  source: string;
+  recognise: string;
+  cost: string;
+  through: string;
+  image: string;
+  imageAlt: string;
+};
+
+export const ARCHETYPES: Archetype[] = [
+  {
+    id: 'performer',
+    number: '01',
+    name: 'The Performer',
+    kanji: '仮面',
+    romaji: 'kamen',
+    kanjiMeaning: 'the mask',
+    source:
+      "People describe you as \"solid.\" \"Reliable.\" \"Disciplined.\" They have no idea that underneath all of that, you're exhausted from performing a version of yourself that isn't even you.",
+    recognise:
+      'You are competent in every room and known in none of them. The version of you that other people rely on has been running so long you are no longer certain what is underneath it.',
+    cost: 'Exhaustion that sleep does not touch, and a private sense of being a fraud in a life you actually built.',
+    through:
+      'Separating the performance from the person — not demolishing it. The competence is real. It just stops being the only thing you are allowed to be.',
+    image: 'portrait-shoji',
+    imageAlt: 'Harrison Saito speaking, seated against a shoji screen',
+  },
+  {
+    id: 'dutiful-son',
+    number: '02',
+    name: 'The Dutiful Son',
+    kanji: '孝',
+    romaji: 'kō',
+    kanjiMeaning: 'filial duty',
+    source:
+      'Often connected to a father who demanded everything and gave you no room to be human.',
+    recognise:
+      'You are still, at some level, answering to a standard someone else set. You may have exceeded it. It did not help. The bar moved, or the person who set it never acknowledged that you cleared it.',
+    cost: 'A life optimised for an approval that was never going to arrive, and a relationship you cannot name as grief because he is still alive.',
+    through:
+      'Going back to the origin. Understanding where the pattern came from — the father, the family system, the culture — and processing what is actually there.',
+    image: 'father-son-portrait',
+    imageAlt: 'Harrison Saito seated at his father’s bedside',
+  },
+  {
+    id: 'peacekeeper',
+    number: '03',
+    name: 'The Peacekeeper',
+    kanji: '和',
+    romaji: 'wa',
+    kanjiMeaning: 'harmony, at any price',
+    source: 'You say yes when you mean no. You suppress your opinion to keep the peace.',
+    recognise:
+      'You read a room before you enter it. You know what everyone needs and you supply it. Asked what you want, you go blank — not because you do not know, but because wanting has never been the safe move.',
+    cost: 'Resentment you cannot justify, relationships built on a version of you that never disagrees, and a slow disappearance.',
+    through:
+      'Boundaries without guilt. Saying the true thing and staying in the room while it lands.',
+    image: 'coaching-dharma',
+    imageAlt: 'Two men seated on tatami in front of a Buddhist altar, mid-conversation',
+  },
+  {
+    id: 'achiever',
+    number: '04',
+    name: 'The Achiever',
+    kanji: '功',
+    romaji: 'kō',
+    kanjiMeaning: 'merit, earned',
+    source: "You overwork to earn approval you'll never feel.",
+    recognise:
+      'Achievement is the only currency you fully trust. Each one lands for about a day. Then the floor resets and you are behind again, measured against a standard that exists nowhere but in you.',
+    cost: 'A career that looks like success and feels like a treadmill, and a body that has been running on discipline instead of rest for years.',
+    through:
+      'Discovering that the discipline was never the problem — the reason for it was. The strength stays. What it serves changes.',
+    image: 'karate-training',
+    imageAlt: 'Harrison Saito training karate, mid-stance',
+  },
+  {
+    id: 'held-fist',
+    number: '05',
+    name: 'The Held Fist',
+    kanji: '怒',
+    romaji: 'ikari',
+    kanjiMeaning: 'anger, held',
+    source:
+      "And underneath the performance, there's a simmering anger you can't quite name.",
+    recognise:
+      'It leaks — in traffic, at your kids, at nothing. Or it never leaks at all, which is worse, because it has to be held down every single day and holding it is most of what you do.',
+    cost: 'Something in you the people closest to you have learned to move around, and a five-year-old still frozen inside a grown man.',
+    through:
+      'Meeting it in the body rather than analysing it. This is where the martial arts stop being metaphor.',
+    image: 'buddha',
+    imageAlt: 'A stone Buddha figure',
+  },
+];
+
+/* ---------------------------------------------------------------- book */
+
+/**
+ * The About page as a book.
+ *
+ * Each spread is a chapter, and each chapter establishes a different dimension
+ * of credibility — lineage, discipline, qualification, public recognition —
+ * rather than repeating the same "about me" register seven times.
+ *
+ * Left page: kanji, caption, body. Right page: photograph. Same anatomy as a
+ * real bilingual art book.
+ */
+export type Chapter = {
+  number: string;
+  kanji: string;
+  romaji: string;
+  caption: string;
+  title: string;
+  body: string[];
+  /** The credential this spread quietly establishes. */
+  credential?: string;
+  image: string;
+  imageAlt: string;
+};
+
+export const CHAPTERS: Chapter[] = [
+  {
+    number: '一',
+    kanji: '間',
+    romaji: 'ma',
+    caption: 'the space between',
+    title: 'Between two countries.',
+    body: [
+      'Japanese father. Australian upbringing. For most of my life I was fluent in both and at home in neither.',
+      '間 is the Japanese idea that the gap between two things is not empty — it is where the meaning lives. I did not choose that as a metaphor. I lived in it first and found the word for it later.',
+    ],
+    image: 'portrait-shoji',
+    imageAlt: 'Harrison Saito seated against a shoji screen',
+  },
+  {
+    number: '二',
+    kanji: '父',
+    romaji: 'chichi',
+    caption: 'the father',
+    title: 'A war survivor, a martial artist, a monk.',
+    body: [
+      'My father survived post-WW2 Japan. He was a martial artist and a Buddhist monk.',
+      'He gave me discipline. He gave me martial arts. He gave me Buddhism. He also gave me people-pleasing, suppressed rage, and a five-year-old frozen inside a grown man’s body.',
+    ],
+    credential: 'Lineage — Japanese Buddhist and martial tradition, first-hand',
+    image: 'father-son-still',
+    imageAlt: 'Harrison Saito sitting beside his father',
+  },
+  {
+    number: '三',
+    kanji: '傷',
+    romaji: 'kizu',
+    caption: 'the wound',
+    title: 'The gift and the wound were the same object.',
+    body: [
+      'I took all of it, the gift and the wound, and walked a path that only I could walk.',
+      'The same tools that caused my trauma became the exact things that set me free. That is not a turn of phrase. It is the method, and it is why I do not teach anything I have not been through.',
+    ],
+    image: 'ink-wash',
+    imageAlt: 'Sumi-e ink wash',
+  },
+  {
+    number: '四',
+    kanji: '道',
+    romaji: 'dō',
+    caption: 'the way',
+    title: 'Second dan.',
+    body: [
+      'In karate I hold a 2nd Dan black belt. That matters here less as a credential than as a method.',
+      'The dojo is where I learned that discipline without honesty just builds a better shell. It is also the room where I eventually took mine apart.',
+    ],
+    credential: '2nd Dan black belt, Karate',
+    image: 'karate-training',
+    imageAlt: 'Harrison Saito training karate in a white gi',
+  },
+  {
+    number: '五',
+    kanji: '教',
+    romaji: 'kyō',
+    caption: 'to teach',
+    title: 'Inside the system, not commenting on it.',
+    body: [
+      'I teach in a New South Wales high school. I hold a Master of Teaching (Secondary) and a Bachelor of Commerce.',
+      'That means I know the HSC from the inside — the syllabus, the markers, the pressure — rather than from a tutoring centre’s brochure. I have walked beside hundreds of students through it.',
+    ],
+    credential: 'M.Teach (Secondary) · B.Com · practising high school teacher',
+    image: 'youth-tutoring',
+    imageAlt: 'Harrison Saito teaching two students at a table with laptops',
+  },
+  {
+    number: '六',
+    kanji: '声',
+    romaji: 'koe',
+    caption: 'the voice',
+    title: 'On national television.',
+    body: [
+      'SBS World News interviewed me about youth and adult mental health, and about martial arts as a way into both.',
+      'I have spent more than a decade coaching young people to find their voice. It was strange, and useful, to be asked to use mine.',
+    ],
+    credential: 'Featured on SBS World News',
+    image: 'sbs-group',
+    imageAlt: 'Harrison Saito with the group featured in the SBS World News segment',
+  },
+  {
+    number: '七',
+    kanji: '円',
+    romaji: 'en',
+    caption: 'the circle',
+    title: 'Where the work happens now.',
+    body: [
+      'Today I help young people find their voice through HSC mentoring, and I help men stop performing and start living through martial arts, Buddhism, and structured inner work.',
+      'The circle in the mark on this site is left open on purpose. So is this.',
+    ],
+    credential: '10+ years coaching · Chatswood, NSW',
+    image: 'coaching-dharma',
+    imageAlt: 'Two men seated on tatami before a Buddhist altar',
+  },
 ];
 
 /* ------------------------------------------------- calligraphy vocabulary */

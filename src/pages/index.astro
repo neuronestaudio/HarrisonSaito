@@ -14,6 +14,7 @@ import Picture from '../components/Picture.astro';
 import Testimonials from '../components/Testimonials.astro';
 import YouTubeFacade from '../components/YouTubeFacade.astro';
 import OfferCard from '../components/OfferCard.astro';
+import ArchetypeCarousel from '../components/ArchetypeCarousel.astro';
 import Enso from '../components/Enso.astro';
 import { SITE, CREDENTIALS, VIDEO_IDS, OFFERS } from '../data/site';
 import { graph, personSchema, localBusinessSchema, websiteSchema, videoSchema } from '../lib/seo';
@@ -104,8 +105,8 @@ const schema = graph(
         <a class="path" href="/mens-coaching" data-reveal data-track="cta_click" data-track-label="Path — Men's coaching">
           <div class="path__media">
             <Picture
-              slug="for-adults"
-              alt="A man training in a dojo, mid-form, in a white gi"
+              slug="coaching-dharma"
+              alt="Harrison Saito guiding a man through meditation on tatami, before a Buddhist altar"
               sizes="(max-width: 900px) 100vw, 46vw"
             />
             <span class="path__glyph" aria-hidden="true">破</span>
@@ -124,8 +125,8 @@ const schema = graph(
         <a class="path" href="/hsc-tutoring" data-reveal data-track="cta_click" data-track-label="Path — HSC mentoring">
           <div class="path__media">
             <Picture
-              slug="naruto-group"
-              alt="Harrison Saito with a group of young martial arts students"
+              slug="youth-tutoring"
+              alt="Harrison Saito teaching two HSC students at a table with laptops"
               sizes="(max-width: 900px) 100vw, 46vw"
             />
             <span class="path__glyph" aria-hidden="true">育</span>
@@ -142,6 +143,49 @@ const schema = graph(
           </div>
         </a>
       </div>
+    </div>
+  </section>
+
+  {/* -------------------------------------------------------- archetypes */}
+  <section class="section section--deep archetypes" data-section="archetypes">
+    <Calligraphy set="adults" seed={41} words={['PERFORMANCE', 'RAGE', 'GRIEF']} scale={1.15} />
+
+    <div class="container">
+      <header class="archetypes__head" data-reveal>
+        <p class="eyebrow">The Patterns</p>
+        <h2 class="display-l">Which one is running you?</h2>
+        <div class="archetypes__intro">
+          <p class="lede">
+            Most men who come to me are not carrying a problem. They are carrying a pattern — one
+            they inherited, never chose, and have never once been able to name.
+          </p>
+          <p class="archetypes__why">
+            Naming it is not a personality quiz. It is the first move of the actual work:
+            <em
+              >self-trust begins when you can tell the difference between an inherited reaction and
+              what you genuinely think, feel and value.</em
+            > You cannot separate a pattern you cannot see.
+          </p>
+        </div>
+      </header>
+    </div>
+
+    <div class="container container--wide" data-reveal>
+      <ArchetypeCarousel />
+    </div>
+
+    <div class="container archetypes__foot" data-reveal>
+      <p>
+        Recognised yourself in more than one? That is the usual answer — they tend to travel
+        together.
+      </p>
+      <a
+        class="btn"
+        href="/mens-coaching"
+        data-track="cta_click"
+        data-track-label="Archetypes — Read the programme"
+        data-track-section="archetypes">See How the Work Undoes Them</a
+      >
     </div>
   </section>
 
@@ -371,6 +415,34 @@ const schema = graph(
   }
   .path__link span { transition: transform var(--dur-fast) var(--ease-out-expo); }
   .path:hover .path__link span { transform: translateX(5px); }
+
+  /* ---- archetypes ---- */
+  .archetypes__head { margin-bottom: clamp(2.5rem, 5vw, 4rem); max-width: 62rem; }
+  .archetypes__intro { margin-top: 1.5rem; display: grid; gap: 1.25rem; }
+  .archetypes__intro .lede { max-width: 52ch; }
+  .archetypes__why {
+    max-width: 58ch;
+    font-size: var(--step-0);
+    line-height: 1.75;
+    color: var(--text-on-ink-faint);
+    padding-left: 1.25rem;
+    border-left: 1px solid oklch(75% 0.12 75 / 0.4);
+  }
+  .archetypes__why em { color: var(--gold-light); font-style: italic; }
+
+  .archetypes__foot {
+    margin-top: clamp(2.5rem, 5vw, 4rem);
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1.5rem;
+  }
+  .archetypes__foot p {
+    font-size: var(--step-0);
+    color: var(--text-on-ink-muted);
+    max-width: 44ch;
+  }
 
   /* ---- offers ---- */
   .offers__head { margin-bottom: clamp(2.5rem, 5vw, 4rem); }

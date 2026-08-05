@@ -1,92 +1,87 @@
 ---
 /**
- * About — the full story.
+ * The story — presented as a book.
  *
- * The father-wound narrative is the single strongest asset on the whole site
- * and maps directly to the campaign ICP, so it gets room to breathe here
- * rather than being compressed into three paragraphs on the home page.
+ * On naming: the URL stays /about because that is what people type, what
+ * Google expects, and what the audit's multi-page structure depends on; the
+ * <title> stays keyword-bearing for the same reason. But nothing on the page
+ * says "About" — the nav reads "The Story", and the page opens on a book cover
+ * carrying his name. That gives the "the page should just be his name" instinct
+ * its proper home without paying for it in search.
+ *
+ * "About Him" was never an option: every word on this site is first person
+ * ("My father was a war-survivor…"). Third person would break the voice on the
+ * one page where the voice is the product.
  */
 import Base from '../layouts/Base.astro';
 import Calligraphy from '../components/Calligraphy.astro';
-import Picture from '../components/Picture.astro';
+import Book from '../components/Book.astro';
+import BrandMark from '../components/BrandMark.astro';
 import YouTubeFacade from '../components/YouTubeFacade.astro';
 import Enso from '../components/Enso.astro';
-import { CREDENTIALS, VIDEO_IDS, SITE } from '../data/site';
+import { CREDENTIALS, VIDEO_IDS, SITE, CHAPTERS } from '../data/site';
 import { graph, personSchema, localBusinessSchema, breadcrumbSchema } from '../lib/seo';
 
 const title = 'About Harrison Saito | Teacher, 2nd Dan Karate, Coach — Sydney';
 const description =
-  'Son of a Japanese war survivor, martial artist and Buddhist monk. High school teacher, 2nd Dan black belt and coach in Chatswood, Sydney. The story behind Return to Self.';
+  'Son of a Japanese war survivor, martial artist and Buddhist monk. High school teacher, 2nd Dan black belt and coach in Chatswood, Sydney. The story behind Return to Self, in seven chapters.';
 
 const schema = graph(
   personSchema(),
   localBusinessSchema(),
   breadcrumbSchema([
     { name: 'Home', url: '/' },
-    { name: 'About', url: '/about' },
+    { name: 'The Story', url: '/about' },
   ])
 );
 ---
 
 <Base title={title} description={description} path="/about" schema={schema}>
-  <section class="section page-hero section--deep" data-section="hero">
-    <Calligraphy set="story" scale={1.3} seed={6} words={['INHERITANCE', 'GRIEF']} />
+  {/* ---------------------------------------------------------- the cover */}
+  <section class="cover section--deep" data-section="cover">
+    <Calligraphy set="story" scale={1.35} seed={6} words={['INHERITANCE', 'GRIEF']} />
 
-    <div class="container">
-      <div data-reveal>
-        <p class="eyebrow">The Story</p>
-        <h1 class="display-xl page-hero__title">
-          <span class="split-line"><span>The gift</span></span>
-          <span class="split-line"><span class="page-hero__em">and the wound.</span></span>
-        </h1>
+    <div class="container cover__inner">
+      <div class="cover__mark" data-reveal>
+        <BrandMark variant="light" size={92} />
       </div>
+
+      <p class="cover__label" data-reveal>In Seven Chapters</p>
+
+      <h1 class="cover__name" data-reveal>
+        <span class="split-line"><span>Harrison</span></span>
+        <span class="split-line"><span class="cover__name-em">Saito</span></span>
+      </h1>
+
+      <p class="cover__sub" data-reveal>
+        Educator · Martial Artist · Coach — Chatswood, Sydney
+      </p>
+
+      <div class="cover__rule" data-reveal aria-hidden="true"></div>
+
+      <p class="cover__standfirst" data-reveal>
+        My father was a war-survivor from post-WW2 Japan, a martial artist, and a Buddhist monk. He
+        gave me discipline. He also gave me the wound. This is what I did with both.
+      </p>
+
+      <p class="cover__prompt" data-reveal>
+        <span aria-hidden="true">↓</span> Scroll to open
+      </p>
     </div>
   </section>
 
-  {/* ------------------------------------------------------------ father */}
-  <section class="section" data-section="father">
-    <Calligraphy set="story" seed={23} words={['SILENCE']} scale={0.8} />
-
-    <div class="container story">
-      <div class="story__text" data-reveal>
-        <h2 class="display-m story__head">
-          My father was a war-survivor from post-WW2 Japan, a martial artist, and a
-          <em>Buddhist monk.</em>
-        </h2>
-
-        <div class="prose">
-          <p>
-            He gave me discipline. He gave me martial arts. He gave me Buddhism. He also gave me
-            people-pleasing, suppressed rage, and a five-year-old frozen inside a grown man's body.
-          </p>
-          <p class="story__pull">
-            I took all of it, the gift and the wound, and walked a path that only I could walk. The
-            same tools that caused my trauma became the exact things that set me free.
-          </p>
-          <p>
-            Today, I'm a high school teacher, a 2nd Dan Black Belt in Karate, and a coach. I help
-            young people find their voice through HSC mentoring, and I help men stop performing and
-            start living through martial arts, Buddhism, and structured inner work.
-          </p>
-        </div>
-      </div>
-
-      <div class="story__media" data-reveal data-ink-reveal>
-        <Picture
-          slug="about-shoji"
-          alt="Harrison Saito seated beside a shoji screen in traditional Japanese light"
-          sizes="(max-width: 900px) 100vw, 42vw"
-          parallax={10}
-        />
-      </div>
+  {/* ----------------------------------------------------------- the book */}
+  <section class="section section--ink book-section" data-section="book">
+    <div class="container container--wide">
+      <Book />
     </div>
   </section>
 
   {/* ------------------------------------------------------ credentials */}
-  <section class="section section--ink" data-section="credentials">
+  <section class="section" data-section="credentials">
     <div class="container">
       <header class="creds__head" data-reveal>
-        <p class="eyebrow">Background</p>
+        <p class="eyebrow">The Short Version</p>
         <h2 class="display-l">Trained, qualified, still practising.</h2>
       </header>
 
@@ -116,11 +111,11 @@ const schema = graph(
     </div>
   </section>
 
-  {/* ------------------------------------------------------------ media */}
-  <section class="section" data-section="film">
+  {/* ------------------------------------------------------------ films */}
+  <section class="section section--ink" data-section="film">
     <div class="container container--narrow">
       <header data-reveal>
-        <p class="eyebrow">In His Own Words</p>
+        <p class="eyebrow">Chapter Two, On Film</p>
         <h2 class="display-m film__head">A father &amp; son talk &amp; heal.</h2>
         <p class="lede film__lede">
           The conversation that sits underneath everything else on this site.
@@ -129,11 +124,7 @@ const schema = graph(
 
       <div class="film__stack" data-reveal-stagger="130">
         <div>
-          <YouTubeFacade
-            id={VIDEO_IDS.fatherSon}
-            title="My father and I"
-            label="Father & Son"
-          />
+          <YouTubeFacade id={VIDEO_IDS.fatherSon} title="My father and I" label="Father & Son" />
         </div>
         <div>
           <YouTubeFacade
@@ -144,25 +135,15 @@ const schema = graph(
           />
         </div>
       </div>
-    </div>
-  </section>
 
-  {/* ------------------------------------------------------------- quote */}
-  <section class="section section--deep quote-band" data-section="quote">
-    <div class="quote-band__wash" aria-hidden="true">
-      <Picture slug="ink-wash" alt="" sizes="100vw" />
-    </div>
-    <div class="container container--narrow text-center" data-reveal>
-      <blockquote class="quote-band__text">
-        Compassion naturally arises when the illusion of separation softens.
-      </blockquote>
+      <div class="film__more" data-reveal>
+        <a class="btn btn--ghost" href="/media">The Full Archive — {CHAPTERS.length}+ Films</a>
+      </div>
     </div>
   </section>
 
   {/* -------------------------------------------------------------- CTA */}
   <section class="section section--warm close" data-section="close">
-    {/* Cream section — the mark needs its dark variant, and a little more
-        presence than it needs on ink, where it reads against the dark. */}
     <div class="close__enso" aria-hidden="true"><Enso opacity={0.2} variant="dark" /></div>
     <div class="container container--narrow text-center" data-reveal>
       <h2 class="display-l">If something here resonated, reach out.</h2>
@@ -170,45 +151,105 @@ const schema = graph(
         No pitch. No pressure. Just a conversation about where you are and what you're looking for.
       </p>
       <div class="close__ctas">
-        <a class="btn btn--lg" href="/book" data-track="cta_click" data-track-label="About — Book">Start a Conversation</a>
-        <a class="btn btn--lg btn--ghost" href={`mailto:${SITE.email}`} data-track="cta_click" data-track-label="About — Email">Email Instead</a>
+        <a class="btn btn--lg" href="/book" data-track="cta_click" data-track-label="About — Book"
+          >Start a Conversation</a
+        >
+        <a
+          class="btn btn--lg btn--ghost"
+          href={`mailto:${SITE.email}`}
+          data-track="cta_click"
+          data-track-label="About — Email">Email Instead</a
+        >
       </div>
     </div>
   </section>
 </Base>
 
 <style>
-  .page-hero {
+  /* ---- cover ---- */
+  .cover {
     position: relative;
-    padding-block: clamp(8rem, 18vh, 12rem) clamp(4rem, 9vw, 7rem);
-    min-height: 55svh;
+    min-height: 100svh;
     display: flex;
-    align-items: flex-end;
+    align-items: center;
+    padding-block: clamp(7rem, 15vh, 10rem) clamp(4rem, 8vw, 6rem);
+    overflow: clip;
   }
-  .page-hero__title { max-width: 14ch; }
-  .page-hero__em { font-style: italic; color: var(--gold-light); }
 
-  .story { display: grid; gap: clamp(2.5rem, 5vw, 4.5rem); align-items: start; }
-  .story__head { max-width: 20ch; margin-bottom: 1.75rem; }
-  .story__head em { font-style: italic; color: var(--gold-deep); }
-  .story__pull {
-    padding-left: 1.5rem;
-    border-left: 2px solid var(--gold);
+  /* The cover is a flex container, so .container would otherwise shrink to its
+     content and be centred by its own auto margins — pulling the type off the
+     left edge every other page aligns to. */
+  .cover > .container { width: 100%; }
+
+  .cover__inner { position: relative; z-index: 1; max-width: 48rem; }
+
+  .cover__mark { width: 92px; margin-bottom: clamp(2rem, 4vw, 3rem); opacity: 0.95; }
+
+  .cover__label {
+    font-size: var(--step--1);
+    font-weight: 600;
+    letter-spacing: var(--tracking-eyebrow);
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 1.25rem;
+  }
+
+  .cover__name {
+    font-size: clamp(3.2rem, 13vw, 9rem);
+    font-weight: 300;
+    line-height: 0.98;
+    color: oklch(95% 0.005 60);
+  }
+  .cover__name-em { font-style: italic; color: var(--gold-light); }
+
+  .cover__sub {
+    margin-top: clamp(1.25rem, 3vw, 2rem);
+    font-size: var(--step-0);
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--text-on-ink-faint);
+  }
+
+  .cover__rule {
+    width: 4rem;
+    height: 2px;
+    background: var(--gold);
+    margin-block: clamp(1.75rem, 4vw, 2.75rem);
+  }
+
+  .cover__standfirst {
     font-family: var(--font-display);
-    font-size: var(--step-1);
+    font-size: var(--step-2);
     font-style: italic;
-    color: var(--text-on-paper) !important;
+    font-weight: 300;
+    line-height: 1.5;
+    color: var(--text-on-ink-muted);
+    max-width: 34ch;
   }
-  .story__media { position: relative; overflow: hidden; aspect-ratio: 4 / 5; }
-  .story__media :global(img) { width: 100%; height: 100%; object-fit: cover; }
 
+  .cover__prompt {
+    margin-top: clamp(2.5rem, 5vw, 4rem);
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    font-size: 0.72rem;
+    letter-spacing: 0.24em;
+    text-transform: uppercase;
+    color: var(--text-on-ink-faint);
+  }
+  .cover__prompt span { color: var(--gold); }
+
+  /* ---- book ---- */
+  .book-section { padding-block: clamp(3rem, 7vw, 6rem); }
+
+  /* ---- credentials ---- */
   .creds__head { margin-bottom: clamp(2.5rem, 5vw, 3.5rem); }
   .creds {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
     gap: clamp(1.5rem, 3vw, 2.5rem);
     padding-bottom: clamp(2rem, 4vw, 3rem);
-    border-bottom: 1px solid var(--rule-on-ink);
+    border-bottom: 1px solid var(--rule);
   }
   .cred { display: grid; gap: 0.35rem; }
   .cred__value {
@@ -216,32 +257,22 @@ const schema = graph(
     font-size: var(--step-3);
     font-weight: 300;
     line-height: 1;
-    color: var(--gold);
+    color: var(--gold-deep);
   }
   .cred__label {
     font-size: var(--step--1);
     letter-spacing: 0.1em;
-    color: var(--text-on-ink-faint);
+    color: var(--text-on-paper-faint);
   }
   .creds__detail { margin-top: clamp(2rem, 4vw, 3rem); max-width: 58ch; }
 
+  /* ---- film ---- */
   .film__head { margin-bottom: 1rem; }
   .film__lede { margin-bottom: clamp(2rem, 4vw, 3rem); }
   .film__stack { display: grid; gap: clamp(2rem, 4vw, 3rem); }
+  .film__more { margin-top: clamp(2rem, 4vw, 3rem); text-align: center; }
 
-  .quote-band { position: relative; }
-  .quote-band__wash { position: absolute; inset: 0; opacity: 0.1; }
-  .quote-band__wash :global(img) { width: 100%; height: 100%; object-fit: cover; }
-  .quote-band__text {
-    font-family: var(--font-display);
-    font-size: var(--step-3);
-    font-style: italic;
-    font-weight: 300;
-    line-height: 1.4;
-    color: oklch(93% 0.005 60);
-    margin: 0;
-  }
-
+  /* ---- close ---- */
   .close { position: relative; }
   .close__enso {
     position: absolute;
@@ -262,7 +293,6 @@ const schema = graph(
   }
 
   @media (min-width: 900px) {
-    .story { grid-template-columns: 1.15fr 0.85fr; }
     .creds { grid-template-columns: repeat(4, 1fr); }
   }
 </style>

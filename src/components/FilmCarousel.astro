@@ -1,0 +1,702 @@
+---
+/**
+ * The film archive.
+ *
+ * Twenty-one films presented as facets of one person rather than a grid of
+ * thumbnails: The Son, The Teacher, The Practitioner, The Poet, The Voice.
+ * Choosing a facet re-populates the rail; choosing a film loads it into the
+ * stage. Nothing plays until you press play (audit H4 — no eager iframes).
+ *
+ * Posters are served locally from /img/film rather than hotlinked off
+ * i.ytimg.com, so the most prominent component on the site does not depend on
+ * a third-party CDN or leak a request to Google before consent.
+ */
+import { FILMS, FACETS, type Film } from '../data/site';
+
+const featured = FILMS.find((f) => f.featured) ?? FILMS[0];
+const poster = (id: string, w: 480 | 960 = 960) => `/img/film/${id}-${w}.webp`;
+
+const byFacet = (id: string) => FILMS.filter((f) => f.facet === id);
+---
+
+<section class="fc" data-film-carousel data-section="films">
+  {/* ---- facet selector ---- */}
+  <div class="fc__facets" role="tablist" aria-label="Facets">
+    <button
+      class="fc__facet is-active"
+      role="tab"
+      aria-selected="true"
+      data-facet="all"
+      type="button"
+    >
+      <span class="fc__facet-kanji" aria-hidden="true">全</span>
+      <span class="fc__facet-label">Everything</span>
+      <span class="fc__facet-count">{FILMS.length}</span>
+    </button>
+    {
+      FACETS.map((f) => (
+        <button
+          class="fc__facet"
+          role="tab"
+          aria-selected="false"
+          type="button"
+          data-facet={f.id}
+          data-facet-label={f.label}
+          data-facet-kanji={f.kanji}
+          data-facet-blurb={f.blurb}
+        >
+          <span class="fc__facet-kanji" aria-hidden="true">
+            {f.kanji}
+          </span>
+          <span class="fc__facet-label">{f.label}</span>
+          <span class="fc__facet-count">{byFacet(f.id).length}</span>
+        </button>
+      ))
+    }
+  </div>
+
+  {/* ---- facet description, swapped on select ---- */}
+  <p class="fc__blurb" data-facet-blurb>
+    Twenty-one films, grouped by which part of the work they belong to. Choose a thread, or scroll
+    the whole archive.
+  </p>
+
+  {/* ---- stage ---- */}
+  <div class="fc__stage">
+    <div class="fc__screen" data-stage>
+      <img
+        class="fc__poster"
+        data-stage-poster
+        src={featured.still ? `/img/${featured.still}.webp` : poster(featured.id)}
+        sizes="(max-width: 900px) 100vw, 62vw"
+        alt=""
+        width="960"
+        height="540"
+        loading="lazy"
+        decoding="async"
+      />
+      <span class="fc__grain" aria-hidden="true"></span>
+      <span class="fc__vignette" aria-hidden="true"></span>
+
+      <button class="fc__play" type="button" data-stage-play aria-label="Play film">
+        <span class="fc__play-ring" aria-hidden="true"></span>
+        <svg viewBox="0 0 24 24" width="30" height="30" aria-hidden="true">
+          <path d="M8 5v14l11-7z" fill="currentColor"></path>
+        </svg>
+      </button>
+
+      <span class="fc__stage-kanji" data-stage-kanji aria-hidden="true">父</span>
+    </div>
+
+    <div class="fc__meta">
+      <p class="fc__meta-facet" data-stage-facet>The Son</p>
+      <h3 class="fc__meta-title" data-stage-title>{featured.title}</h3>
+      <p class="fc__meta-note" data-stage-note>{featured.note ?? ''}</p>
+      <p class="fc__meta-sub">
+        <span data-stage-duration>{featured.duration ?? ''}</span>
+        <a
+          class="fc__meta-yt"
+          data-stage-link
+          href={`https://www.youtube.com/watch?v=${featured.id}`}
+          target="_blank"
+          rel="noopener noreferrer">Watch on YouTube ↗</a
+        >
+      </p>
+    </div>
+  </div>
+
+  {/* ---- rail ---- */}
+  <div class="fc__rail-wrap">
+    <button class="fc__nav fc__nav--prev" type="button" data-rail-prev aria-label="Previous films">
+      <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"
+        ><path
+          d="M15 6l-6 6 6 6"
+          stroke="currentColor"
+          stroke-width="1.8"
+          fill="none"
+          stroke-linecap="round"
+          stroke-linejoin="round"></path></svg
+      >
+    </button>
+
+    <div class="fc__rail" data-rail tabindex="0" role="listbox" aria-label="Films">
+      {
+        FILMS.map((film: Film, i) => (
+          <button
+            class:list={['fc__card', { 'is-active': i === 0 }]}
+            role="option"
+            aria-selected={i === 0 ? 'true' : 'false'}
+            type="button"
+            data-film={film.id}
+            data-film-facet={film.facet}
+            data-film-title={film.title}
+            data-film-note={film.note ?? ''}
+            data-film-duration={film.duration ?? ''}
+            data-film-still={film.still ?? ''}
+          >
+            <span class="fc__card-media">
+              <img
+                src={poster(film.id, 480)}
+                alt=""
+                width="480"
+                height="270"
+                loading="lazy"
+                decoding="async"
+              />
+              {film.duration && <span class="fc__card-dur">{film.duration}</span>}
+            </span>
+            <span class="fc__card-title">{film.title}</span>
+          </button>
+        ))
+      }
+    </div>
+
+    <button class="fc__nav fc__nav--next" type="button" data-rail-next aria-label="More films">
+      <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"
+        ><path
+          d="M9 6l6 6-6 6"
+          stroke="currentColor"
+          stroke-width="1.8"
+          fill="none"
+          stroke-linecap="round"
+          stroke-linejoin="round"></path></svg
+      >
+    </button>
+  </div>
+
+  <p class="fc__hint">
+    <span data-rail-count>1 / {FILMS.length}</span>
+    <span class="fc__hint-sep" aria-hidden="true">·</span>
+    <span>Drag, scroll or use ← →</span>
+  </p>
+</section>
+
+<style>
+  .fc { position: relative; }
+
+  /* ---- facets ---- */
+  .fc__facets {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .fc__facet {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    padding: 0.7rem 1.1rem;
+    background: transparent;
+    border: 1px solid var(--rule-on-ink);
+    color: var(--text-on-ink-muted);
+    cursor: pointer;
+    transition: border-color var(--dur-fast) ease, color var(--dur-fast) ease,
+      background var(--dur-fast) ease;
+  }
+  .fc__facet:hover { border-color: oklch(75% 0.12 75 / 0.5); color: var(--text-on-ink); }
+  .fc__facet.is-active {
+    border-color: var(--gold);
+    background: oklch(75% 0.12 75 / 0.1);
+    color: var(--text-on-ink);
+  }
+
+  .fc__facet-kanji {
+    font-family: var(--font-jp);
+    font-size: 1.15rem;
+    line-height: 1;
+    color: var(--gold);
+  }
+  .fc__facet-label {
+    font-size: var(--step--1);
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    white-space: nowrap;
+  }
+  .fc__facet-count {
+    font-size: 0.68rem;
+    color: var(--text-on-ink-faint);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .fc__blurb {
+    max-width: 62ch;
+    font-size: var(--step-0);
+    line-height: 1.7;
+    color: var(--text-on-ink-muted);
+    margin-bottom: clamp(2rem, 4vw, 3rem);
+    min-height: 3.4em;
+    transition: opacity var(--dur-fast) ease;
+  }
+  .fc__blurb.is-swapping { opacity: 0; }
+
+  /* ---- stage ---- */
+  .fc__stage {
+    display: grid;
+    gap: clamp(1.5rem, 3vw, 2.5rem);
+    margin-bottom: clamp(1.75rem, 3.5vw, 2.75rem);
+  }
+
+  .fc__screen {
+    position: relative;
+    aspect-ratio: 16 / 9;
+    overflow: hidden;
+    background: var(--ink-900);
+    border: 1px solid var(--rule-on-ink);
+    cursor: pointer;
+    isolation: isolate;
+  }
+
+  .fc__poster {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: opacity var(--dur) ease, transform 1.4s var(--ease-out-expo);
+  }
+  .fc__screen:hover .fc__poster { transform: scale(1.03); }
+  .fc__poster.is-swapping { opacity: 0; }
+
+  /* Fine film grain — sells "archive" without costing a texture request. */
+  .fc__grain {
+    position: absolute;
+    inset: -50%;
+    pointer-events: none;
+    opacity: 0.16;
+    background-image: repeating-conic-gradient(
+      oklch(100% 0 0 / 0.5) 0% 25%,
+      transparent 0% 50%
+    );
+    background-size: 3px 3px;
+    mix-blend-mode: overlay;
+  }
+
+  .fc__vignette {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background: linear-gradient(
+        to top,
+        oklch(11% 0.008 55 / 0.75),
+        transparent 45%
+      ),
+      radial-gradient(ellipse 110% 80% at 50% 45%, transparent 40%, oklch(11% 0.008 55 / 0.5));
+  }
+
+  .fc__stage-kanji {
+    position: absolute;
+    inset-block-end: -0.14em;
+    inset-inline-end: 0.03em;
+    font-family: var(--font-jp);
+    font-size: clamp(7rem, 15vw, 14rem);
+    line-height: 1;
+    color: var(--gold);
+    opacity: 0.16;
+    pointer-events: none;
+    transition: opacity var(--dur) ease;
+  }
+
+  .fc__play {
+    position: absolute;
+    inset: 0;
+    margin: auto;
+    width: 88px;
+    height: 88px;
+    display: grid;
+    place-items: center;
+    background: oklch(11% 0.008 55 / 0.42);
+    color: var(--gold);
+    border: 1px solid oklch(75% 0.12 75 / 0.55);
+    border-radius: 50%;
+    cursor: pointer;
+    z-index: 2;
+    backdrop-filter: blur(8px);
+    transition: background var(--dur-fast) ease, color var(--dur-fast) ease,
+      transform var(--dur-fast) var(--ease-out-expo);
+  }
+  .fc__play svg { margin-left: 4px; }
+  .fc__screen:hover .fc__play {
+    background: var(--gold);
+    color: var(--ink-900);
+    transform: scale(1.06);
+  }
+  .fc__play-ring {
+    position: absolute;
+    inset: -11px;
+    border: 1px solid oklch(75% 0.12 75 / 0.3);
+    border-radius: 50%;
+    opacity: 0;
+    transition: opacity var(--dur-fast) ease, transform var(--dur) var(--ease-out-expo);
+  }
+  .fc__screen:hover .fc__play-ring { opacity: 1; transform: scale(1.13); }
+
+  .fc__screen.is-playing .fc__play,
+  .fc__screen.is-playing .fc__vignette,
+  .fc__screen.is-playing .fc__grain,
+  .fc__screen.is-playing .fc__stage-kanji,
+  .fc__screen.is-playing .fc__poster { display: none; }
+
+  .fc__screen :global(iframe) {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    border: 0;
+  }
+
+  /* ---- meta ---- */
+  .fc__meta { align-self: center; }
+  .fc__meta-facet {
+    font-size: var(--step--1);
+    font-weight: 600;
+    letter-spacing: var(--tracking-eyebrow);
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 0.85rem;
+  }
+  .fc__meta-title {
+    font-size: var(--step-2);
+    font-weight: 300;
+    line-height: 1.2;
+    color: var(--text-on-ink);
+    margin-bottom: 0.85rem;
+  }
+  .fc__meta-note {
+    font-size: var(--step-0);
+    line-height: 1.7;
+    color: var(--text-on-ink-muted);
+    margin-bottom: 1.25rem;
+    min-height: 1.7em;
+  }
+  .fc__meta-sub {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 1.25rem;
+    font-size: var(--step--1);
+    color: var(--text-on-ink-faint);
+    font-variant-numeric: tabular-nums;
+  }
+  .fc__meta-yt { color: var(--gold); transition: opacity var(--dur-fast) ease; }
+  .fc__meta-yt:hover { opacity: 0.75; }
+
+  /* ---- rail ---- */
+  .fc__rail-wrap { position: relative; display: flex; align-items: center; gap: 0.75rem; }
+
+  .fc__rail {
+    display: flex;
+    gap: 1rem;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    scrollbar-width: none;
+    padding-bottom: 0.5rem;
+    flex: 1;
+    cursor: grab;
+    scroll-behavior: smooth;
+  }
+  .fc__rail::-webkit-scrollbar { display: none; }
+  .fc__rail.is-dragging { cursor: grabbing; scroll-behavior: auto; scroll-snap-type: none; }
+  .fc__rail:focus-visible { outline: 2px solid var(--gold); outline-offset: 4px; }
+
+  .fc__card {
+    flex: 0 0 auto;
+    width: clamp(11rem, 20vw, 15rem);
+    scroll-snap-align: start;
+    background: transparent;
+    border: 0;
+    padding: 0;
+    text-align: left;
+    cursor: pointer;
+    color: inherit;
+    display: grid;
+    gap: 0.6rem;
+  }
+  .fc__card[hidden] { display: none; }
+
+  .fc__card-media {
+    position: relative;
+    display: block;
+    aspect-ratio: 16 / 9;
+    overflow: hidden;
+    border: 1px solid transparent;
+    transition: border-color var(--dur-fast) ease;
+  }
+  .fc__card-media img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    filter: saturate(0.7) brightness(0.62);
+    transition: filter var(--dur) ease, transform 1.1s var(--ease-out-expo);
+  }
+  .fc__card:hover .fc__card-media img { filter: saturate(0.95) brightness(0.85); transform: scale(1.05); }
+  .fc__card.is-active .fc__card-media { border-color: var(--gold); }
+  .fc__card.is-active .fc__card-media img { filter: saturate(1) brightness(1); }
+
+  .fc__card-dur {
+    position: absolute;
+    inset-block-end: 0.4rem;
+    inset-inline-end: 0.4rem;
+    padding: 0.15rem 0.4rem;
+    background: oklch(11% 0.008 55 / 0.85);
+    font-size: 0.65rem;
+    letter-spacing: 0.06em;
+    color: var(--text-on-ink-muted);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .fc__card-title {
+    font-size: 0.78rem;
+    line-height: 1.45;
+    color: var(--text-on-ink-faint);
+    transition: color var(--dur-fast) ease;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+  .fc__card:hover .fc__card-title,
+  .fc__card.is-active .fc__card-title { color: var(--text-on-ink); }
+
+  .fc__nav {
+    flex-shrink: 0;
+    width: 40px;
+    height: 40px;
+    display: grid;
+    place-items: center;
+    background: transparent;
+    border: 1px solid var(--rule-on-ink);
+    color: var(--text-on-ink-muted);
+    cursor: pointer;
+    transition: border-color var(--dur-fast) ease, color var(--dur-fast) ease;
+  }
+  .fc__nav:hover { border-color: var(--gold); color: var(--gold); }
+  .fc__nav:disabled { opacity: 0.25; cursor: default; }
+
+  .fc__hint {
+    margin-top: 1.25rem;
+    display: flex;
+    gap: 0.75rem;
+    font-size: 0.72rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--text-on-ink-faint);
+    font-variant-numeric: tabular-nums;
+  }
+  .fc__hint-sep { opacity: 0.5; }
+
+  @media (min-width: 900px) {
+    .fc__stage { grid-template-columns: 1.55fr 1fr; }
+  }
+  @media (max-width: 620px) {
+    .fc__nav { display: none; }
+    .fc__facet-count { display: none; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .fc__poster, .fc__card-media img, .fc__play, .fc__play-ring { transition: none; }
+    .fc__rail { scroll-behavior: auto; }
+  }
+</style>
+
+<script>
+  import { track } from '../scripts/tracking';
+
+  const root = document.querySelector<HTMLElement>('[data-film-carousel]');
+  if (root) {
+    const rail = root.querySelector<HTMLElement>('[data-rail]')!;
+    const cards = Array.from(root.querySelectorAll<HTMLElement>('[data-film]'));
+    const stage = root.querySelector<HTMLElement>('[data-stage]')!;
+    const posterEl = root.querySelector<HTMLImageElement>('[data-stage-poster]')!;
+    const kanjiEl = root.querySelector<HTMLElement>('[data-stage-kanji]')!;
+    const blurbEl = root.querySelector<HTMLElement>('[data-facet-blurb]')!;
+    const countEl = root.querySelector<HTMLElement>('[data-rail-count]')!;
+
+    const titleEl = root.querySelector<HTMLElement>('[data-stage-title]')!;
+    const noteEl = root.querySelector<HTMLElement>('[data-stage-note]')!;
+    const facetEl = root.querySelector<HTMLElement>('[data-stage-facet]')!;
+    const durEl = root.querySelector<HTMLElement>('[data-stage-duration]')!;
+    const linkEl = root.querySelector<HTMLAnchorElement>('[data-stage-link]')!;
+
+    const ALL_BLURB = blurbEl.textContent ?? '';
+
+    // Facet metadata rides on the buttons rather than being imported from the
+    // content module — importing it would ship the entire site data file
+    // (testimonials, chapters, archetypes) to the browser to read five labels.
+    const facetById: Record<string, { label: string; kanji: string; blurb: string }> = {};
+    root.querySelectorAll<HTMLElement>('[data-facet]').forEach((b) => {
+      if (b.dataset.facet && b.dataset.facet !== 'all') {
+        facetById[b.dataset.facet] = {
+          label: b.dataset.facetLabel ?? '',
+          kanji: b.dataset.facetKanji ?? '',
+          blurb: b.dataset.facetBlurb ?? '',
+        };
+      }
+    });
+
+    let visible = cards.slice();
+    let index = 0;
+
+    /* ---- stage ---------------------------------------------------------- */
+
+    function loadFilm(card: HTMLElement, userInitiated = true) {
+      const id = card.dataset.film!;
+      const facet = facetById[card.dataset.filmFacet!];
+
+      // Tearing down any playing iframe returns the stage to poster state.
+      stage.querySelector('iframe')?.remove();
+      stage.classList.remove('is-playing');
+
+      // Prefer a curated still on the stage. Most YouTube thumbnails carry
+      // burned-in caption text, which is fine at rail size and cheap-looking
+      // blown up to a cinematic hero.
+      const still = card.dataset.filmStill;
+      posterEl.classList.add('is-swapping');
+      window.setTimeout(() => {
+        if (still) {
+          posterEl.src = `/img/${still}.webp`;
+          posterEl.removeAttribute('srcset');
+        } else {
+          posterEl.src = `/img/film/${id}-960.webp`;
+          posterEl.srcset = `/img/film/${id}-480.webp 480w, /img/film/${id}-960.webp 960w`;
+        }
+        posterEl.classList.remove('is-swapping');
+      }, 200);
+
+      titleEl.textContent = card.dataset.filmTitle ?? '';
+      noteEl.textContent = card.dataset.filmNote ?? '';
+      facetEl.textContent = facet?.label ?? '';
+      kanjiEl.textContent = facet?.kanji ?? '';
+      durEl.textContent = card.dataset.filmDuration ?? '';
+      linkEl.href = `https://www.youtube.com/watch?v=${id}`;
+
+      cards.forEach((c) => {
+        const on = c === card;
+        c.classList.toggle('is-active', on);
+        c.setAttribute('aria-selected', String(on));
+      });
+
+      index = visible.indexOf(card);
+      countEl.textContent = `${index + 1} / ${visible.length}`;
+
+      if (userInitiated) {
+        track('film_select', { video_id: id, facet: card.dataset.filmFacet, page_path: location.pathname });
+      }
+    }
+
+    function play() {
+      const card = visible[index];
+      if (!card || stage.classList.contains('is-playing')) return;
+      const id = card.dataset.film!;
+
+      const iframe = document.createElement('iframe');
+      iframe.src = `https://www.youtube-nocookie.com/embed/${id}?autoplay=1&rel=0&modestbranding=1`;
+      iframe.title = card.dataset.filmTitle ?? 'Film';
+      iframe.allow =
+        'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share';
+      iframe.allowFullscreen = true;
+      stage.appendChild(iframe);
+      stage.classList.add('is-playing');
+
+      track('video_play', { video_id: id, video_title: card.dataset.filmTitle, page_path: location.pathname });
+    }
+
+    stage.addEventListener('click', play);
+
+    cards.forEach((card) =>
+      card.addEventListener('click', () => {
+        loadFilm(card);
+        card.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+      })
+    );
+
+    /* ---- facets --------------------------------------------------------- */
+
+    root.querySelectorAll<HTMLButtonElement>('[data-facet]').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        const facet = btn.dataset.facet!;
+
+        root.querySelectorAll('[data-facet]').forEach((b) => {
+          const on = b === btn;
+          b.classList.toggle('is-active', on);
+          b.setAttribute('aria-selected', String(on));
+        });
+
+        visible = cards.filter((c) => facet === 'all' || c.dataset.filmFacet === facet);
+        cards.forEach((c) => (c.hidden = !visible.includes(c)));
+
+        blurbEl.classList.add('is-swapping');
+        window.setTimeout(() => {
+          blurbEl.textContent = facet === 'all' ? ALL_BLURB : (facetById[facet]?.blurb ?? '');
+          blurbEl.classList.remove('is-swapping');
+        }, 180);
+
+        rail.scrollTo({ left: 0, behavior: 'smooth' });
+        if (visible.length) loadFilm(visible[0], false);
+
+        track('film_facet', { facet, count: visible.length, page_path: location.pathname });
+      });
+    });
+
+    /* ---- rail navigation ------------------------------------------------ */
+
+    const step = () => rail.clientWidth * 0.8;
+    root.querySelector('[data-rail-prev]')?.addEventListener('click', () =>
+      rail.scrollBy({ left: -step(), behavior: 'smooth' })
+    );
+    root.querySelector('[data-rail-next]')?.addEventListener('click', () =>
+      rail.scrollBy({ left: step(), behavior: 'smooth' })
+    );
+
+    rail.addEventListener('keydown', (e) => {
+      if (e.key !== 'ArrowRight' && e.key !== 'ArrowLeft') return;
+      e.preventDefault();
+      const next = index + (e.key === 'ArrowRight' ? 1 : -1);
+      const card = visible[Math.max(0, Math.min(next, visible.length - 1))];
+      if (!card) return;
+      loadFilm(card);
+      card.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+    });
+
+    // Drag to scroll. `moved` guards against a drag being read as a click.
+    let down = false;
+    let startX = 0;
+    let startScroll = 0;
+    let moved = 0;
+
+    rail.addEventListener('pointerdown', (e) => {
+      down = true;
+      moved = 0;
+      startX = e.clientX;
+      startScroll = rail.scrollLeft;
+      rail.classList.add('is-dragging');
+    });
+
+    rail.addEventListener('pointermove', (e) => {
+      if (!down) return;
+      const dx = e.clientX - startX;
+      moved = Math.max(moved, Math.abs(dx));
+      rail.scrollLeft = startScroll - dx;
+    });
+
+    const end = () => {
+      down = false;
+      rail.classList.remove('is-dragging');
+    };
+    rail.addEventListener('pointerup', end);
+    rail.addEventListener('pointerleave', end);
+    rail.addEventListener(
+      'click',
+      (e) => {
+        if (moved > 6) {
+          e.stopPropagation();
+          e.preventDefault();
+        }
+      },
+      { capture: true }
+    );
+
+    // Initialise from the featured film.
+    const first = cards.find((c) => c.classList.contains('is-active')) ?? cards[0];
+    if (first) loadFilm(first, false);
+  }
+</script>

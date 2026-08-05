@@ -1,0 +1,509 @@
+---
+/**
+ * The book.
+ *
+ * A scroll-driven bilingual art book: left page carries the kanji, its reading
+ * and the text; right page carries the photograph — the anatomy of the
+ * reference spread (間 / "the space between"). No hands, no page-curl
+ * skeuomorphism, no leather. The paper is the site's cream and the type is the
+ * site's type; it reads as a book because of its structure, not its texture.
+ *
+ * Seven chapters, each establishing a different dimension of credibility —
+ * lineage, discipline, qualification, broadcast — rather than repeating the
+ * same "about me" register seven times.
+ *
+ * Mechanics: the section pins and each scroll increment rotates the top sheet
+ * about its spine (rotateY 0 -> -180deg) with `transform-style: preserve-3d`,
+ * so you see the back of the leaf turning as the next spread is revealed
+ * underneath. It loops: past the last chapter it returns to the first.
+ *
+ * Below 900px, and under prefers-reduced-motion, it degrades to a plain
+ * vertical stack of spreads with no pinning and no 3D.
+ */
+import { CHAPTERS } from '../data/site';
+import { srcset, src } from '../lib/images';
+
+const total = CHAPTERS.length;
+---
+
+<div class="book" data-book style={`--book-count:${total}`}>
+  <div class="book__stage" data-book-stage>
+    <div class="book__spine" aria-hidden="true"></div>
+
+    <div class="book__sheets">
+      {
+        CHAPTERS.map((c, i) => (
+          <article
+            class="book__spread"
+            data-spread
+            data-index={i}
+            style={`z-index:${total - i}`}
+            aria-label={`Chapter ${i + 1}: ${c.title}`}
+          >
+            {/* left — the word */}
+            <div class="book__page book__page--left">
+              <div class="book__page-inner">
+                <p class="book__chapter">
+                  <span class="book__chapter-num" lang="ja">
+                    {c.number}
+                  </span>
+                  <span class="book__chapter-of">Chapter {i + 1} of {total}</span>
+                </p>
+
+                <p class="book__kanji" lang="ja">{c.kanji}</p>
+                <p class="book__reading">
+                  <em>{c.romaji}</em>
+                  <span>— {c.caption}</span>
+                </p>
+
+                <h3 class="book__title">{c.title}</h3>
+
+                <div class="book__body">
+                  {c.body.map((p) => (
+                    <p>{p}</p>
+                  ))}
+                </div>
+
+                {c.credential && (
+                  <p class="book__credential">
+                    <span aria-hidden="true">◦</span>
+                    {c.credential}
+                  </p>
+                )}
+
+                <span class="book__folio" aria-hidden="true">
+                  {String(i * 2 + 1).padStart(2, '0')}
+                </span>
+              </div>
+            </div>
+
+            {/* right — the image */}
+            <div class="book__page book__page--right">
+              <img
+                src={src(c.image)}
+                srcset={srcset(c.image) || undefined}
+                sizes="(max-width: 900px) 100vw, 42vw"
+                alt={c.imageAlt}
+                width="900"
+                height="1100"
+                loading={i < 2 ? 'eager' : 'lazy'}
+                decoding="async"
+              />
+              <span class="book__page-scrim" aria-hidden="true" />
+              <span class="book__caption">{c.caption}</span>
+              <span class="book__folio book__folio--right" aria-hidden="true">
+                {String(i * 2 + 2).padStart(2, '0')}
+              </span>
+            </div>
+
+            {/* the reverse of this leaf, seen mid-turn */}
+            <div class="book__verso" aria-hidden="true">
+              <span class="book__verso-kanji" lang="ja">{c.kanji}</span>
+            </div>
+          </article>
+        ))
+      }
+    </div>
+  </div>
+
+  <div class="book__controls">
+    <div class="book__dots" role="tablist" aria-label="Chapters">
+      {
+        CHAPTERS.map((c, i) => (
+          <button
+            class:list={['book__dot', { 'is-active': i === 0 }]}
+            type="button"
+            role="tab"
+            aria-selected={i === 0 ? 'true' : 'false'}
+            data-book-dot={i}
+            aria-label={`Chapter ${i + 1}: ${c.caption}`}
+          >
+            <span lang="ja">{c.kanji}</span>
+          </button>
+        ))
+      }
+    </div>
+    <p class="book__hint" data-book-hint>Scroll to turn the page</p>
+  </div>
+</div>
+
+<style>
+  .book {
+    position: relative;
+    --paper-page: oklch(96.5% 0.006 70);
+    --paper-edge: oklch(88% 0.012 68);
+  }
+
+  .book__stage {
+    position: relative;
+    perspective: 2400px;
+    perspective-origin: 50% 45%;
+  }
+
+  .book__sheets {
+    position: relative;
+    display: grid;
+    transform-style: preserve-3d;
+  }
+
+  /* ---- a spread ---- */
+  .book__spread {
+    display: grid;
+    background: var(--paper-page);
+    transform-style: preserve-3d;
+    backface-visibility: hidden;
+    box-shadow: 0 30px 90px oklch(11% 0.008 55 / 0.45);
+  }
+
+  .book__page { position: relative; overflow: hidden; }
+
+  .book__page--left {
+    background: var(--paper-page);
+    display: grid;
+    align-content: center;
+  }
+
+  .book__page-inner {
+    position: relative;
+    padding: clamp(1.75rem, 4vw, 3.75rem);
+    max-width: 42rem;
+  }
+
+  .book__chapter {
+    display: flex;
+    align-items: baseline;
+    gap: 0.85rem;
+    margin-bottom: clamp(1.25rem, 3vw, 2.25rem);
+  }
+  .book__chapter-num {
+    font-family: var(--font-jp);
+    font-size: 1.3rem;
+    color: var(--gold-deep);
+  }
+  .book__chapter-of {
+    font-size: 0.68rem;
+    font-weight: 700;
+    letter-spacing: 0.24em;
+    text-transform: uppercase;
+    color: var(--text-on-paper-faint);
+  }
+
+  .book__kanji {
+    font-family: var(--font-jp);
+    font-size: clamp(4.5rem, 11vw, 9rem);
+    line-height: 0.9;
+    color: var(--text-on-paper);
+    margin-bottom: 0.5rem;
+  }
+
+  .book__reading {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 0.6rem;
+    font-size: var(--step-0);
+    color: var(--text-on-paper-faint);
+    padding-bottom: clamp(1.25rem, 2.5vw, 2rem);
+    margin-bottom: clamp(1.25rem, 2.5vw, 2rem);
+    border-bottom: 1px solid var(--rule);
+  }
+  .book__reading em {
+    font-family: var(--font-display);
+    font-style: italic;
+    font-size: 1.15em;
+    color: var(--gold-deep);
+    letter-spacing: 0.04em;
+  }
+
+  .book__title {
+    font-size: var(--step-2);
+    font-weight: 300;
+    line-height: 1.2;
+    margin-bottom: 1rem;
+    color: var(--text-on-paper);
+  }
+
+  .book__body > p {
+    font-size: var(--step-0);
+    line-height: 1.8;
+    color: var(--text-on-paper-muted);
+  }
+  .book__body > p + p { margin-top: 0.9rem; }
+
+  .book__credential {
+    display: flex;
+    align-items: baseline;
+    gap: 0.6rem;
+    margin-top: clamp(1.25rem, 2.5vw, 2rem);
+    padding-top: 1rem;
+    border-top: 1px solid var(--rule);
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--gold-deep);
+  }
+
+  .book__folio {
+    position: absolute;
+    inset-block-end: clamp(1rem, 2vw, 1.75rem);
+    inset-inline-start: clamp(1.75rem, 4vw, 3.75rem);
+    font-family: var(--font-display);
+    font-size: 0.85rem;
+    color: var(--text-on-paper-faint);
+    font-variant-numeric: tabular-nums;
+  }
+  .book__folio--right {
+    inset-inline-start: auto;
+    inset-inline-end: clamp(1.25rem, 3vw, 2.5rem);
+    color: oklch(93% 0.005 60 / 0.6);
+    z-index: 2;
+  }
+
+  /* ---- right page ---- */
+  .book__page--right { background: var(--ink-900); }
+  .book__page--right img { width: 100%; height: 100%; object-fit: cover; }
+
+  .book__page-scrim {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to top, oklch(11% 0.008 55 / 0.7), transparent 55%);
+  }
+
+  .book__caption {
+    position: absolute;
+    inset-block-end: clamp(1.25rem, 3vw, 2.5rem);
+    inset-inline-start: clamp(1.25rem, 3vw, 2.5rem);
+    font-family: var(--font-display);
+    font-style: italic;
+    font-size: var(--step-1);
+    color: oklch(95% 0.005 60);
+    z-index: 2;
+    text-shadow: 0 2px 20px oklch(11% 0.008 55 / 0.8);
+  }
+
+  /* ---- the reverse of a turning leaf ---- */
+  .book__verso {
+    position: absolute;
+    inset: 0;
+    background: var(--paper-edge);
+    transform: rotateY(180deg);
+    backface-visibility: hidden;
+    display: grid;
+    place-items: center;
+    /* Paper is never flat — a faint gradient reads as a curved sheet. */
+    background-image: linear-gradient(
+      to left,
+      oklch(84% 0.012 68) 0%,
+      oklch(93% 0.008 68) 22%,
+      oklch(90% 0.01 68) 100%
+    );
+  }
+  .book__verso-kanji {
+    font-family: var(--font-jp);
+    font-size: clamp(6rem, 14vw, 12rem);
+    color: var(--ink-900);
+    opacity: 0.06;
+  }
+
+  /* ---- controls ---- */
+  .book__controls {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-top: clamp(1.5rem, 3vw, 2.5rem);
+  }
+
+  .book__dots { display: flex; flex-wrap: wrap; gap: 0.4rem; }
+
+  .book__dot {
+    width: 44px;
+    height: 44px;
+    display: grid;
+    place-items: center;
+    background: transparent;
+    border: 1px solid var(--rule-on-ink);
+    color: var(--text-on-ink-faint);
+    font-family: var(--font-jp);
+    font-size: 1.05rem;
+    cursor: pointer;
+    transition: border-color var(--dur-fast) ease, color var(--dur-fast) ease,
+      background var(--dur-fast) ease;
+  }
+  .book__dot:hover { border-color: oklch(75% 0.12 75 / 0.6); color: var(--text-on-ink); }
+  .book__dot.is-active {
+    border-color: var(--gold);
+    background: oklch(75% 0.12 75 / 0.12);
+    color: var(--gold);
+  }
+
+  .book__hint {
+    font-size: 0.72rem;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--text-on-ink-faint);
+    transition: opacity var(--dur) ease;
+  }
+  .book__hint.is-faded { opacity: 0; }
+
+  /* ================= stacked fallback (mobile / no-JS) ================= */
+  .book__spread { margin-bottom: clamp(1.5rem, 3vw, 2.5rem); }
+  .book__verso { display: none; }
+
+  @media (min-width: 900px) {
+    .book__spread { grid-template-columns: 1fr 1fr; min-height: 40rem; }
+  }
+
+  /* ================= book mode, enabled by JS on desktop ============== */
+  .book.is-live .book__sheets { display: block; height: min(78vh, 46rem); }
+
+  .book.is-live .book__spread {
+    position: absolute;
+    inset: 0;
+    margin: 0;
+    transform-origin: left center;
+    will-change: transform;
+    backface-visibility: hidden;
+  }
+
+  .book.is-live .book__verso { display: grid; }
+
+  /* The stage gets the paper edge so turned leaves have something to sit on. */
+  .book.is-live .book__stage::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: var(--paper-edge);
+    z-index: -1;
+    box-shadow: 0 30px 90px oklch(11% 0.008 55 / 0.45);
+  }
+
+  .book.is-live .book__spine {
+    position: absolute;
+    inset-block: 0;
+    inset-inline-start: 50%;
+    width: 2px;
+    transform: translateX(-1px);
+    background: linear-gradient(
+      to right,
+      oklch(11% 0.008 55 / 0.16),
+      oklch(11% 0.008 55 / 0.04)
+    );
+    z-index: 50;
+    pointer-events: none;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .book.is-live .book__sheets { display: grid; height: auto; }
+    .book.is-live .book__spread { position: relative; inset: auto; transform: none !important; }
+    .book.is-live .book__verso { display: none; }
+    .book.is-live .book__spine { display: none; }
+  }
+</style>
+
+<script>
+  import { gsap } from 'gsap';
+  import { ScrollTrigger } from 'gsap/ScrollTrigger';
+  import { track } from '../scripts/tracking';
+
+  gsap.registerPlugin(ScrollTrigger);
+
+  const book = document.querySelector<HTMLElement>('[data-book]');
+
+  if (book) {
+    const spreads = Array.from(book.querySelectorAll<HTMLElement>('[data-spread]'));
+    const dots = Array.from(book.querySelectorAll<HTMLButtonElement>('[data-book-dot]'));
+    const hint = book.querySelector<HTMLElement>('[data-book-hint]');
+    const stage = book.querySelector<HTMLElement>('[data-book-stage]')!;
+
+    const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const wide = window.matchMedia('(min-width: 900px)').matches;
+    const seen = new Set<number>();
+
+    const markChapter = (i: number) => {
+      dots.forEach((d, di) => {
+        d.classList.toggle('is-active', di === i);
+        d.setAttribute('aria-selected', String(di === i));
+      });
+      if (!seen.has(i)) {
+        seen.add(i);
+        track('book_chapter', { chapter: i + 1, page_path: location.pathname });
+      }
+    };
+
+    // Stacked mode: no pinning, no 3D — just track which spread is in view.
+    if (reduce || !wide) {
+      const io = new IntersectionObserver(
+        (entries) => {
+          for (const e of entries) {
+            if (e.isIntersecting) markChapter(Number((e.target as HTMLElement).dataset.index));
+          }
+        },
+        { threshold: 0.5 }
+      );
+      spreads.forEach((s) => io.observe(s));
+
+      dots.forEach((dot, i) =>
+        dot.addEventListener('click', () =>
+          spreads[i]?.scrollIntoView({ behavior: 'smooth', block: 'center' })
+        )
+      );
+    } else {
+      book.classList.add('is-live');
+
+      // One viewport of scroll per page turn.
+      const perPage = window.innerHeight * 0.9;
+      const turns = spreads.length - 1;
+
+      const tl = gsap.timeline({
+        scrollTrigger: {
+          trigger: stage,
+          start: 'center center',
+          end: () => `+=${perPage * turns}`,
+          pin: book,
+          scrub: 0.7,
+          snap: turns > 0 ? { snapTo: 1 / turns, duration: 0.3, delay: 0.08 } : undefined,
+          invalidateOnRefresh: true,
+          onUpdate: (self) => {
+            const i = Math.round(self.progress * turns);
+            markChapter(i);
+            hint?.classList.toggle('is-faded', self.progress > 0.02);
+          },
+        },
+      });
+
+      // Each leaf but the last turns about the spine. z-index is dropped at the
+      // halfway point so the turning sheet passes behind the ones beneath it.
+      spreads.slice(0, -1).forEach((spread, i) => {
+        tl.to(
+          spread,
+          {
+            rotateY: -180,
+            ease: 'power1.inOut',
+            duration: 1,
+            onUpdate: function () {
+              const p = this.progress();
+              spread.style.zIndex = String(p > 0.5 ? i : spreads.length - i);
+            },
+          },
+          i
+        );
+      });
+
+      // Native smooth scroll rather than GSAP's ScrollToPlugin — that plugin is
+      // not bundled, and Lenis already eases programmatic scrolls anyway.
+      dots.forEach((dot, i) =>
+        dot.addEventListener('click', () => {
+          const st = tl.scrollTrigger;
+          if (!st) return;
+          const target = st.start + (st.end - st.start) * (turns ? i / turns : 0);
+          window.scrollTo({ top: target, behavior: 'smooth' });
+        })
+      );
+    }
+
+    markChapter(0);
+  }
+</script>
