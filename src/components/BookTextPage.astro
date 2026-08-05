@@ -1,0 +1,152 @@
+---
+/**
+ * The verso — the text page of a spread.
+ *
+ * Lives in its own file because it is rendered twice: once as the static
+ * opening left page, and once as the reverse face of every turning leaf.
+ */
+import type { Chapter } from '../data/site';
+
+interface Props {
+  chapter: Chapter;
+  index: number;
+  total: number;
+}
+
+const { chapter: c, index: i, total } = Astro.props;
+---
+
+<div class="tp">
+  <div class="tp__inner">
+    <p class="tp__chapter">
+      <span class="tp__chapter-num" lang="ja">{c.number}</span>
+      <span class="tp__chapter-of">Chapter {i + 1} of {total}</span>
+    </p>
+
+    <p class="tp__kanji" lang="ja">{c.kanji}</p>
+    <p class="tp__reading">
+      <em>{c.romaji}</em>
+      <span>— {c.caption}</span>
+    </p>
+
+    <h3 class="tp__title">{c.title}</h3>
+
+    <div class="tp__body">
+      {c.body.map((p) => <p>{p}</p>)}
+    </div>
+
+    {
+      c.credential && (
+        <p class="tp__credential">
+          <span aria-hidden="true">◦</span>
+          {c.credential}
+        </p>
+      )
+    }
+
+    <span class="tp__folio" aria-hidden="true">{String(i * 2 + 1).padStart(2, '0')}</span>
+  </div>
+</div>
+
+<style>
+  .tp {
+    position: absolute;
+    inset: 0;
+    display: grid;
+    align-content: center;
+    overflow: hidden;
+    /* Brighter at the outer edge, shading in toward the fold. */
+    background-image: linear-gradient(
+      to left,
+      oklch(93.5% 0.009 70) 0%,
+      oklch(97% 0.005 70) 30%,
+      oklch(96.5% 0.006 70) 100%
+    );
+  }
+
+  .tp__inner {
+    position: relative;
+    padding: clamp(1.5rem, 3.2vw, 3.25rem);
+  }
+
+  .tp__chapter {
+    display: flex;
+    align-items: baseline;
+    gap: 0.85rem;
+    margin-bottom: clamp(1rem, 2.4vw, 2rem);
+  }
+  .tp__chapter-num { font-family: var(--font-jp); font-size: 1.25rem; color: var(--gold-deep); }
+  .tp__chapter-of {
+    font-size: 0.66rem;
+    font-weight: 700;
+    letter-spacing: 0.24em;
+    text-transform: uppercase;
+    color: var(--text-on-paper-faint);
+  }
+
+  .tp__kanji {
+    font-family: var(--font-jp);
+    font-size: clamp(3.5rem, 8vw, 7rem);
+    line-height: 0.9;
+    color: var(--text-on-paper);
+    margin-bottom: 0.4rem;
+  }
+
+  .tp__reading {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 0.6rem;
+    font-size: var(--step--1);
+    color: var(--text-on-paper-faint);
+    padding-bottom: clamp(1rem, 2.2vw, 1.6rem);
+    margin-bottom: clamp(1rem, 2.2vw, 1.6rem);
+    border-bottom: 1px solid var(--rule);
+  }
+  .tp__reading em {
+    font-family: var(--font-display);
+    font-style: italic;
+    font-size: 1.2em;
+    color: var(--gold-deep);
+    letter-spacing: 0.04em;
+  }
+
+  .tp__title {
+    font-size: var(--step-2);
+    font-weight: 300;
+    line-height: 1.2;
+    margin-bottom: 0.85rem;
+    color: var(--text-on-paper);
+  }
+
+  .tp__body > p {
+    font-size: var(--step--1);
+    line-height: 1.8;
+    color: var(--text-on-paper-muted);
+  }
+  .tp__body > p + p { margin-top: 0.8rem; }
+
+  .tp__credential {
+    display: flex;
+    align-items: baseline;
+    gap: 0.6rem;
+    margin-top: clamp(1rem, 2.2vw, 1.75rem);
+    padding-top: 0.9rem;
+    border-top: 1px solid var(--rule);
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--gold-deep);
+  }
+
+  .tp__folio {
+    position: absolute;
+    inset-block-end: clamp(0.75rem, 1.6vw, 1.4rem);
+    inset-inline-start: clamp(1.5rem, 3.2vw, 3.25rem);
+    font-family: var(--font-display);
+    font-size: 0.8rem;
+    color: var(--text-on-paper-faint);
+    font-variant-numeric: tabular-nums;
+  }
+</style>

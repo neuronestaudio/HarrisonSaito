@@ -1,111 +1,106 @@
 ---
 /**
- * The book.
+ * The book — a physical object in a lit room.
  *
- * A scroll-driven bilingual art book: left page carries the kanji, its reading
- * and the text; right page carries the photograph — the anatomy of the
- * reference spread (間 / "the space between"). No hands, no page-curl
- * skeuomorphism, no leather. The paper is the site's cream and the type is the
- * site's type; it reads as a book because of its structure, not its texture.
+ * Two earlier passes got this wrong in instructive ways. The first was a flat
+ * spread with no volume. The second had volume but hinged the *entire spread*
+ * at its outer edge, so both pages swung away together like a shutter.
  *
- * Seven chapters, each establishing a different dimension of credibility —
- * lineage, discipline, qualification, broadcast — rather than repeating the
- * same "about me" register seven times.
+ * A real book hinges one page at the centre gutter, and each leaf carries a
+ * different chapter on each of its faces. So:
  *
- * Mechanics: the section pins and each scroll increment rotates the top sheet
- * about its spine (rotateY 0 -> -180deg) with `transform-style: preserve-3d`,
- * so you see the back of the leaf turning as the next spread is revealed
- * underneath. It loops: past the last chapter it returns to the first.
+ *   left half     static opening text page, then buried under turned leaves
+ *   right half    a stack of leaves, hinged at the gutter
+ *   leaf i        FRONT = chapter i's photograph (facing you, on the right)
+ *                 BACK  = chapter i+1's text     (lands on the left once turned)
  *
- * Below 900px, and under prefers-reduced-motion, it degrades to a plain
- * vertical stack of spreads with no pinning and no 3D.
+ * Turning leaf i therefore reveals chapter i+1 on both sides at once, exactly
+ * as a page turn does. Seven chapters, seven leaves, six turns.
+ *
+ * The rest of the illusion:
+ *   volume   page-edge layers at negative Z, so the camera tilt exposes the
+ *            text block along the bottom
+ *   camera   tilted back on X, drifting with the pointer, so the leaves and
+ *            the block parallax against each other
+ *   light    warm key from upper-left; each leaf carries a shading overlay
+ *            whose strength tracks how edge-on it currently is
+ *   ground   a desk plane with a contact shadow the book sits in
+ *   room     the dojo plate, blurred and masked, so it is somewhere
+ *
+ * Below 900px and under prefers-reduced-motion it degrades to a plain vertical
+ * stack of spreads — no perspective, no pinning, no 3D.
  */
 import { CHAPTERS } from '../data/site';
-import { srcset, src } from '../lib/images';
+import BookTextPage from './BookTextPage.astro';
+import BookImagePage from './BookImagePage.astro';
 
 const total = CHAPTERS.length;
+/** Page-edge layers making up the text block. */
+const STACK = 9;
 ---
 
 <div class="book" data-book style={`--book-count:${total}`}>
-  <div class="book__stage" data-book-stage>
-    <div class="book__spine" aria-hidden="true"></div>
+  {/* ---------------------------------------------------------- the room */}
+  <div class="book__room" aria-hidden="true">
+    <img class="book__room-plate" src="/img/dark-dojo.webp" alt="" loading="lazy" decoding="async" />
+    <span class="book__room-wash"></span>
+    <span class="book__key-light"></span>
+  </div>
 
-    <div class="book__sheets">
-      {
-        CHAPTERS.map((c, i) => (
-          <article
-            class="book__spread"
-            data-spread
-            data-index={i}
-            style={`z-index:${total - i}`}
-            aria-label={`Chapter ${i + 1}: ${c.title}`}
-          >
-            {/* left — the word */}
-            <div class="book__page book__page--left">
-              <div class="book__page-inner">
-                <p class="book__chapter">
-                  <span class="book__chapter-num" lang="ja">
-                    {c.number}
-                  </span>
-                  <span class="book__chapter-of">Chapter {i + 1} of {total}</span>
-                </p>
+  {/* --------------------------------------------------------- the object */}
+  <div class="book__viewport" data-book-viewport>
+    <div class="book__object" data-book-object>
+      <div class="book__desk" aria-hidden="true"></div>
+      <div class="book__contact" aria-hidden="true"></div>
 
-                <p class="book__kanji" lang="ja">{c.kanji}</p>
-                <p class="book__reading">
-                  <em>{c.romaji}</em>
-                  <span>— {c.caption}</span>
-                </p>
+      {/* the text block — page edges receding in Z */}
+      <div class="book__block" aria-hidden="true">
+        {Array.from({ length: STACK }).map((_, i) => <span class="book__leafedge" style={`--i:${i}`} />)}
+      </div>
 
-                <h3 class="book__title">{c.title}</h3>
+      {/* ---- left half: the opening text page, buried as leaves turn ---- */}
+      <div class="book__half book__half--left">
+        <BookTextPage chapter={CHAPTERS[0]} index={0} total={total} />
+      </div>
 
-                <div class="book__body">
-                  {c.body.map((p) => (
-                    <p>{p}</p>
-                  ))}
-                </div>
+      {/* ---- right half: the leaves ---- */}
+      <div class="book__half book__half--right">
+        {
+          CHAPTERS.map((c, i) => (
+            <div
+              class="book__leaf"
+              data-leaf
+              data-index={i}
+              style={`z-index:${total - i}`}
+              aria-label={`Chapter ${i + 1}: ${c.title}`}
+            >
+              <div class="book__face book__face--front">
+                <BookImagePage chapter={c} index={i} eager={i < 2} />
+                <span class="book__shade" aria-hidden="true" />
+              </div>
 
-                {c.credential && (
-                  <p class="book__credential">
-                    <span aria-hidden="true">◦</span>
-                    {c.credential}
-                  </p>
+              <div class="book__face book__face--back">
+                {CHAPTERS[i + 1] ? (
+                  <BookTextPage chapter={CHAPTERS[i + 1]} index={i + 1} total={total} />
+                ) : (
+                  <div class="book__endpaper">
+                    <span lang="ja" aria-hidden="true">
+                      円
+                    </span>
+                  </div>
                 )}
-
-                <span class="book__folio" aria-hidden="true">
-                  {String(i * 2 + 1).padStart(2, '0')}
-                </span>
+                <span class="book__shade book__shade--back" aria-hidden="true" />
               </div>
             </div>
+          ))
+        }
+      </div>
 
-            {/* right — the image */}
-            <div class="book__page book__page--right">
-              <img
-                src={src(c.image)}
-                srcset={srcset(c.image) || undefined}
-                sizes="(max-width: 900px) 100vw, 42vw"
-                alt={c.imageAlt}
-                width="900"
-                height="1100"
-                loading={i < 2 ? 'eager' : 'lazy'}
-                decoding="async"
-              />
-              <span class="book__page-scrim" aria-hidden="true" />
-              <span class="book__caption">{c.caption}</span>
-              <span class="book__folio book__folio--right" aria-hidden="true">
-                {String(i * 2 + 2).padStart(2, '0')}
-              </span>
-            </div>
-
-            {/* the reverse of this leaf, seen mid-turn */}
-            <div class="book__verso" aria-hidden="true">
-              <span class="book__verso-kanji" lang="ja">{c.kanji}</span>
-            </div>
-          </article>
-        ))
-      }
+      <span class="book__gutter" aria-hidden="true"></span>
     </div>
   </div>
 
+  {/* -------------------------------------------------------- the controls */}
   <div class="book__controls">
     <div class="book__dots" role="tablist" aria-label="Chapters">
       {
@@ -125,188 +120,53 @@ const total = CHAPTERS.length;
     </div>
     <p class="book__hint" data-book-hint>Scroll to turn the page</p>
   </div>
+
+  {/* ---- stacked fallback: mobile, reduced motion, and no-JS ---- */}
+  <div class="book__stacked">
+    {
+      CHAPTERS.map((c, i) => (
+        <article class="book__spread" data-spread data-index={i}>
+          <div class="book__spread-text">
+            <BookTextPage chapter={c} index={i} total={total} />
+          </div>
+          <div class="book__spread-image">
+            <BookImagePage chapter={c} index={i} eager={i < 1} />
+          </div>
+        </article>
+      ))
+    }
+  </div>
 </div>
 
 <style>
   .book {
     position: relative;
     --paper-page: oklch(96.5% 0.006 70);
-    --paper-edge: oklch(88% 0.012 68);
+    --paper-edge: oklch(87% 0.014 68);
+    --paper-edge-dark: oklch(74% 0.018 66);
   }
 
-  .book__stage {
-    position: relative;
-    perspective: 2400px;
-    perspective-origin: 50% 45%;
-  }
+  /* Everything 3D is off until JS turns it on. */
+  .book__room,
+  .book__viewport { display: none; }
 
-  .book__sheets {
-    position: relative;
-    display: grid;
-    transform-style: preserve-3d;
-  }
+  /* ================= stacked fallback ================= */
+  .book__stacked { display: grid; gap: clamp(1.5rem, 3vw, 2.5rem); }
 
-  /* ---- a spread ---- */
   .book__spread {
     display: grid;
     background: var(--paper-page);
-    transform-style: preserve-3d;
-    backface-visibility: hidden;
-    box-shadow: 0 30px 90px oklch(11% 0.008 55 / 0.45);
+    box-shadow: 0 24px 70px oklch(11% 0.008 55 / 0.4);
+  }
+  .book__spread-text,
+  .book__spread-image { position: relative; min-height: 26rem; }
+
+  @media (min-width: 900px) {
+    .book__spread { grid-template-columns: 1fr 1fr; }
+    .book__spread-text, .book__spread-image { min-height: 34rem; }
   }
 
-  .book__page { position: relative; overflow: hidden; }
-
-  .book__page--left {
-    background: var(--paper-page);
-    display: grid;
-    align-content: center;
-  }
-
-  .book__page-inner {
-    position: relative;
-    padding: clamp(1.75rem, 4vw, 3.75rem);
-    max-width: 42rem;
-  }
-
-  .book__chapter {
-    display: flex;
-    align-items: baseline;
-    gap: 0.85rem;
-    margin-bottom: clamp(1.25rem, 3vw, 2.25rem);
-  }
-  .book__chapter-num {
-    font-family: var(--font-jp);
-    font-size: 1.3rem;
-    color: var(--gold-deep);
-  }
-  .book__chapter-of {
-    font-size: 0.68rem;
-    font-weight: 700;
-    letter-spacing: 0.24em;
-    text-transform: uppercase;
-    color: var(--text-on-paper-faint);
-  }
-
-  .book__kanji {
-    font-family: var(--font-jp);
-    font-size: clamp(4.5rem, 11vw, 9rem);
-    line-height: 0.9;
-    color: var(--text-on-paper);
-    margin-bottom: 0.5rem;
-  }
-
-  .book__reading {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: baseline;
-    gap: 0.6rem;
-    font-size: var(--step-0);
-    color: var(--text-on-paper-faint);
-    padding-bottom: clamp(1.25rem, 2.5vw, 2rem);
-    margin-bottom: clamp(1.25rem, 2.5vw, 2rem);
-    border-bottom: 1px solid var(--rule);
-  }
-  .book__reading em {
-    font-family: var(--font-display);
-    font-style: italic;
-    font-size: 1.15em;
-    color: var(--gold-deep);
-    letter-spacing: 0.04em;
-  }
-
-  .book__title {
-    font-size: var(--step-2);
-    font-weight: 300;
-    line-height: 1.2;
-    margin-bottom: 1rem;
-    color: var(--text-on-paper);
-  }
-
-  .book__body > p {
-    font-size: var(--step-0);
-    line-height: 1.8;
-    color: var(--text-on-paper-muted);
-  }
-  .book__body > p + p { margin-top: 0.9rem; }
-
-  .book__credential {
-    display: flex;
-    align-items: baseline;
-    gap: 0.6rem;
-    margin-top: clamp(1.25rem, 2.5vw, 2rem);
-    padding-top: 1rem;
-    border-top: 1px solid var(--rule);
-    font-size: 0.75rem;
-    font-weight: 600;
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
-    color: var(--gold-deep);
-  }
-
-  .book__folio {
-    position: absolute;
-    inset-block-end: clamp(1rem, 2vw, 1.75rem);
-    inset-inline-start: clamp(1.75rem, 4vw, 3.75rem);
-    font-family: var(--font-display);
-    font-size: 0.85rem;
-    color: var(--text-on-paper-faint);
-    font-variant-numeric: tabular-nums;
-  }
-  .book__folio--right {
-    inset-inline-start: auto;
-    inset-inline-end: clamp(1.25rem, 3vw, 2.5rem);
-    color: oklch(93% 0.005 60 / 0.6);
-    z-index: 2;
-  }
-
-  /* ---- right page ---- */
-  .book__page--right { background: var(--ink-900); }
-  .book__page--right img { width: 100%; height: 100%; object-fit: cover; }
-
-  .book__page-scrim {
-    position: absolute;
-    inset: 0;
-    background: linear-gradient(to top, oklch(11% 0.008 55 / 0.7), transparent 55%);
-  }
-
-  .book__caption {
-    position: absolute;
-    inset-block-end: clamp(1.25rem, 3vw, 2.5rem);
-    inset-inline-start: clamp(1.25rem, 3vw, 2.5rem);
-    font-family: var(--font-display);
-    font-style: italic;
-    font-size: var(--step-1);
-    color: oklch(95% 0.005 60);
-    z-index: 2;
-    text-shadow: 0 2px 20px oklch(11% 0.008 55 / 0.8);
-  }
-
-  /* ---- the reverse of a turning leaf ---- */
-  .book__verso {
-    position: absolute;
-    inset: 0;
-    background: var(--paper-edge);
-    transform: rotateY(180deg);
-    backface-visibility: hidden;
-    display: grid;
-    place-items: center;
-    /* Paper is never flat — a faint gradient reads as a curved sheet. */
-    background-image: linear-gradient(
-      to left,
-      oklch(84% 0.012 68) 0%,
-      oklch(93% 0.008 68) 22%,
-      oklch(90% 0.01 68) 100%
-    );
-  }
-  .book__verso-kanji {
-    font-family: var(--font-jp);
-    font-size: clamp(6rem, 14vw, 12rem);
-    color: var(--ink-900);
-    opacity: 0.06;
-  }
-
-  /* ---- controls ---- */
+  /* ================= controls ================= */
   .book__controls {
     display: flex;
     flex-wrap: wrap;
@@ -314,6 +174,8 @@ const total = CHAPTERS.length;
     justify-content: space-between;
     gap: 1rem;
     margin-top: clamp(1.5rem, 3vw, 2.5rem);
+    position: relative;
+    z-index: 5;
   }
 
   .book__dots { display: flex; flex-wrap: wrap; gap: 0.4rem; }
@@ -323,20 +185,22 @@ const total = CHAPTERS.length;
     height: 44px;
     display: grid;
     place-items: center;
-    background: transparent;
+    background: oklch(11% 0.008 55 / 0.4);
     border: 1px solid var(--rule-on-ink);
     color: var(--text-on-ink-faint);
     font-family: var(--font-jp);
     font-size: 1.05rem;
     cursor: pointer;
+    backdrop-filter: blur(6px);
     transition: border-color var(--dur-fast) ease, color var(--dur-fast) ease,
-      background var(--dur-fast) ease;
+      background var(--dur-fast) ease, transform var(--dur-fast) var(--ease-out-expo);
   }
   .book__dot:hover { border-color: oklch(75% 0.12 75 / 0.6); color: var(--text-on-ink); }
   .book__dot.is-active {
     border-color: var(--gold);
-    background: oklch(75% 0.12 75 / 0.12);
+    background: oklch(75% 0.12 75 / 0.14);
     color: var(--gold);
+    transform: translateY(-2px);
   }
 
   .book__hint {
@@ -348,58 +212,228 @@ const total = CHAPTERS.length;
   }
   .book__hint.is-faded { opacity: 0; }
 
-  /* ================= stacked fallback (mobile / no-JS) ================= */
-  .book__spread { margin-bottom: clamp(1.5rem, 3vw, 2.5rem); }
-  .book__verso { display: none; }
+  /* ==================================================================== */
+  /* ======================= 3D MODE, enabled by JS ===================== */
+  /* ==================================================================== */
 
-  @media (min-width: 900px) {
-    .book__spread { grid-template-columns: 1fr 1fr; min-height: 40rem; }
+  .book.is-live {
+    --cam-x: 11deg;
+    --cam-y: 0deg;
+    --cam-z: -0.8deg;
+    --leaf-depth: 4px;
+    --leaf-drop: 0.9px;
   }
 
-  /* ================= book mode, enabled by JS on desktop ============== */
-  .book.is-live .book__sheets { display: block; height: min(78vh, 46rem); }
+  .book.is-live .book__stacked { display: none; }
+  .book.is-live .book__room,
+  .book.is-live .book__viewport { display: block; }
 
-  .book.is-live .book__spread {
+  /* ---- the room ---- */
+  .book.is-live .book__room {
+    position: absolute;
+    inset: -22% -20%;
+    z-index: 0;
+    pointer-events: none;
+    overflow: hidden;
+    /* Masked rather than clipped with a radius — a border-radius leaves a hard
+       elliptical edge where the blurred plate stops, which reads as a shape
+       floating behind the book instead of as a room. */
+    -webkit-mask-image: radial-gradient(ellipse 58% 56% at 50% 46%, #000 34%, transparent 76%);
+    mask-image: radial-gradient(ellipse 58% 56% at 50% 46%, #000 34%, transparent 76%);
+  }
+
+  .book.is-live .book__room-plate {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    filter: blur(28px) saturate(0.45) brightness(0.3);
+    transform: scale(1.2);
+  }
+
+  .book.is-live .book__room-wash {
     position: absolute;
     inset: 0;
-    margin: 0;
-    transform-origin: left center;
+    background:
+      radial-gradient(ellipse 60% 55% at 50% 42%, oklch(30% 0.02 60 / 0.5), transparent 70%),
+      linear-gradient(to bottom, oklch(11% 0.008 55 / 0.5), oklch(11% 0.008 55 / 0.9));
+  }
+
+  .book.is-live .book__key-light {
+    position: absolute;
+    inset-block-start: -6%;
+    inset-inline-start: 10%;
+    width: 60%;
+    height: 74%;
+    background: radial-gradient(ellipse at 30% 20%, oklch(86% 0.07 76 / 0.15), transparent 62%);
+    filter: blur(34px);
+  }
+
+  /* ---- camera ---- */
+  .book.is-live .book__viewport {
+    position: relative;
+    perspective: 2200px;
+    perspective-origin: 50% 38%;
+    z-index: 1;
+    padding-block: clamp(1rem, 4vw, 3rem);
+  }
+
+  .book.is-live .book__object {
+    position: relative;
+    height: min(74vh, 44rem);
+    transform-style: preserve-3d;
+    transform: rotateX(var(--cam-x)) rotateY(var(--cam-y)) rotateZ(var(--cam-z));
+    /* No CSS transition — the camera is damped per-frame in JS, and a
+       transition on top of that lags the pointer instead of smoothing it. */
     will-change: transform;
-    backface-visibility: hidden;
   }
 
-  .book.is-live .book__verso { display: grid; }
+  /* ---- desk ---- */
+  .book.is-live .book__desk {
+    position: absolute;
+    inset: -18% -12%;
+    transform: translateZ(-90px);
+    background:
+      radial-gradient(ellipse 55% 48% at 50% 46%, oklch(26% 0.016 58 / 0.9), transparent 72%),
+      linear-gradient(to bottom, oklch(16% 0.01 55), oklch(10% 0.006 55));
+    filter: blur(3px);
+  }
 
-  /* The stage gets the paper edge so turned leaves have something to sit on. */
-  .book.is-live .book__stage::after {
-    content: '';
+  .book.is-live .book__contact {
+    position: absolute;
+    inset-inline: 2%;
+    inset-block-end: -6%;
+    height: 24%;
+    transform: translateZ(-70px);
+    background: radial-gradient(
+      ellipse 50% 60% at 50% 30%,
+      oklch(6% 0.004 55 / 0.85),
+      transparent 72%
+    );
+    filter: blur(24px);
+  }
+
+  /* ---- text block ---- */
+  .book.is-live .book__block {
     position: absolute;
     inset: 0;
-    background: var(--paper-edge);
-    z-index: -1;
-    box-shadow: 0 30px 90px oklch(11% 0.008 55 / 0.45);
-  }
-
-  .book.is-live .book__spine {
-    position: absolute;
-    inset-block: 0;
-    inset-inline-start: 50%;
-    width: 2px;
-    transform: translateX(-1px);
-    background: linear-gradient(
-      to right,
-      oklch(11% 0.008 55 / 0.16),
-      oklch(11% 0.008 55 / 0.04)
-    );
-    z-index: 50;
+    transform-style: preserve-3d;
     pointer-events: none;
   }
 
+  .book.is-live .book__leafedge {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+      to right,
+      var(--paper-edge-dark) 0%,
+      var(--paper-edge) 6%,
+      oklch(93% 0.008 70) 48%,
+      oklch(93% 0.008 70) 52%,
+      var(--paper-edge) 94%,
+      var(--paper-edge-dark) 100%
+    );
+    transform: translateZ(calc(var(--i) * var(--leaf-depth) * -1))
+      translateY(calc(var(--i) * var(--leaf-drop)));
+    box-shadow: 0 1px 0 oklch(70% 0.02 66 / 0.55);
+  }
+
+  /* ---- halves ---- */
+  .book.is-live .book__half {
+    position: absolute;
+    inset-block: 0;
+    width: 50%;
+    transform-style: preserve-3d;
+  }
+  .book.is-live .book__half--left { inset-inline-start: 0; }
+  .book.is-live .book__half--right { inset-inline-start: 50%; }
+
+  /* ---- leaves ---- */
+  .book.is-live .book__leaf {
+    position: absolute;
+    inset: 0;
+    transform-origin: left center;   /* the gutter */
+    transform-style: preserve-3d;
+    will-change: transform;
+  }
+
+  .book.is-live .book__face {
+    position: absolute;
+    inset: 0;
+    backface-visibility: hidden;
+    overflow: hidden;
+  }
+  .book.is-live .book__face--back {
+    transform: rotateY(180deg) translateZ(0.6px);
+    background: var(--paper-page);
+  }
+
+  /* Lighting pass. --shade is written by JS from the leaf's own rotation. */
+  .book.is-live .book__shade {
+    position: absolute;
+    inset: 0;
+    z-index: 6;
+    pointer-events: none;
+    opacity: var(--shade, 0);
+    background: linear-gradient(
+      100deg,
+      oklch(100% 0 0 / 0.16) 0%,
+      transparent 24%,
+      oklch(8% 0.004 55 / 0.44) 76%,
+      oklch(8% 0.004 55 / 0.66) 100%
+    );
+  }
+  .book.is-live .book__shade--back {
+    background: linear-gradient(
+      260deg,
+      oklch(100% 0 0 / 0.12) 0%,
+      transparent 28%,
+      oklch(8% 0.004 55 / 0.38) 80%,
+      oklch(8% 0.004 55 / 0.55) 100%
+    );
+  }
+
+  .book.is-live .book__endpaper {
+    position: absolute;
+    inset: 0;
+    display: grid;
+    place-items: center;
+    background-image: linear-gradient(
+      to left,
+      oklch(80% 0.016 68) 0%,
+      oklch(93% 0.008 68) 20%,
+      oklch(90% 0.01 68) 100%
+    );
+  }
+  .book.is-live .book__endpaper span {
+    font-family: var(--font-jp);
+    font-size: clamp(6rem, 13vw, 11rem);
+    color: var(--ink-900);
+    opacity: 0.07;
+  }
+
+  /* ---- the fold ---- */
+  .book.is-live .book__gutter {
+    position: absolute;
+    inset-block: 0;
+    inset-inline-start: 50%;
+    width: 8%;
+    transform: translateX(-50%) translateZ(0.2px);
+    z-index: 40;
+    pointer-events: none;
+    background: linear-gradient(
+      to right,
+      transparent,
+      oklch(11% 0.008 55 / 0.18) 34%,
+      oklch(11% 0.008 55 / 0.34) 50%,
+      oklch(11% 0.008 55 / 0.18) 66%,
+      transparent
+    );
+  }
+
   @media (prefers-reduced-motion: reduce) {
-    .book.is-live .book__sheets { display: grid; height: auto; }
-    .book.is-live .book__spread { position: relative; inset: auto; transform: none !important; }
-    .book.is-live .book__verso { display: none; }
-    .book.is-live .book__spine { display: none; }
+    .book.is-live .book__stacked { display: grid; }
+    .book.is-live .book__room,
+    .book.is-live .book__viewport { display: none; }
   }
 </style>
 
@@ -413,10 +447,12 @@ const total = CHAPTERS.length;
   const book = document.querySelector<HTMLElement>('[data-book]');
 
   if (book) {
-    const spreads = Array.from(book.querySelectorAll<HTMLElement>('[data-spread]'));
     const dots = Array.from(book.querySelectorAll<HTMLButtonElement>('[data-book-dot]'));
     const hint = book.querySelector<HTMLElement>('[data-book-hint]');
-    const stage = book.querySelector<HTMLElement>('[data-book-stage]')!;
+    const viewport = book.querySelector<HTMLElement>('[data-book-viewport]')!;
+    const object = book.querySelector<HTMLElement>('[data-book-object]')!;
+    const leaves = Array.from(book.querySelectorAll<HTMLElement>('[data-leaf]'));
+    const stacked = Array.from(book.querySelectorAll<HTMLElement>('[data-spread]'));
 
     const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     const wide = window.matchMedia('(min-width: 900px)').matches;
@@ -433,8 +469,10 @@ const total = CHAPTERS.length;
       }
     };
 
-    // Stacked mode: no pinning, no 3D — just track which spread is in view.
     if (reduce || !wide) {
+      // Nothing turns in stacked mode, so the hint would be a lie.
+      if (hint) hint.textContent = `${dots.length} chapters`;
+
       const io = new IntersectionObserver(
         (entries) => {
           for (const e of entries) {
@@ -443,23 +481,29 @@ const total = CHAPTERS.length;
         },
         { threshold: 0.5 }
       );
-      spreads.forEach((s) => io.observe(s));
+      stacked.forEach((s) => io.observe(s));
 
       dots.forEach((dot, i) =>
         dot.addEventListener('click', () =>
-          spreads[i]?.scrollIntoView({ behavior: 'smooth', block: 'center' })
+          stacked[i]?.scrollIntoView({ behavior: 'smooth', block: 'center' })
         )
       );
     } else {
       book.classList.add('is-live');
 
-      // One viewport of scroll per page turn.
       const perPage = window.innerHeight * 0.9;
-      const turns = spreads.length - 1;
+      const turns = leaves.length - 1;
+
+      /**
+       * Shading strength for a leaf at a given rotation: peaks as the sheet
+       * goes edge-on to the key light and falls away once it lies flat. This
+       * is what stops the turn reading as a texture swap.
+       */
+      const shadeFor = (deg: number) => Math.sin((Math.abs(deg) / 180) * Math.PI);
 
       const tl = gsap.timeline({
         scrollTrigger: {
-          trigger: stage,
+          trigger: viewport,
           start: 'center center',
           end: () => `+=${perPage * turns}`,
           pin: book,
@@ -467,41 +511,103 @@ const total = CHAPTERS.length;
           snap: turns > 0 ? { snapTo: 1 / turns, duration: 0.3, delay: 0.08 } : undefined,
           invalidateOnRefresh: true,
           onUpdate: (self) => {
-            const i = Math.round(self.progress * turns);
-            markChapter(i);
+            markChapter(Math.round(self.progress * turns));
             hint?.classList.toggle('is-faded', self.progress > 0.02);
           },
         },
       });
 
-      // Each leaf but the last turns about the spine. z-index is dropped at the
-      // halfway point so the turning sheet passes behind the ones beneath it.
-      spreads.slice(0, -1).forEach((spread, i) => {
+      leaves.slice(0, -1).forEach((leaf, i) => {
+        const state = { deg: 0 };
         tl.to(
-          spread,
+          state,
           {
-            rotateY: -180,
+            deg: -180,
             ease: 'power1.inOut',
             duration: 1,
-            onUpdate: function () {
-              const p = this.progress();
-              spread.style.zIndex = String(p > 0.5 ? i : spreads.length - i);
+            onUpdate: () => {
+              const d = state.deg;
+              // Lift the leaf off the block as it swings so it clears the
+              // pages beneath instead of shearing through them.
+              const lift = Math.sin((Math.abs(d) / 180) * Math.PI) * 22;
+              leaf.style.transform = `translateZ(${lift}px) rotateY(${d}deg)`;
+              leaf.style.setProperty('--shade', String(shadeFor(d)));
+              // Once past upright, the leaf belongs to the left-hand pile, and
+              // later-turned leaves must sit on top of earlier ones.
+              leaf.style.zIndex = String(Math.abs(d) > 90 ? i : leaves.length - i);
             },
           },
           i
         );
       });
 
-      // Native smooth scroll rather than GSAP's ScrollToPlugin — that plugin is
-      // not bundled, and Lenis already eases programmatic scrolls anyway.
       dots.forEach((dot, i) =>
         dot.addEventListener('click', () => {
           const st = tl.scrollTrigger;
           if (!st) return;
-          const target = st.start + (st.end - st.start) * (turns ? i / turns : 0);
-          window.scrollTo({ top: target, behavior: 'smooth' });
+          window.scrollTo({
+            top: st.start + (st.end - st.start) * (turns ? i / turns : 0),
+            behavior: 'smooth',
+          });
         })
       );
+
+      /**
+       * Pointer parallax. Small angles only — the point is that the leaves and
+       * the page-edge block shift against each other, which is what sells the
+       * volume. Damped so it glides rather than snapping to the cursor.
+       */
+      let targetY = 0;
+      let targetX = 11;
+      let curY = 0;
+      let curX = 11;
+      let raf = 0;
+
+      const settle = () => {
+        curY += (targetY - curY) * 0.08;
+        curX += (targetX - curX) * 0.08;
+        object.style.setProperty('--cam-y', `${curY.toFixed(2)}deg`);
+        object.style.setProperty('--cam-x', `${curX.toFixed(2)}deg`);
+        raf =
+          Math.abs(targetY - curY) > 0.01 || Math.abs(targetX - curX) > 0.01
+            ? requestAnimationFrame(settle)
+            : 0;
+      };
+      const nudge = () => {
+        if (!raf) raf = requestAnimationFrame(settle);
+      };
+
+      window.addEventListener(
+        'pointermove',
+        (e) => {
+          const r = viewport.getBoundingClientRect();
+          if (r.bottom < 0 || r.top > window.innerHeight) return;
+          targetY = ((e.clientX - r.left) / r.width - 0.5) * 9;
+          targetX = 11 - ((e.clientY - r.top) / r.height - 0.5) * 7;
+          nudge();
+        },
+        { passive: true }
+      );
+
+      viewport.addEventListener('pointerleave', () => {
+        targetY = 0;
+        targetX = 11;
+        nudge();
+      });
+
+      // Rolls very slightly as it passes through view, so it reads as an
+      // object on a surface rather than a fixed graphic. Written directly:
+      // --cam-z is inherited from .book.is-live, which GSAP cannot interpolate
+      // off the child without resolving the parent first.
+      ScrollTrigger.create({
+        trigger: viewport,
+        start: 'top bottom',
+        end: 'bottom top',
+        scrub: true,
+        onUpdate: (self) => {
+          object.style.setProperty('--cam-z', `${(-2.4 + self.progress * 3).toFixed(2)}deg`);
+        },
+      });
     }
 
     markChapter(0);
