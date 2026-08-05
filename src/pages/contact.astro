@@ -1,0 +1,186 @@
+---
+/**
+ * Contact.
+ *
+ * Audit finding M9: the legacy site's only contact route was WhatsApp, which
+ * quietly excluded anyone who doesn't use it — including a fair number of the
+ * parents this business depends on. Email, phone and a form now sit alongside
+ * it, with WhatsApp kept because it genuinely converts well.
+ */
+import Base from '../layouts/Base.astro';
+import LeadForm from '../components/LeadForm.astro';
+import Calligraphy from '../components/Calligraphy.astro';
+import { SITE, WHATSAPP } from '../data/site';
+import { graph, localBusinessSchema, breadcrumbSchema } from '../lib/seo';
+
+const title = 'Contact Harrison Saito | Chatswood, Sydney';
+const description =
+  'Get in touch with Harrison Saito — men’s life coaching and HSC mentoring in Chatswood, Sydney. Email, phone, WhatsApp or send a message.';
+
+const schema = graph(
+  localBusinessSchema(),
+  breadcrumbSchema([
+    { name: 'Home', url: '/' },
+    { name: 'Contact', url: '/contact' },
+  ])
+);
+
+const fields = [
+  { name: 'name', label: 'Your name', type: 'text' as const, required: true, autocomplete: 'name' },
+  { name: 'email', label: 'Email', type: 'email' as const, required: true, autocomplete: 'email' },
+  { name: 'phone', label: 'Phone (optional)', type: 'tel' as const, required: false, autocomplete: 'tel' },
+  {
+    name: 'about',
+    label: 'What is this about?',
+    type: 'select' as const,
+    required: true,
+    options: [
+      "Men's coaching",
+      'Return to Self programme',
+      'HSC or youth mentoring',
+      'Martial arts',
+      'Media or speaking',
+      'Something else',
+    ],
+  },
+  {
+    name: 'message',
+    label: 'Your message',
+    type: 'textarea' as const,
+    required: true,
+    placeholder: 'Tell me where you are at and what you are looking for.',
+  },
+];
+---
+
+<Base title={title} description={description} path="/contact" schema={schema}>
+  <section class="section contact section--deep" data-section="contact">
+    <Calligraphy set="hero" seed={15} scale={1.1} words={['PRESENCE']} />
+
+    <div class="container contact__grid">
+      <div class="contact__intro" data-reveal>
+        <p class="eyebrow">Contact</p>
+        <h1 class="display-l contact__title">Get in touch.</h1>
+        <p class="lede contact__lede">
+          No pitch. No pressure. Just a conversation about where you are and what you're looking for.
+        </p>
+
+        <dl class="contact__list">
+          <div>
+            <dt>Email</dt>
+            <dd>
+              <a href={`mailto:${SITE.email}`} data-track="cta_click" data-track-label="Contact — email">
+                {SITE.email}
+              </a>
+            </dd>
+          </div>
+          <div>
+            <dt>Phone</dt>
+            <dd>
+              <a href={`tel:${SITE.phone}`} data-track="cta_click" data-track-label="Contact — phone">
+                {SITE.phoneDisplay}
+              </a>
+            </dd>
+          </div>
+          <div>
+            <dt>WhatsApp</dt>
+            <dd>
+              <a
+                href={WHATSAPP.general}
+                target="_blank"
+                rel="noopener noreferrer"
+                data-track="cta_click"
+                data-track-label="Contact — WhatsApp">Message on WhatsApp</a>
+            </dd>
+          </div>
+          <div>
+            <dt>Based in</dt>
+            <dd>{SITE.locality}, {SITE.region} — and online Australia-wide</dd>
+          </div>
+          <div>
+            <dt>Social</dt>
+            <dd class="contact__social">
+              <a href={SITE.instagram} target="_blank" rel="noopener noreferrer">Instagram</a>
+              <a href={SITE.youtube} target="_blank" rel="noopener noreferrer">YouTube</a>
+            </dd>
+          </div>
+        </dl>
+
+        <div class="contact__crisis">
+          <p>
+            This is coaching, not therapy, diagnosis or emergency care. If you are in crisis, please
+            contact <a href="tel:131114">Lifeline on 13 11 14</a> or call 000.
+          </p>
+        </div>
+      </div>
+
+      <div class="contact__form" data-reveal>
+        <LeadForm
+          formId="general-contact"
+          variant="simple"
+          fields={fields}
+          submitLabel="Send Message"
+          eventName="contact"
+          successHeading="Message sent."
+          successBody="I'll reply personally, usually within a day."
+        />
+      </div>
+    </div>
+  </section>
+</Base>
+
+<style>
+  .contact { padding-block: clamp(7rem, 16vh, 11rem) clamp(4rem, 9vw, 7rem); }
+
+  .contact__grid {
+    display: grid;
+    gap: clamp(2.5rem, 5vw, 4.5rem);
+    align-items: start;
+  }
+
+  .contact__title { margin-bottom: 1.5rem; }
+  .contact__lede { max-width: 36ch; }
+
+  .contact__list {
+    margin: clamp(2rem, 4vw, 3rem) 0 0;
+    display: grid;
+    gap: 1.25rem;
+  }
+  .contact__list > div {
+    display: grid;
+    gap: 0.2rem;
+    padding-left: 1.15rem;
+    border-left: 1px solid oklch(75% 0.12 75 / 0.35);
+  }
+  .contact__list dt {
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--gold);
+  }
+  .contact__list dd {
+    margin: 0;
+    font-size: var(--step-0);
+    color: var(--text-on-ink-muted);
+  }
+  .contact__list a { transition: color var(--dur-fast) ease; }
+  .contact__list a:hover { color: var(--gold); }
+  .contact__social { display: flex; gap: 1.25rem; }
+
+  .contact__crisis {
+    margin-top: 2rem;
+    padding: 1rem 1.25rem;
+    border-left: 2px solid oklch(100% 0 0 / 0.18);
+  }
+  .contact__crisis p {
+    font-size: 0.8rem;
+    line-height: 1.7;
+    color: var(--text-on-ink-faint);
+  }
+  .contact__crisis a { color: var(--gold); text-decoration: underline; text-underline-offset: 2px; }
+
+  @media (min-width: 950px) {
+    .contact__grid { grid-template-columns: 0.85fr 1.15fr; }
+  }
+</style>

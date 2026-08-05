@@ -1,0 +1,9 @@
+User-agent: *
+Allow: /
+
+# Campaign landing pages are for paid traffic only — they duplicate content
+# from the main pages and should never compete with them in organic results.
+Disallow: /lp/
+Disallow: /thank-you
+
+Sitemap: https://www.harrisonsaito.com.au/sitemap-index.xml

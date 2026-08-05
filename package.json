@@ -1,0 +1,29 @@
+{
+  "name": "harrisonsaito",
+  "type": "module",
+  "version": "1.0.0",
+  "private": true,
+  "description": "harrisonsaito.com.au — Educator, Martial Artist, Coach. Built and managed by Pndulum Digital Infrastructure.",
+  "scripts": {
+    "dev": "astro dev",
+    "start": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview",
+    "astro": "astro",
+    "media": "node scripts/optimise-media.mjs",
+    "fonts": "node scripts/fetch-fonts.mjs",
+    "audit": "node scripts/audit-check.mjs",
+    "shots": "node scripts/shots.mjs",
+    "check:pin": "node scripts/check-pin.mjs"
+  },
+  "dependencies": {
+    "@astrojs/sitemap": "^3.2.1",
+    "astro": "^5.1.1",
+    "gsap": "^3.12.5",
+    "lenis": "^1.1.18",
+    "sharp": "^0.33.5"
+  },
+  "devDependencies": {
+    "playwright": "^1.62.1"
+  }
+}

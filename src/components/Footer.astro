@@ -1,0 +1,172 @@
+---
+/**
+ * Footer.
+ *
+ * Carries the two things the legacy footer was missing: policy links, which
+ * Meta requires before it will run ads (audit C3), and non-WhatsApp contact
+ * routes — email and tel — since WhatsApp-only excluded a real slice of the
+ * audience, particularly parents (M9).
+ */
+import { SITE, NAV } from '../data/site';
+
+const year = new Date().getFullYear();
+---
+
+<footer class="footer">
+  <div class="container footer__inner">
+    <div class="footer__brand">
+      <a href="/" class="footer__name">Harrison Saito</a>
+      <p class="footer__tagline">Educator. Martial Artist. Coach.</p>
+      <p class="footer__loc">
+        <svg viewBox="0 0 24 24" width="14" height="14" fill="none" aria-hidden="true">
+          <path
+            d="M12 21s7-6.2 7-11a7 7 0 1 0-14 0c0 4.8 7 11 7 11Z"
+            stroke="currentColor"
+            stroke-width="1.6"></path>
+          <circle cx="12" cy="10" r="2.4" stroke="currentColor" stroke-width="1.6"></circle>
+        </svg>
+        {SITE.locality}, {SITE.region} Australia
+      </p>
+      <p class="footer__note">
+        Coaching and mentoring. Not therapy, diagnosis or emergency care.
+      </p>
+    </div>
+
+    <div class="footer__col">
+      <h2 class="footer__head">Explore</h2>
+      <ul>
+        {NAV.map((item) => <li><a href={item.href}>{item.label}</a></li>)}
+      </ul>
+    </div>
+
+    <div class="footer__col">
+      <h2 class="footer__head">Work With Me</h2>
+      <ul>
+        <li><a href="/apply">Apply — Return to Self</a></li>
+        <li><a href="/book">Book a Discovery Chat</a></li>
+        <li><a href="/mens-coaching">1:1 Life Coaching</a></li>
+        <li><a href="/hsc-tutoring">HSC &amp; Youth Mentoring</a></li>
+      </ul>
+    </div>
+
+    <div class="footer__col">
+      <h2 class="footer__head">Contact</h2>
+      <ul>
+        <li>
+          <a href={`mailto:${SITE.email}`} data-track="cta_click" data-track-label="Footer — email">
+            {SITE.email}
+          </a>
+        </li>
+        <li>
+          <a href={`tel:${SITE.phone}`} data-track="cta_click" data-track-label="Footer — phone">
+            {SITE.phoneDisplay}
+          </a>
+        </li>
+        <li>
+          <a href={SITE.instagram} target="_blank" rel="noopener noreferrer">Instagram</a>
+        </li>
+        <li>
+          <a href={SITE.youtube} target="_blank" rel="noopener noreferrer">YouTube</a>
+        </li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="container footer__bar">
+    <p>&copy; {year} Harrison Saito. All rights reserved.</p>
+    <nav class="footer__legal" aria-label="Legal">
+      <a href="/privacy">Privacy Policy</a>
+      <a href="/terms">Terms</a>
+    </nav>
+  </div>
+</footer>
+
+<style>
+  .footer {
+    background: var(--ink-900);
+    color: var(--text-on-ink);
+    border-top: 2px solid oklch(75% 0.12 75 / 0.35);
+    padding-block: clamp(3.5rem, 7vw, 6rem) 2rem;
+  }
+
+  .footer__inner {
+    display: grid;
+    gap: clamp(2.25rem, 4vw, 3.5rem);
+    grid-template-columns: 1fr;
+  }
+
+  .footer__name {
+    font-family: var(--font-display);
+    font-size: 1.75rem;
+    font-weight: 300;
+    color: oklch(93% 0.005 60 / 0.92);
+  }
+  .footer__name:hover { color: var(--gold); }
+
+  .footer__tagline,
+  .footer__loc,
+  .footer__note {
+    font-size: var(--step--1);
+    color: oklch(93% 0.005 60 / 0.42);
+    margin-top: 0.6rem;
+    line-height: 1.6;
+  }
+
+  .footer__loc { display: flex; align-items: center; gap: 0.5rem; }
+
+  .footer__note {
+    margin-top: 1.25rem;
+    max-width: 30ch;
+    color: oklch(93% 0.005 60 / 0.3);
+    font-size: 0.75rem;
+  }
+
+  .footer__head {
+    font-family: var(--font-body);
+    font-size: var(--step--1);
+    font-weight: 700;
+    letter-spacing: var(--tracking-eyebrow);
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 1.15rem;
+  }
+
+  .footer__col ul { list-style: none; padding: 0; display: grid; gap: 0.7rem; }
+
+  .footer__col a {
+    font-size: var(--step--1);
+    color: oklch(93% 0.005 60 / 0.55);
+    transition: color var(--dur-fast) ease;
+  }
+  .footer__col a:hover { color: var(--gold); }
+
+  .footer__bar {
+    margin-top: clamp(2.5rem, 5vw, 4rem);
+    padding-top: 1.75rem;
+    border-top: 1px solid oklch(100% 0 0 / 0.09);
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .footer__bar p {
+    font-size: 0.75rem;
+    color: oklch(93% 0.005 60 / 0.3);
+  }
+
+  .footer__legal { display: flex; gap: 1.5rem; }
+  .footer__legal a {
+    font-size: 0.75rem;
+    color: oklch(93% 0.005 60 / 0.45);
+  }
+  .footer__legal a:hover { color: var(--gold); }
+
+  @media (min-width: 640px) {
+    .footer__inner { grid-template-columns: repeat(2, 1fr); }
+  }
+  @media (min-width: 1000px) {
+    .footer__inner { grid-template-columns: 1.6fr 1fr 1fr 1fr; }
+  }
+</style>

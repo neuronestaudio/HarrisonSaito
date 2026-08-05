@@ -1,0 +1,432 @@
+---
+/**
+ * Men's coaching — one of the two SEO tracks split out of the old single page.
+ *
+ * Audit H1/H3: the legacy site had one indexable URL titled "Educator, Martial
+ * Artist, Coach" — zero search intent, no location — and two unrelated
+ * businesses competing for it. This page targets men's life coaching in Sydney
+ * on its own terms and carries the Return to Self programme in full.
+ */
+import Base from '../layouts/Base.astro';
+import Calligraphy from '../components/Calligraphy.astro';
+import Picture from '../components/Picture.astro';
+import PhaseTimeline from '../components/PhaseTimeline.astro';
+import Testimonials from '../components/Testimonials.astro';
+import OfferCard from '../components/OfferCard.astro';
+import YouTubeFacade from '../components/YouTubeFacade.astro';
+import Enso from '../components/Enso.astro';
+import { OFFERS, VIDEO_IDS } from '../data/site';
+import {
+  graph,
+  serviceSchema,
+  courseSchema,
+  localBusinessSchema,
+  breadcrumbSchema,
+  faqSchema,
+} from '../lib/seo';
+
+const title = "Men's Life Coach Sydney | Return to Self — Harrison Saito";
+const description =
+  "Men's life coaching in Chatswood, Sydney. Return to Self is a 12-week programme using karate, Buddhism and structured inner work for men who are done performing. 1:1 coaching from $150/hr.";
+
+const offers = OFFERS.filter((o) => o.audience === 'adults');
+
+const faqs = [
+  {
+    q: 'Is this therapy?',
+    a: 'No. This is coaching — a training framework for the inner world, built on martial arts, Buddhism and honest self-inquiry. It is not therapy, diagnosis or emergency care. If you are in crisis, contact Lifeline on 13 11 14.',
+  },
+  {
+    q: 'Do I need martial arts experience?',
+    a: 'No. Karate is used as a method for working with the nervous system, attention and pressure. Plenty of men arrive having never trained. The physical practice is adapted to the person in front of me.',
+  },
+  {
+    q: 'What does Return to Self cost?',
+    a: 'The 12-week programme is $3,600. Session-based 1:1 life coaching is $150 per hour. Pricing is published rather than held back for a sales call.',
+  },
+  {
+    q: 'Where do sessions happen?',
+    a: 'In person around Chatswood and Sydney’s North Shore, or online Australia-wide.',
+  },
+  {
+    q: 'How much do I have to disclose?',
+    a: 'You are never required to disclose more than you choose, or to prove yourself through an exercise. The pacing is adapted to you.',
+  },
+];
+
+const schema = graph(
+  localBusinessSchema(),
+  serviceSchema({
+    name: "Men's Life Coaching",
+    serviceType: 'Life coaching',
+    description,
+    url: '/mens-coaching',
+    price: 150,
+  }),
+  courseSchema(),
+  faqSchema(faqs),
+  breadcrumbSchema([
+    { name: 'Home', url: '/' },
+    { name: "Men's Coaching", url: '/mens-coaching' },
+  ])
+);
+---
+
+<Base title={title} description={description} path="/mens-coaching" schema={schema}>
+  {/* ------------------------------------------------------------- intro */}
+  <section class="section page-hero section--deep" data-section="hero">
+    <Calligraphy set="adults" scale={1.35} seed={7} words={['PERFORMANCE', 'RAGE']} />
+
+    <div class="container page-hero__inner">
+      <div data-reveal>
+        <p class="eyebrow">For Adults</p>
+        <h1 class="display-xl page-hero__title">
+          <span class="split-line"><span>You look like you've</span></span>
+          <span class="split-line"><span>got it all together.</span></span>
+        </h1>
+        <p class="lede page-hero__lede">
+          But when you're alone, really alone, you feel like something fundamental is missing.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  {/* ------------------------------------------------------- the problem */}
+  <section class="section" data-section="problem">
+    <Calligraphy set="adults" seed={17} words={['SILENCE']} scale={0.85} />
+
+    <div class="container problem">
+      <div class="problem__text prose" data-reveal>
+        <p class="problem__lead">
+          People describe you as "solid." "Reliable." "Disciplined." They have no idea that
+          underneath all of that, you're exhausted from performing a version of yourself that isn't
+          even you.
+        </p>
+        <p>
+          You say yes when you mean no. You suppress your opinion to keep the peace. You overwork to
+          earn approval you'll never feel. And underneath the performance, there's a simmering anger
+          you can't quite name. Often connected to a father who demanded everything and gave you no
+          room to be human.
+        </p>
+        <p class="problem__turn">
+          You don't need more discipline. You don't need another book. You need someone who has been
+          exactly where you are. Someone who built the shell, lived inside it for decades, and then
+          dismantled it piece by piece.
+        </p>
+      </div>
+
+      <div class="problem__media" data-reveal data-ink-reveal>
+        <Picture
+          slug="karate-training"
+          alt="Harrison Saito training karate, mid-stance, in a white gi with a black belt"
+          sizes="(max-width: 900px) 100vw, 40vw"
+          parallax={10}
+        />
+      </div>
+    </div>
+  </section>
+
+  {/* ---------------------------------------------------- the programme */}
+  <section class="section section--ink programme" id="return-to-self" data-section="programme">
+    <Calligraphy set="programme" seed={2} words={['GRIEF', 'BOUNDARY']} scale={1.1} />
+
+    <div class="container">
+      <header class="programme__head" data-reveal>
+        <p class="eyebrow">The Programme</p>
+        <h2 class="display-xl">Return to Self</h2>
+        <p class="programme__standfirst italic-serif">
+          For men who built the life that looks right, but feels hollow. Who sense the weight of
+          something inherited, unspoken, unresolved. This is where that work begins.
+        </p>
+
+        <div class="programme__intro prose">
+          <p>
+            12 weeks. Three phases. A structured programme for men who sense there is more beneath
+            the surface. This is not therapy. It is coaching: a training framework for the inner
+            world, built on martial arts, Buddhism, and honest self-inquiry.
+          </p>
+          <p>
+            Over 12 weeks, you learn to recognise inherited reactions earlier, separate them from
+            your own values, and make choices you can stand behind.
+          </p>
+        </div>
+
+        {/* The classical frame the three phases actually follow. */}
+        <aside class="shuhari" data-reveal>
+          <p class="shuhari__label">守破離 — Shu · Ha · Ri</p>
+          <p class="shuhari__body">
+            The three phases follow the classical budo model of learning: hold the form, break the
+            form, transcend the form. It is the same arc a martial artist walks from white belt to
+            black — applied inward.
+          </p>
+        </aside>
+      </header>
+    </div>
+
+    <div class="container container--wide programme__timeline">
+      <PhaseTimeline />
+    </div>
+
+    <div class="container container--narrow programme__note" data-reveal>
+      <p>
+        The exact pacing and exercises are adapted to the person in front of me. You are never
+        required to disclose more than you choose or prove yourself through an exercise. This is
+        coaching, not therapy, diagnosis or emergency care.
+      </p>
+    </div>
+  </section>
+
+  {/* ------------------------------------------------------------ offers */}
+  <section class="section section--warm" id="pricing" data-section="offers">
+    <div class="container">
+      <header class="offers__head" data-reveal>
+        <p class="eyebrow">Ways In</p>
+        <h2 class="display-l">Two ways to work together.</h2>
+      </header>
+
+      <div class="offers__grid" data-reveal-stagger="120">
+        {
+          offers.map((offer) => (
+            <div>
+              <OfferCard offer={offer} featured={offer.id === 'return-to-self'} />
+            </div>
+          ))
+        }
+      </div>
+    </div>
+  </section>
+
+  {/* -------------------------------------------------------------- film */}
+  <section class="section" data-section="film">
+    <div class="container container--narrow">
+      <header data-reveal>
+        <p class="eyebrow">Where This Comes From</p>
+        <h2 class="display-m film__head">A father &amp; son talk &amp; heal.</h2>
+      </header>
+      <div class="film__frame" data-reveal>
+        <YouTubeFacade id={VIDEO_IDS.fatherSon} title="My father and I" label="Father & Son" />
+      </div>
+    </div>
+  </section>
+
+  {/* ------------------------------------------------------ testimonials */}
+  <section class="section section--ink" data-section="testimonials">
+    <div class="container container--wide">
+      <Testimonials
+        eyebrow="From the men I've worked with"
+        heading="In their words."
+        filter="adults"
+        columns={2}
+      />
+    </div>
+  </section>
+
+  {/* --------------------------------------------------------------- FAQ */}
+  <section class="section" data-section="faq">
+    <div class="container container--narrow">
+      <header data-reveal>
+        <p class="eyebrow">Before You Apply</p>
+        <h2 class="display-m faq__head">Straight answers.</h2>
+      </header>
+
+      <div class="faq" data-reveal-stagger="70">
+        {
+          faqs.map((f) => (
+            <details class="faq__item">
+              <summary>
+                <span>{f.q}</span>
+                <span class="faq__icon" aria-hidden="true" />
+              </summary>
+              <p>{f.a}</p>
+            </details>
+          ))
+        }
+      </div>
+    </div>
+  </section>
+
+  {/* --------------------------------------------------------------- CTA */}
+  <section class="section section--deep close" data-section="close">
+    <div class="close__enso" aria-hidden="true"><Enso opacity={0.3} strokeWidth={4} /></div>
+    <div class="container container--narrow text-center" data-reveal>
+      <h2 class="display-l">If this feels close to what you're carrying.</h2>
+      <p class="lede close__sub">
+        Start with an honest conversation. No pressure. We'll work out whether the programme fits.
+      </p>
+      <div class="close__ctas">
+        <a
+          class="btn btn--lg"
+          href="/apply"
+          data-track="cta_click"
+          data-track-label="Mens — Apply"
+          data-track-section="close">Apply for Return to Self</a>
+        <a
+          class="btn btn--lg btn--ghost"
+          href="/book"
+          data-track="cta_click"
+          data-track-label="Mens — Book discovery"
+          data-track-section="close">Book a Discovery Chat</a>
+      </div>
+    </div>
+  </section>
+</Base>
+
+<style>
+  .page-hero {
+    position: relative;
+    padding-block: clamp(8rem, 18vh, 12rem) clamp(4rem, 9vw, 7rem);
+    min-height: 62svh;
+    display: flex;
+    align-items: flex-end;
+  }
+  .page-hero__title { max-width: 15ch; margin-bottom: 1.75rem; }
+  .page-hero__lede { max-width: 38ch; font-size: var(--step-2); font-style: italic; font-family: var(--font-display); }
+
+  /* ---- problem ---- */
+  .problem {
+    display: grid;
+    gap: clamp(2.5rem, 5vw, 4.5rem);
+    align-items: center;
+  }
+  .problem__lead {
+    font-family: var(--font-display);
+    font-size: var(--step-2);
+    font-weight: 300;
+    line-height: 1.4;
+    color: var(--text-on-paper);
+  }
+  .problem__turn {
+    padding-left: 1.5rem;
+    border-left: 2px solid var(--gold);
+    color: var(--text-on-paper) !important;
+  }
+  .problem__media { position: relative; overflow: hidden; aspect-ratio: 3 / 4; }
+  .problem__media :global(img) { width: 100%; height: 100%; object-fit: cover; }
+
+  /* ---- programme ---- */
+  .programme__head { max-width: 62rem; margin-bottom: clamp(3rem, 6vw, 5rem); }
+  .programme__standfirst {
+    margin-top: 1.75rem;
+    font-size: var(--step-2);
+    line-height: 1.45;
+    color: var(--gold-light);
+    max-width: 34ch;
+  }
+  .programme__intro { margin-top: 2rem; max-width: 56ch; }
+
+  .shuhari {
+    margin-top: 2.5rem;
+    padding: 1.5rem 1.75rem;
+    border: 1px solid oklch(75% 0.12 75 / 0.28);
+    background: oklch(11% 0.008 55 / 0.4);
+    max-width: 52ch;
+  }
+  .shuhari__label {
+    font-family: var(--font-jp);
+    font-size: var(--step-1);
+    color: var(--gold);
+    margin-bottom: 0.6rem;
+    letter-spacing: 0.06em;
+  }
+  .shuhari__body {
+    font-size: var(--step--1);
+    line-height: 1.7;
+    color: var(--text-on-ink-muted);
+  }
+
+  .programme__timeline { margin-block: clamp(2rem, 4vw, 3rem); }
+
+  .programme__note {
+    margin-top: clamp(2.5rem, 5vw, 4rem);
+    padding-top: 1.75rem;
+    border-top: 1px solid var(--rule-on-ink);
+  }
+  .programme__note p {
+    font-size: var(--step--1);
+    line-height: 1.75;
+    color: var(--text-on-ink-faint);
+  }
+
+  /* ---- offers ---- */
+  .offers__head { margin-bottom: clamp(2.5rem, 5vw, 4rem); }
+  .offers__grid { display: grid; gap: clamp(1.25rem, 2.5vw, 2rem); }
+
+  /* ---- film ---- */
+  .film__head { margin-bottom: clamp(2rem, 4vw, 3rem); }
+
+  /* ---- faq ---- */
+  .faq__head { margin-bottom: clamp(2rem, 4vw, 3rem); }
+  .faq { display: grid; }
+
+  .faq__item {
+    border-bottom: 1px solid var(--rule);
+  }
+  .faq__item summary {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1.5rem;
+    padding: 1.35rem 0;
+    cursor: pointer;
+    list-style: none;
+    font-family: var(--font-display);
+    font-size: var(--step-1);
+    font-weight: 400;
+    transition: color var(--dur-fast) ease;
+  }
+  .faq__item summary::-webkit-details-marker { display: none; }
+  .faq__item summary:hover { color: var(--gold-deep); }
+
+  .faq__icon {
+    position: relative;
+    width: 14px;
+    height: 14px;
+    flex-shrink: 0;
+  }
+  .faq__icon::before,
+  .faq__icon::after {
+    content: '';
+    position: absolute;
+    inset-block-start: 50%;
+    inset-inline-start: 0;
+    width: 100%;
+    height: 1.5px;
+    background: var(--gold-deep);
+    transition: transform var(--dur-fast) var(--ease-out-expo);
+  }
+  .faq__icon::after { transform: rotate(90deg); }
+  .faq__item[open] .faq__icon::after { transform: rotate(0deg); }
+
+  .faq__item p {
+    padding-bottom: 1.5rem;
+    max-width: 62ch;
+    color: var(--text-on-paper-muted);
+    font-size: var(--step-0);
+    line-height: 1.75;
+  }
+
+  /* ---- close ---- */
+  .close { position: relative; }
+  .close__enso {
+    position: absolute;
+    inset-block-start: 50%;
+    inset-inline-start: 50%;
+    transform: translate(-50%, -50%);
+    width: clamp(16rem, 34vw, 30rem);
+    pointer-events: none;
+    z-index: 0;
+  }
+  .close__sub { margin: 1.5rem auto 0; max-width: 44ch; }
+  .close__ctas {
+    margin-top: clamp(2rem, 4vw, 3rem);
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    justify-content: center;
+  }
+
+  @media (min-width: 900px) {
+    .problem { grid-template-columns: 1.2fr 0.8fr; }
+    .offers__grid { grid-template-columns: repeat(2, 1fr); }
+  }
+</style>

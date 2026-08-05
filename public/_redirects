@@ -1,0 +1,48 @@
+# Cloudflare Pages / Netlify redirect map
+#
+# Audit finding H2: Google still indexes pages from the site that preceded the
+# Manus build — /about-harrison-saito, /youth-education, /student-testimonies,
+# /contact — and every one of them returned HTTP 200 with homepage content and
+# no 301. That wasted the old site's link equity, left stale titles in search
+# results and generated duplicate-content signals.
+#
+# These are real 301s, so the equity consolidates onto the new URLs.
+#
+# Format: <from>  <to>  <status>
+
+# --- legacy pages from the pre-Manus site ---------------------------------
+/about-harrison-saito      /about            301
+/about-harrison            /about            301
+/contact-harrison-saito    /contact          301
+/youth-education           /hsc-tutoring     301
+/student-testimonies       /testimonials     301
+/testimonies               /testimonials     301
+/adult-coaching            /mens-coaching    301
+/coaching                  /mens-coaching    301
+/tutoring                  /hsc-tutoring     301
+/hsc                       /hsc-tutoring     301
+/services                  /                 301
+
+# --- anchors from the Manus single-page build -----------------------------
+# These were #hash targets, so they never hit the server, but anyone who wrote
+# them down as paths lands somewhere sensible.
+/adults                    /mens-coaching    301
+/youth                     /hsc-tutoring     301
+/about-me                  /about            301
+/media-appearances         /media            301
+
+# --- programme aliases ----------------------------------------------------
+/return-to-self            /mens-coaching    301
+/returntoself              /mens-coaching    301
+/programme                 /mens-coaching    301
+/program                   /mens-coaching    301
+/apply-now                 /apply            301
+/booking                   /book             301
+/book-a-call               /book             301
+/privacy-policy            /privacy          301
+/terms-and-conditions      /terms            301
+/terms-of-service          /terms            301
+
+# --- everything else falls through to a real 404 --------------------------
+# Closes H8: the old site answered 200 for any URL at all.
+/*                         /404.html         404

@@ -1,0 +1,291 @@
+---
+/**
+ * Privacy Policy.
+ *
+ * Closes audit finding C3. Meta will not run ads to a domain without a privacy
+ * policy URL, and the moment this site started collecting leads it came under
+ * the Australian Privacy Act 1988 and the Australian Privacy Principles.
+ *
+ * Written against what the site actually does — the cookies it sets, the
+ * processors it uses, the data the forms collect. It should be reviewed by a
+ * lawyer before launch and updated whenever a new processor is added.
+ */
+import Base from '../layouts/Base.astro';
+import { SITE } from '../data/site';
+import { graph, breadcrumbSchema } from '../lib/seo';
+
+const title = 'Privacy Policy | Harrison Saito';
+const description =
+  'How Harrison Saito collects, uses, stores and protects personal information, in line with the Australian Privacy Act 1988 and the Australian Privacy Principles.';
+
+const updated = '5 August 2026';
+
+const schema = graph(
+  breadcrumbSchema([
+    { name: 'Home', url: '/' },
+    { name: 'Privacy Policy', url: '/privacy' },
+  ])
+);
+---
+
+<Base title={title} description={description} path="/privacy" schema={schema}>
+  <section class="section legal-hero section--deep">
+    <div class="container container--narrow" data-reveal>
+      <p class="eyebrow">Legal</p>
+      <h1 class="display-l">Privacy Policy</h1>
+      <p class="legal-hero__meta">Last updated {updated}</p>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container container--narrow legal" data-reveal>
+      <p class="legal__intro">
+        This policy explains how Harrison Saito ("I", "me", "my") collects, uses, stores and
+        discloses your personal information. It is written to comply with the Australian
+        <em>Privacy Act 1988</em> (Cth) and the Australian Privacy Principles (APPs).
+      </p>
+
+      <h2>Who is responsible</h2>
+      <p>
+        Harrison Saito, a sole trader providing coaching, mentoring and tutoring services from
+        {SITE.locality}, {SITE.regionName}, Australia, is the entity responsible for the personal
+        information collected through this website.
+      </p>
+
+      <h2>What I collect</h2>
+      <h3>Information you give me</h3>
+      <p>When you complete a form on this site, I collect:</p>
+      <ul>
+        <li>your name;</li>
+        <li>your email address;</li>
+        <li>your phone number, where you provide it;</li>
+        <li>your general location, where you provide it;</li>
+        <li>
+          the content of your message, including anything you choose to tell me about your
+          circumstances, what you have tried previously, and what you are looking for.
+        </li>
+      </ul>
+      <p>
+        Some of what you may choose to share — for example, information touching on your mental or
+        emotional wellbeing — could be <strong>sensitive information</strong> under the Privacy Act.
+        You are never required to disclose more than you choose. Where you do share it, I collect it
+        only with your consent and only to decide whether and how I can help you.
+      </p>
+
+      <h3>Information collected automatically</h3>
+      <p>
+        If you consent to analytics and advertising cookies, I collect standard web analytics data:
+        pages viewed, approximate location derived from IP address, device and browser type, referral
+        source, scroll depth, and which buttons or links you interact with. If you decline, this
+        collection does not take place.
+      </p>
+
+      <h2>Why I collect it</h2>
+      <ul>
+        <li>To respond to your enquiry and arrange a conversation.</li>
+        <li>To assess whether a programme or service is a suitable fit for you.</li>
+        <li>To deliver services you engage me for, and to communicate with you about them.</li>
+        <li>To understand how this website is used and improve it.</li>
+        <li>To measure the effectiveness of advertising, where you have consented.</li>
+      </ul>
+      <p>
+        I do not sell your personal information. I do not use your information for automated
+        decision-making that produces a legal or similarly significant effect on you.
+      </p>
+
+      <h2>Cookies and tracking</h2>
+      <p>
+        This site uses cookies and similar technologies. Strictly necessary cookies are always
+        active. Analytics and advertising cookies are set to <em>denied</em> by default and are only
+        enabled if you accept them via the consent notice. You can change your decision at any time
+        by clearing this site's data in your browser.
+      </p>
+      <p>Where you consent, the following may be used:</p>
+      <ul>
+        <li>
+          <strong>Google Analytics 4</strong> and <strong>Google Tag Manager</strong> (Google LLC) —
+          website analytics and tag delivery.
+        </li>
+        <li>
+          <strong>Meta Pixel and Conversions API</strong> (Meta Platforms, Inc.) — advertising
+          measurement. Where a conversion is sent to Meta from my server, identifiers such as your
+          email address and phone number are irreversibly hashed with SHA-256 before transmission;
+          Meta does not receive them in readable form.
+        </li>
+      </ul>
+      <p>
+        Video embeds are not loaded until you click play, and they use YouTube's
+        <code>youtube-nocookie.com</code> domain. If you never press play, YouTube sets no cookies.
+      </p>
+
+      <h2>Who I share it with</h2>
+      <p>
+        I share personal information only with service providers that help me operate this business,
+        and only to the extent necessary:
+      </p>
+      <ul>
+        <li>website and form hosting infrastructure;</li>
+        <li>email delivery services, so I can reply to you;</li>
+        <li>scheduling software, where you book a time;</li>
+        <li>analytics and advertising platforms, where you have consented.</li>
+      </ul>
+      <p>
+        Some of these providers store or process data outside Australia, including in the United
+        States and the European Union. By using this site and submitting a form, you acknowledge
+        that your information may be disclosed to overseas recipients. I take reasonable steps to
+        ensure such recipients handle your information consistently with the APPs.
+      </p>
+
+      <h2>How long I keep it</h2>
+      <p>
+        Enquiries that do not lead to an engagement are retained for up to 24 months, then deleted.
+        Records relating to clients are retained for seven years, in line with Australian record
+        keeping obligations. Analytics data is retained according to the platform's own retention
+        settings.
+      </p>
+
+      <h2>Security</h2>
+      <p>
+        Information is transmitted over encrypted connections (HTTPS) and stored with reputable
+        providers that maintain industry-standard security controls. No system is perfectly secure,
+        and I cannot guarantee absolute security, but I take reasonable steps to protect your
+        information from misuse, interference, loss and unauthorised access, modification or
+        disclosure.
+      </p>
+
+      <h2>Your rights</h2>
+      <p>Under the Australian Privacy Principles you may:</p>
+      <ul>
+        <li>request access to the personal information I hold about you;</li>
+        <li>request that I correct information that is inaccurate, out of date or incomplete;</li>
+        <li>request that I delete your information, subject to my legal retention obligations;</li>
+        <li>withdraw your consent to analytics and advertising cookies at any time;</li>
+        <li>ask to deal with me anonymously or by pseudonym, where it is lawful and practicable.</li>
+      </ul>
+      <p>
+        To make a request, email <a href={`mailto:${SITE.email}`}>{SITE.email}</a>. I will respond
+        within 30 days.
+      </p>
+
+      <h2>Complaints</h2>
+      <p>
+        If you believe your privacy has been breached, contact me first at
+        <a href={`mailto:${SITE.email}`}>{SITE.email}</a> and I will investigate and respond within
+        30 days. If you are not satisfied with my response, you may complain to the Office of the
+        Australian Information Commissioner at
+        <a href="https://www.oaic.gov.au" target="_blank" rel="noopener noreferrer">oaic.gov.au</a>
+        or on 1300 363 992.
+      </p>
+
+      <h2>Children</h2>
+      <p>
+        Where I work with students under 18, I collect information from a parent or guardian, and
+        consent for that engagement is given by the parent or guardian. This website is not directed
+        at children, and I do not knowingly collect personal information from a person under 16
+        through the forms on this site.
+      </p>
+
+      <h2>Changes</h2>
+      <p>
+        I may update this policy from time to time. The version in force is the one published on
+        this page, with its date shown above.
+      </p>
+
+      <h2>Contact</h2>
+      <p>
+        Harrison Saito<br />
+        {SITE.locality}, {SITE.region}, Australia<br />
+        <a href={`mailto:${SITE.email}`}>{SITE.email}</a><br />
+        <a href={`tel:${SITE.phone}`}>{SITE.phoneDisplay}</a>
+      </p>
+
+      <aside class="legal__note">
+        <p>
+          This policy has been prepared to reflect how this website actually operates. It is not
+          legal advice. Have it reviewed by an Australian legal practitioner before relying on it,
+          and update it whenever a new data processor is introduced.
+        </p>
+      </aside>
+    </div>
+  </section>
+</Base>
+
+<style>
+  .legal-hero {
+    padding-block: clamp(7rem, 15vh, 10rem) clamp(3rem, 6vw, 5rem);
+  }
+  .legal-hero__meta {
+    margin-top: 1.25rem;
+    font-size: var(--step--1);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--text-on-ink-faint);
+  }
+
+  .legal { max-width: 44rem; }
+
+  .legal__intro {
+    font-size: var(--step-1);
+    line-height: 1.7;
+    color: var(--text-on-paper);
+    padding-bottom: 2rem;
+    margin-bottom: 1rem;
+    border-bottom: 1px solid var(--rule);
+  }
+
+  .legal h2 {
+    font-size: var(--step-2);
+    font-weight: 400;
+    margin-top: 2.75rem;
+    margin-bottom: 0.85rem;
+    color: var(--text-on-paper);
+  }
+
+  .legal h3 {
+    font-family: var(--font-body);
+    font-size: var(--step-0);
+    font-weight: 700;
+    letter-spacing: 0.02em;
+    margin-top: 1.75rem;
+    margin-bottom: 0.6rem;
+  }
+
+  .legal p {
+    margin-bottom: 1.1rem;
+    line-height: 1.8;
+    color: var(--text-on-paper-muted);
+  }
+
+  .legal ul {
+    margin: 0 0 1.35rem;
+    padding-left: 1.25rem;
+    display: grid;
+    gap: 0.55rem;
+  }
+  .legal li { line-height: 1.75; color: var(--text-on-paper-muted); }
+  .legal li::marker { color: var(--gold-deep); }
+
+  .legal a {
+    color: var(--gold-deep);
+    text-decoration: underline;
+    text-underline-offset: 2px;
+  }
+
+  .legal code {
+    font-size: 0.9em;
+    padding: 0.1em 0.35em;
+    background: var(--paper-deep);
+  }
+
+  .legal__note {
+    margin-top: 3rem;
+    padding: 1.35rem 1.5rem;
+    background: var(--paper-warm);
+    border-left: 2px solid var(--gold);
+  }
+  .legal__note p {
+    margin: 0;
+    font-size: var(--step--1);
+    color: var(--text-on-paper-muted);
+  }
+</style>

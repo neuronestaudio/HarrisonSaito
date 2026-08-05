@@ -1,0 +1,153 @@
+---
+/**
+ * Pricing card.
+ *
+ * Visible pricing was one of the genuinely strong things about the old site —
+ * rare honesty in the coaching market — so it stays front and centre. What
+ * changes is the destination: these used to be untracked WhatsApp deep links,
+ * now they route to a real form that fires a real conversion event.
+ */
+import type { Offer } from '../data/site';
+
+interface Props {
+  offer: Offer;
+  featured?: boolean;
+}
+
+const { offer, featured = false } = Astro.props;
+---
+
+<article class:list={['offer', { 'offer--featured': featured }]}>
+  <div class="offer__top">
+    <span class="offer__number">{offer.number}</span>
+    {featured && <span class="offer__flag">Flagship Programme</span>}
+  </div>
+
+  <h3 class="offer__name">{offer.name}</h3>
+  <p class="offer__desc">{offer.description}</p>
+
+  <div class="offer__price">
+    <span class="offer__amount">{offer.price}</span>
+    <span class="offer__unit">{offer.unit}</span>
+  </div>
+
+  <a
+    class:list={['btn', 'offer__cta', { 'btn--ghost': !featured }]}
+    href={offer.href}
+    data-track="cta_click"
+    data-track-label={`Offer — ${offer.name}`}
+    data-track-section="offers"
+  >
+    {offer.cta}
+    <svg viewBox="0 0 24 24" width="15" height="15" fill="none" aria-hidden="true">
+      <path d="M5 12h13M13 6l6 6-6 6" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"></path>
+    </svg>
+  </a>
+</article>
+
+<style>
+  .offer {
+    display: flex;
+    flex-direction: column;
+    gap: 1.15rem;
+    padding: clamp(1.75rem, 3.5vw, 2.75rem);
+    background: var(--paper);
+    border: 1px solid var(--rule);
+    position: relative;
+    transition: border-color var(--dur) var(--ease-out-expo),
+      transform var(--dur) var(--ease-out-expo);
+  }
+
+  .offer::before {
+    /* Gold hairline that draws across the top edge on hover. */
+    content: '';
+    position: absolute;
+    inset-block-start: -1px;
+    inset-inline-start: -1px;
+    width: calc(100% + 2px);
+    height: 2px;
+    background: var(--gold);
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform var(--dur) var(--ease-out-expo);
+  }
+
+  .offer:hover { border-color: oklch(75% 0.12 75 / 0.5); transform: translateY(-4px); }
+  .offer:hover::before { transform: scaleX(1); }
+
+  .offer--featured {
+    background: var(--ink-800);
+    border-color: oklch(75% 0.12 75 / 0.4);
+    color: var(--text-on-ink);
+  }
+  .offer--featured::before { transform: scaleX(1); }
+
+  .offer__top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+  }
+
+  .offer__number {
+    font-family: var(--font-display);
+    font-size: 2.6rem;
+    font-weight: 300;
+    line-height: 1;
+    color: oklch(75% 0.12 75 / 0.55);
+  }
+
+  .offer__flag {
+    font-size: 0.65rem;
+    font-weight: 700;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--gold);
+    border: 1px solid oklch(75% 0.12 75 / 0.4);
+    padding: 0.35rem 0.7rem;
+  }
+
+  .offer__name {
+    font-size: var(--step-2);
+    font-weight: 300;
+    line-height: 1.15;
+  }
+  .offer--featured .offer__name { color: var(--text-on-ink); }
+
+  .offer__desc {
+    font-size: var(--step--1);
+    line-height: 1.7;
+    color: var(--text-on-paper-muted);
+    flex-grow: 1;
+  }
+  .offer--featured .offer__desc { color: var(--text-on-ink-muted); }
+
+  .offer__price {
+    display: flex;
+    align-items: baseline;
+    gap: 0.5rem;
+    padding-top: 1.15rem;
+    border-top: 1px solid var(--rule);
+  }
+  .offer--featured .offer__price { border-top-color: oklch(100% 0 0 / 0.14); }
+
+  .offer__amount {
+    font-family: var(--font-display);
+    font-size: var(--step-3);
+    font-weight: 300;
+    line-height: 1;
+  }
+  .offer--featured .offer__amount { color: var(--gold); }
+
+  .offer__unit {
+    font-size: var(--step--1);
+    color: var(--text-on-paper-faint);
+    letter-spacing: 0.06em;
+  }
+  .offer--featured .offer__unit { color: var(--text-on-ink-faint); }
+
+  .offer__cta { margin-top: 0.4rem; }
+
+  .offer__cta svg { transition: transform var(--dur-fast) var(--ease-out-expo); }
+  .offer__cta:hover svg { transform: translateX(4px); }
+</style>

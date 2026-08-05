@@ -1,0 +1,266 @@
+---
+/**
+ * About — the full story.
+ *
+ * The father-wound narrative is the single strongest asset on the whole site
+ * and maps directly to the campaign ICP, so it gets room to breathe here
+ * rather than being compressed into three paragraphs on the home page.
+ */
+import Base from '../layouts/Base.astro';
+import Calligraphy from '../components/Calligraphy.astro';
+import Picture from '../components/Picture.astro';
+import YouTubeFacade from '../components/YouTubeFacade.astro';
+import Enso from '../components/Enso.astro';
+import { CREDENTIALS, VIDEO_IDS, SITE } from '../data/site';
+import { graph, personSchema, localBusinessSchema, breadcrumbSchema } from '../lib/seo';
+
+const title = 'About Harrison Saito | Teacher, 2nd Dan Karate, Coach — Sydney';
+const description =
+  'Son of a Japanese war survivor, martial artist and Buddhist monk. High school teacher, 2nd Dan black belt and coach in Chatswood, Sydney. The story behind Return to Self.';
+
+const schema = graph(
+  personSchema(),
+  localBusinessSchema(),
+  breadcrumbSchema([
+    { name: 'Home', url: '/' },
+    { name: 'About', url: '/about' },
+  ])
+);
+---
+
+<Base title={title} description={description} path="/about" schema={schema}>
+  <section class="section page-hero section--deep" data-section="hero">
+    <Calligraphy set="story" scale={1.3} seed={6} words={['INHERITANCE', 'GRIEF']} />
+
+    <div class="container">
+      <div data-reveal>
+        <p class="eyebrow">The Story</p>
+        <h1 class="display-xl page-hero__title">
+          <span class="split-line"><span>The gift</span></span>
+          <span class="split-line"><span class="page-hero__em">and the wound.</span></span>
+        </h1>
+      </div>
+    </div>
+  </section>
+
+  {/* ------------------------------------------------------------ father */}
+  <section class="section" data-section="father">
+    <Calligraphy set="story" seed={23} words={['SILENCE']} scale={0.8} />
+
+    <div class="container story">
+      <div class="story__text" data-reveal>
+        <h2 class="display-m story__head">
+          My father was a war-survivor from post-WW2 Japan, a martial artist, and a
+          <em>Buddhist monk.</em>
+        </h2>
+
+        <div class="prose">
+          <p>
+            He gave me discipline. He gave me martial arts. He gave me Buddhism. He also gave me
+            people-pleasing, suppressed rage, and a five-year-old frozen inside a grown man's body.
+          </p>
+          <p class="story__pull">
+            I took all of it, the gift and the wound, and walked a path that only I could walk. The
+            same tools that caused my trauma became the exact things that set me free.
+          </p>
+          <p>
+            Today, I'm a high school teacher, a 2nd Dan Black Belt in Karate, and a coach. I help
+            young people find their voice through HSC mentoring, and I help men stop performing and
+            start living through martial arts, Buddhism, and structured inner work.
+          </p>
+        </div>
+      </div>
+
+      <div class="story__media" data-reveal data-ink-reveal>
+        <Picture
+          slug="about-shoji"
+          alt="Harrison Saito seated beside a shoji screen in traditional Japanese light"
+          sizes="(max-width: 900px) 100vw, 42vw"
+          parallax={10}
+        />
+      </div>
+    </div>
+  </section>
+
+  {/* ------------------------------------------------------ credentials */}
+  <section class="section section--ink" data-section="credentials">
+    <div class="container">
+      <header class="creds__head" data-reveal>
+        <p class="eyebrow">Background</p>
+        <h2 class="display-l">Trained, qualified, still practising.</h2>
+      </header>
+
+      <div class="creds" data-reveal-stagger="90">
+        {
+          CREDENTIALS.map((c) => (
+            <div class="cred">
+              <span class="cred__value">{c.value}</span>
+              <span class="cred__label">{c.label}</span>
+            </div>
+          ))
+        }
+      </div>
+
+      <div class="creds__detail prose" data-reveal>
+        <p>
+          I teach in a New South Wales high school, which means I am inside the HSC system rather
+          than commenting on it from outside. I hold a Master of Teaching (Secondary) and a Bachelor
+          of Commerce, and I have been coaching in one form or another for more than a decade.
+        </p>
+        <p>
+          In karate I am a 2nd Dan black belt. That matters here less as a credential than as a
+          method: the dojo is where I learned that discipline without honesty just builds a better
+          shell, and it is the same room where I eventually took mine apart.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  {/* ------------------------------------------------------------ media */}
+  <section class="section" data-section="film">
+    <div class="container container--narrow">
+      <header data-reveal>
+        <p class="eyebrow">In His Own Words</p>
+        <h2 class="display-m film__head">A father &amp; son talk &amp; heal.</h2>
+        <p class="lede film__lede">
+          The conversation that sits underneath everything else on this site.
+        </p>
+      </header>
+
+      <div class="film__stack" data-reveal-stagger="130">
+        <div>
+          <YouTubeFacade
+            id={VIDEO_IDS.fatherSon}
+            title="My father and I"
+            label="Father & Son"
+          />
+        </div>
+        <div>
+          <YouTubeFacade
+            id={VIDEO_IDS.poemTrauma}
+            title="Trauma, love and beyond"
+            label="Poetry"
+            description="“There's some challenges we just couldn't face…”"
+          />
+        </div>
+      </div>
+    </div>
+  </section>
+
+  {/* ------------------------------------------------------------- quote */}
+  <section class="section section--deep quote-band" data-section="quote">
+    <div class="quote-band__wash" aria-hidden="true">
+      <Picture slug="ink-wash" alt="" sizes="100vw" />
+    </div>
+    <div class="container container--narrow text-center" data-reveal>
+      <blockquote class="quote-band__text">
+        Compassion naturally arises when the illusion of separation softens.
+      </blockquote>
+    </div>
+  </section>
+
+  {/* -------------------------------------------------------------- CTA */}
+  <section class="section section--warm close" data-section="close">
+    <div class="close__enso" aria-hidden="true"><Enso opacity={0.18} strokeWidth={4} /></div>
+    <div class="container container--narrow text-center" data-reveal>
+      <h2 class="display-l">If something here resonated, reach out.</h2>
+      <p class="lede close__sub">
+        No pitch. No pressure. Just a conversation about where you are and what you're looking for.
+      </p>
+      <div class="close__ctas">
+        <a class="btn btn--lg" href="/book" data-track="cta_click" data-track-label="About — Book">Start a Conversation</a>
+        <a class="btn btn--lg btn--ghost" href={`mailto:${SITE.email}`} data-track="cta_click" data-track-label="About — Email">Email Instead</a>
+      </div>
+    </div>
+  </section>
+</Base>
+
+<style>
+  .page-hero {
+    position: relative;
+    padding-block: clamp(8rem, 18vh, 12rem) clamp(4rem, 9vw, 7rem);
+    min-height: 55svh;
+    display: flex;
+    align-items: flex-end;
+  }
+  .page-hero__title { max-width: 14ch; }
+  .page-hero__em { font-style: italic; color: var(--gold-light); }
+
+  .story { display: grid; gap: clamp(2.5rem, 5vw, 4.5rem); align-items: start; }
+  .story__head { max-width: 20ch; margin-bottom: 1.75rem; }
+  .story__head em { font-style: italic; color: var(--gold-deep); }
+  .story__pull {
+    padding-left: 1.5rem;
+    border-left: 2px solid var(--gold);
+    font-family: var(--font-display);
+    font-size: var(--step-1);
+    font-style: italic;
+    color: var(--text-on-paper) !important;
+  }
+  .story__media { position: relative; overflow: hidden; aspect-ratio: 4 / 5; }
+  .story__media :global(img) { width: 100%; height: 100%; object-fit: cover; }
+
+  .creds__head { margin-bottom: clamp(2.5rem, 5vw, 3.5rem); }
+  .creds {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: clamp(1.5rem, 3vw, 2.5rem);
+    padding-bottom: clamp(2rem, 4vw, 3rem);
+    border-bottom: 1px solid var(--rule-on-ink);
+  }
+  .cred { display: grid; gap: 0.35rem; }
+  .cred__value {
+    font-family: var(--font-display);
+    font-size: var(--step-3);
+    font-weight: 300;
+    line-height: 1;
+    color: var(--gold);
+  }
+  .cred__label {
+    font-size: var(--step--1);
+    letter-spacing: 0.1em;
+    color: var(--text-on-ink-faint);
+  }
+  .creds__detail { margin-top: clamp(2rem, 4vw, 3rem); max-width: 58ch; }
+
+  .film__head { margin-bottom: 1rem; }
+  .film__lede { margin-bottom: clamp(2rem, 4vw, 3rem); }
+  .film__stack { display: grid; gap: clamp(2rem, 4vw, 3rem); }
+
+  .quote-band { position: relative; }
+  .quote-band__wash { position: absolute; inset: 0; opacity: 0.1; }
+  .quote-band__wash :global(img) { width: 100%; height: 100%; object-fit: cover; }
+  .quote-band__text {
+    font-family: var(--font-display);
+    font-size: var(--step-3);
+    font-style: italic;
+    font-weight: 300;
+    line-height: 1.4;
+    color: oklch(93% 0.005 60);
+    margin: 0;
+  }
+
+  .close { position: relative; }
+  .close__enso {
+    position: absolute;
+    inset-block-start: 50%;
+    inset-inline-start: 50%;
+    transform: translate(-50%, -50%);
+    width: clamp(16rem, 34vw, 30rem);
+    pointer-events: none;
+    z-index: 0;
+  }
+  .close__sub { margin: 1.5rem auto 0; max-width: 44ch; }
+  .close__ctas {
+    margin-top: clamp(2rem, 4vw, 3rem);
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    justify-content: center;
+  }
+
+  @media (min-width: 900px) {
+    .story { grid-template-columns: 1.15fr 0.85fr; }
+    .creds { grid-template-columns: repeat(4, 1fr); }
+  }
+</style>

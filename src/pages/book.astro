@@ -1,0 +1,211 @@
+---
+/**
+ * Discovery chat / session booking.
+ *
+ * The audit's Phase 1 item 3 asks for a calendar booking alongside the
+ * application. A booking embed (Cal.com / Calendly) drops in via
+ * PUBLIC_BOOKING_URL; until that is configured the request form below is the
+ * conversion path, and it fires the same Schedule event either way.
+ */
+import Base from '../layouts/Base.astro';
+import LeadForm from '../components/LeadForm.astro';
+import Calligraphy from '../components/Calligraphy.astro';
+import { SITE, WHATSAPP } from '../data/site';
+import { graph, breadcrumbSchema, localBusinessSchema } from '../lib/seo';
+
+const title = 'Book a Discovery Chat | Harrison Saito — Chatswood, Sydney';
+const description =
+  'Book a no-pressure conversation about coaching or HSC mentoring with Harrison Saito. In person around Chatswood and Sydney’s North Shore, or online Australia-wide.';
+
+const bookingUrl = import.meta.env.PUBLIC_BOOKING_URL ?? '';
+
+const schema = graph(
+  localBusinessSchema(),
+  breadcrumbSchema([
+    { name: 'Home', url: '/' },
+    { name: 'Book a Chat', url: '/book' },
+  ])
+);
+
+const fields = [
+  { name: 'name', label: 'Your name', type: 'text' as const, required: true, autocomplete: 'name' },
+  { name: 'email', label: 'Email', type: 'email' as const, required: true, autocomplete: 'email' },
+  { name: 'phone', label: 'Phone', type: 'tel' as const, required: true, autocomplete: 'tel' },
+  {
+    name: 'service',
+    label: 'What is this about?',
+    type: 'select' as const,
+    required: true,
+    options: [
+      '1:1 Life Coaching ($150/hr)',
+      'Return to Self — 12-week programme',
+      'HSC & Youth Mentoring ($120/hr)',
+      'Martial arts training',
+      'Something else',
+    ],
+  },
+  {
+    name: 'availability',
+    label: 'When suits you?',
+    type: 'text' as const,
+    required: false,
+    placeholder: 'Weekday evenings, Saturday mornings…',
+  },
+  {
+    name: 'message',
+    label: 'What would you like to talk about?',
+    type: 'textarea' as const,
+    required: false,
+    placeholder: 'A sentence or two is plenty.',
+  },
+];
+---
+
+<Base title={title} description={description} path="/book" schema={schema}>
+  <section class="section book section--deep" data-section="book">
+    <Calligraphy set="hero" seed={13} scale={1.1} words={['PRESENCE']} />
+
+    <div class="container book__grid">
+      <div class="book__intro" data-reveal>
+        <p class="eyebrow">Start Here</p>
+        <h1 class="display-l book__title">Book a conversation.</h1>
+        <p class="lede book__lede">
+          No pitch. No pressure. Just a conversation about where you are and what you're looking for.
+        </p>
+
+        <ul class="book__facts">
+          <li><strong>Around 30 minutes</strong><span>Enough to work out whether this fits</span></li>
+          <li><strong>In person or online</strong><span>Chatswood and Sydney's North Shore, or anywhere in Australia</span></li>
+          <li><strong>Free</strong><span>The first conversation costs nothing</span></li>
+        </ul>
+
+        <div class="book__direct">
+          <p class="book__direct-label">Prefer to reach me directly?</p>
+          <div class="book__direct-links">
+            <a href={`mailto:${SITE.email}`} data-track="cta_click" data-track-label="Book — email">{SITE.email}</a>
+            <a href={`tel:${SITE.phone}`} data-track="cta_click" data-track-label="Book — phone">{SITE.phoneDisplay}</a>
+            <a href={WHATSAPP.general} target="_blank" rel="noopener noreferrer" data-track="cta_click" data-track-label="Book — WhatsApp">WhatsApp</a>
+          </div>
+        </div>
+      </div>
+
+      <div class="book__form" data-reveal>
+        {
+          bookingUrl ? (
+            <div class="book__embed">
+              <iframe
+                src={bookingUrl}
+                title="Booking calendar"
+                loading="lazy"
+                referrerpolicy="no-referrer-when-downgrade"
+              />
+            </div>
+          ) : (
+            <LeadForm
+              formId="discovery-chat"
+              variant="simple"
+              fields={fields}
+              submitLabel="Request a Time"
+              eventName="schedule"
+              successHeading="Request received."
+              successBody="I'll come back to you with a couple of times that work, usually within a day."
+            />
+          )
+        }
+      </div>
+    </div>
+  </section>
+</Base>
+
+<style>
+  .book { padding-block: clamp(7rem, 16vh, 11rem) clamp(4rem, 9vw, 7rem); }
+
+  .book__grid {
+    display: grid;
+    gap: clamp(2.5rem, 5vw, 4.5rem);
+    align-items: start;
+  }
+
+  .book__title { margin-bottom: 1.5rem; }
+  .book__lede { max-width: 38ch; }
+
+  .book__facts {
+    list-style: none;
+    padding: 0;
+    margin: clamp(2rem, 4vw, 3rem) 0 0;
+    display: grid;
+    gap: 1.25rem;
+  }
+  .book__facts li {
+    display: grid;
+    gap: 0.25rem;
+    padding-left: 1.15rem;
+    border-left: 1px solid oklch(75% 0.12 75 / 0.4);
+  }
+  .book__facts strong {
+    font-family: var(--font-display);
+    font-size: var(--step-1);
+    font-weight: 400;
+    color: var(--gold-light);
+  }
+  .book__facts span {
+    font-size: var(--step--1);
+    color: var(--text-on-ink-muted);
+  }
+
+  .book__direct {
+    margin-top: clamp(2rem, 4vw, 3rem);
+    padding-top: 1.75rem;
+    border-top: 1px solid var(--rule-on-ink);
+  }
+  .book__direct-label {
+    font-size: var(--step--1);
+    font-weight: 600;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 0.85rem;
+  }
+  .book__direct-links { display: grid; gap: 0.5rem; }
+  .book__direct-links a {
+    font-size: var(--step-0);
+    color: var(--text-on-ink-muted);
+    transition: color var(--dur-fast) ease;
+  }
+  .book__direct-links a:hover { color: var(--gold); }
+
+  .book__embed {
+    background: var(--paper);
+    border: 1px solid var(--rule);
+    border-top: 2px solid var(--gold);
+    min-height: 40rem;
+  }
+  .book__embed iframe { width: 100%; height: 44rem; border: 0; display: block; }
+
+  @media (min-width: 950px) {
+    .book__grid { grid-template-columns: 0.9fr 1.1fr; }
+  }
+</style>
+
+<script>
+  // /book?service=hsc arrives from the HSC page — preselect so the visitor
+  // does not have to restate what they already told us by clicking.
+  const params = new URLSearchParams(location.search);
+  const service = params.get('service');
+  if (service) {
+    const select = document.querySelector<HTMLSelectElement>('select[name="service"]');
+    if (select) {
+      const match: Record<string, string> = {
+        hsc: 'HSC & Youth Mentoring ($120/hr)',
+        coaching: '1:1 Life Coaching ($150/hr)',
+        programme: 'Return to Self — 12-week programme',
+        martial: 'Martial arts training',
+      };
+      const wanted = match[service];
+      if (wanted) {
+        const option = Array.from(select.options).find((o) => o.value === wanted);
+        if (option) select.value = option.value;
+      }
+    }
+  }
+</script>

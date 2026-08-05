@@ -1,0 +1,243 @@
+---
+/**
+ * Terms of Service.
+ *
+ * The second half of audit finding C3. Also does real commercial work: it sets
+ * out the coaching-not-therapy boundary that appears throughout the site, and
+ * states the cancellation and refund position for a $3,600 programme before
+ * anyone pays for one.
+ */
+import Base from '../layouts/Base.astro';
+import { SITE } from '../data/site';
+import { graph, breadcrumbSchema } from '../lib/seo';
+
+const title = 'Terms of Service | Harrison Saito';
+const description =
+  'Terms governing coaching, mentoring and tutoring services provided by Harrison Saito, including scope, fees, cancellation and the limits of coaching.';
+
+const updated = '5 August 2026';
+
+const schema = graph(
+  breadcrumbSchema([
+    { name: 'Home', url: '/' },
+    { name: 'Terms of Service', url: '/terms' },
+  ])
+);
+---
+
+<Base title={title} description={description} path="/terms" schema={schema}>
+  <section class="section legal-hero section--deep">
+    <div class="container container--narrow" data-reveal>
+      <p class="eyebrow">Legal</p>
+      <h1 class="display-l">Terms of Service</h1>
+      <p class="legal-hero__meta">Last updated {updated}</p>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container container--narrow legal" data-reveal>
+      <p class="legal__intro">
+        These terms govern your use of this website and any coaching, mentoring or tutoring services
+        provided by Harrison Saito. By using this site or engaging my services, you agree to them.
+      </p>
+
+      <h2>1. Nature of the services — please read this one</h2>
+      <p>
+        I provide <strong>coaching, mentoring and tutoring</strong>. I am not a psychologist,
+        psychiatrist, counsellor, social worker or medical practitioner, and nothing I provide is
+        psychological treatment, medical advice, diagnosis, or emergency care.
+      </p>
+      <p>
+        Coaching is a training framework for the inner world. It draws on martial arts, Buddhist
+        philosophy and structured self-inquiry. It is not a substitute for treatment of a mental
+        health condition. If you have or suspect you have a mental health condition, please consult a
+        registered health practitioner. I may decline or end an engagement where I believe clinical
+        support would serve you better, and I will say so directly.
+      </p>
+      <p class="legal__alert">
+        If you are in crisis or at risk of harm, contact Lifeline on
+        <a href="tel:131114">13 11 14</a>, the Suicide Call Back Service on
+        <a href="tel:1300659467">1300 659 467</a>, or call <a href="tel:000">000</a> immediately.
+        Do not use this website's forms for urgent matters — they are not monitored continuously.
+      </p>
+
+      <h2>2. No guarantee of outcome</h2>
+      <p>
+        Coaching and tutoring outcomes depend substantially on your own effort, honesty and
+        circumstances. I do not guarantee any particular result, including any ATAR, mark, rank,
+        income, relationship or emotional outcome. Testimonials on this site describe individual
+        experiences and are not a promise of similar results.
+      </p>
+
+      <h2>3. Engagement, fees and payment</h2>
+      <ul>
+        <li>Fees published on this site are in Australian dollars and include GST where applicable.</li>
+        <li>
+          Session-based coaching and mentoring are payable per session unless otherwise agreed in
+          writing.
+        </li>
+        <li>
+          The <em>Return to Self</em> programme is a 12-week engagement. Payment terms, including any
+          instalment arrangement, are agreed in writing before the programme begins.
+        </li>
+        <li>
+          Submitting an application or enquiry does not create a binding engagement. An engagement
+          begins when I confirm it and you accept the agreed terms.
+        </li>
+        <li>I may change published fees at any time; changes do not affect an engagement already agreed.</li>
+      </ul>
+
+      <h2>4. Cancellation and rescheduling</h2>
+      <ul>
+        <li>
+          Individual sessions may be rescheduled with at least 24 hours' notice at no charge.
+          Sessions cancelled with less notice, or missed, may be charged in full.
+        </li>
+        <li>
+          For the 12-week programme, you may withdraw at any time. Fees for sessions already
+          delivered are non-refundable. Any refund of the unused balance is at my discretion and will
+          be dealt with reasonably and in good faith.
+        </li>
+        <li>
+          If I need to cancel or reschedule, I will offer an alternative time or refund the affected
+          portion.
+        </li>
+      </ul>
+
+      <h2>5. Confidentiality</h2>
+      <p>
+        What you tell me in a session stays between us. I will not disclose it without your consent,
+        except where disclosure is required by law, or where I hold a reasonable belief that
+        disclosure is necessary to prevent a serious and imminent threat to the life, health or
+        safety of any person.
+      </p>
+
+      <h2>6. Students under 18</h2>
+      <p>
+        Where a student is under 18, a parent or guardian must arrange the engagement and is
+        responsible for fees. I may share general progress with the parent or guardian. I hold a
+        current Working With Children Check, which can be provided on request.
+      </p>
+
+      <h2>7. Your responsibilities</h2>
+      <ul>
+        <li>Provide accurate information about your circumstances and any relevant health matters.</li>
+        <li>Attend sessions on time and engage in good faith.</li>
+        <li>Take responsibility for your own decisions and actions arising from our work.</li>
+        <li>Seek appropriate professional support where a matter falls outside coaching.</li>
+      </ul>
+
+      <h2>8. Intellectual property</h2>
+      <p>
+        All content on this website — text, images, video, programme structure and materials — is
+        owned by Harrison Saito or used with permission, and is protected by copyright. Materials
+        provided to you during an engagement are for your personal use and may not be reproduced,
+        distributed or resold without written permission.
+      </p>
+
+      <h2>9. Liability</h2>
+      <p>
+        Nothing in these terms excludes, restricts or modifies any guarantee, right or remedy you
+        have under the Australian Consumer Law that cannot lawfully be excluded. Where liability can
+        be limited, my liability is limited to resupplying the services or paying the cost of having
+        them resupplied.
+      </p>
+      <p>
+        To the extent permitted by law, I am not liable for indirect or consequential loss arising
+        from your use of this website or the services.
+      </p>
+
+      <h2>10. Website use</h2>
+      <p>
+        This website is provided on an "as is" basis. I may change or withdraw content at any time.
+        Links to third-party sites are provided for convenience and do not imply endorsement or
+        responsibility for their content.
+      </p>
+
+      <h2>11. Privacy</h2>
+      <p>
+        Personal information is handled in accordance with the
+        <a href="/privacy">Privacy Policy</a>, which forms part of these terms.
+      </p>
+
+      <h2>12. Governing law</h2>
+      <p>
+        These terms are governed by the laws of New South Wales, Australia. The courts of New South
+        Wales have non-exclusive jurisdiction over any dispute.
+      </p>
+
+      <h2>13. Contact</h2>
+      <p>
+        Harrison Saito<br />
+        {SITE.locality}, {SITE.region}, Australia<br />
+        <a href={`mailto:${SITE.email}`}>{SITE.email}</a><br />
+        <a href={`tel:${SITE.phone}`}>{SITE.phoneDisplay}</a>
+      </p>
+
+      <aside class="legal__note">
+        <p>
+          These terms have been drafted to reflect how this business actually operates. They are not
+          legal advice. Have them reviewed by an Australian legal practitioner before relying on
+          them — particularly clauses 3, 4 and 9, which carry commercial risk.
+        </p>
+      </aside>
+    </div>
+  </section>
+</Base>
+
+<style>
+  .legal-hero { padding-block: clamp(7rem, 15vh, 10rem) clamp(3rem, 6vw, 5rem); }
+  .legal-hero__meta {
+    margin-top: 1.25rem;
+    font-size: var(--step--1);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--text-on-ink-faint);
+  }
+
+  .legal { max-width: 44rem; }
+
+  .legal__intro {
+    font-size: var(--step-1);
+    line-height: 1.7;
+    color: var(--text-on-paper);
+    padding-bottom: 2rem;
+    margin-bottom: 1rem;
+    border-bottom: 1px solid var(--rule);
+  }
+
+  .legal h2 {
+    font-size: var(--step-2);
+    font-weight: 400;
+    margin-top: 2.75rem;
+    margin-bottom: 0.85rem;
+  }
+
+  .legal p { margin-bottom: 1.1rem; line-height: 1.8; color: var(--text-on-paper-muted); }
+
+  .legal ul {
+    margin: 0 0 1.35rem;
+    padding-left: 1.25rem;
+    display: grid;
+    gap: 0.55rem;
+  }
+  .legal li { line-height: 1.75; color: var(--text-on-paper-muted); }
+  .legal li::marker { color: var(--gold-deep); }
+
+  .legal a { color: var(--gold-deep); text-decoration: underline; text-underline-offset: 2px; }
+
+  .legal__alert {
+    padding: 1.25rem 1.5rem;
+    background: oklch(52% 0.19 27 / 0.06);
+    border-left: 2px solid oklch(52% 0.19 27);
+    color: var(--text-on-paper) !important;
+  }
+
+  .legal__note {
+    margin-top: 3rem;
+    padding: 1.35rem 1.5rem;
+    background: var(--paper-warm);
+    border-left: 2px solid var(--gold);
+  }
+  .legal__note p { margin: 0; font-size: var(--step--1); color: var(--text-on-paper-muted); }
+</style>

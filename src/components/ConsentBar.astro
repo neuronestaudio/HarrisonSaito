@@ -1,0 +1,127 @@
+---
+/**
+ * Consent notice.
+ *
+ * Australia has no cookie-banner mandate, but once this site starts collecting
+ * leads it falls under the Privacy Act, and Meta's own business tools terms
+ * require a lawful basis for the Pixel. Consent Mode v2 is initialised to
+ * denied in Analytics.astro; this is the control that grants it.
+ *
+ * Renders nothing at all when no tags are configured.
+ */
+const configured = Boolean(
+  import.meta.env.PUBLIC_GTM_ID ||
+    import.meta.env.PUBLIC_GA4_ID ||
+    import.meta.env.PUBLIC_META_PIXEL_ID
+);
+---
+
+{
+  configured && (
+    <div class="consent" data-consent hidden>
+      <p class="consent__text">
+        We use cookies to measure how this site is used and to improve our advertising. You can
+        decline without losing any functionality. See our <a href="/privacy">Privacy Policy</a>.
+      </p>
+      <div class="consent__actions">
+        <button type="button" class="consent__btn consent__btn--ghost" data-consent-deny>
+          Decline
+        </button>
+        <button type="button" class="consent__btn" data-consent-allow>Accept</button>
+      </div>
+    </div>
+  )
+}
+
+<style>
+  .consent {
+    position: fixed;
+    inset-inline: clamp(0.75rem, 3vw, 1.5rem);
+    inset-block-end: clamp(0.75rem, 3vw, 1.5rem);
+    z-index: 150;
+    max-width: 44rem;
+    margin-inline: auto;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 1rem 1.5rem;
+    padding: 1.15rem 1.4rem;
+    background: oklch(11% 0.008 55 / 0.97);
+    backdrop-filter: blur(12px);
+    border: 1px solid oklch(75% 0.12 75 / 0.3);
+    color: var(--text-on-ink);
+    box-shadow: 0 20px 60px oklch(11% 0.008 55 / 0.4);
+  }
+
+  .consent[hidden] { display: none; }
+
+  .consent__text {
+    flex: 1 1 20rem;
+    font-size: 0.8rem;
+    line-height: 1.6;
+    color: oklch(93% 0.005 60 / 0.7);
+  }
+  .consent__text a { color: var(--gold); text-decoration: underline; text-underline-offset: 3px; }
+
+  .consent__actions { display: flex; gap: 0.6rem; margin-left: auto; }
+
+  .consent__btn {
+    padding: 0.65rem 1.4rem;
+    background: var(--gold);
+    color: var(--ink-900);
+    border: 1px solid var(--gold);
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: background var(--dur-fast) ease, color var(--dur-fast) ease;
+  }
+  .consent__btn:hover { background: var(--gold-light); border-color: var(--gold-light); }
+
+  .consent__btn--ghost {
+    background: transparent;
+    color: oklch(93% 0.005 60 / 0.7);
+    border-color: oklch(100% 0 0 / 0.25);
+  }
+  .consent__btn--ghost:hover { background: transparent; color: var(--text-on-ink); }
+</style>
+
+<script>
+  const STORE = 'hs_consent';
+  const bar = document.querySelector<HTMLElement>('[data-consent]');
+  if (bar) {
+    let saved: string | null = null;
+    try {
+      saved = localStorage.getItem(STORE);
+    } catch {
+      /* private mode — treat as undecided but do not persist */
+    }
+
+    if (!saved) {
+      // Let the page settle before interrupting.
+      setTimeout(() => {
+        bar.hidden = false;
+      }, 1400);
+    }
+
+    const decide = (value: 'granted' | 'denied') => {
+      try {
+        localStorage.setItem(STORE, value);
+      } catch {
+        /* ignore */
+      }
+      window.gtag?.('consent', 'update', {
+        ad_storage: value,
+        ad_user_data: value,
+        ad_personalization: value,
+        analytics_storage: value,
+      });
+      window.dataLayer?.push({ event: 'consent_decision', consent_state: value });
+      bar.hidden = true;
+    };
+
+    bar.querySelector('[data-consent-allow]')?.addEventListener('click', () => decide('granted'));
+    bar.querySelector('[data-consent-deny]')?.addEventListener('click', () => decide('denied'));
+  }
+</script>

@@ -1,0 +1,314 @@
+---
+/**
+ * Home hero.
+ *
+ * Audit finding H5: the legacy hero shipped a 5.3 MB autoplay video with
+ * preload="auto", so every mobile visitor downloaded the whole file before
+ * anything else — on a page about to receive mobile-heavy paid traffic.
+ *
+ * Here the poster paints first as the LCP element, and the video is only
+ * attached once it can be played without competing for that paint. Phones get
+ * a 495 KB cut; anything on a metered or slow connection gets the poster alone.
+ */
+import { SITE } from '../data/site';
+import { srcset, src } from '../lib/images';
+import Calligraphy from './Calligraphy.astro';
+import Enso from './Enso.astro';
+---
+
+<section class="hero" data-hero data-section="hero">
+  <div class="hero__media" data-hero-media>
+    {/* The poster is the LCP element — eager, high priority, responsive. */}
+    <img
+      class="hero__poster"
+      src={src('hero-poster')}
+      srcset={srcset('hero-poster')}
+      sizes="100vw"
+      alt="Harrison Saito in a dojo"
+      width="1600"
+      height="900"
+      fetchpriority="high"
+      decoding="sync"
+    />
+    <video
+      class="hero__video"
+      data-hero-video
+      muted
+      loop
+      playsinline
+      preload="none"
+      aria-hidden="true"
+      tabindex="-1"></video>
+    <div class="hero__scrim"></div>
+    <div class="hero__vignette"></div>
+  </div>
+
+  <Calligraphy set="hero" scale={1.25} seed={3} words={['DISCIPLINE', 'PRESENCE']} />
+
+  <div class="hero__enso" aria-hidden="true">
+    <Enso opacity={0.22} strokeWidth={4} />
+  </div>
+
+  <div class="container hero__content" data-hero-content>
+    <p class="hero__eyebrow" data-hero-eyebrow>{SITE.tagline}</p>
+
+    <h1 class="hero__title">
+      <span class="split-line" data-hero-line><span>How you do anything</span></span>
+      <span class="split-line" data-hero-line><span class="hero__title-em">is how you do everything.</span></span>
+    </h1>
+
+    <p class="hero__sub" data-hero-sub>
+      Men's coaching and HSC mentoring in Chatswood, Sydney — built on karate,
+      Buddhism and honest inner work.
+    </p>
+
+    <div class="hero__ctas">
+      <a
+        class="btn btn--lg"
+        href="/mens-coaching"
+        data-hero-cta
+        data-track="cta_click"
+        data-track-label="Hero — Men's coaching"
+        data-track-section="hero">For Men</a>
+      <a
+        class="btn btn--lg btn--ghost"
+        href="/hsc-tutoring"
+        data-hero-cta
+        data-track="cta_click"
+        data-track-label="Hero — HSC mentoring"
+        data-track-section="hero">For Students &amp; Parents</a>
+    </div>
+  </div>
+
+  <a class="hero__scroll" href="#story" data-hero-scroll aria-label="Scroll to the story">
+    <span class="hero__scroll-label">Scroll</span>
+    <span class="hero__scroll-line" aria-hidden="true"></span>
+  </a>
+</section>
+
+<style>
+  .hero {
+    position: relative;
+    min-height: 100svh;
+    display: flex;
+    align-items: center;
+    overflow: hidden;
+    background: var(--ink-900);
+    color: var(--text-on-ink);
+    isolation: isolate;
+  }
+
+  .hero__media {
+    position: absolute;
+    inset: -8% 0;
+    z-index: 0;
+    will-change: transform;
+  }
+
+  .hero__poster,
+  .hero__video {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .hero__video { opacity: 0; transition: opacity 1.2s ease; }
+  .hero__video.is-ready { opacity: 1; }
+
+  .hero__scrim {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+      to bottom,
+      oklch(11% 0.008 55 / 0.62),
+      oklch(11% 0.008 55 / 0.5) 40%,
+      oklch(11% 0.008 55 / 0.86)
+    );
+  }
+
+  /* Soft ink vignette so the frame edges fall away rather than cut. */
+  .hero__vignette {
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(
+      ellipse 120% 85% at 50% 45%,
+      transparent 30%,
+      oklch(11% 0.008 55 / 0.7) 100%
+    );
+  }
+
+  .hero__enso {
+    position: absolute;
+    z-index: 0;
+    inset-block-start: 50%;
+    inset-inline-end: clamp(-8rem, -4vw, -2rem);
+    transform: translateY(-50%);
+    width: clamp(20rem, 42vw, 44rem);
+    pointer-events: none;
+  }
+
+  .hero__content {
+    position: relative;
+    z-index: 2;
+    padding-block: clamp(6rem, 14vh, 9rem) clamp(7rem, 16vh, 10rem);
+    will-change: transform;
+  }
+
+  .hero__eyebrow {
+    font-size: var(--step--1);
+    font-weight: 600;
+    letter-spacing: var(--tracking-eyebrow);
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: clamp(1.25rem, 3vw, 2rem);
+  }
+
+  .hero__title {
+    font-size: var(--step-5);
+    font-weight: 300;
+    line-height: 1.04;
+    max-width: 18ch;
+    color: oklch(95% 0.005 60);
+  }
+
+  .hero__title-em {
+    font-style: italic;
+    color: var(--gold-light);
+  }
+
+  .hero__sub {
+    margin-top: clamp(1.5rem, 3vw, 2.25rem);
+    max-width: 46ch;
+    font-size: var(--step-1);
+    line-height: 1.6;
+    color: oklch(93% 0.005 60 / 0.72);
+  }
+
+  .hero__ctas {
+    margin-top: clamp(2rem, 4vw, 3rem);
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+  }
+
+  .hero__scroll {
+    position: absolute;
+    z-index: 2;
+    inset-block-end: clamp(1.75rem, 4vh, 3rem);
+    inset-inline-start: 50%;
+    transform: translateX(-50%);
+    display: grid;
+    justify-items: center;
+    gap: 0.75rem;
+    color: oklch(93% 0.005 60 / 0.5);
+    transition: color var(--dur-fast) ease;
+  }
+  .hero__scroll:hover { color: var(--gold); }
+
+  .hero__scroll-label {
+    font-size: 0.65rem;
+    font-weight: 600;
+    letter-spacing: 0.32em;
+    text-transform: uppercase;
+  }
+
+  .hero__scroll-line {
+    width: 1px;
+    height: 3rem;
+    background: linear-gradient(to bottom, currentColor, transparent);
+    position: relative;
+    overflow: hidden;
+  }
+
+  /* A single drop of ink running down the line — the only looping motion on
+     the page, and it stops the moment you scroll. */
+  .hero__scroll-line::after {
+    content: '';
+    position: absolute;
+    inset-inline: 0;
+    height: 40%;
+    background: var(--gold);
+    animation: ink-drop 2.6s var(--ease-in-out-quart) infinite;
+  }
+
+  @keyframes ink-drop {
+    0% { transform: translateY(-110%); opacity: 0; }
+    35% { opacity: 1; }
+    100% { transform: translateY(260%); opacity: 0; }
+  }
+
+  @media (max-width: 640px) {
+    .hero__enso { inset-inline-end: -30%; width: 26rem; }
+    .hero__ctas .btn { flex: 1 1 100%; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .hero__scroll-line::after { animation: none; opacity: 0.6; transform: translateY(50%); }
+    .hero__video { display: none; }
+  }
+</style>
+
+<script>
+  /**
+   * Attach the video only once the poster has painted and the connection can
+   * afford it. Save-Data and 2g/3g get the poster only — which is exactly the
+   * traffic profile a mobile-heavy Meta campaign delivers.
+   */
+  const video = document.querySelector<HTMLVideoElement>('[data-hero-video]');
+
+  if (video && !window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    const conn = (navigator as any).connection;
+    const slow = conn && (conn.saveData || /2g|slow-2g|3g/.test(conn.effectiveType ?? ''));
+
+    if (!slow) {
+      const mobile = window.matchMedia('(max-width: 768px)').matches;
+
+      const attach = () => {
+        const sources = mobile
+          ? [{ src: '/video/hero-mobile.mp4', type: 'video/mp4' }]
+          : [
+              { src: '/video/hero.webm', type: 'video/webm' },
+              { src: '/video/hero.mp4', type: 'video/mp4' },
+            ];
+
+        for (const s of sources) {
+          const el = document.createElement('source');
+          el.src = s.src;
+          el.type = s.type;
+          video.appendChild(el);
+        }
+
+        video.preload = 'auto';
+        video.load();
+
+        video.addEventListener(
+          'canplay',
+          () => {
+            video.play().then(
+              () => video.classList.add('is-ready'),
+              () => {
+                /* autoplay refused — the poster stands on its own */
+              }
+            );
+          },
+          { once: true }
+        );
+      };
+
+      // Wait for first paint plus an idle moment so the poster wins the LCP race.
+      if ('requestIdleCallback' in window) {
+        requestIdleCallback(attach, { timeout: 2500 });
+      } else {
+        setTimeout(attach, 1200);
+      }
+
+      // Don't burn battery or data on a tab nobody is looking at.
+      document.addEventListener('visibilitychange', () => {
+        if (document.hidden) video.pause();
+        else if (video.classList.contains('is-ready')) video.play().catch(() => {});
+      });
+    }
+  }
+</script>

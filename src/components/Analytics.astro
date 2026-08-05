@@ -1,0 +1,125 @@
+---
+/**
+ * Owned analytics + ad tracking.
+ *
+ * Closes audit findings C1 (no Meta Pixel / Conversions API) and C5 (no owned
+ * analytics — the legacy site only had Manus's own umami + Amplitude on Manus's
+ * keys, so none of the data belonged to Harrison).
+ *
+ * Everything is env-driven and no-ops when an ID is absent, so the site runs
+ * clean in dev and preview builds. GTM is the container of record; GA4 and the
+ * Pixel fall back to direct loading for whichever is configured on its own.
+ *
+ * Consent: AU has no cookie-banner mandate, but the Privacy Act and Meta's
+ * business tools terms both make an explicit signal the safer default, so
+ * Consent Mode v2 initialises to denied. ConsentBar.astro grants it.
+ *
+ * Note: every script here is a top-level `is:inline` block with its guards in
+ * JavaScript rather than an Astro conditional. Script bodies nested inside a
+ * `{cond && (...)}` expression get parsed as JSX, and object literals like
+ * `{ 'gtm.start': ... }` break the build.
+ */
+const GTM_ID = import.meta.env.PUBLIC_GTM_ID ?? '';
+const GA4_ID = import.meta.env.PUBLIC_GA4_ID ?? '';
+const PIXEL_ID = import.meta.env.PUBLIC_META_PIXEL_ID ?? '';
+const gtmNoscript = GTM_ID
+  ? `<iframe src="https://www.googletagmanager.com/ns.html?id=${GTM_ID}" height="0" width="0" style="display:none;visibility:hidden"></iframe>`
+  : '';
+---
+
+<script is:inline define:vars={{ GTM_ID, GA4_ID, PIXEL_ID }}>
+  // dataLayer + Consent Mode v2 must exist before any tag loads.
+  window.dataLayer = window.dataLayer || [];
+  window.gtag = function () {
+    window.dataLayer.push(arguments);
+  };
+
+  window.gtag('consent', 'default', {
+    ad_storage: 'denied',
+    ad_user_data: 'denied',
+    ad_personalization: 'denied',
+    analytics_storage: 'denied',
+    functionality_storage: 'granted',
+    security_storage: 'granted',
+    wait_for_update: 500,
+  });
+
+  var saved = null;
+  try {
+    saved = localStorage.getItem('hs_consent');
+  } catch (e) {
+    // private mode — stay denied
+  }
+
+  if (saved === 'granted') {
+    window.gtag('consent', 'update', {
+      ad_storage: 'granted',
+      ad_user_data: 'granted',
+      ad_personalization: 'granted',
+      analytics_storage: 'granted',
+    });
+  }
+
+  window.__HS_TRACKING__ = { gtm: GTM_ID, ga4: GA4_ID, pixel: PIXEL_ID };
+
+  // --- Google Tag Manager (async, never render-blocking) ------------------
+  if (GTM_ID) {
+    (function (w, d, s, l, i) {
+      w[l] = w[l] || [];
+      w[l].push({ 'gtm.start': new Date().getTime(), event: 'gtm.js' });
+      var f = d.getElementsByTagName(s)[0];
+      var j = d.createElement(s);
+      var dl = l !== 'dataLayer' ? '&l=' + l : '';
+      j.async = true;
+      j.src = 'https://www.googletagmanager.com/gtm.js?id=' + i + dl;
+      f.parentNode.insertBefore(j, f);
+    })(window, document, 'script', 'dataLayer', GTM_ID);
+  }
+
+  // --- GA4 direct, only when GTM is not carrying it ----------------------
+  if (!GTM_ID && GA4_ID) {
+    var g = document.createElement('script');
+    g.async = true;
+    g.src = 'https://www.googletagmanager.com/gtag/js?id=' + GA4_ID;
+    document.head.appendChild(g);
+    window.gtag('js', new Date());
+    window.gtag('config', GA4_ID, { send_page_view: true });
+  }
+
+  // --- Meta Pixel --------------------------------------------------------
+  // Deferred to first interaction or 2.5s so it never competes with LCP.
+  // This is the browser half of the Pixel + Conversions API pair; the server
+  // half lives in functions/api/lead.ts and dedupes on a shared event_id.
+  if (PIXEL_ID) {
+    var pixelLoaded = false;
+    var loadPixel = function () {
+      if (pixelLoaded) return;
+      pixelLoaded = true;
+      (function (f, b, e, v, n, t, s) {
+        if (f.fbq) return;
+        n = f.fbq = function () {
+          n.callMethod ? n.callMethod.apply(n, arguments) : n.queue.push(arguments);
+        };
+        if (!f._fbq) f._fbq = n;
+        n.push = n;
+        n.loaded = true;
+        n.version = '2.0';
+        n.queue = [];
+        t = b.createElement(e);
+        t.async = true;
+        t.src = v;
+        s = b.getElementsByTagName(e)[0];
+        s.parentNode.insertBefore(t, s);
+      })(window, document, 'script', 'https://connect.facebook.net/en_US/fbevents.js');
+      window.fbq('init', PIXEL_ID);
+      window.fbq('track', 'PageView');
+    };
+
+    ['pointerdown', 'keydown', 'scroll', 'touchstart'].forEach(function (ev) {
+      window.addEventListener(ev, loadPixel, { once: true, passive: true });
+    });
+    setTimeout(loadPixel, 2500);
+  }
+</script>
+
+{gtmNoscript && <noscript set:html={gtmNoscript} />}

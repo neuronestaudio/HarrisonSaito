@@ -1,0 +1,397 @@
+---
+/**
+ * Campaign landing page — Return to Self.
+ *
+ * Audit Phase 1, item 5: "Don't send cold traffic to a 6-section homepage with
+ * three offers." One avatar, one promise, one CTA, no navigation to leak
+ * attention. The ad sets the expectation; this page has to meet it in the
+ * first screen.
+ *
+ * noindex + excluded from the sitemap and robots.txt — it duplicates copy from
+ * /mens-coaching and must never compete with it organically.
+ */
+import Base from '../../layouts/Base.astro';
+import LeadForm from '../../components/LeadForm.astro';
+import Calligraphy from '../../components/Calligraphy.astro';
+import Enso from '../../components/Enso.astro';
+import Picture from '../../components/Picture.astro';
+import { PHASES, TESTIMONIALS, SITE } from '../../data/site';
+
+const title = 'Return to Self — 12-Week Coaching for Men | Harrison Saito';
+const description =
+  'For men who built the life that looks right but feels hollow. A 12-week programme built on karate, Buddhism and honest inner work. Chatswood, Sydney and online.';
+
+const proof = TESTIMONIALS.filter((t) => t.category === 'adults').slice(0, 2);
+
+const stepOne = [
+  {
+    name: 'situation',
+    label: 'Which of these lands closest?',
+    type: 'radio' as const,
+    required: true,
+    options: [
+      'I look like I have it together, but something fundamental is missing',
+      'There is anger or grief I have never properly dealt with',
+      'I want to stop performing and be honest about who I am',
+      'Something inherited from my father is still running me',
+    ],
+  },
+  {
+    name: 'timing',
+    label: 'When would you want to begin?',
+    type: 'select' as const,
+    required: true,
+    options: [
+      'As soon as there is a place',
+      'Within a month',
+      'In the next few months',
+      'Just exploring for now',
+    ],
+  },
+];
+
+const stepTwo = [
+  { name: 'name', label: 'Your name', type: 'text' as const, required: true, autocomplete: 'name' },
+  { name: 'email', label: 'Email', type: 'email' as const, required: true, autocomplete: 'email' },
+  { name: 'phone', label: 'Phone', type: 'tel' as const, required: true, autocomplete: 'tel' },
+];
+---
+
+<Base
+  title={title}
+  description={description}
+  path="/lp/return-to-self"
+  noindex
+  bare
+>
+  {/* ------------------------------------------------------ above the fold */}
+  <section class="lp-hero" data-section="lp-hero">
+    <div class="lp-hero__bg" aria-hidden="true">
+      <Picture slug="dark-dojo" alt="" sizes="100vw" loading="eager" />
+      <span class="lp-hero__scrim"></span>
+    </div>
+    <Calligraphy set="programme" scale={1.3} seed={31} words={['PERFORMANCE']} />
+    <div class="lp-hero__enso" aria-hidden="true"><Enso opacity={0.2} strokeWidth={4} /></div>
+
+    <div class="container lp-hero__grid">
+      <div class="lp-hero__copy">
+        <p class="lp-brand">Harrison Saito · Chatswood, Sydney</p>
+
+        <h1 class="lp-hero__title">
+          You built the life that looks right.
+          <em>It still feels hollow.</em>
+        </h1>
+
+        <p class="lp-hero__lede">
+          Return to Self is a 12-week programme for men who are exhausted from performing a version
+          of themselves that isn't even them. Karate, Buddhism, and honest inner work — with someone
+          who built the shell, lived in it for decades, and then took it apart.
+        </p>
+
+        <ul class="lp-points">
+          <li>Three phases across 12 weeks — Separate, Return, Integrate</li>
+          <li>Led by a 2nd Dan black belt and practising high school teacher</li>
+          <li>In person around Sydney's North Shore, or online Australia-wide</li>
+          <li>Coaching, not therapy — and I will tell you if it isn't the right fit</li>
+        </ul>
+
+        <div class="lp-proof">
+          {
+            proof.map((t) => (
+              <figure>
+                <blockquote>{t.quote.slice(0, 168).trimEnd()}…</blockquote>
+                <figcaption>
+                  {t.name} <span>— {t.context}</span>
+                </figcaption>
+              </figure>
+            ))
+          }
+        </div>
+      </div>
+
+      {/* The form is in the fold, not below it. */}
+      <div class="lp-hero__form" id="apply">
+        <div class="lp-form-head">
+          <p class="lp-form-eyebrow">Apply — takes two minutes</p>
+          <p class="lp-form-note">
+            A small number of places at a time. No obligation, and no sales call required to find
+            out that it costs $3,600.
+          </p>
+        </div>
+        <LeadForm
+          formId="lp-return-to-self"
+          variant="application"
+          stepOne={stepOne}
+          stepTwo={stepTwo}
+          submitLabel="Send Application"
+          eventName="lead"
+          eventValue={3600}
+          successHeading="Application received."
+          successBody="I read every one myself. Expect a reply within two business days — usually a call."
+        />
+      </div>
+    </div>
+  </section>
+
+  {/* ------------------------------------------------------------- phases */}
+  <section class="section section--ink lp-phases" data-section="lp-phases">
+    <div class="container">
+      <header class="lp-phases__head" data-reveal>
+        <p class="eyebrow">守破離 — the arc</p>
+        <h2 class="display-l">Twelve weeks, three phases.</h2>
+      </header>
+
+      <div class="lp-phases__grid" data-reveal-stagger="110">
+        {
+          PHASES.map((p) => (
+            <article class="lp-phase">
+              <span class="lp-phase__kanji" lang="ja" aria-hidden="true">
+                {p.kanji}
+              </span>
+              <p class="lp-phase__weeks">{p.weeks}</p>
+              <h3>{p.name}</h3>
+              <p class="lp-phase__aim">{p.aim}</p>
+              <p class="lp-phase__blurb">{p.blurb}</p>
+            </article>
+          ))
+        }
+      </div>
+
+      <div class="lp-cta" data-reveal>
+        <a class="btn btn--lg" href="#apply" data-track="cta_click" data-track-label="LP — bottom apply">
+          Apply for Return to Self
+        </a>
+        <p class="lp-cta__note">
+          Or email <a href={`mailto:${SITE.email}`}>{SITE.email}</a> · {SITE.phoneDisplay}
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <footer class="lp-foot">
+    <div class="container">
+      <p>&copy; {new Date().getFullYear()} Harrison Saito · {SITE.locality}, {SITE.region}</p>
+      <nav aria-label="Legal">
+        <a href="/privacy">Privacy Policy</a>
+        <a href="/terms">Terms</a>
+        <a href="/">Full site</a>
+      </nav>
+    </div>
+  </footer>
+</Base>
+
+<style>
+  .lp-hero {
+    position: relative;
+    background: var(--ink-900);
+    color: var(--text-on-ink);
+    --ghost-fg: var(--text-on-ink);
+    --ghost-border: var(--gold);
+    --ghost-accent: var(--gold);
+    padding-block: clamp(3rem, 7vw, 5.5rem);
+    overflow: hidden;
+    isolation: isolate;
+  }
+
+  .lp-hero__bg { position: absolute; inset: 0; z-index: -1; }
+  .lp-hero__bg :global(img) { width: 100%; height: 100%; object-fit: cover; }
+  .lp-hero__scrim {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+      to bottom,
+      oklch(11% 0.008 55 / 0.9),
+      oklch(11% 0.008 55 / 0.96)
+    );
+  }
+
+  .lp-hero__enso {
+    position: absolute;
+    inset-block-start: 8%;
+    inset-inline-start: -8rem;
+    width: clamp(20rem, 36vw, 34rem);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .lp-hero__grid {
+    position: relative;
+    z-index: 1;
+    display: grid;
+    gap: clamp(2.5rem, 5vw, 4rem);
+    align-items: start;
+  }
+
+  .lp-brand {
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.24em;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 1.75rem;
+  }
+
+  .lp-hero__title {
+    font-size: var(--step-4);
+    font-weight: 300;
+    line-height: 1.08;
+    max-width: 16ch;
+  }
+  .lp-hero__title em {
+    display: block;
+    font-style: italic;
+    color: var(--gold-light);
+  }
+
+  .lp-hero__lede {
+    margin-top: 1.5rem;
+    max-width: 52ch;
+    font-size: var(--step-1);
+    line-height: 1.65;
+    color: var(--text-on-ink-muted);
+  }
+
+  .lp-points {
+    list-style: none;
+    padding: 0;
+    margin: 2rem 0 0;
+    display: grid;
+    gap: 0.7rem;
+    max-width: 50ch;
+  }
+  .lp-points li {
+    position: relative;
+    padding-left: 1.65rem;
+    font-size: var(--step-0);
+    line-height: 1.6;
+    color: var(--text-on-ink-muted);
+  }
+  .lp-points li::before {
+    content: '—';
+    position: absolute;
+    left: 0;
+    color: var(--gold);
+  }
+
+  .lp-proof {
+    display: grid;
+    gap: 1.25rem;
+    margin-top: clamp(2rem, 4vw, 3rem);
+    padding-top: 1.75rem;
+    border-top: 1px solid var(--rule-on-ink);
+  }
+  .lp-proof figure { margin: 0; }
+  .lp-proof blockquote {
+    margin: 0 0 0.6rem;
+    font-family: var(--font-display);
+    font-style: italic;
+    font-size: var(--step-0);
+    line-height: 1.6;
+    color: var(--text-on-ink);
+  }
+  .lp-proof figcaption {
+    font-size: 0.75rem;
+    letter-spacing: 0.08em;
+    color: var(--gold);
+  }
+  .lp-proof figcaption span { color: var(--text-on-ink-faint); letter-spacing: 0; }
+
+  .lp-form-head { margin-bottom: 1.25rem; }
+  .lp-form-eyebrow {
+    font-size: var(--step--1);
+    font-weight: 700;
+    letter-spacing: var(--tracking-eyebrow);
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 0.6rem;
+  }
+  .lp-form-note {
+    font-size: var(--step--1);
+    line-height: 1.6;
+    color: var(--text-on-ink-faint);
+  }
+
+  /* ---- phases ---- */
+  .lp-phases__head { margin-bottom: clamp(2.5rem, 5vw, 3.5rem); }
+  .lp-phases__grid { display: grid; gap: clamp(1.25rem, 2.5vw, 2rem); }
+
+  .lp-phase {
+    position: relative;
+    padding: clamp(1.5rem, 3vw, 2.25rem);
+    border: 1px solid oklch(100% 0 0 / 0.1);
+    border-top: 2px solid oklch(75% 0.12 75 / 0.5);
+    background: oklch(21% 0.01 55 / 0.45);
+    overflow: hidden;
+  }
+  .lp-phase__kanji {
+    position: absolute;
+    inset-block-start: -0.18em;
+    inset-inline-end: -0.04em;
+    font-family: var(--font-jp);
+    font-size: 8rem;
+    line-height: 1;
+    color: var(--gold);
+    opacity: 0.09;
+  }
+  .lp-phase__weeks {
+    position: relative;
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 0.5rem;
+  }
+  .lp-phase h3 {
+    position: relative;
+    font-size: var(--step-2);
+    color: var(--text-on-ink);
+    margin-bottom: 0.6rem;
+  }
+  .lp-phase__aim {
+    position: relative;
+    font-family: var(--font-display);
+    font-style: italic;
+    font-size: var(--step-1);
+    color: var(--gold-light);
+    margin-bottom: 0.85rem;
+    line-height: 1.4;
+  }
+  .lp-phase__blurb {
+    position: relative;
+    font-size: var(--step--1);
+    line-height: 1.7;
+    color: var(--text-on-ink-muted);
+  }
+
+  .lp-cta { margin-top: clamp(2.5rem, 5vw, 4rem); text-align: center; }
+  .lp-cta__note {
+    margin-top: 1.25rem;
+    font-size: var(--step--1);
+    color: var(--text-on-ink-faint);
+  }
+  .lp-cta__note a { color: var(--gold); }
+
+  /* ---- footer ---- */
+  .lp-foot {
+    background: var(--ink-900);
+    border-top: 1px solid oklch(100% 0 0 / 0.1);
+    padding-block: 1.75rem;
+  }
+  .lp-foot .container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .lp-foot p { font-size: 0.75rem; color: oklch(93% 0.005 60 / 0.3); }
+  .lp-foot nav { display: flex; gap: 1.5rem; }
+  .lp-foot a { font-size: 0.75rem; color: oklch(93% 0.005 60 / 0.45); }
+  .lp-foot a:hover { color: var(--gold); }
+
+  @media (min-width: 980px) {
+    .lp-hero__grid { grid-template-columns: 1.05fr 0.95fr; }
+    .lp-phases__grid { grid-template-columns: repeat(3, 1fr); }
+  }
+</style>

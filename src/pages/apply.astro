@@ -1,0 +1,229 @@
+---
+/**
+ * Return to Self application.
+ *
+ * The two-step application funnel the campaign playbook calls for: qualifying
+ * questions first, contact details last, form embedded in the fold. This is the
+ * real conversion event Meta optimises against — not an untracked WhatsApp tap.
+ */
+import Base from '../layouts/Base.astro';
+import LeadForm from '../components/LeadForm.astro';
+import Calligraphy from '../components/Calligraphy.astro';
+import Enso from '../components/Enso.astro';
+import { SITE, WHATSAPP, PHASES } from '../data/site';
+import { graph, breadcrumbSchema, localBusinessSchema } from '../lib/seo';
+
+const title = 'Apply — Return to Self | Harrison Saito';
+const description =
+  'Apply for Return to Self, a 12-week coaching programme for men built on karate, Buddhism and honest inner work. Two minutes, five questions, no obligation.';
+
+const schema = graph(
+  localBusinessSchema(),
+  breadcrumbSchema([
+    { name: 'Home', url: '/' },
+    { name: "Men's Coaching", url: '/mens-coaching' },
+    { name: 'Apply', url: '/apply' },
+  ])
+);
+
+const stepOne = [
+  {
+    name: 'situation',
+    label: 'Which of these lands closest?',
+    type: 'radio' as const,
+    required: true,
+    options: [
+      'I look like I have it together, but something fundamental is missing',
+      'There is anger or grief I have never properly dealt with',
+      'I want to stop performing and be honest about who I am',
+      'Something inherited from my father is still running me',
+    ],
+  },
+  {
+    name: 'tried',
+    label: 'What have you already tried?',
+    type: 'textarea' as const,
+    required: false,
+    placeholder: 'Therapy, books, training, nothing yet — whatever is true.',
+    help: 'Optional, but it tells me a lot about where to start.',
+  },
+  {
+    name: 'timing',
+    label: 'When would you want to begin?',
+    type: 'select' as const,
+    required: true,
+    options: ['As soon as there is a place', 'Within a month', 'In the next few months', 'Just exploring for now'],
+  },
+];
+
+const stepTwo = [
+  { name: 'name', label: 'Your name', type: 'text' as const, required: true, autocomplete: 'name' },
+  { name: 'email', label: 'Email', type: 'email' as const, required: true, autocomplete: 'email' },
+  {
+    name: 'phone',
+    label: 'Phone',
+    type: 'tel' as const,
+    required: true,
+    autocomplete: 'tel',
+    help: 'So I can call rather than trade emails for a week.',
+  },
+  {
+    name: 'location',
+    label: 'Where are you based?',
+    type: 'text' as const,
+    required: false,
+    placeholder: 'Sydney, elsewhere in Australia, overseas',
+  },
+  {
+    name: 'anything',
+    label: 'Anything else you want me to know?',
+    type: 'textarea' as const,
+    required: false,
+  },
+];
+---
+
+<Base title={title} description={description} path="/apply" schema={schema}>
+  <section class="section apply section--deep" data-section="apply">
+    <Calligraphy set="programme" seed={4} scale={1.2} words={['RETURN']} />
+    <div class="apply__enso" aria-hidden="true"><Enso opacity={0.16} strokeWidth={4} /></div>
+
+    <div class="container apply__grid">
+      <div class="apply__intro" data-reveal>
+        <p class="eyebrow">Return to Self</p>
+        <h1 class="display-l apply__title">Apply for the programme.</h1>
+        <p class="lede apply__lede">
+          12 weeks. Three phases. $3,600. I take a small number of men at a time, so this starts
+          with an application rather than a checkout.
+        </p>
+
+        <ol class="apply__phases">
+          {
+            PHASES.map((p) => (
+              <li>
+                <span class="apply__phase-kanji" lang="ja" aria-hidden="true">
+                  {p.kanji}
+                </span>
+                <span class="apply__phase-body">
+                  <strong>{p.name}</strong>
+                  <em>{p.weeks}</em>
+                </span>
+              </li>
+            ))
+          }
+        </ol>
+
+        <div class="apply__note">
+          <p>
+            This is coaching, not therapy, diagnosis or emergency care. If you are in crisis, please
+            contact Lifeline on <a href="tel:131114">13 11 14</a>.
+          </p>
+        </div>
+
+        <p class="apply__alt">
+          Would rather just message? <a class="link-underline" href={WHATSAPP.instagram} target="_blank" rel="noopener noreferrer" data-track="cta_click" data-track-label="Apply — WhatsApp fallback">WhatsApp me</a>
+          or email <a class="link-underline" href={`mailto:${SITE.email}`}>{SITE.email}</a>.
+        </p>
+      </div>
+
+      <div class="apply__form" data-reveal>
+        <LeadForm
+          formId="return-to-self-application"
+          variant="application"
+          stepOne={stepOne}
+          stepTwo={stepTwo}
+          submitLabel="Send Application"
+          eventName="lead"
+          eventValue={3600}
+          successHeading="Application received."
+          successBody="I read every one of these myself. Expect a reply within two business days — usually a call, if you left a number."
+        />
+      </div>
+    </div>
+  </section>
+</Base>
+
+<style>
+  .apply {
+    position: relative;
+    padding-block: clamp(7rem, 16vh, 11rem) clamp(4rem, 9vw, 7rem);
+  }
+
+  .apply__enso {
+    position: absolute;
+    inset-block-start: 42%;
+    inset-inline-start: -6rem;
+    width: clamp(20rem, 38vw, 36rem);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .apply__grid {
+    display: grid;
+    gap: clamp(2.5rem, 5vw, 4.5rem);
+    align-items: start;
+  }
+
+  .apply__title { margin-bottom: 1.5rem; }
+  .apply__lede { max-width: 40ch; }
+
+  .apply__phases {
+    list-style: none;
+    padding: 0;
+    margin: clamp(2rem, 4vw, 3rem) 0 0;
+    display: grid;
+    gap: 0.85rem;
+  }
+  .apply__phases li {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 0.85rem 1.15rem;
+    border: 1px solid oklch(100% 0 0 / 0.1);
+    border-left: 2px solid oklch(75% 0.12 75 / 0.55);
+    background: oklch(21% 0.01 55 / 0.4);
+  }
+  .apply__phase-kanji {
+    font-family: var(--font-jp);
+    font-size: 1.9rem;
+    line-height: 1;
+    color: var(--gold);
+    opacity: 0.85;
+  }
+  .apply__phase-body { display: grid; }
+  .apply__phase-body strong {
+    font-family: var(--font-display);
+    font-size: var(--step-1);
+    font-weight: 400;
+    color: var(--text-on-ink);
+  }
+  .apply__phase-body em {
+    font-size: 0.75rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    font-style: normal;
+    color: var(--text-on-ink-faint);
+  }
+
+  .apply__note {
+    margin-top: 2rem;
+    padding: 1rem 1.25rem;
+    border-left: 2px solid oklch(100% 0 0 / 0.18);
+  }
+  .apply__note p {
+    font-size: 0.8rem;
+    line-height: 1.7;
+    color: var(--text-on-ink-faint);
+  }
+  .apply__note a { color: var(--gold); text-decoration: underline; text-underline-offset: 2px; }
+
+  .apply__alt {
+    margin-top: 1.75rem;
+    font-size: var(--step--1);
+    color: var(--text-on-ink-muted);
+  }
+
+  @media (min-width: 950px) {
+    .apply__grid { grid-template-columns: 0.95fr 1.05fr; }
+  }
+</style>

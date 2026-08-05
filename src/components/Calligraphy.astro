@@ -1,0 +1,89 @@
+---
+/**
+ * The faded calligraphy wash.
+ *
+ * Oversized brush glyphs and English drift words sitting at 3-6% opacity behind
+ * the content, each drifting at its own scroll rate. The vocabulary is drawn
+ * from the actual work — budo terms, Zen terms, and words lifted from
+ * Harrison's own copy — so it reads as subtext rather than decoration.
+ *
+ * Entirely decorative: aria-hidden, pointer-events none, and hidden outright
+ * under prefers-reduced-motion.
+ */
+import { CALLIGRAPHY, DRIFT_WORDS, type Glyph } from '../data/site';
+
+interface Props {
+  /** Which vocabulary set to draw from. */
+  set?: keyof typeof CALLIGRAPHY;
+  /** Explicit glyphs, overriding the named set. */
+  glyphs?: Glyph[];
+  /** English drift words to interleave. */
+  words?: string[];
+  /** Multiplier on the base glyph size. */
+  scale?: number;
+  seed?: number;
+}
+
+const {
+  set = 'hero',
+  glyphs: explicit,
+  words = DRIFT_WORDS.slice(0, 3),
+  scale = 1,
+  seed = 0,
+} = Astro.props;
+
+const glyphs = explicit ?? CALLIGRAPHY[set] ?? CALLIGRAPHY.hero;
+
+// Deterministic pseudo-random placement — the same section always composes the
+// same way across builds, so nothing jitters between deploys.
+function rand(i: number, salt: number) {
+  const x = Math.sin((i + 1) * 12.9898 + (seed + salt) * 78.233) * 43758.5453;
+  return x - Math.floor(x);
+}
+
+const placedGlyphs = glyphs.map((g, i) => ({
+  ...g,
+  top: 4 + rand(i, 1) * 70,
+  left: rand(i, 2) * 74,
+  size: (11 + rand(i, 3) * 15) * scale,
+  speed: 0.14 + rand(i, 4) * 0.42,
+  rotate: (rand(i, 5) - 0.5) * 12,
+}));
+
+const placedWords = words.map((w, i) => ({
+  text: w,
+  top: 8 + rand(i, 11) * 76,
+  left: rand(i, 12) * 60,
+  size: 0.85 + rand(i, 13) * 1.5,
+  speed: -(0.1 + rand(i, 14) * 0.3),
+  rotate: rand(i, 15) > 0.55 ? -90 : 0,
+}));
+---
+
+<div class="calligraphy-layer" aria-hidden="true">
+  {
+    placedGlyphs.map((g) => (
+      <span
+        class="calligraphy"
+        data-speed={g.speed.toFixed(3)}
+        data-rotate={g.rotate.toFixed(2)}
+        style={`top:${g.top.toFixed(2)}%;left:${g.left.toFixed(2)}%;font-size:clamp(5rem,${g.size.toFixed(1)}vw,20rem);`}
+        title={`${g.romaji} — ${g.meaning}`}
+      >
+        {g.char}
+      </span>
+    ))
+  }
+  {
+    placedWords.map((w) => (
+      <span
+        class="drift-word"
+        data-speed={w.speed.toFixed(3)}
+        data-rotate={w.rotate}
+        style={`top:${w.top.toFixed(2)}%;left:${w.left.toFixed(2)}%;font-size:clamp(0.7rem,${w.size.toFixed(2)}vw,1.6rem);`}
+      >
+        {w.text}
+      </span>
+    ))
+  }
+</div>

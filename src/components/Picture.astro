@@ -1,0 +1,58 @@
+---
+/**
+ * Responsive WebP image.
+ *
+ * Closes audit finding M5 — the legacy site shipped 800x1600 PNG portraits,
+ * 3-5x heavier than they needed to be, several of them larger than their
+ * display size. Everything here is WebP with a real srcset and explicit
+ * dimensions so nothing shifts as it loads.
+ *
+ * Alt text is required, not optional: the one accessibility thing the old site
+ * genuinely did well was descriptive alt on every image, and that is preserved.
+ */
+import { srcset, src, maxWidth } from '../lib/images';
+
+interface Props {
+  slug: string;
+  alt: string;
+  sizes?: string;
+  class?: string;
+  loading?: 'lazy' | 'eager';
+  fetchpriority?: 'high' | 'low' | 'auto';
+  width?: number;
+  height?: number;
+  parallax?: number | false;
+  style?: string;
+}
+
+const {
+  slug,
+  alt,
+  sizes = '(max-width: 768px) 100vw, 50vw',
+  class: className = '',
+  loading = 'lazy',
+  fetchpriority = 'auto',
+  width,
+  height,
+  parallax = false,
+  style,
+} = Astro.props;
+
+const set = srcset(slug);
+const w = width ?? maxWidth(slug);
+---
+
+<img
+  src={src(slug)}
+  srcset={set || undefined}
+  sizes={set ? sizes : undefined}
+  alt={alt}
+  width={w}
+  height={height}
+  loading={loading}
+  decoding={loading === 'eager' ? 'sync' : 'async'}
+  fetchpriority={fetchpriority}
+  class={className}
+  style={style}
+  data-parallax={parallax === false ? undefined : String(parallax)}
+/>

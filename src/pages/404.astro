@@ -1,0 +1,92 @@
+---
+/**
+ * 404.
+ *
+ * Closes audit finding H8: the legacy site returned HTTP 200 for every URL,
+ * including ones that had never existed, which wasted crawl budget and let
+ * junk get indexed. This page is served with a real 404 status by the host
+ * (see public/_redirects and vercel.json).
+ */
+import Base from '../layouts/Base.astro';
+import Calligraphy from '../components/Calligraphy.astro';
+import Enso from '../components/Enso.astro';
+import { NAV } from '../data/site';
+
+const title = 'Page not found | Harrison Saito';
+const description = 'That page does not exist. Here is where to go instead.';
+---
+
+<Base title={title} description={description} path="/404" noindex>
+  <section class="section nf section--deep">
+    <Calligraphy set="close" scale={1.5} seed={44} words={['SPACE']} />
+    <div class="nf__enso" aria-hidden="true"><Enso opacity={0.22} strokeWidth={4} /></div>
+
+    <div class="container container--narrow nf__inner">
+      <p class="eyebrow">404</p>
+      <h1 class="display-l nf__title">This page isn't here.</h1>
+      <p class="lede nf__lede">
+        The circle is deliberately left open in Zen. This gap is just a broken link. Try one of
+        these instead.
+      </p>
+
+      <nav class="nf__links" aria-label="Site sections">
+        <a href="/">Home</a>
+        {NAV.map((item) => <a href={item.href}>{item.label}</a>)}
+      </nav>
+
+      <div class="nf__ctas">
+        <a class="btn btn--lg" href="/book">Book a Conversation</a>
+        <a class="btn btn--lg btn--ghost" href="/">Back to Home</a>
+      </div>
+    </div>
+  </section>
+</Base>
+
+<style>
+  .nf {
+    position: relative;
+    min-height: 78svh;
+    display: flex;
+    align-items: center;
+    padding-block: clamp(7rem, 15vh, 10rem);
+  }
+  .nf__enso {
+    position: absolute;
+    inset-block-start: 50%;
+    inset-inline-start: 50%;
+    transform: translate(-50%, -50%);
+    width: clamp(18rem, 40vw, 34rem);
+    pointer-events: none;
+    z-index: 0;
+  }
+  .nf__inner { position: relative; z-index: 1; text-align: center; }
+  .nf__title { margin-bottom: 1.5rem; }
+  .nf__lede { margin-inline: auto; max-width: 42ch; }
+
+  .nf__links {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0.6rem 1.5rem;
+    margin-top: clamp(2rem, 4vw, 3rem);
+    padding-top: 1.75rem;
+    border-top: 1px solid var(--rule-on-ink);
+  }
+  .nf__links a {
+    font-size: var(--step--1);
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--text-on-ink-muted);
+    transition: color var(--dur-fast) ease;
+  }
+  .nf__links a:hover { color: var(--gold); }
+
+  .nf__ctas {
+    margin-top: clamp(2rem, 4vw, 3rem);
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    justify-content: center;
+  }
+</style>

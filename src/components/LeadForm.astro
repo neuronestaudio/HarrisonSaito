@@ -1,0 +1,550 @@
+---
+/**
+ * Lead capture.
+ *
+ * Closes audit finding C2 — the legacy site had zero forms. Every CTA was a
+ * WhatsApp deep link, which meant no email list, no measurable conversion, and
+ * no visibility into where people dropped off.
+ *
+ * Design follows the campaign playbook referenced in the audit: a two-step
+ * application, the form embedded in the fold, contact details asked for last.
+ * Step one is low-commitment qualifying questions; the phone number only gets
+ * requested once someone has already invested a few clicks.
+ *
+ * Submission fires a Lead event with an event_id shared with the server-side
+ * Conversions API call, so Meta can deduplicate the pair.
+ */
+interface Field {
+  name: string;
+  label: string;
+  type?: 'text' | 'email' | 'tel' | 'textarea' | 'select' | 'radio';
+  required?: boolean;
+  placeholder?: string;
+  options?: string[];
+  help?: string;
+  autocomplete?: string;
+}
+
+interface Props {
+  formId: string;
+  /** 'application' asks qualifying questions first; 'simple' is one step. */
+  variant?: 'application' | 'simple';
+  stepOne?: Field[];
+  stepTwo?: Field[];
+  fields?: Field[];
+  submitLabel?: string;
+  /** GA4/Meta event name fired on success. */
+  eventName?: string;
+  /** Value attributed to the conversion, for ROAS reporting. */
+  eventValue?: number;
+  successHeading?: string;
+  successBody?: string;
+}
+
+const {
+  formId,
+  variant = 'simple',
+  stepOne = [],
+  stepTwo = [],
+  fields = [],
+  submitLabel = 'Send',
+  eventName = 'lead',
+  eventValue,
+  successHeading = 'Thank you.',
+  successBody = "Your message is with me. I'll reply personally, usually within a day.",
+} = Astro.props;
+
+const steps = variant === 'application' ? [stepOne, stepTwo] : [fields];
+---
+
+<div class="lf" data-lead-form={formId} data-event={eventName} data-event-value={eventValue}>
+  <form class="lf__form" novalidate>
+    {
+      variant === 'application' && (
+        <ol class="lf__steps" aria-hidden="true">
+          <li class="is-active" data-step-dot="0">
+            <span>1</span> About you
+          </li>
+          <li data-step-dot="1">
+            <span>2</span> How to reach you
+          </li>
+        </ol>
+      )
+    }
+
+    {
+      steps.map((group, index) => (
+        <fieldset class="lf__step" data-step={index} hidden={index !== 0}>
+          <legend class="visually-hidden">Step {index + 1}</legend>
+
+          {group.map((f) => (
+            <div class:list={['lf__field', { 'lf__field--wide': f.type === 'textarea' }]}>
+              <label class="lf__label" for={`${formId}-${f.name}`}>
+                {f.label}
+                {f.required && <span class="lf__req" aria-hidden="true">*</span>}
+              </label>
+
+              {f.type === 'textarea' && (
+                <textarea
+                  id={`${formId}-${f.name}`}
+                  name={f.name}
+                  rows="4"
+                  required={f.required}
+                  placeholder={f.placeholder}
+                />
+              )}
+
+              {f.type === 'select' && (
+                <select id={`${formId}-${f.name}`} name={f.name} required={f.required}>
+                  <option value="">Choose one…</option>
+                  {f.options?.map((o) => <option value={o}>{o}</option>)}
+                </select>
+              )}
+
+              {f.type === 'radio' && (
+                <div class="lf__radios" role="radiogroup" aria-labelledby={`${formId}-${f.name}`}>
+                  {f.options?.map((o, i) => (
+                    <label class="lf__radio">
+                      <input type="radio" name={f.name} value={o} required={f.required && i === 0} />
+                      <span>{o}</span>
+                    </label>
+                  ))}
+                </div>
+              )}
+
+              {(!f.type || ['text', 'email', 'tel'].includes(f.type)) && (
+                <input
+                  id={`${formId}-${f.name}`}
+                  name={f.name}
+                  type={f.type ?? 'text'}
+                  required={f.required}
+                  placeholder={f.placeholder}
+                  autocomplete={f.autocomplete}
+                  inputmode={f.type === 'tel' ? 'tel' : undefined}
+                />
+              )}
+
+              {f.help && <p class="lf__help">{f.help}</p>}
+              <p class="lf__error" data-error-for={f.name} hidden />
+            </div>
+          ))}
+        </fieldset>
+      ))
+    }
+
+    {/* Honeypot — bots fill it, humans never see it. */}
+    <div class="lf__pot" aria-hidden="true">
+      <label for={`${formId}-website`}>Website</label>
+      <input id={`${formId}-website`} name="website" type="text" tabindex="-1" autocomplete="off" />
+    </div>
+
+    <label class="lf__consent">
+      <input type="checkbox" name="consent" required />
+      <span>
+        I agree to Harrison Saito storing these details in order to respond. See the
+        <a href="/privacy" target="_blank" rel="noopener">Privacy Policy</a>.
+      </span>
+    </label>
+
+    <div class="lf__actions">
+      <button type="button" class="btn btn--ghost lf__back" data-step-back hidden>Back</button>
+      {
+        variant === 'application' ? (
+          <button type="button" class="btn btn--lg lf__next" data-step-next>
+            Continue
+          </button>
+        ) : null
+      }
+      <button
+        type="submit"
+        class="btn btn--lg lf__submit"
+        hidden={variant === 'application'}
+        data-submit
+      >
+        {submitLabel}
+      </button>
+    </div>
+
+    <p class="lf__formerror" data-form-error hidden role="alert"></p>
+  </form>
+
+  <div class="lf__success" data-success hidden>
+    <span class="lf__success-mark" aria-hidden="true">円</span>
+    <h3>{successHeading}</h3>
+    <p>{successBody}</p>
+  </div>
+</div>
+
+<style>
+  .lf {
+    background: var(--paper);
+    border: 1px solid var(--rule);
+    border-top: 2px solid var(--gold);
+    padding: clamp(1.5rem, 4vw, 3rem);
+    /* The card is always cream, but it usually sits inside a dark section that
+       sets a light `color`. Without this, anything that inherits rather than
+       declaring its own colour — radio labels most visibly — renders white on
+       cream and becomes unreadable. */
+    color: var(--text-on-paper);
+  }
+
+  .lf__steps {
+    display: flex;
+    gap: 1.5rem;
+    list-style: none;
+    padding: 0;
+    margin: 0 0 2rem;
+    flex-wrap: wrap;
+  }
+  .lf__steps li {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    font-size: var(--step--1);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--text-on-paper-faint);
+    transition: color var(--dur-fast) ease;
+  }
+  .lf__steps li span {
+    display: grid;
+    place-items: center;
+    width: 28px;
+    height: 28px;
+    border: 1px solid var(--rule);
+    border-radius: 50%;
+    font-family: var(--font-display);
+    font-size: 0.9rem;
+  }
+  .lf__steps li.is-active { color: var(--gold-deep); }
+  .lf__steps li.is-active span { border-color: var(--gold); background: var(--gold); color: var(--ink-900); }
+
+  .lf__step {
+    border: 0;
+    padding: 0;
+    margin: 0;
+    display: grid;
+    gap: 1.35rem;
+  }
+  .lf__step[hidden] { display: none; }
+
+  .lf__field { display: grid; gap: 0.5rem; }
+
+  .lf__label {
+    font-size: var(--step--1);
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    color: var(--text-on-paper);
+  }
+  .lf__req { color: var(--gold-deep); margin-left: 0.25rem; }
+
+  .lf input[type='text'],
+  .lf input[type='email'],
+  .lf input[type='tel'],
+  .lf textarea,
+  .lf select {
+    width: 100%;
+    padding: 0.9rem 1rem;
+    background: var(--paper-warm);
+    border: 1px solid var(--rule);
+    border-radius: 0;
+    font-size: var(--step-0);
+    color: var(--text-on-paper);
+    transition: border-color var(--dur-fast) ease, background var(--dur-fast) ease;
+  }
+  .lf input:focus,
+  .lf textarea:focus,
+  .lf select:focus {
+    outline: none;
+    border-color: var(--gold);
+    background: var(--paper);
+  }
+  .lf textarea { resize: vertical; min-height: 7rem; line-height: 1.6; }
+
+  .lf__radios { display: grid; gap: 0.6rem; }
+  .lf__radio {
+    display: flex;
+    align-items: center;
+    gap: 0.7rem;
+    padding: 0.8rem 1rem;
+    border: 1px solid var(--rule);
+    cursor: pointer;
+    font-size: var(--step--1);
+    transition: border-color var(--dur-fast) ease, background var(--dur-fast) ease;
+  }
+  .lf__radio span { color: var(--text-on-paper); line-height: 1.5; }
+  .lf__radio:hover { border-color: oklch(75% 0.12 75 / 0.5); }
+  .lf__radio:has(input:checked) { border-color: var(--gold); background: oklch(75% 0.12 75 / 0.08); }
+  .lf__radio input { accent-color: var(--gold-deep); width: 1rem; height: 1rem; }
+
+  .lf__help { font-size: 0.78rem; color: var(--text-on-paper-faint); line-height: 1.5; }
+
+  .lf__error {
+    font-size: 0.78rem;
+    color: oklch(52% 0.19 27);
+    font-weight: 600;
+  }
+  .lf__error[hidden] { display: none; }
+
+  .lf__pot {
+    position: absolute;
+    left: -9999px;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+  }
+
+  .lf__consent {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.7rem;
+    margin-top: 1.5rem;
+    font-size: 0.8rem;
+    line-height: 1.6;
+    color: var(--text-on-paper-muted);
+    cursor: pointer;
+  }
+  .lf__consent input { margin-top: 0.25rem; accent-color: var(--gold-deep); flex-shrink: 0; }
+  .lf__consent a { color: var(--gold-deep); text-decoration: underline; text-underline-offset: 2px; }
+
+  .lf__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    margin-top: 1.75rem;
+  }
+  .lf__actions .btn { flex: 1 1 auto; }
+  .lf__back[hidden], .lf__next[hidden], .lf__submit[hidden] { display: none; }
+
+  .lf__submit[aria-busy='true'] { opacity: 0.65; pointer-events: none; }
+
+  .lf__formerror {
+    margin-top: 1rem;
+    padding: 0.85rem 1rem;
+    background: oklch(52% 0.19 27 / 0.08);
+    border-left: 2px solid oklch(52% 0.19 27);
+    font-size: var(--step--1);
+    color: oklch(42% 0.19 27);
+  }
+  .lf__formerror[hidden] { display: none; }
+
+  /* ---- success ---- */
+  .lf__success { text-align: center; padding: clamp(1.5rem, 4vw, 3rem) 0; }
+  .lf__success[hidden] { display: none; }
+  .lf__success-mark {
+    display: block;
+    font-family: var(--font-jp);
+    font-size: 4.5rem;
+    line-height: 1;
+    color: var(--gold);
+    opacity: 0.5;
+    margin-bottom: 1.25rem;
+  }
+  .lf__success h3 {
+    font-size: var(--step-3);
+    font-weight: 300;
+    margin-bottom: 0.85rem;
+  }
+  .lf__success p {
+    color: var(--text-on-paper-muted);
+    max-width: 40ch;
+    margin-inline: auto;
+    line-height: 1.7;
+  }
+
+  @media (min-width: 640px) {
+    .lf__step { grid-template-columns: repeat(2, 1fr); }
+    .lf__field--wide, .lf__field:has(.lf__radios) { grid-column: 1 / -1; }
+    .lf__actions .btn { flex: 0 1 auto; }
+  }
+</style>
+
+<script>
+  import { track, eventId } from '../scripts/tracking';
+
+  const ENDPOINT = import.meta.env.PUBLIC_FORM_ENDPOINT || '/api/lead';
+
+  document.querySelectorAll<HTMLElement>('[data-lead-form]').forEach((root) => {
+    const form = root.querySelector('form')!;
+    const formId = root.dataset.leadForm!;
+    const success = root.querySelector<HTMLElement>('[data-success]')!;
+    const formError = root.querySelector<HTMLElement>('[data-form-error]')!;
+    const steps = Array.from(root.querySelectorAll<HTMLElement>('[data-step]'));
+    const dots = Array.from(root.querySelectorAll<HTMLElement>('[data-step-dot]'));
+    const nextBtn = root.querySelector<HTMLButtonElement>('[data-step-next]');
+    const backBtn = root.querySelector<HTMLButtonElement>('[data-step-back]');
+    const submitBtn = root.querySelector<HTMLButtonElement>('[data-submit]')!;
+    const consent = form.querySelector<HTMLInputElement>('[name="consent"]')!;
+
+    let current = 0;
+    let startedFired = false;
+
+    /* ---- validation ------------------------------------------------- */
+
+    const showError = (field: HTMLElement, message: string) => {
+      const name = (field as HTMLInputElement).name;
+      const slot = root.querySelector<HTMLElement>(`[data-error-for="${name}"]`);
+      if (slot) {
+        slot.textContent = message;
+        slot.hidden = false;
+      }
+    };
+
+    const clearErrors = (scope: HTMLElement) => {
+      scope.querySelectorAll<HTMLElement>('[data-error-for]').forEach((el) => {
+        el.hidden = true;
+        el.textContent = '';
+      });
+    };
+
+    const validate = (scope: HTMLElement): boolean => {
+      clearErrors(scope);
+      let ok = true;
+
+      scope.querySelectorAll<HTMLInputElement>('input, textarea, select').forEach((el) => {
+        if (el.type === 'radio') {
+          const group = scope.querySelectorAll<HTMLInputElement>(`[name="${el.name}"]`);
+          const anyRequired = Array.from(group).some((r) => r.required);
+          const anyChecked = Array.from(group).some((r) => r.checked);
+          if (anyRequired && !anyChecked && ok) {
+            showError(el, 'Please choose an option.');
+            ok = false;
+          }
+          return;
+        }
+
+        if (!el.required) return;
+
+        if (!el.value.trim()) {
+          showError(el, 'This one is needed.');
+          ok = false;
+        } else if (el.type === 'email' && !/^[^@\s]+@[^@\s]+\.[^@\s]{2,}$/.test(el.value)) {
+          showError(el, 'That email address does not look right.');
+          ok = false;
+        } else if (el.type === 'tel' && el.value.replace(/\D/g, '').length < 8) {
+          showError(el, 'Please include a full phone number.');
+          ok = false;
+        }
+      });
+
+      return ok;
+    };
+
+    /* ---- steps ------------------------------------------------------ */
+
+    const goTo = (index: number) => {
+      current = index;
+      steps.forEach((s, i) => (s.hidden = i !== index));
+      dots.forEach((d, i) => d.classList.toggle('is-active', i <= index));
+
+      const last = index === steps.length - 1;
+      if (backBtn) backBtn.hidden = index === 0;
+      if (nextBtn) nextBtn.hidden = last;
+      submitBtn.hidden = !last;
+
+      steps[index]?.querySelector<HTMLElement>('input, textarea, select')?.focus();
+    };
+
+    nextBtn?.addEventListener('click', () => {
+      if (!validate(steps[current])) return;
+      track('form_step', { form_id: formId, step: current + 1, page_path: location.pathname });
+      goTo(Math.min(current + 1, steps.length - 1));
+    });
+
+    backBtn?.addEventListener('click', () => goTo(Math.max(current - 1, 0)));
+
+    // First interaction with the form is itself a signal worth having.
+    form.addEventListener(
+      'input',
+      () => {
+        if (startedFired) return;
+        startedFired = true;
+        track('form_start', { form_id: formId, page_path: location.pathname });
+      },
+      { once: true }
+    );
+
+    /* ---- submit ----------------------------------------------------- */
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      formError.hidden = true;
+
+      if (!validate(steps[current])) return;
+
+      if (!consent.checked) {
+        formError.textContent = 'Please tick the consent box so I can reply.';
+        formError.hidden = false;
+        return;
+      }
+
+      const data = new FormData(form);
+
+      // Honeypot: silently pretend success so bots stop retrying.
+      if ((data.get('website') as string)?.trim()) {
+        form.hidden = true;
+        success.hidden = false;
+        return;
+      }
+
+      const payload: Record<string, unknown> = {};
+      data.forEach((value, key) => {
+        if (key !== 'website') payload[key] = value;
+      });
+
+      // Shared id so the browser Pixel event and the server-side Conversions
+      // API event collapse into one conversion rather than two.
+      const id = eventId();
+      const eventName = root.dataset.event || 'lead';
+      const value = root.dataset.eventValue ? Number(root.dataset.eventValue) : undefined;
+
+      payload.form_id = formId;
+      payload.event_id = id;
+      payload.event_name = eventName;
+      payload.page_path = location.pathname;
+      payload.page_url = location.href;
+      payload.referrer = document.referrer || undefined;
+      // Meta click id / browser id, when present, materially improve match rate.
+      payload.fbc = document.cookie.match(/_fbc=([^;]+)/)?.[1];
+      payload.fbp = document.cookie.match(/_fbp=([^;]+)/)?.[1];
+
+      submitBtn.setAttribute('aria-busy', 'true');
+      submitBtn.textContent = 'Sending…';
+
+      try {
+        const res = await fetch(ENDPOINT, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload),
+        });
+
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+
+        track(eventName, {
+          event_id: id,
+          form_id: formId,
+          value,
+          currency: value ? 'AUD' : undefined,
+          page_path: location.pathname,
+        });
+
+        form.hidden = true;
+        success.hidden = false;
+        success.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      } catch (err) {
+        // Never strand a lead: surface the direct routes instead.
+        formError.innerHTML =
+          'Something went wrong sending that. Please email ' +
+          '<a href="mailto:hello@harrisonsaito.com.au">hello@harrisonsaito.com.au</a> ' +
+          'or message +61 424 657 548 and I will pick it up.';
+        formError.hidden = false;
+        track('form_error', { form_id: formId, message: String(err) });
+      } finally {
+        submitBtn.removeAttribute('aria-busy');
+        submitBtn.textContent = submitBtn.dataset.label || 'Send';
+      }
+    });
+
+    submitBtn.dataset.label = submitBtn.textContent?.trim() || 'Send';
+  });
+</script>

@@ -1,0 +1,437 @@
+---
+/**
+ * Home — the brand page.
+ *
+ * Audit finding H1: the legacy site was one URL carrying two unrelated
+ * businesses, so it could rank for neither. Home now does one job — establish
+ * who Harrison is and route the two audiences — and the commercial detail lives
+ * on /mens-coaching and /hsc-tutoring where it can rank on its own terms.
+ */
+import Base from '../layouts/Base.astro';
+import Hero from '../components/Hero.astro';
+import Calligraphy from '../components/Calligraphy.astro';
+import Picture from '../components/Picture.astro';
+import Testimonials from '../components/Testimonials.astro';
+import YouTubeFacade from '../components/YouTubeFacade.astro';
+import OfferCard from '../components/OfferCard.astro';
+import Enso from '../components/Enso.astro';
+import { SITE, CREDENTIALS, VIDEO_IDS, OFFERS } from '../data/site';
+import { graph, personSchema, localBusinessSchema, websiteSchema, videoSchema } from '../lib/seo';
+
+const title = 'Harrison Saito | Men’s Life Coach & HSC Mentor — Chatswood, Sydney';
+const description =
+  'Men’s life coaching and HSC English mentoring in Chatswood, Sydney. Karate, Buddhism and structured inner work with a 2nd Dan black belt and high school teacher. Return to Self — 12-week programme.';
+
+const schema = graph(
+  personSchema(),
+  localBusinessSchema(),
+  websiteSchema(),
+  videoSchema({
+    id: VIDEO_IDS.sbsWorldNews,
+    title: 'SBS World News',
+    description: 'SBS World News interview about youth and adult mental health.',
+  })
+);
+---
+
+<Base title={title} description={description} path="/" schema={schema}>
+  <Hero />
+
+  {/* ------------------------------------------------------------- story */}
+  <section class="section" id="story" data-section="story">
+    <Calligraphy set="story" seed={11} words={['INHERITANCE', 'SILENCE']} />
+
+    <div class="container story">
+      <div class="story__text" data-reveal>
+        <p class="eyebrow">The Story</p>
+        <h2 class="display-l story__head">
+          My father was a war-survivor, a martial artist, and a
+          <em class="story__em">Buddhist monk.</em>
+        </h2>
+
+        <div class="prose story__prose">
+          <p>
+            He gave me discipline. He gave me martial arts. He gave me Buddhism. He also gave me
+            people-pleasing, suppressed rage, and a five-year-old frozen inside a grown man's body.
+          </p>
+          <p>
+            I took all of it, the gift and the wound, and walked a path that only I could walk. The
+            same tools that caused my trauma became the exact things that set me free.
+          </p>
+          <p>
+            Today, I'm a high school teacher, a 2nd Dan Black Belt in Karate, and a coach. I help
+            young people find their voice through HSC mentoring, and I help men stop performing and
+            start living through martial arts, Buddhism, and structured inner work.
+          </p>
+        </div>
+
+        <a class="link-underline story__more" href="/about">Read the full story</a>
+      </div>
+
+      <div class="story__media" data-reveal data-ink-reveal>
+        <Picture
+          slug="about-shoji"
+          alt="Harrison Saito seated beside a shoji screen in traditional Japanese light"
+          sizes="(max-width: 900px) 100vw, 42vw"
+          parallax={10}
+        />
+      </div>
+    </div>
+
+    <div class="container creds" data-reveal-stagger="90">
+      {
+        CREDENTIALS.map((c) => (
+          <div class="cred">
+            <span class="cred__value">{c.value}</span>
+            <span class="cred__label">{c.label}</span>
+          </div>
+        ))
+      }
+    </div>
+  </section>
+
+  {/* ------------------------------------------------------ two audiences */}
+  <section class="section section--ink paths" data-section="paths">
+    <Calligraphy set="programme" seed={5} words={['PERFORMANCE', 'VOICE']} />
+
+    <div class="container">
+      <header class="paths__head" data-reveal>
+        <p class="eyebrow">Two Paths</p>
+        <h2 class="display-l">Who I work with.</h2>
+      </header>
+
+      <div class="paths__grid">
+        <a class="path" href="/mens-coaching" data-reveal data-track="cta_click" data-track-label="Path — Men's coaching">
+          <div class="path__media">
+            <Picture
+              slug="for-adults"
+              alt="A man training in a dojo, mid-form, in a white gi"
+              sizes="(max-width: 900px) 100vw, 46vw"
+            />
+            <span class="path__glyph" aria-hidden="true">破</span>
+          </div>
+          <div class="path__body">
+            <p class="eyebrow">For Adults</p>
+            <h3 class="display-s">You look like you've got it all together.</h3>
+            <p class="path__copy">
+              But when you're alone, really alone, you feel like something fundamental is missing.
+              You don't need more discipline. You need someone who has been exactly where you are.
+            </p>
+            <span class="path__link">Men's Coaching &amp; Return to Self <span aria-hidden="true">→</span></span>
+          </div>
+        </a>
+
+        <a class="path" href="/hsc-tutoring" data-reveal data-track="cta_click" data-track-label="Path — HSC mentoring">
+          <div class="path__media">
+            <Picture
+              slug="naruto-group"
+              alt="Harrison Saito with a group of young martial arts students"
+              sizes="(max-width: 900px) 100vw, 46vw"
+            />
+            <span class="path__glyph" aria-hidden="true">育</span>
+          </div>
+          <div class="path__body">
+            <p class="eyebrow">For Youth</p>
+            <h3 class="display-s">Building the person.</h3>
+            <p class="path__copy">
+              The HSC is not just an exam. It's a pressure test for how your child handles stress,
+              organises their thinking, and finds their voice under pressure. I know the system from
+              the inside.
+            </p>
+            <span class="path__link">HSC &amp; Youth Mentoring <span aria-hidden="true">→</span></span>
+          </div>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  {/* ------------------------------------------------------------ offers */}
+  <section class="section section--warm" data-section="offers">
+    <Calligraphy set="close" seed={21} words={['BOUNDARY']} scale={0.9} />
+
+    <div class="container">
+      <header class="offers__head" data-reveal>
+        <p class="eyebrow">Ways to Work Together</p>
+        <h2 class="display-l">Three doors in.</h2>
+        <p class="lede measure">
+          Every price is on this page. No discovery call required to find out what it costs.
+        </p>
+      </header>
+
+      <div class="offers__grid" data-reveal-stagger="110">
+        {
+          OFFERS.map((offer) => (
+            <div>
+              <OfferCard offer={offer} featured={offer.id === 'return-to-self'} />
+            </div>
+          ))
+        }
+      </div>
+    </div>
+  </section>
+
+  {/* ------------------------------------------------------------- quote */}
+  <section class="section section--deep quote-band" data-section="quote">
+    <div class="quote-band__wash" aria-hidden="true">
+      <Picture slug="ink-wash" alt="" sizes="100vw" />
+    </div>
+    <div class="container container--narrow text-center" data-reveal>
+      <blockquote class="quote-band__text">
+        Compassion naturally arises when the illusion of separation softens.
+      </blockquote>
+    </div>
+  </section>
+
+  {/* -------------------------------------------------------------- media */}
+  <section class="section" data-section="media">
+    <div class="container">
+      <header class="media__head" data-reveal>
+        <p class="eyebrow">As Seen On</p>
+        <h2 class="display-l">See the work.</h2>
+      </header>
+
+      <div class="media__feature" data-reveal>
+        <YouTubeFacade
+          id={VIDEO_IDS.sbsWorldNews}
+          title="SBS World News"
+          label="As Seen On"
+          description="SBS World News interview about youth and adult mental health."
+        />
+      </div>
+
+      <div class="media__pair" data-reveal-stagger="120">
+        <div>
+          <YouTubeFacade
+            id={VIDEO_IDS.fatherSonShort}
+            title="A father & son talk & heal"
+            label="Featured"
+          />
+        </div>
+        <div>
+          <YouTubeFacade
+            id={VIDEO_IDS.chakra}
+            title="5 Minute Guided Chakra Meditation"
+            label="Guided Practice"
+          />
+        </div>
+      </div>
+
+      <div class="media__more" data-reveal>
+        <a class="btn btn--ghost" href="/media">All Films &amp; Interviews</a>
+      </div>
+    </div>
+  </section>
+
+  {/* ------------------------------------------------------ testimonials */}
+  <section class="section section--warm" data-section="testimonials">
+    <div class="container container--wide">
+      <Testimonials eyebrow="Testimonials" heading="In their words." limit={6} columns={3} />
+      <div class="media__more" data-reveal>
+        <a class="btn btn--ghost" href="/testimonials">Read all 11</a>
+      </div>
+    </div>
+  </section>
+
+  {/* --------------------------------------------------------------- CTA */}
+  <section class="section section--deep close" data-section="close">
+    <Calligraphy set="close" seed={33} words={['PRESENCE']} scale={1.4} />
+    <div class="close__enso" aria-hidden="true"><Enso opacity={0.3} strokeWidth={4} /></div>
+
+    <div class="container container--narrow text-center" data-reveal>
+      <h2 class="display-l">If something here resonated, reach out.</h2>
+      <p class="lede close__sub">
+        No pitch. No pressure. Just a conversation about where you are and what you're looking for.
+      </p>
+      <div class="close__ctas">
+        <a
+          class="btn btn--lg"
+          href="/book"
+          data-track="cta_click"
+          data-track-label="Close — Book a chat"
+          data-track-section="close">Start a Conversation</a>
+        <a
+          class="btn btn--lg btn--ghost"
+          href={`mailto:${SITE.email}`}
+          data-track="cta_click"
+          data-track-label="Close — Email">Email Instead</a>
+      </div>
+    </div>
+  </section>
+</Base>
+
+<style>
+  /* ---- story ---- */
+  .story {
+    display: grid;
+    gap: clamp(2.5rem, 5vw, 4.5rem);
+    align-items: center;
+  }
+
+  .story__head {
+    font-weight: 300;
+    max-width: 16ch;
+    margin-bottom: clamp(1.5rem, 3vw, 2.25rem);
+  }
+  .story__em { font-style: italic; color: var(--gold-deep); }
+
+  .story__prose { max-width: 54ch; }
+  .story__more { margin-top: 2rem; }
+
+  .story__media { position: relative; overflow: hidden; aspect-ratio: 4 / 5; }
+  .story__media :global(img) { width: 100%; height: 100%; object-fit: cover; }
+
+  /* ---- credentials ---- */
+  .creds {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: clamp(1.5rem, 3vw, 2.5rem);
+    margin-top: clamp(3rem, 6vw, 5rem);
+    padding-top: clamp(2rem, 4vw, 3rem);
+    border-top: 1px solid var(--rule);
+  }
+
+  .cred { display: grid; gap: 0.35rem; }
+
+  .cred__value {
+    font-family: var(--font-display);
+    font-size: var(--step-3);
+    font-weight: 300;
+    line-height: 1;
+    color: var(--gold-deep);
+  }
+
+  .cred__label {
+    font-size: var(--step--1);
+    letter-spacing: 0.1em;
+    color: var(--text-on-paper-faint);
+  }
+
+  /* ---- paths ---- */
+  .paths__head { margin-bottom: clamp(2.5rem, 5vw, 4rem); }
+
+  .paths__grid {
+    display: grid;
+    gap: clamp(1.5rem, 3vw, 2.5rem);
+  }
+
+  .path {
+    display: grid;
+    background: oklch(21% 0.01 55 / 0.5);
+    border: 1px solid oklch(100% 0 0 / 0.09);
+    overflow: hidden;
+    transition: border-color var(--dur) var(--ease-out-expo),
+      transform var(--dur) var(--ease-out-expo);
+  }
+  .path:hover { border-color: oklch(75% 0.12 75 / 0.45); transform: translateY(-5px); }
+
+  .path__media { position: relative; aspect-ratio: 16 / 10; overflow: hidden; }
+  .path__media :global(img) {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    filter: saturate(0.8) contrast(1.05) brightness(0.82);
+    transition: transform 1.1s var(--ease-out-expo), filter var(--dur) ease;
+  }
+  .path:hover .path__media :global(img) {
+    transform: scale(1.05);
+    filter: saturate(0.95) contrast(1.05) brightness(0.9);
+  }
+
+  .path__glyph {
+    position: absolute;
+    inset-block-end: -0.22em;
+    inset-inline-end: 0.04em;
+    font-family: var(--font-jp);
+    font-size: clamp(6rem, 12vw, 11rem);
+    line-height: 1;
+    color: var(--gold);
+    opacity: 0.24;
+    pointer-events: none;
+  }
+
+  .path__body { padding: clamp(1.75rem, 3.5vw, 2.75rem); }
+  .path__body h3 { margin-bottom: 1rem; color: var(--text-on-ink); }
+
+  .path__copy {
+    font-size: var(--step-0);
+    line-height: 1.7;
+    color: var(--text-on-ink-muted);
+    margin-bottom: 1.75rem;
+  }
+
+  .path__link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.6rem;
+    font-size: var(--step--1);
+    font-weight: 600;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--gold);
+  }
+  .path__link span { transition: transform var(--dur-fast) var(--ease-out-expo); }
+  .path:hover .path__link span { transform: translateX(5px); }
+
+  /* ---- offers ---- */
+  .offers__head { margin-bottom: clamp(2.5rem, 5vw, 4rem); }
+  .offers__head .lede { margin-top: 1.25rem; }
+
+  .offers__grid {
+    display: grid;
+    gap: clamp(1.25rem, 2.5vw, 2rem);
+  }
+
+  /* ---- quote ---- */
+  .quote-band { position: relative; }
+  .quote-band__wash { position: absolute; inset: 0; opacity: 0.1; }
+  .quote-band__wash :global(img) { width: 100%; height: 100%; object-fit: cover; }
+
+  .quote-band__text {
+    font-family: var(--font-display);
+    font-size: var(--step-3);
+    font-style: italic;
+    font-weight: 300;
+    line-height: 1.4;
+    color: oklch(93% 0.005 60);
+    margin: 0;
+  }
+
+  /* ---- media ---- */
+  .media__head { margin-bottom: clamp(2.5rem, 5vw, 4rem); }
+  .media__feature { margin-bottom: clamp(2rem, 4vw, 3.5rem); }
+
+  .media__pair {
+    display: grid;
+    gap: clamp(1.5rem, 3vw, 2.5rem);
+  }
+
+  .media__more { margin-top: clamp(2.5rem, 5vw, 4rem); text-align: center; }
+
+  /* ---- close ---- */
+  .close { position: relative; }
+  .close__enso {
+    position: absolute;
+    inset-block-start: 50%;
+    inset-inline-start: 50%;
+    transform: translate(-50%, -50%);
+    width: clamp(16rem, 34vw, 30rem);
+    pointer-events: none;
+    z-index: 0;
+  }
+  .close__sub { margin: 1.5rem auto 0; max-width: 44ch; }
+  .close__ctas {
+    margin-top: clamp(2rem, 4vw, 3rem);
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    justify-content: center;
+  }
+
+  @media (min-width: 900px) {
+    .story { grid-template-columns: 1.15fr 0.85fr; }
+    .creds { grid-template-columns: repeat(4, 1fr); }
+    .paths__grid { grid-template-columns: repeat(2, 1fr); }
+    .offers__grid { grid-template-columns: repeat(3, 1fr); }
+    .media__pair { grid-template-columns: repeat(2, 1fr); }
+  }
+</style>

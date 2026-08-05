@@ -1,0 +1,16 @@
+node_modules/
+dist/
+.astro/
+.env
+.env.local
+.DS_Store
+*.log
+.vercel
+.wrangler
+
+# Raw scrape of the legacy Manus site — kept locally as the migration source
+# of truth, not committed. See docs/MIGRATION.md.
+_source/
+
+# Visual-check output from `npm run shots`.
+_shots/

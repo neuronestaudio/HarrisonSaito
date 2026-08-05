@@ -1,0 +1,150 @@
+---
+/**
+ * Base document.
+ *
+ * Fixes carried here from the audit:
+ *   M2  viewport no longer sets maximum-scale=1 (WCAG 1.4.4 — the old site
+ *       disabled pinch-zoom, which matters for the parents of HSC students)
+ *   M1  og:image + Twitter card on every page
+ *   M3  real per-page meta descriptions with location and intent
+ *   M6  self-referencing canonical on every page
+ *   M7  full favicon set + apple-touch-icon + manifest
+ *   H6  JSON-LD @graph
+ *   C4  no third-party editor script, no vendor badge, no vendor telemetry
+ */
+import { SITE } from '../data/site';
+import Analytics from '../components/Analytics.astro';
+import Nav from '../components/Nav.astro';
+import Footer from '../components/Footer.astro';
+import ConsentBar from '../components/ConsentBar.astro';
+import '../styles/global.css';
+
+interface Props {
+  title: string;
+  description: string;
+  /** Path only, e.g. '/mens-coaching'. */
+  path?: string;
+  image?: string;
+  /** JSON-LD graph object. */
+  schema?: object;
+  noindex?: boolean;
+  /** Landing pages strip the nav to a single CTA. */
+  bare?: boolean;
+  bodyClass?: string;
+}
+
+const {
+  title,
+  description,
+  path = Astro.url.pathname,
+  image = '/og-image.jpg',
+  schema,
+  noindex = false,
+  bare = false,
+  bodyClass = '',
+} = Astro.props;
+
+const canonical = new URL(path === '/' ? '/' : path.replace(/\/$/, ''), SITE.domain).href;
+const ogImage = new URL(image, SITE.domain).href;
+---
+
+<!doctype html>
+<html lang="en-AU" class="no-js">
+  <head>
+    <meta charset="UTF-8" />
+    {/* No maximum-scale — pinch-zoom stays available. */}
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonical} />
+    {noindex && <meta name="robots" content="noindex, nofollow" />}
+    {!noindex && <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1" />}
+
+    {/* Fonts are self-hosted; preload only the two faces that paint above the fold. */}
+    <link
+      rel="preload"
+      href="/fonts/cormorant-garamond-300.woff2"
+      as="font"
+      type="font/woff2"
+      crossorigin
+    />
+    <link
+      rel="preload"
+      href="/fonts/nunito-sans-400.woff2"
+      as="font"
+      type="font/woff2"
+      crossorigin
+    />
+
+    {/* Open Graph — closes M1. The old site rendered with no preview image at
+        all, on a funnel whose entire conversion path was WhatsApp shares. */}
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Harrison Saito" />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:image" content={ogImage} />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="Harrison Saito — Educator, Martial Artist, Coach" />
+    <meta property="og:locale" content="en_AU" />
+
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={ogImage} />
+
+    {/* Favicons — closes M7. */}
+    <link rel="icon" href="/favicon.ico" sizes="32x32" />
+    <link rel="icon" href="/favicon-512.png" type="image/png" sizes="512x512" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <link rel="manifest" href="/site.webmanifest" />
+    <meta name="theme-color" content="#1a1714" />
+
+    <meta name="geo.region" content="AU-NSW" />
+    <meta name="geo.placename" content="Chatswood, New South Wales" />
+    <meta name="author" content="Harrison Saito" />
+
+    {schema && <script type="application/ld+json" set:html={JSON.stringify(schema)} />}
+
+    <Analytics />
+  </head>
+
+  <body class={bodyClass}>
+    <a class="skip-link" href="#main">Skip to content</a>
+    <div class="scroll-progress" data-scroll-progress aria-hidden="true"></div>
+
+    {!bare && <Nav />}
+
+    <main id="main">
+      <slot />
+    </main>
+
+    {!bare && <Footer />}
+    <ConsentBar />
+
+    <script>
+      import { initMotion } from '../scripts/motion';
+      import { initTracking } from '../scripts/tracking';
+
+      initMotion();
+      initTracking();
+    </script>
+
+    <style is:global>
+      .scroll-progress {
+        position: fixed;
+        top: 0;
+        left: 0;
+        z-index: 120;
+        width: 100%;
+        height: 2px;
+        background: var(--gold);
+        transform: scaleX(0);
+        transform-origin: left;
+        pointer-events: none;
+      }
+    </style>
+  </body>
+</html>

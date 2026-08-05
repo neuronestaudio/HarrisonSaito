@@ -1,0 +1,161 @@
+---
+/**
+ * Testimonials — all eleven, filterable.
+ *
+ * These also feed Review + AggregateRating schema from lib/seo.ts, which is
+ * where the rich-result eligibility the old site had no chance at comes from.
+ */
+import Base from '../layouts/Base.astro';
+import Calligraphy from '../components/Calligraphy.astro';
+import Testimonials from '../components/Testimonials.astro';
+import Enso from '../components/Enso.astro';
+import { TESTIMONIALS } from '../data/site';
+import { graph, localBusinessSchema, breadcrumbSchema } from '../lib/seo';
+
+const title = 'Testimonials — Coaching, Martial Arts & HSC | Harrison Saito';
+const description =
+  'Eleven testimonials from men’s coaching clients, martial arts students, HSC students and parents across Sydney — Chatswood High, Cammeraygal, St Pius X and Brigidine College St Ives.';
+
+const adults = TESTIMONIALS.filter((t) => t.category === 'adults').length;
+const youth = TESTIMONIALS.filter((t) => t.category === 'youth').length;
+
+const schema = graph(
+  localBusinessSchema(),
+  breadcrumbSchema([
+    { name: 'Home', url: '/' },
+    { name: 'Testimonials', url: '/testimonials' },
+  ])
+);
+---
+
+<Base title={title} description={description} path="/testimonials" schema={schema}>
+  <section class="section page-hero section--deep" data-section="hero">
+    <Calligraphy set="close" scale={1.2} seed={14} words={['REPAIR']} />
+    <div class="page-hero__enso" aria-hidden="true"><Enso opacity={0.15} strokeWidth={4} /></div>
+
+    <div class="container">
+      <div data-reveal>
+        <p class="eyebrow">Testimonials</p>
+        <h1 class="display-xl page-hero__title">
+          <span class="split-line"><span>In their words.</span></span>
+        </h1>
+        <p class="lede page-hero__lede">
+          {TESTIMONIALS.length} people — {adults} from coaching and martial arts, {youth} from HSC
+          mentoring and parents. Names and schools included, because unattributed praise is worth
+          nothing.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" data-section="all">
+    <div class="container container--wide">
+      <div class="filters" data-reveal role="group" aria-label="Filter testimonials">
+        <button type="button" class="filter is-active" data-filter="all">All ({TESTIMONIALS.length})</button>
+        <button type="button" class="filter" data-filter="adults">Coaching &amp; Martial Arts ({adults})</button>
+        <button type="button" class="filter" data-filter="youth">HSC &amp; Parents ({youth})</button>
+      </div>
+
+      <div data-testimonial-root>
+        <Testimonials columns={3} />
+      </div>
+    </div>
+  </section>
+
+  <section class="section section--warm" data-section="close">
+    <div class="container container--narrow text-center" data-reveal>
+      <h2 class="display-l">Ready to start?</h2>
+      <p class="lede close__sub">
+        No pitch. No pressure. Just a conversation about where you are and what you're looking for.
+      </p>
+      <div class="close__ctas">
+        <a class="btn btn--lg" href="/book" data-track="cta_click" data-track-label="Testimonials — Book">Start a Conversation</a>
+        <a class="btn btn--lg btn--ghost" href="/apply" data-track="cta_click" data-track-label="Testimonials — Apply">Apply for Return to Self</a>
+      </div>
+    </div>
+  </section>
+</Base>
+
+<style>
+  .page-hero {
+    position: relative;
+    padding-block: clamp(8rem, 18vh, 12rem) clamp(4rem, 9vw, 7rem);
+    min-height: 55svh;
+    display: flex;
+    align-items: flex-end;
+  }
+  .page-hero__enso {
+    position: absolute;
+    inset-block-start: 45%;
+    inset-inline-end: -4rem;
+    width: clamp(18rem, 34vw, 32rem);
+    pointer-events: none;
+    z-index: 0;
+  }
+  .page-hero__lede { margin-top: 1.5rem; max-width: 52ch; }
+
+  .filters {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.6rem;
+    margin-bottom: clamp(2rem, 4vw, 3rem);
+  }
+
+  .filter {
+    padding: 0.65rem 1.25rem;
+    background: transparent;
+    border: 1px solid var(--rule);
+    font-size: var(--step--1);
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--text-on-paper-muted);
+    cursor: pointer;
+    transition: border-color var(--dur-fast) ease, color var(--dur-fast) ease,
+      background var(--dur-fast) ease;
+  }
+  .filter:hover { border-color: var(--gold-deep); color: var(--gold-deep); }
+  .filter.is-active {
+    background: var(--gold);
+    border-color: var(--gold);
+    color: var(--ink-900);
+  }
+
+  .close__sub { margin: 1.5rem auto 0; max-width: 44ch; }
+  .close__ctas {
+    margin-top: 2.5rem;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    justify-content: center;
+  }
+</style>
+
+<script>
+  import { track } from '../scripts/tracking';
+
+  // Each card carries its own category, so filtering needs no content import —
+  // shipping the whole site data file to the client just to read a label would
+  // be several KB of pure waste.
+  const cards = Array.from(
+    document.querySelectorAll<HTMLElement>('[data-testimonial-root] .tcard')
+  );
+  const buttons = Array.from(document.querySelectorAll<HTMLButtonElement>('.filter'));
+
+  buttons.forEach((btn) => {
+    btn.addEventListener('click', () => {
+      const filter = btn.dataset.filter!;
+      buttons.forEach((b) => {
+        b.classList.toggle('is-active', b === btn);
+        b.setAttribute('aria-pressed', String(b === btn));
+      });
+
+      cards.forEach((card) => {
+        const show = filter === 'all' || card.dataset.category === filter;
+        card.hidden = !show;
+      });
+
+      track('testimonial_filter', { filter, page_path: location.pathname });
+    });
+  });
+</script>

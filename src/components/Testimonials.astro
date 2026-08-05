@@ -1,0 +1,196 @@
+---
+/**
+ * Testimonial wall.
+ *
+ * Eleven named clients including HSC students, parents and martial arts
+ * students — real social proof the old site had but buried behind a
+ * "show more" on a single page. These now also feed Review schema (see
+ * lib/seo.ts) so they can surface as rich results.
+ */
+import { TESTIMONIALS, type Testimonial } from '../data/site';
+import { srcset, src } from '../lib/images';
+
+interface Props {
+  filter?: 'adults' | 'youth' | 'all';
+  limit?: number;
+  columns?: number;
+  heading?: string;
+  eyebrow?: string;
+}
+
+const { filter = 'all', limit, columns = 3, heading, eyebrow } = Astro.props;
+
+let items: Testimonial[] =
+  filter === 'all' ? TESTIMONIALS : TESTIMONIALS.filter((t) => t.category === filter);
+if (limit) items = items.slice(0, limit);
+
+const initials = (name: string) =>
+  name
+    .replace(/&.*/, '')
+    .trim()
+    .split(/\s+/)
+    .slice(0, 2)
+    .map((w) => w[0])
+    .join('');
+---
+
+<div class="tw">
+  {
+    (eyebrow || heading) && (
+      <header class="tw__head" data-reveal>
+        {eyebrow && <p class="eyebrow">{eyebrow}</p>}
+        {heading && <h2 class="display-m">{heading}</h2>}
+      </header>
+    )
+  }
+
+  <div class="tw__grid" style={`--cols:${columns}`} data-reveal-stagger="60">
+    {
+      items.map((t) => (
+        <figure class="tcard" data-category={t.category}>
+          <svg class="tcard__quote" viewBox="0 0 32 24" width="26" height="20" aria-hidden="true">
+            <path
+              d="M13 24V13.3C13 5.9 17.3 1.2 25 0l1.4 3.4c-4.4 1.2-6.6 3.9-6.8 7.6H25V24H13Zm-13 0V13.3C0 5.9 4.3 1.2 12 0l1.4 3.4C9 4.6 6.8 7.3 6.6 11H12V24H0Z"
+              fill="currentColor"
+            />
+          </svg>
+
+          <blockquote class="tcard__quote-text">{t.quote}</blockquote>
+
+          <figcaption class="tcard__by">
+            {t.avatar ? (
+              <img
+                class="tcard__avatar"
+                src={src(t.avatar)}
+                srcset={srcset(t.avatar) || undefined}
+                sizes="96px"
+                alt={`${t.name}`}
+                width="48"
+                height="48"
+                loading="lazy"
+                decoding="async"
+              />
+            ) : (
+              <span class="tcard__initials" aria-hidden="true">
+                {initials(t.name)}
+              </span>
+            )}
+            <span class="tcard__meta">
+              <cite class="tcard__name">{t.name}</cite>
+              <span class="tcard__context">{t.context}</span>
+            </span>
+          </figcaption>
+        </figure>
+      ))
+    }
+  </div>
+</div>
+
+<style>
+  .tw__head { margin-bottom: clamp(2.5rem, 5vw, 4rem); }
+
+  .tw__grid {
+    display: grid;
+    gap: clamp(1.25rem, 2.5vw, 2rem);
+    grid-template-columns: 1fr;
+  }
+
+  .tcard {
+    display: flex;
+    flex-direction: column;
+    gap: 1.15rem;
+    margin: 0;
+    padding: clamp(1.5rem, 3vw, 2.25rem);
+    background: var(--paper);
+    border: 1px solid var(--rule);
+    border-left: 2px solid oklch(75% 0.12 75 / 0.45);
+    transition: border-left-color var(--dur) var(--ease-out-expo),
+      transform var(--dur) var(--ease-out-expo);
+    break-inside: avoid;
+  }
+
+  .tcard:hover { border-left-color: var(--gold); transform: translateY(-3px); }
+
+  /* `.tcard { display: flex }` beats the UA stylesheet's [hidden] rule, so the
+     filter needs this to actually hide a card. */
+  .tcard[hidden] { display: none; }
+
+  .tcard__quote { color: oklch(75% 0.12 75 / 0.45); flex-shrink: 0; }
+
+  .tcard__quote-text {
+    font-family: var(--font-display);
+    font-size: var(--step-1);
+    font-style: italic;
+    font-weight: 300;
+    line-height: 1.55;
+    color: var(--text-on-paper);
+    margin: 0;
+    flex-grow: 1;
+  }
+
+  .tcard__by {
+    display: flex;
+    align-items: center;
+    gap: 0.85rem;
+    padding-top: 1.15rem;
+    border-top: 1px solid var(--rule);
+  }
+
+  .tcard__avatar,
+  .tcard__initials {
+    width: 48px;
+    height: 48px;
+    flex-shrink: 0;
+    border-radius: 50%;
+    object-fit: cover;
+  }
+
+  .tcard__initials {
+    display: grid;
+    place-items: center;
+    background: var(--paper-deep);
+    border: 1px solid oklch(75% 0.12 75 / 0.3);
+    font-family: var(--font-display);
+    font-size: 0.95rem;
+    color: var(--gold-deep);
+  }
+
+  .tcard__meta { display: grid; gap: 0.15rem; min-width: 0; }
+
+  .tcard__name {
+    font-family: var(--font-body);
+    font-size: var(--step--1);
+    font-weight: 600;
+    font-style: normal;
+    color: var(--text-on-paper);
+  }
+
+  .tcard__context {
+    font-size: 0.75rem;
+    color: var(--text-on-paper-faint);
+  }
+
+  /* On dark sections the cards invert. */
+  :global(.section--ink) .tcard,
+  :global(.section--deep) .tcard {
+    background: oklch(21% 0.010 55);
+    border-color: oklch(100% 0 0 / 0.1);
+  }
+  :global(.section--ink) .tcard__quote-text,
+  :global(.section--deep) .tcard__quote-text { color: var(--text-on-ink); }
+  :global(.section--ink) .tcard__by,
+  :global(.section--deep) .tcard__by { border-top-color: oklch(100% 0 0 / 0.1); }
+  :global(.section--ink) .tcard__name,
+  :global(.section--deep) .tcard__name { color: var(--text-on-ink); }
+  :global(.section--ink) .tcard__context,
+  :global(.section--deep) .tcard__context { color: var(--text-on-ink-faint); }
+  :global(.section--ink) .tcard__initials,
+  :global(.section--deep) .tcard__initials { background: var(--ink-700); color: var(--gold); }
+
+  @media (min-width: 700px) {
+    .tw__grid { grid-template-columns: repeat(2, 1fr); }
+  }
+  @media (min-width: 1050px) {
+    .tw__grid { grid-template-columns: repeat(var(--cols), 1fr); }
+  }
+</style>

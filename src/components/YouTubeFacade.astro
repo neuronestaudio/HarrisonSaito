@@ -1,0 +1,247 @@
+---
+/**
+ * Click-to-load YouTube facade.
+ *
+ * Closes audit finding H4: the legacy site mounted seven live <iframe> embeds
+ * on page load, pulling roughly 4-7 MB of player JavaScript per visit and
+ * jamming the main thread on mobile — on a page whose traffic was about to be
+ * bought.
+ *
+ * This ships a thumbnail and a play button. The real iframe is only created on
+ * click, and it uses youtube-nocookie.com so no tracking cookie is set for
+ * visitors who never press play.
+ */
+interface Props {
+  id: string;
+  title: string;
+  label?: string;
+  description?: string;
+  class?: string;
+  /** 'maxres' can 404 on older uploads; 'hq' always exists. */
+  thumb?: 'maxres' | 'hq';
+  aspect?: string;
+}
+
+const {
+  id,
+  title,
+  label,
+  description,
+  class: className = '',
+  thumb = 'maxres',
+  aspect = '16 / 9',
+} = Astro.props;
+
+const primary = `https://i.ytimg.com/vi/${id}/${thumb === 'maxres' ? 'maxresdefault' : 'hqdefault'}.jpg`;
+const fallback = `https://i.ytimg.com/vi/${id}/hqdefault.jpg`;
+---
+
+<figure class={`yt ${className}`} style={`--yt-aspect:${aspect}`}>
+  <div class="yt__frame" data-yt={id} data-yt-title={title}>
+    <img
+      class="yt__thumb"
+      src={primary}
+      data-fallback={fallback}
+      alt={`Video thumbnail: ${title}`}
+      loading="lazy"
+      decoding="async"
+      width="1280"
+      height="720"
+    />
+    <button class="yt__play" type="button" aria-label={`Play video: ${title}`}>
+      <span class="yt__play-ring" aria-hidden="true"></span>
+      <svg viewBox="0 0 24 24" width="26" height="26" aria-hidden="true">
+        <path d="M8 5v14l11-7z" fill="currentColor"></path>
+      </svg>
+    </button>
+    <span class="yt__scrim" aria-hidden="true"></span>
+  </div>
+
+  {
+    (label || description) && (
+      <figcaption class="yt__caption">
+        {label && <span class="yt__label">{label}</span>}
+        <span class="yt__title">{title}</span>
+        {description && <span class="yt__desc">{description}</span>}
+      </figcaption>
+    )
+  }
+</figure>
+
+<style>
+  .yt {
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  .yt__frame {
+    position: relative;
+    aspect-ratio: var(--yt-aspect, 16 / 9);
+    background: var(--ink-900);
+    overflow: hidden;
+    cursor: pointer;
+    isolation: isolate;
+  }
+
+  .yt__thumb {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 900ms var(--ease-out-expo), filter 500ms ease;
+    filter: saturate(0.82) contrast(1.03);
+  }
+
+  .yt__frame:hover .yt__thumb,
+  .yt__frame:focus-within .yt__thumb {
+    transform: scale(1.045);
+    filter: saturate(1) contrast(1.03);
+  }
+
+  .yt__scrim {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+      to top,
+      oklch(11% 0.008 55 / 0.55),
+      oklch(11% 0.008 55 / 0.05) 55%
+    );
+    pointer-events: none;
+  }
+
+  .yt__play {
+    position: absolute;
+    inset: 0;
+    margin: auto;
+    width: 76px;
+    height: 76px;
+    display: grid;
+    place-items: center;
+    background: oklch(11% 0.008 55 / 0.45);
+    color: var(--gold);
+    border: 1px solid oklch(75% 0.12 75 / 0.5);
+    border-radius: 50%;
+    cursor: pointer;
+    z-index: 2;
+    backdrop-filter: blur(6px);
+    transition: background var(--dur-fast) ease, color var(--dur-fast) ease,
+      transform var(--dur-fast) var(--ease-out-expo), border-color var(--dur-fast) ease;
+  }
+
+  .yt__play svg { margin-left: 3px; }
+
+  .yt__frame:hover .yt__play {
+    background: var(--gold);
+    color: var(--ink-900);
+    border-color: var(--gold);
+    transform: scale(1.07);
+  }
+
+  .yt__play:active { transform: scale(0.96); }
+
+  /* A quiet ensō-ish ring that breathes once on hover. */
+  .yt__play-ring {
+    position: absolute;
+    inset: -9px;
+    border: 1px solid oklch(75% 0.12 75 / 0.28);
+    border-radius: 50%;
+    opacity: 0;
+    transition: opacity var(--dur-fast) ease, transform var(--dur) var(--ease-out-expo);
+  }
+  .yt__frame:hover .yt__play-ring { opacity: 1; transform: scale(1.12); }
+
+  .yt__caption {
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+  }
+
+  .yt__label {
+    font-size: var(--step--1);
+    font-weight: 600;
+    letter-spacing: var(--tracking-eyebrow);
+    text-transform: uppercase;
+    color: var(--gold-deep);
+  }
+
+  .yt__title {
+    font-family: var(--font-display);
+    font-size: var(--step-1);
+    line-height: 1.25;
+  }
+
+  .yt__desc {
+    font-size: var(--step--1);
+    color: var(--text-on-paper-muted);
+    line-height: 1.6;
+  }
+
+  :global(.section--ink) .yt__label,
+  :global(.section--deep) .yt__label { color: var(--gold); }
+  :global(.section--ink) .yt__desc,
+  :global(.section--deep) .yt__desc { color: var(--text-on-ink-muted); }
+
+  /* Once loaded the button and scrim get out of the way. */
+  .yt__frame.is-playing .yt__play,
+  .yt__frame.is-playing .yt__scrim,
+  .yt__frame.is-playing .yt__thumb { display: none; }
+
+  .yt__frame iframe {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    border: 0;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .yt__thumb, .yt__play, .yt__play-ring { transition: none; }
+  }
+</style>
+
+<script>
+  import { track } from '../scripts/tracking';
+
+  function mount(frame: HTMLElement) {
+    if (frame.classList.contains('is-playing')) return;
+    const id = frame.dataset.yt;
+    if (!id) return;
+
+    const iframe = document.createElement('iframe');
+    // nocookie + autoplay, since the click IS the intent to play.
+    iframe.src = `https://www.youtube-nocookie.com/embed/${id}?autoplay=1&rel=0&modestbranding=1`;
+    iframe.title = frame.dataset.ytTitle ?? 'Video';
+    iframe.allow =
+      'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share';
+    iframe.allowFullscreen = true;
+    iframe.loading = 'lazy';
+
+    frame.appendChild(iframe);
+    frame.classList.add('is-playing');
+
+    track('video_play', {
+      video_id: id,
+      video_title: frame.dataset.ytTitle,
+      page_path: location.pathname,
+    });
+  }
+
+  document.querySelectorAll<HTMLElement>('[data-yt]').forEach((frame) => {
+    frame.addEventListener('click', () => mount(frame));
+    frame.querySelector('button')?.addEventListener('keydown', (e) => {
+      const key = (e as KeyboardEvent).key;
+      if (key === 'Enter' || key === ' ') {
+        e.preventDefault();
+        mount(frame);
+      }
+    });
+
+    // maxresdefault does not exist for every upload — fall back silently.
+    const img = frame.querySelector<HTMLImageElement>('.yt__thumb');
+    img?.addEventListener('error', () => {
+      const fb = img.dataset.fallback;
+      if (fb && img.src !== fb) img.src = fb;
+    });
+  });
+</script>
