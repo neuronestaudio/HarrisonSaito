@@ -9,6 +9,7 @@
  */
 import { SITE, NAV } from '../data/site';
 import BrandMark from './BrandMark.astro';
+import { srcset, src } from '../lib/images';
 
 const year = new Date().getFullYear();
 ---
@@ -16,9 +17,23 @@ const year = new Date().getFullYear();
 <footer class="footer">
   <div class="container footer__inner">
     <div class="footer__brand">
-      <a href="/" class="footer__mark" aria-label="Harrison Saito — home">
-        <BrandMark variant="light" size={56} loading="lazy" />
-      </a>
+      {/* Portrait beside the mark — the person, then the brand. */}
+      <div class="footer__identity">
+        <img
+          class="footer__portrait"
+          src={src('portrait-harrison')}
+          srcset={srcset('portrait-harrison') || undefined}
+          sizes="56px"
+          alt="Harrison Saito"
+          width="56"
+          height="56"
+          loading="lazy"
+          decoding="async"
+        />
+        <a href="/" class="footer__mark" aria-label="Harrison Saito — home">
+          <BrandMark variant="light" size={56} loading="lazy" />
+        </a>
+      </div>
       <a href="/" class="footer__name">Harrison Saito</a>
       <p class="footer__tagline">Educator. Martial Artist. Coach.</p>
       <p class="footer__loc">
@@ -99,10 +114,27 @@ const year = new Date().getFullYear();
     grid-template-columns: 1fr;
   }
 
+  .footer__identity {
+    display: flex;
+    align-items: center;
+    gap: 0.9rem;
+    margin-bottom: 1.1rem;
+  }
+
+  .footer__portrait {
+    width: 56px;
+    height: 56px;
+    flex-shrink: 0;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 1px solid oklch(75% 0.12 75 / 0.35);
+    filter: saturate(0.9);
+  }
+
   .footer__mark {
     display: block;
     width: 56px;
-    margin-bottom: 1.1rem;
+    flex-shrink: 0;
     opacity: 0.9;
     transition: opacity var(--dur-fast) ease, transform var(--dur) var(--ease-out-expo);
   }

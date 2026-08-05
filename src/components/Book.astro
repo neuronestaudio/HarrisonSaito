@@ -72,6 +72,10 @@ const STACK = 9;
       {/* ---- left half: the opening text page, buried as leaves turn ---- */}
       <div class="book__half book__half--left">
         <BookTextPage chapter={CHAPTERS[0]} index={0} total={total} />
+        {/* The shadow a lifted leaf throws across the page underneath. Opacity
+            and reach are driven from the turn, which is most of what makes a
+            page read as a physical object rather than a swapping texture. */}
+        <span class="book__cast" data-book-cast aria-hidden="true"></span>
       </div>
 
       {/* ---- right half: the leaves ---- */}
@@ -443,6 +447,68 @@ const STACK = 9;
     opacity: 0.07;
   }
 
+  /* ---- physicality ----------------------------------------------------
+     Four things separate a real page from a rectangle: it bows into the fold,
+     it catches light along the outer edge, its corner is not perfectly square,
+     and it has grain. */
+
+  /* Paper bows into the spine and lifts at the outer edge. */
+  .book.is-live .book__face::before,
+  .book.is-live .book__half--left::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: 4;
+    pointer-events: none;
+    background:
+      /* the fold-side bow */
+      linear-gradient(to right, oklch(8% 0.004 55 / 0.22) 0%, transparent 13%),
+      /* the outer edge catching the key light */
+      linear-gradient(to left, oklch(100% 0 0 / 0.09) 0%, transparent 7%),
+      /* a whisper of curvature across the sheet */
+      linear-gradient(to right, transparent 40%, oklch(8% 0.004 55 / 0.05) 100%);
+  }
+  /* The verso is the mirror image — the fold is on its right. */
+  .book.is-live .book__face--back::before {
+    background:
+      linear-gradient(to left, oklch(8% 0.004 55 / 0.22) 0%, transparent 13%),
+      linear-gradient(to right, oklch(100% 0 0 / 0.09) 0%, transparent 7%),
+      linear-gradient(to left, transparent 40%, oklch(8% 0.004 55 / 0.05) 100%);
+  }
+
+  /* Paper grain. An inline SVG turbulence rather than an image request. */
+  .book.is-live .book__face::after,
+  .book.is-live .book__half--left::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: 4;
+    pointer-events: none;
+    opacity: 0.05;
+    mix-blend-mode: multiply;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
+
+  /* Real page corners are cut, not square. Only the outer ones. */
+  .book.is-live .book__half--left,
+  .book.is-live .book__face--back { border-radius: 3px 0 0 3px; overflow: hidden; }
+  .book.is-live .book__face--front { border-radius: 0 3px 3px 0; overflow: hidden; }
+
+  /* The shadow a lifted leaf throws onto the page beneath it. */
+  .book.is-live .book__cast {
+    position: absolute;
+    inset: 0;
+    z-index: 5;
+    pointer-events: none;
+    opacity: var(--cast, 0);
+    background: linear-gradient(
+      to left,
+      oklch(6% 0.004 55 / 0.72) 0%,
+      oklch(6% 0.004 55 / 0.34) calc(var(--cast-reach, 40%) * 0.5),
+      transparent var(--cast-reach, 40%)
+    );
+  }
+
   /* ---- the fold ---- */
   .book.is-live .book__gutter {
     position: absolute;
@@ -486,6 +552,7 @@ const STACK = 9;
     const leaves = Array.from(book.querySelectorAll<HTMLElement>('[data-leaf]'));
     const stacked = Array.from(book.querySelectorAll<HTMLElement>('[data-spread]'));
     const plates = Array.from(book.querySelectorAll<HTMLElement>('[data-plate]'));
+    const cast = book.querySelector<HTMLElement>('[data-book-cast]');
 
     const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     const wide = window.matchMedia('(min-width: 900px)').matches;
@@ -573,14 +640,29 @@ const STACK = 9;
             duration: 1,
             onUpdate: () => {
               const d = state.deg;
+              const t = Math.abs(d) / 180;
+              const arc = Math.sin(t * Math.PI); // 0 flat, 1 edge-on
+
               // Lift the leaf off the block as it swings so it clears the
-              // pages beneath instead of shearing through them.
-              const lift = Math.sin((Math.abs(d) / 180) * Math.PI) * 22;
-              leaf.style.transform = `translateZ(${lift}px) rotateY(${d}deg)`;
+              // pages beneath instead of shearing through them, and squash it
+              // very slightly at the peak — paper under tension foreshortens
+              // rather than staying a rigid plane.
+              const lift = arc * 22;
+              const squash = 1 - arc * 0.018;
+              leaf.style.transform =
+                `translateZ(${lift}px) rotateY(${d}deg) scaleY(${squash.toFixed(4)})`;
               leaf.style.setProperty('--shade', String(shadeFor(d)));
+
               // Once past upright, the leaf belongs to the left-hand pile, and
               // later-turned leaves must sit on top of earlier ones.
               leaf.style.zIndex = String(Math.abs(d) > 90 ? i : leaves.length - i);
+
+              // The shadow it throws on the page underneath: strongest as the
+              // leaf stands over that page, sweeping wider as it comes down.
+              if (cast) {
+                cast.style.setProperty('--cast', (arc * 0.9).toFixed(3));
+                cast.style.setProperty('--cast-reach', `${(18 + t * 62).toFixed(1)}%`);
+              }
             },
           },
           i

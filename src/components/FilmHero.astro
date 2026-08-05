@@ -55,9 +55,22 @@ import BrandMark from './BrandMark.astro';
 
     <p class="fh__eyebrow">In His Own Words</p>
 
-    <h1 class="fh__title">
+    {/* The film's end card was three lines — "Strong people. Sharp minds. Soft
+        hearts." It has been cut from the video (it read as a sign-off in the
+        middle of a page) and moved here, where the three rotate through the
+        headline instead. The full sentence is on the h1's aria-label so screen
+        readers get all three at once rather than whichever happens to be up. */}
+    <h1 class="fh__title" aria-label="My goal is to create strong people, sharp minds, soft hearts.">
       <span class="split-line"><span>My goal is to create</span></span>
-      <span class="split-line"><span class="fh__title-em">strong people.</span></span>
+      <span class="fh__rotator" data-fh-rotator aria-hidden="true">
+        {
+          ['strong people.', 'sharp minds.', 'soft hearts.'].map((word, i) => (
+            <span class:list={['fh__word', { 'is-on': i === 0 }]} data-fh-word>
+              {word}
+            </span>
+          ))
+        }
+      </span>
     </h1>
 
     <p class="fh__sub">
@@ -182,7 +195,33 @@ import BrandMark from './BrandMark.astro';
     margin-inline: auto;
     color: oklch(95% 0.005 60);
   }
-  .fh__title-em { font-style: italic; color: var(--gold-light); }
+  /* All three words occupy the same grid cell, so the line never reflows and
+     nothing below it jumps as they swap. */
+  .fh__rotator {
+    display: grid;
+    grid-template-areas: 'word';
+    justify-items: center;
+    overflow: hidden;
+    padding-block: 0.06em;
+  }
+
+  .fh__word {
+    grid-area: word;
+    font-style: italic;
+    color: var(--gold-light);
+    white-space: nowrap;
+    opacity: 0;
+    transform: translateY(0.5em);
+    transition: opacity 620ms var(--ease-out-expo), transform 620ms var(--ease-out-expo);
+  }
+  .fh__word.is-on { opacity: 1; transform: none; }
+  /* The outgoing word leaves upward, so the set reads as one line advancing
+     rather than three cross-dissolving in place. */
+  .fh__word.is-out { opacity: 0; transform: translateY(-0.5em); }
+
+  @media (prefers-reduced-motion: reduce) {
+    .fh__word { transition: opacity 200ms linear; transform: none !important; }
+  }
 
   .fh__sub {
     margin: clamp(1.5rem, 3vw, 2.25rem) auto 0;
@@ -328,6 +367,46 @@ import BrandMark from './BrandMark.astro';
 
 <script>
   import { track } from '../scripts/tracking';
+
+  /* ---- the rotating headline ---- */
+  const rotator = document.querySelector<HTMLElement>('[data-fh-rotator]');
+  if (rotator) {
+    const words = Array.from(rotator.querySelectorAll<HTMLElement>('[data-fh-word]'));
+    let i = 0;
+    let timer = 0;
+
+    const step = () => {
+      const outgoing = words[i];
+      i = (i + 1) % words.length;
+      const incoming = words[i];
+
+      outgoing.classList.remove('is-on');
+      outgoing.classList.add('is-out');
+      incoming.classList.remove('is-out');
+      incoming.classList.add('is-on');
+
+      // Reset the leaver once it is out of sight, so it comes back in from
+      // below next time round rather than dropping from above.
+      window.setTimeout(() => outgoing.classList.remove('is-out'), 640);
+    };
+
+    const start = () => {
+      if (!timer && words.length > 1) timer = window.setInterval(step, 2000);
+    };
+    const stop = () => {
+      window.clearInterval(timer);
+      timer = 0;
+    };
+
+    // Only run while the hero is actually on screen and the tab is focused —
+    // no point animating for nobody.
+    new IntersectionObserver(
+      ([entry]) => (entry.isIntersecting ? start() : stop()),
+      { threshold: 0.25 }
+    ).observe(rotator);
+
+    document.addEventListener('visibilitychange', () => (document.hidden ? stop() : start()));
+  }
 
   /* ---- the silent bed ---- */
   const bed = document.querySelector<HTMLVideoElement>('[data-fh-bed]');

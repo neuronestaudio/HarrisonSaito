@@ -27,13 +27,19 @@ IMG="/c/Users/dlint/HarrisonSaito/public/img"
 
 mkdir -p "$OUT"
 
-TRIM=160.4          # end card starts fading in at 160.5
+# Measured with signalstats, not eyeballed: the last picture is at 158.85s, the
+# frame is pure black 158.9-160.4, and the "Strong people. Sharp minds. Soft
+# hearts." end card fades in at 160.5. Cutting at 159.4 drops the card AND the
+# dead black between, so the film ends on a short deliberate fade instead of a
+# second and a half of nothing. Those three lines now live in the /about
+# headline, where they rotate.
+TRIM=159.4
 BED_IN=1.2          # skip the very first beat so the loop opens on him settled
 BED_LEN=17
 # Derived, written out rather than computed: Git Bash has no `bc`, and these
-# only change when the two constants above do.
+# only change when the constants above do.
 BED_FADE_OUT=16.2   # BED_LEN - 0.8
-AUD_FADE_OUT=159.0  # TRIM - 1.4
+AUD_FADE_OUT=158.4  # TRIM - 1.0
 
 echo "=== hero bed (silent, looping) ==="
 
@@ -73,14 +79,14 @@ ffmpeg -v error -stats -i "$FULL" -t $TRIM \
   -vf "scale=1920:-2" \
   -c:v libx264 -profile:v high -crf 25 -preset slow -pix_fmt yuv420p \
   -c:a aac -b:a 160k -ac 2 \
-  -af "afade=t=out:st=$AUD_FADE_OUT:d=1.4" \
+  -af "afade=t=out:st=$AUD_FADE_OUT:d=1.0" \
   -movflags +faststart "$OUT/about-film-1080.mp4" -y
 
 ffmpeg -v error -stats -i "$FULL" -t $TRIM \
   -vf "scale=1280:-2" \
   -c:v libx264 -profile:v high -crf 26 -preset slow -pix_fmt yuv420p \
   -c:a aac -b:a 128k -ac 2 \
-  -af "afade=t=out:st=$AUD_FADE_OUT:d=1.4" \
+  -af "afade=t=out:st=$AUD_FADE_OUT:d=1.0" \
   -movflags +faststart "$OUT/about-film-720.mp4" -y
 
 echo

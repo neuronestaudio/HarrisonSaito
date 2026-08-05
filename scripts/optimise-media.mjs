@@ -77,6 +77,11 @@ const YT_STILLS = {
     id: 'nR62SogKKA0',
     crop: { left: 0, top: 0, width: 1280, height: 720 },
   },
+  'portrait-harrison': {
+    id: 'nR62SogKKA0',
+    // A square crop on his face, for the round footer portrait beside the mark.
+    crop: { left: 505, top: 82, width: 430, height: 430 },
+  },
   'father-son-still': {
     id: '8vj462byS5w',
     // Captioned at both ends — "Japan <-> Australia" across the top and
@@ -86,10 +91,11 @@ const YT_STILLS = {
   },
   'father-son-portrait': {
     id: '8vj462byS5w',
-    // A 4:3 crop of the same frame for card slots, where the wide band would
-    // centre-crop to an empty room. This is Harrison alone, seated, watching
-    // his father — and it sits right of the lower caption, so it stays clean.
-    crop: { left: 820, top: 170, width: 460, height: 345 },
+    // The father in bed with Harrison at the edge of frame. An earlier crop
+    // took only Harrison, which in a tall page slot centre-cropped to the back
+    // of his head — a poor illustration for the chapter about his father. This
+    // sits above the lower caption (y 555) and left of nothing, so it is clean.
+    crop: { left: 120, top: 210, width: 780, height: 340 },
   },
 };
 
