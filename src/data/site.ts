@@ -129,6 +129,8 @@ export type Phase = {
   blurb: string;
   aim: string;
   selfTrust: string;
+  /** Colour cast for this phase's backdrop in the coverflow. */
+  grade: string;
   image: string;
   imageAlt: string;
 };
@@ -141,6 +143,7 @@ export const PHASES: Phase[] = [
     name: 'Separate',
     kanji: '守',
     romaji: 'Shu',
+    grade: 'oklch(28% 0.03 262)',
     kanjiMeaning: 'to keep, to hold the form',
     blurb:
       'See the pattern for what it is. Identify the inherited programmes running your life: the people-pleasing, the performing, the suppressed anger. Begin to separate your authentic self from the survival strategies you built as a child.',
@@ -158,6 +161,7 @@ export const PHASES: Phase[] = [
     name: 'Return',
     kanji: '破',
     romaji: 'Ha',
+    grade: 'oklch(29% 0.05 32)',
     kanjiMeaning: 'to break, to depart from the form',
     blurb:
       'Go back to the origin. Understand where the patterns came from: your father, your family system, your culture. Process the grief, the anger, the loss. This is where the real work happens. Not intellectually. In your body.',
@@ -174,6 +178,7 @@ export const PHASES: Phase[] = [
     name: 'Integrate',
     kanji: '離',
     romaji: 'Ri',
+    grade: 'oklch(32% 0.045 78)',
     kanjiMeaning: 'to leave, to transcend the form',
     blurb:
       "The shell and the self become one. Build a daily practice that sustains the work. Set boundaries without guilt. Speak your truth without performing. The discipline stays. The strength stays. But now there's a man behind it. Not just a performance.",

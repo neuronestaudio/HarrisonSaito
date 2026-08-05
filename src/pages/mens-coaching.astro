@@ -10,12 +10,12 @@
 import Base from '../layouts/Base.astro';
 import Calligraphy from '../components/Calligraphy.astro';
 import Picture from '../components/Picture.astro';
-import PhaseTimeline from '../components/PhaseTimeline.astro';
+import PhaseCoverflow from '../components/PhaseCoverflow.astro';
 import Testimonials from '../components/Testimonials.astro';
 import OfferCard from '../components/OfferCard.astro';
 import YouTubeFacade from '../components/YouTubeFacade.astro';
 import Enso from '../components/Enso.astro';
-import { OFFERS, VIDEO_IDS } from '../data/site';
+import { OFFERS, VIDEO_IDS, RETURN_LOOP } from '../data/site';
 import {
   graph,
   serviceSchema,
@@ -162,8 +162,16 @@ const schema = graph(
       </header>
     </div>
 
-    <div class="container container--wide programme__timeline">
-      <PhaseTimeline />
+    {/* Full-bleed — the coverflow owns its own frame and backdrop. */}
+    <div class="programme__timeline">
+      <PhaseCoverflow />
+    </div>
+
+    <div class="container container--narrow programme__loop">
+      <p class="programme__loop-label">Each phase uses the same Return Loop</p>
+      <ol class="programme__loop-list">
+        {RETURN_LOOP.map((step) => <li>{step}</li>)}
+      </ol>
     </div>
 
     <div class="container container--narrow programme__note" data-reveal>
@@ -334,6 +342,38 @@ const schema = graph(
   }
 
   .programme__timeline { margin-block: clamp(2rem, 4vw, 3rem); }
+
+  .programme__loop { text-align: center; }
+  .programme__loop-label {
+    font-size: var(--step--1);
+    font-weight: 600;
+    letter-spacing: var(--tracking-eyebrow);
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 1.1rem;
+  }
+  .programme__loop-list {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: center;
+    gap: 0.5rem clamp(0.75rem, 2vw, 1.75rem);
+    list-style: none;
+    padding: 0;
+  }
+  .programme__loop-list li {
+    font-family: var(--font-display);
+    font-size: var(--step-1);
+    font-weight: 300;
+    color: var(--text-on-ink-muted);
+  }
+  /* Arrow between steps — the loop reads as a cycle, not a checklist. */
+  .programme__loop-list li:not(:last-child)::after {
+    content: '→';
+    margin-left: clamp(0.75rem, 2vw, 1.75rem);
+    color: oklch(75% 0.12 75 / 0.5);
+    font-size: 0.85em;
+  }
 
   .programme__note {
     margin-top: clamp(2.5rem, 5vw, 4rem);

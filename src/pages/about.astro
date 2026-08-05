@@ -16,6 +16,7 @@
 import Base from '../layouts/Base.astro';
 import Calligraphy from '../components/Calligraphy.astro';
 import Book from '../components/Book.astro';
+import FilmHero from '../components/FilmHero.astro';
 import BrandMark from '../components/BrandMark.astro';
 import YouTubeFacade from '../components/YouTubeFacade.astro';
 import Enso from '../components/Enso.astro';
@@ -37,8 +38,11 @@ const schema = graph(
 ---
 
 <Base title={title} description={description} path="/about" schema={schema}>
+  {/* ----------------------------------------------------------- the film */}
+  <FilmHero />
+
   {/* ---------------------------------------------------------- the cover */}
-  <section class="cover section--deep" data-section="cover">
+  <section class="cover section--deep" id="story" data-section="cover">
     <Calligraphy set="story" scale={1.35} seed={6} words={['INHERITANCE', 'GRIEF']} />
 
     <div class="container cover__inner">
@@ -48,10 +52,10 @@ const schema = graph(
 
       <p class="cover__label" data-reveal>In Seven Chapters</p>
 
-      <h1 class="cover__name" data-reveal>
+      <p class="cover__name" data-reveal>
         <span class="split-line"><span>Harrison</span></span>
         <span class="split-line"><span class="cover__name-em">Saito</span></span>
-      </h1>
+      </p>
 
       <p class="cover__sub" data-reveal>
         Educator · Martial Artist · Coach — Chatswood, Sydney
@@ -169,7 +173,7 @@ const schema = graph(
   /* ---- cover ---- */
   .cover {
     position: relative;
-    min-height: 100svh;
+    min-height: auto;
     display: flex;
     align-items: center;
     padding-block: clamp(7rem, 15vh, 10rem) clamp(4rem, 8vw, 6rem);

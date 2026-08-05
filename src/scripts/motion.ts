@@ -215,69 +215,6 @@ function initEnso() {
   });
 }
 
-/* -------------------------------------------------- pinned phase timeline */
-
-/**
- * 守破離. The three phases scroll horizontally while the section is pinned,
- * so the reader physically travels through Separate -> Return -> Integrate.
- * Falls back to a normal vertical stack on touch and narrow viewports.
- */
-function initPhaseTimeline() {
-  const track = document.querySelector<HTMLElement>('[data-phase-track]');
-  if (!track || reduceMotion) return;
-  if (window.matchMedia('(max-width: 900px)').matches) return;
-
-  const panels = gsap.utils.toArray<HTMLElement>('[data-phase-panel]', track);
-  if (panels.length < 2) return;
-
-  const scroller = track.parentElement!;
-
-  const tween = gsap.to(panels, {
-    xPercent: -100 * (panels.length - 1),
-    ease: 'none',
-    scrollTrigger: {
-      trigger: scroller,
-      pin: true,
-      scrub: 0.8,
-      snap: {
-        snapTo: 1 / (panels.length - 1),
-        duration: { min: 0.18, max: 0.42 },
-        // Wait for the wheel to actually stop before settling, otherwise snap
-        // grabs the page mid-gesture and feels like it is fighting the reader.
-        delay: 0.1,
-        ease: 'power2.inOut',
-      },
-      // Scroll distance == horizontal distance left to travel, so vertical
-      // scroll maps 1:1 onto sideways movement. Using the full track width
-      // overshoots by a panel and parks the reader on a static screen.
-      end: () => `+=${Math.max(track.scrollWidth - window.innerWidth, 1)}`,
-      invalidateOnRefresh: true,
-    },
-  });
-
-  // Kanji swap in the backdrop as each phase takes the stage.
-  panels.forEach((panel, i) => {
-    const glyph = panel.querySelector('[data-phase-glyph]');
-    if (!glyph) return;
-    gsap.fromTo(
-      glyph,
-      { opacity: 0.05, scale: 0.94 },
-      {
-        opacity: 0.13,
-        scale: 1,
-        ease: 'power2.out',
-        scrollTrigger: {
-          trigger: panel,
-          containerAnimation: tween,
-          start: 'left center',
-          end: 'right center',
-          scrub: true,
-        },
-      }
-    );
-  });
-}
-
 /* ------------------------------------------------------------ hero intro */
 
 function initHero() {
@@ -350,7 +287,6 @@ export function initMotion() {
     initCalligraphy();
     initImageParallax();
     initEnso();
-    initPhaseTimeline();
     initProgress();
   }
 

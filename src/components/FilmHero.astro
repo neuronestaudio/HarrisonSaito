@@ -1,0 +1,438 @@
+---
+/**
+ * The film hero — /about.
+ *
+ * Harrison's own two-and-a-half minute piece, in which he states his goal in
+ * his own voice ("my goal is to create strong people"). It opens the page
+ * because seeing and hearing him is the single strongest thing this site has.
+ *
+ * Two files, two jobs:
+ *
+ *   the bed    a silent 17s loop cut from the caption-free master, parallaxing
+ *              behind the title. Burned-in captions would fight the headline,
+ *              which is why the clean render is the source.
+ *   the film   the full narrated piece with sound, trimmed at 160.4s so it ends
+ *              on black instead of the "Strong people. Sharp minds. Soft
+ *              hearts." end card. Click-to-play, never preloaded.
+ *
+ * The bed follows the same discipline as the home hero (audit H5): the poster
+ * is the LCP element, video attaches on idle, and Save-Data or a slow
+ * connection gets the poster alone.
+ */
+import { SITE } from '../data/site';
+import { srcset, src } from '../lib/images';
+import BrandMark from './BrandMark.astro';
+---
+
+<section class="fh" data-film-hero data-section="film-hero">
+  <div class="fh__media" data-fh-media>
+    <img
+      class="fh__poster"
+      src={src('about-bed')}
+      srcset={srcset('about-bed')}
+      sizes="100vw"
+      alt="Harrison Saito speaking to camera in a room with shoji screens"
+      width="1920"
+      height="1080"
+      fetchpriority="high"
+      decoding="sync"
+    />
+    <video
+      class="fh__bed"
+      data-fh-bed
+      muted
+      loop
+      playsinline
+      preload="none"
+      aria-hidden="true"
+      tabindex="-1"></video>
+    <span class="fh__scrim" aria-hidden="true"></span>
+    <span class="fh__vignette" aria-hidden="true"></span>
+  </div>
+
+  <div class="container fh__content" data-fh-content>
+    <div class="fh__mark"><BrandMark variant="light" size={72} /></div>
+
+    <p class="fh__eyebrow">In His Own Words</p>
+
+    <h1 class="fh__title">
+      <span class="split-line"><span>My goal is to create</span></span>
+      <span class="split-line"><span class="fh__title-em">strong people.</span></span>
+    </h1>
+
+    <p class="fh__sub">
+      Harrison Saito — educator, martial artist and coach, Chatswood, Sydney. Two and a half
+      minutes, in his own voice.
+    </p>
+
+    <div class="fh__actions">
+      <button
+        class="fh__play"
+        type="button"
+        data-fh-play
+        data-track="cta_click"
+        data-track-label="About — play film"
+        data-track-section="film-hero"
+      >
+        <span class="fh__play-icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24" width="18" height="18"><path d="M8 5v14l11-7z" fill="currentColor"></path></svg>
+        </span>
+        Watch the film
+        <span class="fh__play-dur">2:40</span>
+      </button>
+
+      <a class="btn btn--ghost" href="#story">Read the story instead</a>
+    </div>
+  </div>
+
+  <a class="fh__scroll" href="#story" aria-label="Scroll to the story">
+    <span class="fh__scroll-label">Scroll</span>
+    <span class="fh__scroll-line" aria-hidden="true"></span>
+  </a>
+</section>
+
+{/* ---- the full film, mounted only on click ---- */}
+<div class="fhx" data-fh-modal hidden>
+  <button class="fhx__close" type="button" data-fh-close aria-label="Close the film">
+    <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true">
+      <path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"></path>
+    </svg>
+  </button>
+  <div class="fhx__frame" data-fh-frame></div>
+  <p class="fhx__caption">Harrison Saito — <em>Return to Self</em></p>
+</div>
+
+<style>
+  .fh {
+    position: relative;
+    min-height: 100svh;
+    display: flex;
+    align-items: center;
+    overflow: hidden;
+    background: var(--ink-900);
+    color: var(--text-on-ink);
+    --ghost-fg: var(--text-on-ink);
+    --ghost-border: var(--gold);
+    --ghost-accent: var(--gold);
+    isolation: isolate;
+  }
+
+  .fh__media {
+    position: absolute;
+    inset: -8% 0;
+    z-index: 0;
+    will-change: transform;
+  }
+
+  .fh__poster,
+  .fh__bed {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  .fh__bed { opacity: 0; transition: opacity 1.4s ease; }
+  .fh__bed.is-ready { opacity: 1; }
+
+  .fh__scrim {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+      to bottom,
+      oklch(11% 0.008 55 / 0.66),
+      oklch(11% 0.008 55 / 0.52) 40%,
+      oklch(11% 0.008 55 / 0.9)
+    );
+  }
+  .fh__vignette {
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(
+      ellipse 120% 85% at 50% 45%,
+      transparent 28%,
+      oklch(11% 0.008 55 / 0.72) 100%
+    );
+  }
+
+  .fh__content {
+    position: relative;
+    z-index: 2;
+    text-align: center;
+    padding-block: clamp(6rem, 14vh, 9rem) clamp(7rem, 16vh, 10rem);
+    will-change: transform;
+  }
+
+  .fh__mark { width: 72px; margin: 0 auto clamp(1.5rem, 3vw, 2.25rem); }
+
+  .fh__eyebrow {
+    font-size: var(--step--1);
+    font-weight: 600;
+    letter-spacing: var(--tracking-eyebrow);
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: clamp(1rem, 2.5vw, 1.75rem);
+  }
+
+  .fh__title {
+    font-size: var(--step-5);
+    font-weight: 300;
+    line-height: 1.04;
+    max-width: 16ch;
+    margin-inline: auto;
+    color: oklch(95% 0.005 60);
+  }
+  .fh__title-em { font-style: italic; color: var(--gold-light); }
+
+  .fh__sub {
+    margin: clamp(1.5rem, 3vw, 2.25rem) auto 0;
+    max-width: 46ch;
+    font-size: var(--step-1);
+    line-height: 1.6;
+    color: oklch(93% 0.005 60 / 0.72);
+  }
+
+  .fh__actions {
+    margin-top: clamp(2rem, 4vw, 3rem);
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    justify-content: center;
+  }
+
+  .fh__play {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.85rem;
+    padding: 1.05rem 2rem;
+    background: var(--gold);
+    color: var(--ink-900);
+    border: 1px solid var(--gold);
+    font-family: var(--font-body);
+    font-size: var(--step--1);
+    font-weight: 700;
+    letter-spacing: var(--tracking-wide);
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: background var(--dur-fast) ease, transform var(--dur-fast) ease;
+  }
+  .fh__play:hover { background: var(--gold-light); }
+  .fh__play:active { transform: scale(0.98); }
+  .fh__play-icon { display: grid; place-items: center; }
+  .fh__play-dur {
+    font-variant-numeric: tabular-nums;
+    opacity: 0.6;
+    letter-spacing: 0.08em;
+  }
+
+  .fh__scroll {
+    position: absolute;
+    z-index: 2;
+    inset-block-end: clamp(1.75rem, 4vh, 3rem);
+    inset-inline-start: 50%;
+    transform: translateX(-50%);
+    display: grid;
+    justify-items: center;
+    gap: 0.75rem;
+    color: oklch(93% 0.005 60 / 0.5);
+    transition: color var(--dur-fast) ease;
+  }
+  .fh__scroll:hover { color: var(--gold); }
+  .fh__scroll-label {
+    font-size: 0.65rem;
+    font-weight: 600;
+    letter-spacing: 0.32em;
+    text-transform: uppercase;
+  }
+  .fh__scroll-line {
+    width: 1px;
+    height: 3rem;
+    background: linear-gradient(to bottom, currentColor, transparent);
+    position: relative;
+    overflow: hidden;
+  }
+  .fh__scroll-line::after {
+    content: '';
+    position: absolute;
+    inset-inline: 0;
+    height: 40%;
+    background: var(--gold);
+    animation: fh-drop 2.6s var(--ease-in-out-quart) infinite;
+  }
+  @keyframes fh-drop {
+    0% { transform: translateY(-110%); opacity: 0; }
+    35% { opacity: 1; }
+    100% { transform: translateY(260%); opacity: 0; }
+  }
+
+  /* ---------- the full film ---------- */
+  .fhx {
+    position: fixed;
+    inset: 0;
+    z-index: 200;
+    display: grid;
+    place-items: center;
+    gap: 1rem;
+    grid-template-rows: 1fr auto;
+    padding: clamp(1rem, 4vw, 3rem);
+    background: oklch(6% 0.004 55 / 0.96);
+    backdrop-filter: blur(18px);
+  }
+  .fhx[hidden] { display: none; }
+
+  .fhx__frame {
+    grid-row: 1;
+    width: min(100%, 78rem);
+    aspect-ratio: 16 / 9;
+    align-self: center;
+    background: #000;
+    box-shadow: 0 40px 120px oklch(6% 0.004 55 / 0.9);
+  }
+  .fhx__frame :global(video) { width: 100%; height: 100%; display: block; }
+
+  .fhx__caption {
+    grid-row: 2;
+    font-size: 0.72rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: oklch(93% 0.005 60 / 0.45);
+  }
+  .fhx__caption em { color: var(--gold); font-style: italic; text-transform: none; letter-spacing: 0.04em; }
+
+  .fhx__close {
+    position: absolute;
+    inset-block-start: clamp(1rem, 3vw, 2rem);
+    inset-inline-end: clamp(1rem, 3vw, 2rem);
+    width: 48px;
+    height: 48px;
+    display: grid;
+    place-items: center;
+    background: transparent;
+    border: 1px solid oklch(100% 0 0 / 0.2);
+    color: oklch(96% 0.005 60);
+    cursor: pointer;
+    z-index: 2;
+    transition: border-color var(--dur-fast) ease, color var(--dur-fast) ease;
+  }
+  .fhx__close:hover { border-color: var(--gold); color: var(--gold); }
+
+  @media (max-width: 640px) {
+    .fh__actions .fh__play, .fh__actions :global(.btn) { flex: 1 1 100%; justify-content: center; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .fh__scroll-line::after { animation: none; opacity: 0.6; transform: translateY(50%); }
+    .fh__bed { display: none; }
+  }
+</style>
+
+<script>
+  import { track } from '../scripts/tracking';
+
+  /* ---- the silent bed ---- */
+  const bed = document.querySelector<HTMLVideoElement>('[data-fh-bed]');
+
+  if (bed && !window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    const conn = (navigator as any).connection;
+    const slow = conn && (conn.saveData || /2g|slow-2g|3g/.test(conn.effectiveType ?? ''));
+
+    if (!slow) {
+      const mobile = window.matchMedia('(max-width: 768px)').matches;
+
+      const attach = () => {
+        const sources = mobile
+          ? [{ src: '/video/about-bed-mobile.mp4', type: 'video/mp4' }]
+          : [
+              // WebM first: at this grade VP9 lands at 0.78 MB against the
+              // H.264 cut's 1.75 MB, so browsers that support it should take it.
+              { src: '/video/about-bed.webm', type: 'video/webm' },
+              { src: '/video/about-bed.mp4', type: 'video/mp4' },
+            ];
+
+        for (const s of sources) {
+          const el = document.createElement('source');
+          el.src = s.src;
+          el.type = s.type;
+          bed.appendChild(el);
+        }
+
+        bed.preload = 'auto';
+        bed.load();
+        bed.addEventListener(
+          'canplay',
+          () => {
+            bed.play().then(
+              () => bed.classList.add('is-ready'),
+              () => { /* autoplay refused — the poster stands on its own */ }
+            );
+          },
+          { once: true }
+        );
+      };
+
+      if ('requestIdleCallback' in window) requestIdleCallback(attach, { timeout: 2500 });
+      else setTimeout(attach, 1200);
+
+      document.addEventListener('visibilitychange', () => {
+        if (document.hidden) bed.pause();
+        else if (bed.classList.contains('is-ready')) bed.play().catch(() => {});
+      });
+    }
+  }
+
+  /* ---- the full film ---- */
+  const modal = document.querySelector<HTMLElement>('[data-fh-modal]');
+  const frame = document.querySelector<HTMLElement>('[data-fh-frame]');
+  const openBtn = document.querySelector<HTMLButtonElement>('[data-fh-play]');
+  const closeBtn = document.querySelector<HTMLButtonElement>('[data-fh-close]');
+
+  if (modal && frame && openBtn && closeBtn) {
+    let lastFocus: HTMLElement | null = null;
+
+    const open = () => {
+      lastFocus = document.activeElement as HTMLElement;
+
+      const video = document.createElement('video');
+      video.controls = true;
+      video.autoplay = true;
+      video.playsInline = true;
+      video.preload = 'auto';
+      video.poster = '/img/about-bed-1280.webp';
+
+      // 720p on narrow viewports: 12.7 MB against 29.3 MB, and nobody is
+      // resolving 1080p detail on a phone.
+      const small = window.matchMedia('(max-width: 900px)').matches;
+      const source = document.createElement('source');
+      source.src = small ? '/video/about-film-720.mp4' : '/video/about-film-1080.mp4';
+      source.type = 'video/mp4';
+      video.appendChild(source);
+
+      frame.replaceChildren(video);
+      modal.hidden = false;
+      document.body.style.overflow = 'hidden';
+      closeBtn.focus();
+
+      track('video_play', {
+        video_title: 'Return to Self — full film',
+        page_path: location.pathname,
+      });
+    };
+
+    const close = () => {
+      // Tearing the element down stops the download as well as the playback.
+      frame.replaceChildren();
+      modal.hidden = true;
+      document.body.style.overflow = '';
+      lastFocus?.focus();
+    };
+
+    openBtn.addEventListener('click', open);
+    closeBtn.addEventListener('click', close);
+    modal.addEventListener('click', (e) => {
+      if (e.target === modal) close();
+    });
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && !modal.hidden) close();
+    });
+  }
+</script>
