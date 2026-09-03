@@ -234,16 +234,26 @@ const isActive = (href: string) => current === href || (href !== '/' && current.
   const drawer = nav?.querySelector<HTMLElement>('.nav__drawer');
 
   // Solid background past the fold; hide on scroll down, reveal on scroll up.
+  // While the home page's intro film is running, the landing is the nav —
+  // stay out of the way until the film marks itself done (RtsHero.astro).
   let last = 0;
+  const intro = document.querySelector<HTMLElement>('[data-hero-intro]');
   const onScroll = () => {
     if (!nav) return;
     const y = window.scrollY;
+    if (intro && !intro.hasAttribute('data-done')) {
+      nav.classList.add('is-hidden');
+      nav.classList.remove('is-stuck');
+      last = y;
+      return;
+    }
     nav.classList.toggle('is-stuck', y > 60);
     const open = toggle?.getAttribute('aria-expanded') === 'true';
     nav.classList.toggle('is-hidden', y > 420 && y > last && !open);
     last = y;
   };
   window.addEventListener('scroll', onScroll, { passive: true });
+  document.addEventListener('rts:intro', onScroll);
   onScroll();
 
   toggle?.addEventListener('click', () => {
