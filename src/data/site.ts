@@ -838,7 +838,13 @@ export const CHAPTERS: Chapter[] = [
  * Ordered by how much resistance each marker removes for the actual buyer: a
  * high-performing man in his thirties or forties who is sceptical of men's
  * work. Third-party verification first, then the lineage that makes the offer
- * concrete, then the signal that he does not need your money.
+ * concrete, then his own rank.
+ *
+ * "Practising NSW high school teacher" was here as an anti-grifter signal and
+ * was pulled: it is a different KIND of claim to the other three — a current
+ * occupation sitting beside a broadcast credit, a lineage and a rank — so it
+ * read as an odd one out. The fact still carries on /about and in the HSC FAQ,
+ * where it has room to mean something.
  */
 export type Proof = { value: string; label: string; source: string };
 
@@ -859,11 +865,6 @@ export const PROOF: Proof[] = [
     label: '2nd Dan black belt',
     source:
       'Harrison, on SBS: “I’ve been training on and off since I was about 11, 12.”',
-  },
-  {
-    value: 'Still teaching',
-    label: 'Practising NSW high school teacher',
-    source: 'M.Teach (Secondary), B.Com. He has a job — this is not his only income.',
   },
 ];
 
