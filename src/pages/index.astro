@@ -15,6 +15,7 @@ import Testimonials from '../components/Testimonials.astro';
 import YouTubeFacade from '../components/YouTubeFacade.astro';
 import OfferCard from '../components/OfferCard.astro';
 import ArchetypeCarousel from '../components/ArchetypeCarousel.astro';
+import Lineage from '../components/Lineage.astro';
 import Enso from '../components/Enso.astro';
 import { SITE, CREDENTIALS, VIDEO_IDS, OFFERS } from '../data/site';
 import { graph, personSchema, localBusinessSchema, websiteSchema, videoSchema } from '../lib/seo';
@@ -91,58 +92,77 @@ const schema = graph(
     </div>
   </section>
 
-  {/* ------------------------------------------------------ two audiences */}
-  <section class="section section--ink paths" data-section="paths">
-    <Calligraphy set="programme" seed={5} words={['PERFORMANCE', 'VOICE']} />
+  {/* --------------------------------------------------- the programme ---
+      Nathan 03: Return to Self was introduced fourth, as one of three offer
+      cards. It is the flagship, so it now sits directly after the story with
+      room to explain itself before anything is asked for.
+      Nathan 04: this replaces the two-audience split. HSC and youth work is
+      unchanged and still in the nav at /hsc-tutoring — it just no longer
+      competes for the same reader here. */}
+  <section class="section section--ink programme" id="return-to-self" data-section="programme">
+    <Calligraphy set="programme" seed={5} words={['PERFORMANCE', 'INHERITANCE']} />
 
     <div class="container">
-      <header class="paths__head" data-reveal>
-        <p class="eyebrow">Two Paths</p>
-        <h2 class="display-l">Who I work with.</h2>
+      <header class="programme__head" data-reveal>
+        <p class="eyebrow">The Programme</p>
+        <h2 class="display-l">Return to Self.</h2>
+        <p class="lede programme__lede">
+          Twelve weeks. Three phases — Separate, Return, Integrate. One-to-one training for men
+          who built the life that looks right and cannot say why it feels hollow.
+        </p>
       </header>
 
-      <div class="paths__grid">
-        <a class="path" href="/mens-coaching" data-reveal data-track="cta_click" data-track-label="Path — Men's coaching">
-          <div class="path__media">
-            <Picture
-              slug="coaching-dharma"
-              alt="Harrison Saito guiding a man through meditation on tatami, before a Buddhist altar"
-              sizes="(max-width: 900px) 100vw, 46vw"
-            />
-            <span class="path__glyph" aria-hidden="true">破</span>
-          </div>
-          <div class="path__body">
-            <p class="eyebrow">For Adults</p>
-            <h3 class="display-s">You look like you've got it all together.</h3>
-            <p class="path__copy">
-              But when you're alone, really alone, you feel like something fundamental is missing.
-              You don't need more discipline. You need someone who has been exactly where you are.
-            </p>
-            <span class="path__link">Men's Coaching &amp; Return to Self <span aria-hidden="true">→</span></span>
-          </div>
-        </a>
-
-        <a class="path" href="/hsc-tutoring" data-reveal data-track="cta_click" data-track-label="Path — HSC mentoring">
-          <div class="path__media">
-            <Picture
-              slug="youth-tutoring"
-              alt="Harrison Saito teaching two HSC students at a table with laptops"
-              sizes="(max-width: 900px) 100vw, 46vw"
-            />
-            <span class="path__glyph" aria-hidden="true">育</span>
-          </div>
-          <div class="path__body">
-            <p class="eyebrow">For Youth</p>
-            <h3 class="display-s">Building the person.</h3>
-            <p class="path__copy">
-              The HSC is not just an exam. It's a pressure test for how your child handles stress,
-              organises their thinking, and finds their voice under pressure. I know the system from
-              the inside.
-            </p>
-            <span class="path__link">HSC &amp; Youth Mentoring <span aria-hidden="true">→</span></span>
-          </div>
-        </a>
+      <div class="programme__grid" data-reveal-stagger="100">
+        <article class="pcard">
+          <span class="pcard__kanji" lang="ja" aria-hidden="true">守</span>
+          <p class="pcard__weeks">Weeks 1–4</p>
+          <h3>Separate</h3>
+          <p>
+            See the pattern for what it is — the people-pleasing, the performing, the suppressed
+            anger — and begin to separate it from what you actually think and value.
+          </p>
+        </article>
+        <article class="pcard">
+          <span class="pcard__kanji" lang="ja" aria-hidden="true">破</span>
+          <p class="pcard__weeks">Weeks 5–8</p>
+          <h3>Return</h3>
+          <p>
+            Go back to the origin — your father, your family system, your culture. This is where
+            the real work happens. Not intellectually. In your body.
+          </p>
+        </article>
+        <article class="pcard">
+          <span class="pcard__kanji" lang="ja" aria-hidden="true">離</span>
+          <p class="pcard__weeks">Weeks 9–12</p>
+          <h3>Integrate</h3>
+          <p>
+            Build a practice that sustains it. Boundaries without guilt. The discipline stays, the
+            strength stays — but now there is a man behind it.
+          </p>
+        </article>
       </div>
+
+      <div class="programme__cta" data-reveal>
+        <a
+          class="btn btn--lg"
+          href="/mens-coaching#return-to-self"
+          data-track="cta_click"
+          data-track-label="Home — Programme detail"
+          data-track-section="programme">What the Twelve Weeks Contain</a>
+        <a
+          class="btn btn--lg btn--ghost"
+          href="/apply"
+          data-track="cta_click"
+          data-track-label="Home — Apply (programme)"
+          data-track-section="programme">Apply</a>
+      </div>
+    </div>
+  </section>
+
+  {/* ------------------------------------------------------------ lineage */}
+  <section class="section section--deep" data-section="lineage">
+    <div class="container container--wide" data-reveal>
+      <Lineage />
     </div>
   </section>
 
@@ -195,7 +215,7 @@ const schema = graph(
     <div class="container">
       <header class="offers__head" data-reveal>
         <p class="eyebrow">Ways to Work Together</p>
-        <h2 class="display-l">Three doors in.</h2>
+        <h2 class="display-l">Two ways in.</h2>
         <p class="lede measure">
           Three ways in, depending on how deep you want to go and how fast.
         </p>
@@ -203,7 +223,7 @@ const schema = graph(
 
       <div class="offers__grid" data-reveal-stagger="110">
         {
-          OFFERS.map((offer) => (
+          OFFERS.filter((o) => o.audience === 'adults').map((offer) => (
             <div>
               <OfferCard offer={offer} featured={offer.id === 'return-to-self'} />
             </div>
@@ -298,6 +318,11 @@ const schema = graph(
           data-track="cta_click"
           data-track-label="Close — Email">Email Instead</a>
       </div>
+
+      <p class="close__aside">
+        Looking for HSC or youth mentoring instead?
+        <a class="link-underline" href="/hsc-tutoring" data-track="cta_click" data-track-label="Close — HSC route">That work lives here</a>.
+      </p>
     </div>
   </section>
 </Base>
@@ -349,71 +374,64 @@ const schema = graph(
     color: var(--text-on-paper-faint);
   }
 
-  /* ---- paths ---- */
-  .paths__head { margin-bottom: clamp(2.5rem, 5vw, 4rem); }
+  /* ---- programme ---- */
+  .programme__head { margin-bottom: clamp(2.5rem, 5vw, 4rem); max-width: 58rem; }
+  .programme__lede { margin-top: 1.25rem; max-width: 52ch; }
 
-  .paths__grid {
-    display: grid;
-    gap: clamp(1.5rem, 3vw, 2.5rem);
-  }
+  .programme__grid { display: grid; gap: clamp(1.25rem, 2.5vw, 2rem); }
 
-  .path {
-    display: grid;
+  .pcard {
+    position: relative;
+    padding: clamp(1.75rem, 3.5vw, 2.5rem);
     background: oklch(21% 0.01 55 / 0.5);
-    border: 1px solid oklch(100% 0 0 / 0.09);
+    border: 1px solid oklch(100% 0 0 / 0.1);
+    border-top: 2px solid oklch(75% 0.12 75 / 0.5);
     overflow: hidden;
-    transition: border-color var(--dur) var(--ease-out-expo),
+    transition: border-top-color var(--dur) var(--ease-out-expo),
       transform var(--dur) var(--ease-out-expo);
   }
-  .path:hover { border-color: oklch(75% 0.12 75 / 0.45); transform: translateY(-5px); }
+  .pcard:hover { border-top-color: var(--gold); transform: translateY(-4px); }
 
-  .path__media { position: relative; aspect-ratio: 16 / 10; overflow: hidden; }
-  .path__media :global(img) {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    filter: saturate(0.8) contrast(1.05) brightness(0.82);
-    transition: transform 1.1s var(--ease-out-expo), filter var(--dur) ease;
-  }
-  .path:hover .path__media :global(img) {
-    transform: scale(1.05);
-    filter: saturate(0.95) contrast(1.05) brightness(0.9);
-  }
-
-  .path__glyph {
+  .pcard__kanji {
     position: absolute;
-    inset-block-end: -0.22em;
-    inset-inline-end: 0.04em;
+    inset-block-start: -0.2em;
+    inset-inline-end: -0.05em;
     font-family: var(--font-jp);
-    font-size: clamp(6rem, 12vw, 11rem);
+    font-size: 9rem;
     line-height: 1;
     color: var(--gold);
-    opacity: 0.24;
+    opacity: 0.08;
     pointer-events: none;
   }
 
-  .path__body { padding: clamp(1.75rem, 3.5vw, 2.75rem); }
-  .path__body h3 { margin-bottom: 1rem; color: var(--text-on-ink); }
-
-  .path__copy {
-    font-size: var(--step-0);
-    line-height: 1.7;
-    color: var(--text-on-ink-muted);
-    margin-bottom: 1.75rem;
-  }
-
-  .path__link {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.6rem;
-    font-size: var(--step--1);
-    font-weight: 600;
-    letter-spacing: 0.14em;
+  .pcard__weeks {
+    position: relative;
+    font-size: 0.68rem;
+    font-weight: 700;
+    letter-spacing: 0.2em;
     text-transform: uppercase;
     color: var(--gold);
+    margin-bottom: 0.5rem;
   }
-  .path__link span { transition: transform var(--dur-fast) var(--ease-out-expo); }
-  .path:hover .path__link span { transform: translateX(5px); }
+  .pcard h3 {
+    position: relative;
+    font-size: var(--step-2);
+    color: var(--text-on-ink);
+    margin-bottom: 0.85rem;
+  }
+  .pcard p {
+    position: relative;
+    font-size: var(--step--1);
+    line-height: 1.75;
+    color: var(--text-on-ink-muted);
+  }
+
+  .programme__cta {
+    margin-top: clamp(2.5rem, 5vw, 3.5rem);
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+  }
 
   /* ---- archetypes ---- */
   .archetypes__head { margin-bottom: clamp(2.5rem, 5vw, 4rem); max-width: 62rem; }
@@ -498,11 +516,21 @@ const schema = graph(
     justify-content: center;
   }
 
+  /* The youth track no longer competes for this page, but it must still be
+     reachable from it — one line, not half a section. */
+  .close__aside {
+    margin-top: clamp(2.5rem, 5vw, 3.5rem);
+    padding-top: 1.5rem;
+    border-top: 1px solid var(--rule-on-ink);
+    font-size: var(--step--1);
+    color: var(--text-on-ink-faint);
+  }
+
   @media (min-width: 900px) {
     .story { grid-template-columns: 1.15fr 0.85fr; }
     .creds { grid-template-columns: repeat(4, 1fr); }
-    .paths__grid { grid-template-columns: repeat(2, 1fr); }
-    .offers__grid { grid-template-columns: repeat(3, 1fr); }
+    .programme__grid { grid-template-columns: repeat(3, 1fr); }
+    .offers__grid { grid-template-columns: repeat(2, 1fr); }
     .media__pair { grid-template-columns: repeat(2, 1fr); }
   }
 </style>

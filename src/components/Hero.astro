@@ -14,6 +14,7 @@ import { SITE } from '../data/site';
 import { srcset, src } from '../lib/images';
 import Calligraphy from './Calligraphy.astro';
 import Enso from './Enso.astro';
+import ProofStrip from './ProofStrip.astro';
 ---
 
 <section class="hero" data-hero data-section="hero">
@@ -50,33 +51,35 @@ import Enso from './Enso.astro';
   </div>
 
   <div class="container hero__content" data-hero-content>
-    <p class="hero__eyebrow" data-hero-eyebrow>{SITE.tagline}</p>
+    <p class="hero__eyebrow" data-hero-eyebrow>Return to Self · Men's Coaching · Chatswood, Sydney</p>
 
     <h1 class="hero__title">
-      <span class="split-line" data-hero-line><span>How you do anything</span></span>
-      <span class="split-line" data-hero-line><span class="hero__title-em">is how you do everything.</span></span>
+      <span class="split-line" data-hero-line><span>Stop performing</span></span>
+      <span class="split-line" data-hero-line><span class="hero__title-em">the life you built.</span></span>
     </h1>
 
     <p class="hero__sub" data-hero-sub>
-      Men's coaching and HSC mentoring in Chatswood, Sydney — built on karate,
-      Buddhism and honest inner work.
+      Twelve weeks of one-to-one training for men who look like they have it together —
+      in a Japanese martial lineage three generations deep. It is not therapy. It is a dojo.
     </p>
+
+    <ProofStrip rule="top" />
 
     <div class="hero__ctas">
       <a
         class="btn btn--lg"
+        href="/apply"
+        data-hero-cta
+        data-track="cta_click"
+        data-track-label="Hero — Apply"
+        data-track-section="hero">Apply for Return to Self</a>
+      <a
+        class="btn btn--lg btn--ghost"
         href="/mens-coaching"
         data-hero-cta
         data-track="cta_click"
-        data-track-label="Hero — Men's coaching"
-        data-track-section="hero">For Men</a>
-      <a
-        class="btn btn--lg btn--ghost"
-        href="/hsc-tutoring"
-        data-hero-cta
-        data-track="cta_click"
-        data-track-label="Hero — HSC mentoring"
-        data-track-section="hero">For Students &amp; Parents</a>
+        data-track-label="Hero — How it works"
+        data-track-section="hero">See How It Works</a>
     </div>
   </div>
 
@@ -189,8 +192,9 @@ import Enso from './Enso.astro';
     color: oklch(93% 0.005 60 / 0.72);
   }
 
+
   .hero__ctas {
-    margin-top: clamp(2rem, 4vw, 3rem);
+    margin-top: clamp(1.75rem, 3.5vw, 2.5rem);
     display: flex;
     flex-wrap: wrap;
     gap: 1rem;

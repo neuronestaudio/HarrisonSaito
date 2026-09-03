@@ -1,0 +1,155 @@
+---
+/**
+ * The lineage.
+ *
+ * This is the answer to "what makes this different from every other coach",
+ * and it is the reason the programme is training rather than therapy. Nathan's
+ * finding 01 asked for the offer to stop being ambiguous — this is the section
+ * that does that work.
+ *
+ * Framed martial-first on purpose. The same man was also a Buddhist monk, and
+ * that arrives later as method; leading with "monk" reads as spiritual guru to
+ * exactly the sceptical reader this page has to keep. Every fact here is from
+ * the SBS World News broadcast or from Harrison's and his father's own
+ * recordings — see LINEAGE in data/site.ts for the sources.
+ */
+import { LINEAGE } from '../data/site';
+import Picture from './Picture.astro';
+
+interface Props {
+  /** Heading level, so this can sit under an h1 or an h2 without breaking order. */
+  compact?: boolean;
+}
+const { compact = false } = Astro.props;
+const L = LINEAGE;
+---
+
+<div class:list={['lin', { 'lin--compact': compact }]}>
+  <div class="lin__text">
+    <p class="eyebrow">Where this comes from</p>
+    <h3 class="lin__headline">{L.headline}</h3>
+
+    <div class="lin__generations">
+      <article class="lin__gen">
+        <p class="lin__gen-label">
+          <span lang="ja" aria-hidden="true">父</span> The father
+        </p>
+        <p class="lin__gen-body">
+          Born in {L.father.born} in {L.father.place}. {L.father.survival}
+          {L.father.achievement} {L.father.australia}
+        </p>
+        <blockquote class="lin__quote">{L.father.ownWords}</blockquote>
+      </article>
+
+      <article class="lin__gen">
+        <p class="lin__gen-label">
+          <span lang="ja" aria-hidden="true">子</span> The son
+        </p>
+        <p class="lin__gen-body">
+          {L.son.began} {L.son.rank} {L.son.inherit}
+        </p>
+        <blockquote class="lin__quote">{L.son.ownWords}</blockquote>
+      </article>
+    </div>
+
+    <p class="lin__legacy">{L.legacy} <span class="lin__legacy-src">— SBS World News</span></p>
+  </div>
+
+  <div class="lin__media" data-reveal data-ink-reveal>
+    <Picture
+      slug="father-son-portrait"
+      alt="Harrison Saito seated at his father's bedside"
+      sizes="(max-width: 900px) 100vw, 40vw"
+      parallax={8}
+    />
+  </div>
+</div>
+
+<style>
+  .lin {
+    display: grid;
+    gap: clamp(2rem, 4vw, 3.5rem);
+    align-items: center;
+  }
+
+  .lin__headline {
+    font-family: var(--font-display);
+    font-size: var(--step-3);
+    font-weight: 300;
+    font-style: italic;
+    line-height: 1.15;
+    color: var(--gold-light);
+    margin-bottom: clamp(1.5rem, 3vw, 2.25rem);
+    max-width: 18ch;
+  }
+
+  .lin__generations {
+    display: grid;
+    gap: clamp(1.25rem, 2.5vw, 2rem);
+  }
+
+  .lin__gen {
+    padding-left: 1.15rem;
+    border-left: 1px solid oklch(75% 0.12 75 / 0.4);
+  }
+
+  .lin__gen-label {
+    display: flex;
+    align-items: baseline;
+    gap: 0.6rem;
+    font-size: 0.68rem;
+    font-weight: 700;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 0.6rem;
+  }
+  .lin__gen-label [lang='ja'] {
+    font-family: var(--font-jp);
+    font-size: 1.5em;
+    letter-spacing: 0;
+  }
+
+  .lin__gen-body {
+    font-size: var(--step-0);
+    line-height: 1.75;
+    color: var(--text-on-ink-muted);
+  }
+
+  .lin__quote {
+    margin: 0.75rem 0 0;
+    font-family: var(--font-display);
+    font-style: italic;
+    font-size: var(--step-1);
+    line-height: 1.45;
+    color: oklch(93% 0.005 60 / 0.82);
+  }
+  .lin__quote::before { content: '\201C'; }
+  .lin__quote::after { content: '\201D'; }
+
+  .lin__legacy {
+    margin-top: clamp(1.5rem, 3vw, 2.25rem);
+    padding-top: 1.25rem;
+    border-top: 1px solid var(--rule-on-ink);
+    font-family: var(--font-display);
+    font-size: var(--step-1);
+    color: var(--text-on-ink);
+  }
+  .lin__legacy-src {
+    font-family: var(--font-body);
+    font-size: 0.68rem;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--gold);
+    white-space: nowrap;
+  }
+
+  .lin__media { position: relative; overflow: hidden; aspect-ratio: 4 / 3; }
+  .lin__media :global(img) { width: 100%; height: 100%; object-fit: cover; }
+
+  @media (min-width: 900px) {
+    .lin { grid-template-columns: 1.15fr 0.85fr; }
+    .lin--compact { grid-template-columns: 1fr; }
+    .lin--compact .lin__media { display: none; }
+  }
+</style>

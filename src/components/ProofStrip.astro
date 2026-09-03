@@ -1,0 +1,136 @@
+---
+/**
+ * Credibility strip.
+ *
+ * Nathan's finding 05: the proof exists but arrives too late to shape the first
+ * impression. This sits in the hero.
+ *
+ * Ordered by how much resistance each marker removes rather than by how
+ * impressive it sounds. SBS first because it is third-party — he is not
+ * claiming it, a national broadcaster verified it. The lineage second because
+ * it is what makes the offer concrete. "Still teaching" last but deliberately
+ * present: a man who has a job is not selling you a way out of his own.
+ */
+import { PROOF } from '../data/site';
+
+interface Props {
+  class?: string;
+  /** 'hero' is compact and centred; 'band' is a full-width row with rules. */
+  variant?: 'hero' | 'band';
+  align?: 'center' | 'start';
+  /**
+   * Separation from whatever sits above. Owned here rather than set by the
+   * parent: this component's scoped `.proof { margin: 0 }` carries
+   * attribute-selector specificity, so a plain class handed down from a parent
+   * loses to it and silently does nothing.
+   */
+  rule?: 'none' | 'top' | 'both';
+}
+
+const {
+  class: className = '',
+  variant = 'hero',
+  align = 'center',
+  rule = 'none',
+} = Astro.props;
+---
+
+<ul class:list={['proof', `proof--${variant}`, `proof--${align}`, `proof--rule-${rule}`, className]}>
+  {
+    PROOF.map((p) => (
+      <li class="proof__item" title={p.source}>
+        <span class="proof__value">{p.value}</span>
+        <span class="proof__label">{p.label}</span>
+      </li>
+    ))
+  }
+</ul>
+
+<style>
+  .proof {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-wrap: wrap;
+  }
+
+  .proof__item {
+    display: grid;
+    gap: 0.15rem;
+    position: relative;
+  }
+
+  .proof__value {
+    font-family: var(--font-display);
+    font-weight: 400;
+    line-height: 1;
+    color: var(--gold-light);
+    white-space: nowrap;
+  }
+
+  .proof__label {
+    font-size: 0.66rem;
+    font-weight: 600;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: oklch(93% 0.005 60 / 0.5);
+  }
+
+  /* ---- alignment + separation ---- */
+  .proof--center { justify-content: center; }
+  .proof--start { justify-content: flex-start; }
+
+  .proof--rule-top {
+    margin-top: clamp(1.75rem, 3.5vw, 2.5rem);
+    padding-top: clamp(1.25rem, 2.5vw, 1.75rem);
+    border-top: 1px solid oklch(100% 0 0 / 0.14);
+  }
+  .proof--rule-both {
+    margin-top: clamp(1.5rem, 3vw, 2.25rem);
+    padding-block: clamp(1rem, 2vw, 1.4rem);
+    border-block: 1px solid oklch(100% 0 0 / 0.14);
+  }
+
+  /* ---- hero ---- */
+  .proof--hero {
+    gap: 0.85rem clamp(1.25rem, 3vw, 2.5rem);
+  }
+  .proof--hero .proof__value { font-size: clamp(1rem, 1.6vw, 1.2rem); }
+
+  /* A hairline between items rather than a bullet — quieter, and it survives
+     wrapping without leaving orphaned separators. */
+  .proof--hero .proof__item + .proof__item::before {
+    content: '';
+    position: absolute;
+    inset-block: 0.1rem 0.3rem;
+    inset-inline-start: calc(clamp(1.25rem, 3vw, 2.5rem) / -2);
+    width: 1px;
+    background: oklch(100% 0 0 / 0.16);
+  }
+
+  /* ---- band ---- */
+  .proof--band {
+    gap: clamp(1.5rem, 4vw, 3rem);
+    padding-block: clamp(1.25rem, 3vw, 2rem);
+    border-block: 1px solid var(--rule-on-ink);
+  }
+  .proof--band .proof__item { flex: 1 1 12rem; }
+  .proof--band .proof__value { font-size: clamp(1.15rem, 2.2vw, 1.6rem); }
+
+  /* On cream sections the strip inverts. */
+  :global(.section--warm) .proof__value,
+  :global(.section:not(.section--ink):not(.section--deep)) .proof__value {
+    color: var(--gold-deep);
+  }
+  :global(.section--warm) .proof__label,
+  :global(.section:not(.section--ink):not(.section--deep)) .proof__label {
+    color: var(--text-on-paper-faint);
+  }
+
+  @media (max-width: 620px) {
+    .proof--hero { gap: 0.75rem 1.1rem; }
+    .proof--hero .proof__item + .proof__item::before { display: none; }
+    .proof__label { font-size: 0.6rem; }
+  }
+</style>

@@ -50,7 +50,7 @@ export const NAV = [
   { label: "Men's Coaching", href: '/mens-coaching' },
   { label: 'HSC & Youth', href: '/hsc-tutoring' },
   { label: 'The Story', href: '/about' },
-  { label: 'Films', href: '/media' },
+  { label: 'Resources', href: '/media' },
   { label: 'Testimonials', href: '/testimonials' },
   { label: 'Contact', href: '/contact' },
 ] as const;
@@ -824,6 +824,85 @@ export const CHAPTERS: Chapter[] = [
     tone: 'oklch(33% 0.045 76)',
   },
 ];
+
+/* ------------------------------------------------------------ credibility */
+
+/**
+ * Evidenced proof, with its source recorded beside it.
+ *
+ * Nathan's audit (finding 05) asked for credibility in the hero and for the
+ * programme to stop being ambiguous. Everything here is verifiable — most of it
+ * from the SBS World News broadcast transcript or Harrison's own recordings —
+ * and `source` exists so nobody has to take a claim on trust later.
+ *
+ * Ordered by how much resistance each marker removes for the actual buyer: a
+ * high-performing man in his thirties or forties who is sceptical of men's
+ * work. Third-party verification first, then the lineage that makes the offer
+ * concrete, then the signal that he does not need your money.
+ */
+export type Proof = { value: string; label: string; source: string };
+
+export const PROOF: Proof[] = [
+  {
+    value: 'SBS World News',
+    label: 'National broadcast feature',
+    source: 'SBS World News segment, "For the youth" — broadcast transcript.',
+  },
+  {
+    value: '3 generations',
+    label: 'Japanese karate lineage',
+    source:
+      'SBS: his father learned karate in post-war Tokyo, won national championships, and began teaching in Australia in 1978.',
+  },
+  {
+    value: 'Since age 11',
+    label: '2nd Dan black belt',
+    source:
+      'Harrison, on SBS: “I’ve been training on and off since I was about 11, 12.”',
+  },
+  {
+    value: 'Still teaching',
+    label: 'Practising NSW high school teacher',
+    source: 'M.Teach (Secondary), B.Com. He has a job — this is not his only income.',
+  },
+];
+
+/**
+ * The lineage, in the words it was verified in.
+ *
+ * This is the answer to "what makes this different from any other coach", and
+ * it is why the programme is training rather than therapy. Deliberately framed
+ * martial-first: the same man was also a Buddhist monk, and that arrives later
+ * as method. Leading with "monk" reads as spiritual guru to precisely the
+ * sceptical reader this page has to keep.
+ */
+export const LINEAGE = {
+  headline: 'It is not therapy. It is a dojo.',
+  father: {
+    born: '1945',
+    place: 'Asaka, Tokyo',
+    /* His father's own words, from the street-interview short. */
+    ownWords: 'I was born 1945. Japan lost war. To survive, I had to be strong.',
+    survival:
+      'He learned karate as a survival skill in post-war Tokyo — not as competition, as self-defence.',
+    achievement: 'Years of daily practice led to national championship victories.',
+    australia: 'He arrived in Australia in 1978 and began teaching.',
+    practice: '50 years of active practice.',
+  },
+  son: {
+    began: 'Harrison began training at 11.',
+    rank: '2nd Dan black belt.',
+    /* His own words, from the "Sparring w my dad" short. */
+    ownWords: 'I am the first child of my father, and he was 54 when he had me.',
+    inherit:
+      'He inherited the discipline and the wound in the same lesson, and spent years separating them.',
+  },
+  /* The line SBS closed the segment on. */
+  legacy: 'A legacy Harrison is proud to continue.',
+};
+
+/** Volume of practice. Never the subscriber count — the work reads big, the audience reads small. */
+export const BODY_OF_WORK = { films: 76, transcribed: 64, years: '2024–2026' };
 
 /* ------------------------------------------------- calligraphy vocabulary */
 

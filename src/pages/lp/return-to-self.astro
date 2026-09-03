@@ -15,6 +15,8 @@ import LeadForm from '../../components/LeadForm.astro';
 import Calligraphy from '../../components/Calligraphy.astro';
 import Enso from '../../components/Enso.astro';
 import Picture from '../../components/Picture.astro';
+import ProofStrip from '../../components/ProofStrip.astro';
+import Lineage from '../../components/Lineage.astro';
 import { PHASES, TESTIMONIALS, SITE } from '../../data/site';
 
 const title = 'Return to Self — 12-Week Coaching for Men | Harrison Saito';
@@ -87,6 +89,8 @@ const stepTwo = [
           of themselves that isn't even them. Karate, Buddhism, and honest inner work — with someone
           who built the shell, lived in it for decades, and then took it apart.
         </p>
+
+        <ProofStrip rule="both" align="start" />
 
         <ul class="lp-points">
           <li>Three phases across 12 weeks — Separate, Return, Integrate</li>
@@ -165,6 +169,44 @@ const stepTwo = [
           Or email <a href={`mailto:${SITE.email}`}>{SITE.email}</a> · {SITE.phoneDisplay}
         </p>
       </div>
+    </div>
+  </section>
+
+  {/* ------------------------------------------------ what's included ----
+      Nathan 03: detail before conversion. The old Manus page carried a
+      "What's Included" block that the rebuild dropped; this restores it, and
+      it is the thing that stops $3,600 reading as an abstraction. */}
+  <section class="section lp-included" data-section="lp-included">
+    <div class="container">
+      <header class="lp-included__head" data-reveal>
+        <p class="eyebrow">What the twelve weeks contain</p>
+        <h2 class="display-l">What you actually get.</h2>
+      </header>
+
+      <div class="lp-included__grid" data-reveal-stagger="80">
+        <article><h3>Weekly one-to-one sessions</h3><p>Twelve of them. In person around Sydney's North Shore, or online Australia-wide. Ninety minutes, not a rushed hour.</p></article>
+        <article><h3>Physical practice</h3><p>Karate as method, not metaphor — breath, stance, pressure. Adapted to you. No experience needed, and no belt to earn.</p></article>
+        <article><h3>The Return Loop</h3><p>Pause. Recognise. Separate. Choose. Practise. One repeatable move you take into the week, not a folder of worksheets.</p></article>
+        <article><h3>Between-session contact</h3><p>You are not left alone for seven days with something we opened on a Tuesday.</p></article>
+        <article><h3>A practice that outlasts the programme</h3><p>By week twelve you have a daily practice you can run without me. That is the point.</p></article>
+        <article><h3>An honest read, up front</h3><p>If this is not the right thing for you, I will say so on the first call rather than take your money.</p></article>
+      </div>
+
+      <div class="lp-mid-cta" data-reveal>
+        <a class="btn btn--lg" href="#apply" data-track="cta_click" data-track-label="LP — mid CTA (included)">Apply for Return to Self</a>
+        <p>Two minutes. Five questions. No obligation.</p>
+      </div>
+    </div>
+  </section>
+
+  {/* ------------------------------------------------------------ lineage */}
+  <section class="section section--deep" data-section="lp-lineage">
+    <div class="container container--wide" data-reveal>
+      <Lineage />
+    </div>
+
+    <div class="container lp-mid-cta lp-mid-cta--ink" data-reveal>
+      <a class="btn btn--lg" href="#apply" data-track="cta_click" data-track-label="LP — mid CTA (lineage)">Start the Application</a>
     </div>
   </section>
 
@@ -250,6 +292,7 @@ const stepTwo = [
     line-height: 1.65;
     color: var(--text-on-ink-muted);
   }
+
 
   .lp-points {
     list-style: none;
@@ -371,6 +414,40 @@ const stepTwo = [
     color: var(--text-on-ink-faint);
   }
   .lp-cta__note a { color: var(--gold); }
+
+  /* ---- what's included ---- */
+  .lp-included { background: var(--paper); }
+  .lp-included__head { margin-bottom: clamp(2rem, 4vw, 3rem); }
+  .lp-included__grid { display: grid; gap: clamp(1.25rem, 2.5vw, 2rem); }
+  .lp-included__grid article {
+    padding: clamp(1.25rem, 2.5vw, 1.75rem);
+    background: var(--paper-warm);
+    border-left: 2px solid oklch(75% 0.12 75 / 0.5);
+  }
+  .lp-included__grid h3 {
+    font-size: var(--step-1);
+    font-weight: 400;
+    margin-bottom: 0.5rem;
+    color: var(--text-on-paper);
+  }
+  .lp-included__grid p {
+    font-size: var(--step--1);
+    line-height: 1.7;
+    color: var(--text-on-paper-muted);
+  }
+
+  .lp-mid-cta {
+    margin-top: clamp(2.5rem, 5vw, 3.5rem);
+    display: grid;
+    justify-items: center;
+    gap: 0.85rem;
+    text-align: center;
+  }
+  .lp-mid-cta p { font-size: var(--step--1); color: var(--text-on-paper-faint); }
+  .lp-mid-cta--ink p { color: var(--text-on-ink-faint); }
+
+  @media (min-width: 760px) { .lp-included__grid { grid-template-columns: repeat(2, 1fr); } }
+  @media (min-width: 1100px) { .lp-included__grid { grid-template-columns: repeat(3, 1fr); } }
 
   /* ---- footer ---- */
   .lp-foot {
