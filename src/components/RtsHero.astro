@@ -1,0 +1,725 @@
+---
+/**
+ * Return to Self — the intro film.
+ *
+ * Replaces the static hero on the home page. Three movements:
+ *
+ *   1. A social-proof landing over the film's first frame — press, then the
+ *      two institutions, then LinkedIn (the Credibility Map's order), the
+ *      proof strip, and one gold path in. Clicking the path never navigates:
+ *      the proof fades and "Scroll to continue" appears.
+ *   2. Scroll scrubs the film through the first room to a held frame, where
+ *      the room's own sliding door (cropped from that frame at the rails)
+ *      covers the centre doorway and carries the offer. The links sit beside
+ *      it. The page will not scroll past this until the visitor goes through.
+ *   3. Through the door: the held frame dissolves into room two, which plays
+ *      itself at 1.5x to the title card. On `ended` the runway is cut to where
+ *      the visitor stands, so the next scroll releases the frame into the page.
+ *
+ * The nav stays out of the way until the film is done — see Nav.astro, which
+ * watches [data-hero-intro][data-done]. Reduced motion gets the landing only.
+ *
+ * Assets: /video/rts-hero.mp4 (short-GOP H.264 so it can be scrubbed),
+ * /img/rts-hero-poster.jpg, /img/rts-hero-end.jpg, /img/rts-door-panel.jpg.
+ * Encode and mechanics are documented in the rts-hero-parallax repo.
+ */
+---
+
+<section class="hero hero--landing" id="hero" data-hero-intro data-section="hero" aria-label="Harrison Saito — Return to Self">
+  <div class="hero__frame">
+    <img class="hero__poster" src="/img/rts-hero-poster.jpg" alt="" aria-hidden="true" width="1280" height="720" fetchpriority="high" decoding="sync" />
+    <video class="hero__video" id="heroVideo" muted playsinline preload="metadata"
+           aria-label="A slow walk through a traditional Japanese interior, arriving at the words Return To Self, 12 Weeks Training."></video>
+    {/* room one, frozen at the door so it can dissolve into room two */}
+    <canvas class="hero__hold" id="heroHold" width="1280" height="720" aria-hidden="true" hidden></canvas>
+    <div class="hero__scrim" aria-hidden="true"></div>
+
+    {/* THE LANDING. Social proof first. Every destination verified live on
+        2026-09-03 against the Credibility Map. */}
+    <nav class="links links--landing" id="links" aria-label="Harrison Saito, verified">
+      <div class="links__inner">
+        <h1 class="links__name">Harrison Saito<small>Return to Self · Men's coaching · Chatswood, Sydney</small></h1>
+
+        <ul class="proof" aria-label="At a glance">
+          <li><b>SBS News</b><small>National broadcast feature</small></li>
+          <li><b>3 generations</b><small>Japanese karate lineage</small></li>
+          <li><b>2nd Dan</b><small>Shido-In, Shinbukan</small></li>
+          <li><b>Still teaching</b><small>NSW Department of Education</small></li>
+        </ul>
+
+        <ol class="cred" aria-label="Where a stranger can verify him">
+          <li><a class="cred__item" href="https://www.sbs.com.au/news/small-business-secrets/article/karate-helps-mental-physcial-health/sglf9zcfw" target="_blank" rel="noopener"><span class="cred__tag">Press</span><span><b>As seen on SBS News</b><small>“A battle of resilience” · 30 May 2026</small></span></a></li>
+          <li><a class="cred__item" href="https://www.sbs.com.au/language/japanese/en/podcast-episode/generational-and-cultural-divides-within-a-family-two-cultures-coming-together-at-a-karate-dojo/vlc7i0h27" target="_blank" rel="noopener"><span class="cred__tag">Press</span><span><b>My father and I, at the dojo</b><small>SBS Japanese podcast · 20 May 2026</small></span></a></li>
+          <li><a class="cred__item" href="https://www.sbs.com.au/news/podcast-episode/the-ancient-japanese-skills-helping-young-people-combat-modern-stress/h4sndg8f2" target="_blank" rel="noopener"><span class="cred__tag">Press</span><span><b>The skills helping young people</b><small>SBS News In Depth · 31 May 2026</small></span></a></li>
+          <li><a class="cred__item" href="https://inthecove.com.au/2025/04/12/how-a-japanese-karate-grandmaster-came-to-teach-in-lane-cove/" target="_blank" rel="noopener"><span class="cred__tag">Press</span><span><b>The family dojo, Lane Cove</b><small>In the Cove · April 2025</small></span></a></li>
+          <li><a class="cred__item" href="https://www.shinbukan.com.au/shinbukan-instructors" target="_blank" rel="noopener"><span class="cred__tag">Dojo</span><span><b>Shinbukan 神武館</b><small>Instructor wall · 2nd Dan, Shido-In</small></span></a></li>
+          <li><a class="cred__item" href="https://www.shingon.org.au/about" target="_blank" rel="noopener"><span class="cred__tag">Temple</span><span><b>Seizanji Temple 青山寺</b><small>Kōyasan Shingon · ordained 2014</small></span></a></li>
+          <li><a class="cred__item" href="https://www.linkedin.com/in/harrison-saito" target="_blank" rel="noopener"><span class="cred__tag">Him</span><span><b>LinkedIn</b><small>Teacher, NSW Department of Education</small></span></a></li>
+        </ol>
+
+        {/* The path in. Click fades the proof and reveals the scroll cue; the href is the no-JS fallback. */}
+        <a class="links__path" id="path" href="/mens-coaching" data-track="cta_click" data-track-label="Intro — Men's coaching"><span class="links__path-text"><small>The path in</small><b>Men's coaching</b></span><span class="links__path-go">Begin →</span></a>
+      </div>
+    </nav>
+
+    <div class="cue" id="cue" aria-hidden="true">
+      <p class="cue__lead">Scroll to continue</p>
+      <span class="cue__arrow"><span></span></span>
+      <span class="cue__tip"></span>
+    </div>
+
+    {/* THE FORK: beside the door on the held frame. Book a chat is the one CTA-styled item. */}
+    <nav class="pops" id="pops" aria-label="More from Harrison" hidden>
+      <a class="pops__item" href="/media"><b>Films and video interviews</b><small>SBS, the dojo films, the archive</small></a>
+      <a class="pops__item" href="/testimonials"><b>Client testimonies</b><small>Eleven, in their own words</small></a>
+      <a class="pops__item pops__item--cta" href="/book" data-track="cta_click" data-track-label="Intro — Book a chat"><b>Book a chat</b><small>A discovery call · one-to-one coaching</small></a>
+      <a class="pops__item" href="https://www.shinbukan.com.au/the-saitos" target="_blank" rel="noopener"><b>The Saitos</b><small>The dojo his father founded, 1978</small></a>
+      <a class="pops__item" href="https://www.facebook.com/shinbukanmartialarts/" target="_blank" rel="noopener"><b>Dojo reviews</b><small>Shinbukan on Facebook</small></a>
+    </nav>
+
+    {/* THE DOOR. The room's own sliding door over the centre doorway, positioned by script. */}
+    <button class="door" id="door" type="button" aria-label="Enter — Return to Self" hidden>
+      <span class="door__paper" aria-hidden="true"></span>
+      <span class="door__glow" aria-hidden="true"></span>
+      <span class="door__ring" aria-hidden="true"></span>
+      <span class="door__copy">
+        <small>Return to Self</small>
+        <b>Helping high-performing men break old habits and rebuild self-trust.</b>
+        <span class="door__enter">Enter →</span>
+      </span>
+    </button>
+
+    {/* Beats while room two plays itself: seconds of film, not scroll. */}
+    <div class="hero__beats">
+      <div class="beat" data-beat data-t-in="9.6" data-t-out="14.4">
+        <p class="beat__line">Return.</p>
+        <p class="beat__sub">Go back to the origin — your father, your family system, your culture. This is where the real work happens. Not intellectually. In your body.</p>
+      </div>
+      <div class="beat beat--close" data-beat data-t-in="16.5" data-t-out="999">
+        <p class="beat__line beat__line--portrait">Return to Self.<br /><em>Twelve weeks.</em></p>
+        <div class="hero__actions">
+          <a class="btn btn--gold" href="/apply" data-track="cta_click" data-track-label="Intro — Apply">Apply</a>
+          <a class="btn btn--ghost" href="/book" data-track="cta_click" data-track-label="Intro — Book a call">Book a call</a>
+        </div>
+      </div>
+    </div>
+
+    <button class="hero__skip" id="skip" type="button">Skip to the end</button>
+    <div class="hero__rail" aria-hidden="true"><i id="heroRail"></i></div>
+  </div>
+</section>
+
+<style>
+  /* Tokens come from global.css. These are the film's own: the paper is the
+     wall the title is written on, sampled from that frame; the door box is the
+     centre doorway of the held frame in plate percentages, measured on a 40px
+     grid (plate x 460–635, y 198–545). */
+  .hero{
+    --card-paper:   #E5DAC9;
+    --card-paper-2: #DED0BD;
+    --card-ink:     #493D2F;
+    --card-shadow:  #C8B299;
+    --door-x: 35.5; --door-y: 27.5; --door-w: 14.5; --door-h: 48.2;
+    --hero-scroll: 420vh;
+
+    position:relative; height:var(--hero-scroll); background:var(--ink-900);
+    color:var(--text-on-ink); font-family:var(--font-body); font-size:var(--step-0); line-height:1.65;
+  }
+  .hero [hidden]{display:none!important}
+
+  .hero__frame{
+    position:sticky; top:0;
+    height:100svh; min-height:100vh;
+    overflow:hidden;
+    background:var(--ink-900);
+  }
+  @supports (height:100svh){ .hero__frame{min-height:0} }
+
+  .hero__video,.hero__poster{
+    position:absolute; inset:0;
+    width:100%; height:100%;
+    object-fit:cover; object-position:50% 50%;
+  }
+  .hero__video{opacity:0; transition:opacity .6s ease}
+  .hero--ready .hero__video{opacity:1}
+  .hero--ready .hero__poster{opacity:0}
+  .hero__poster{transition:opacity .6s ease}
+
+  /* max-width:none — the site's media reset would otherwise cap the canvas at
+     the viewport and squash the frozen frame on portrait */
+  .hero__hold{position:absolute; z-index:1; pointer-events:none; opacity:1; max-width:none; max-height:none; transition:opacity 1.1s ease}
+  .hero__hold--out{opacity:0}
+
+  .hero__scrim{
+    position:absolute; inset:0; pointer-events:none; z-index:1;
+    background:
+      linear-gradient(to top,   oklch(11% 0.008 55 / .78) 0%, oklch(11% 0.008 55 / .30) 34%, transparent 58%),
+      linear-gradient(to bottom,oklch(11% 0.008 55 / .42) 0%, transparent 26%);
+  }
+  .hero--landing .hero__scrim{
+    background:
+      linear-gradient(to top,   oklch(11% 0.008 55 / .82) 0%, oklch(11% 0.008 55 / .55) 40%, oklch(11% 0.008 55 / .30) 100%);
+  }
+
+  /* ---------------- the landing ---------------- */
+  .links{position:absolute; inset:0; z-index:2; pointer-events:none; opacity:1; transition:opacity .45s ease}
+  .links--hidden{opacity:0}
+  .links__inner{
+    position:absolute; left:50%; top:50%; transform:translate(-50%,-52%);
+    width:min(46rem, calc(100% - 2.5rem)); display:grid; gap:.9rem; pointer-events:none;
+  }
+  .links__inner > *{pointer-events:auto; transition:opacity .6s ease}
+  .links__name{
+    font-family:var(--font-display); font-weight:400; font-size:var(--step-2); letter-spacing:.02em;
+    color:var(--text-on-ink); text-align:center; margin:0; pointer-events:none; line-height:1.1;
+  }
+  .links__name small{display:block; font-family:var(--font-body); font-size:var(--step--1); font-weight:600; letter-spacing:.22em; text-transform:uppercase; color:var(--gold); margin-top:.3rem}
+
+  .proof{
+    list-style:none; margin:0; padding:.65rem 0;
+    display:grid; grid-template-columns:repeat(4,1fr); gap:.6rem; text-align:center;
+    border-top:1px solid var(--rule-on-ink); border-bottom:1px solid var(--rule-on-ink);
+  }
+  .proof b{display:block; font-family:var(--font-display); font-weight:400; font-size:var(--step-1); color:var(--text-on-ink); line-height:1.1}
+  .proof small{display:block; font-family:var(--font-body); font-size:.62rem; font-weight:600; letter-spacing:.16em; text-transform:uppercase; color:var(--text-on-ink-faint); margin-top:.2rem}
+
+  .cred{list-style:none; margin:0; padding:0; display:grid; grid-template-columns:1fr 1fr; gap:.45rem .9rem}
+  .cred__item{
+    display:grid; grid-template-columns:auto 1fr; gap:.7rem; align-items:start;
+    text-decoration:none; color:var(--card-ink);
+    background:color-mix(in oklab, var(--card-paper) 84%, transparent);
+    -webkit-backdrop-filter:blur(12px); backdrop-filter:blur(12px);
+    border:1px solid color-mix(in oklab, var(--card-shadow) 70%, transparent);
+    padding:.55rem .85rem;
+    transition:background .3s ease, border-color .3s ease;
+  }
+  .cred__tag{font-family:var(--font-body); font-size:.58rem; font-weight:600; letter-spacing:.2em; text-transform:uppercase; color:var(--gold-deep); padding-top:.28rem; white-space:nowrap}
+  .cred__item b{display:block; font-family:var(--font-display); font-weight:500; font-size:var(--step-0); line-height:1.15}
+  .cred__item small{display:block; font-family:var(--font-body); font-size:.72rem; color:color-mix(in oklab, var(--card-ink) 62%, var(--card-paper)); margin-top:.12rem; line-height:1.3}
+  .cred__item:hover,.cred__item:focus-visible{background:var(--card-paper); border-color:var(--gold-deep); outline:none}
+  .cred__item:focus-visible{box-shadow:0 0 0 2px var(--gold-deep)}
+
+  .links__path{
+    display:grid; grid-template-columns:1fr auto; align-items:center; gap:1rem;
+    text-decoration:none; background:var(--gold); color:var(--ink-900); border:1px solid var(--gold);
+    padding:.85rem 1.25rem; transition:background .3s ease, border-color .3s ease;
+  }
+  .links__path-text{display:block}
+  .links__path b{display:block; font-family:var(--font-display); font-weight:500; font-size:var(--step-2); line-height:1.1}
+  .links__path small{display:block; font-family:var(--font-body); font-size:.64rem; font-weight:600; letter-spacing:.2em; text-transform:uppercase; opacity:.72; margin-bottom:.15rem}
+  .links__path-go{font-family:var(--font-body); font-size:var(--step--1); font-weight:600; letter-spacing:.14em; text-transform:uppercase; white-space:nowrap}
+  .links__path:hover,.links__path:focus-visible{background:var(--gold-light); border-color:var(--gold-light); outline:none}
+  .links__path:focus-visible{box-shadow:0 0 0 2px var(--ink-900)}
+
+  .links[data-chosen] .links__inner > *{opacity:0; pointer-events:none}
+  .links[data-chosen] .links__path{transition-delay:.3s}
+
+  .cue{
+    position:absolute; left:50%; top:50%; transform:translate(-50%,-50%);
+    z-index:2; text-align:center; pointer-events:none;
+    opacity:0; transition:opacity .6s ease .45s;
+  }
+  .cue--on{opacity:1}
+  .cue__lead{font-family:var(--font-display); font-weight:400; font-size:var(--step-2); color:var(--text-on-ink); margin:0 0 .6rem; letter-spacing:.01em; white-space:nowrap}
+  .cue__arrow{display:block; width:1px; height:52px; margin:0 auto; background:var(--rule-on-ink); position:relative; overflow:hidden}
+  .cue__arrow span{position:absolute; top:-45%; left:0; width:100%; height:45%; background:var(--gold); animation:cue 2.2s cubic-bezier(.6,0,.4,1) infinite}
+  .cue__tip{display:block; width:9px; height:9px; margin:-5px auto 0; border-right:1px solid var(--gold); border-bottom:1px solid var(--gold); transform:rotate(45deg)}
+  @keyframes cue{0%{top:-45%}60%,100%{top:100%}}
+  .hero[data-progress-past] .cue{opacity:0; transition-delay:0s}
+
+  /* ---------------- the fork ---------------- */
+  .pops{
+    position:absolute; z-index:2; width:15.5rem;
+    display:grid; gap:.5rem; opacity:0; pointer-events:none; transition:opacity .4s ease;
+  }
+  .hero--gated .pops{opacity:1; pointer-events:auto}
+  .pops__item{
+    display:block; text-decoration:none; color:var(--card-ink); text-align:left;
+    background:color-mix(in oklab, var(--card-paper) 84%, transparent);
+    -webkit-backdrop-filter:blur(12px); backdrop-filter:blur(12px);
+    border:1px solid color-mix(in oklab, var(--card-shadow) 70%, transparent);
+    padding:.65rem 1rem; transform:translateX(18px); opacity:0;
+    transition:background .3s ease, border-color .3s ease;
+  }
+  .hero--gated .pops__item{animation:popin .6s cubic-bezier(.22,.61,.36,1) forwards}
+  .pops__item:nth-child(2){animation-delay:.08s}
+  .pops__item:nth-child(3){animation-delay:.16s}
+  .pops__item:nth-child(4){animation-delay:.24s}
+  .pops__item:nth-child(5){animation-delay:.32s}
+  @keyframes popin{to{transform:none; opacity:1}}
+  .pops__item b{display:block; font-family:var(--font-display); font-weight:500; font-size:var(--step-1); line-height:1.15}
+  .pops__item small{display:block; font-family:var(--font-body); font-size:.72rem; color:color-mix(in oklab, var(--card-ink) 62%, var(--card-paper)); margin-top:.12rem}
+  .pops__item:hover,.pops__item:focus-visible{background:var(--card-paper); border-color:var(--gold-deep); outline:none}
+  .pops__item:focus-visible{box-shadow:0 0 0 2px var(--gold-deep)}
+  .pops__item--cta{background:var(--gold); color:var(--ink-900); border-color:var(--gold)}
+  .pops__item--cta small{color:oklch(11% 0.008 55 / .72)}
+  .pops__item--cta:hover,.pops__item--cta:focus-visible{background:var(--gold-light); border-color:var(--gold-light)}
+
+  /* ---------------- the door ---------------- */
+  .door{
+    position:absolute; z-index:3; display:block;
+    background:none; border:0; padding:0; cursor:pointer; text-align:center;
+    opacity:0; pointer-events:none;
+    transition:opacity 1.1s ease;
+  }
+  .hero--gated .door{opacity:1; pointer-events:auto; transition-duration:.7s}
+  .door__paper{
+    position:absolute; inset:0;
+    background:url("/img/rts-door-panel.jpg") center / 100% 100% no-repeat;
+    box-shadow:inset 0 0 0 1px oklch(11% 0.008 55 / .18), 0 24px 60px -24px oklch(11% 0.008 55 / .55);
+    transition:filter .3s ease, box-shadow .3s ease;
+  }
+  .door__glow{
+    position:absolute; inset:0; z-index:1; pointer-events:none;
+    background:radial-gradient(130% 90% at 50% 46%, oklch(97% 0.03 85 / .78) 0%, oklch(96% 0.03 85 / .48) 42%, oklch(96% 0.03 85 / .28) 100%);
+    mix-blend-mode:screen; opacity:.72;
+    animation:breathe 4.4s ease-in-out infinite alternate;
+  }
+  @keyframes breathe{from{opacity:.58} to{opacity:.9}}
+  .door__ring{
+    position:absolute; inset:0; z-index:3; pointer-events:none;
+    box-shadow:inset 0 0 0 1px oklch(90% 0.07 82 / .6), inset 0 0 18px 0 oklch(90% 0.07 82 / .32);
+    animation:edge 4.4s ease-in-out infinite alternate;
+  }
+  @keyframes edge{from{opacity:.55} to{opacity:1}}
+  .door__copy{
+    position:absolute; inset:0; z-index:2; display:grid; align-content:center; justify-items:center; gap:.85rem;
+    padding:1.1rem 1rem; color:var(--card-ink);
+  }
+  .door__copy small{font-family:var(--font-body); font-size:.78rem; font-weight:700; letter-spacing:.26em; text-transform:uppercase; color:var(--card-ink)}
+  .door__copy b{font-family:var(--font-display); font-weight:400; font-size:clamp(1.02rem, 1.4vw, 1.3rem); line-height:1.28; text-wrap:balance}
+  .door__enter{
+    font-family:var(--font-body); font-size:.7rem; font-weight:700; letter-spacing:.2em; text-transform:uppercase;
+    background:var(--gold); color:var(--ink-900); border:1px solid var(--gold); border-radius:1px;
+    padding:.62rem 1.1rem; margin-top:.3rem;
+    transition:background .3s ease, border-color .3s ease;
+  }
+  .door:hover .door__paper,.door:focus-visible .door__paper{filter:brightness(1.04)}
+  .door:hover .door__glow,.door:focus-visible .door__glow{animation-play-state:paused; opacity:.92}
+  .door:hover .door__ring,.door:focus-visible .door__ring{animation-play-state:paused; opacity:1; box-shadow:inset 0 0 0 1px var(--gold), inset 0 0 22px 0 oklch(90% 0.07 82 / .4)}
+  .door:hover .door__enter,.door:focus-visible .door__enter{background:var(--gold-light); border-color:var(--gold-light)}
+  .door:focus-visible{outline:none}
+
+  /* ---------------- beats, after the door ---------------- */
+  .hero__beats{position:absolute; inset:0; z-index:2; display:grid; place-items:end start; padding:0 clamp(1.5rem,5vw,5.5rem) clamp(3.5rem,9vh,6.5rem); pointer-events:none}
+  .hero__beats a{pointer-events:auto}
+  .beat{grid-area:1/1; max-width:38rem; opacity:0; transform:translateY(14px); transition:opacity .4s ease-out, transform .4s ease-out; will-change:opacity,transform}
+  .beat[data-on]{opacity:1; transform:none; transition:opacity .9s cubic-bezier(.22,.61,.36,1), transform .9s cubic-bezier(.22,.61,.36,1)}
+  .beat__line{font-family:var(--font-display); font-weight:300; font-size:var(--step-4); line-height:1.08; letter-spacing:-.01em; color:var(--text-on-ink); margin:0; text-wrap:balance}
+  .beat__line em{font-style:italic; color:var(--gold-light)}
+  .beat__sub{font-size:var(--step-1); color:var(--text-on-ink-muted); margin:1rem 0 0; max-width:34rem; font-weight:300}
+  .beat--close{justify-self:center; text-align:center}
+  .beat--close .hero__actions{justify-content:center; margin-top:0}
+  .beat__line--portrait{display:none; font-size:var(--step-3); margin-bottom:1.4rem}
+  @media (orientation:portrait) and (max-width:760px){
+    .beat__line--portrait{display:block}
+  }
+  .hero__actions{display:flex; flex-wrap:wrap; gap:.85rem; margin-top:1.8rem}
+  .btn{display:inline-block; font-family:var(--font-body); font-size:var(--step--1); font-weight:600; letter-spacing:.14em; text-transform:uppercase; padding:.95rem 1.9rem; border-radius:1px; text-decoration:none; transition:background .3s ease, color .3s ease, border-color .3s ease}
+  .btn--gold{background:var(--gold); color:var(--ink-900); border:1px solid var(--gold)}
+  .btn--gold:hover{background:var(--gold-light); border-color:var(--gold-light)}
+  .btn--ghost{background:transparent; color:var(--text-on-ink); border:1px solid var(--rule-on-ink)}
+  .btn--ghost:hover{border-color:var(--gold); color:var(--gold-light)}
+  .btn:focus-visible{outline:2px solid var(--gold); outline-offset:3px}
+
+  .hero__skip{
+    position:absolute; right:clamp(1.5rem,5vw,5.5rem); bottom:clamp(1.6rem,5vh,3rem); z-index:3;
+    background:none; border:0; padding:.4rem 0; cursor:pointer;
+    font-family:var(--font-body); font-size:.66rem; font-weight:600; letter-spacing:.2em; text-transform:uppercase;
+    color:var(--text-on-ink-faint); border-bottom:1px solid var(--rule-on-ink);
+    opacity:0; pointer-events:none; transition:opacity .6s ease .8s, color .3s ease;
+  }
+  .hero--playing .hero__skip{opacity:1; pointer-events:auto}
+  .hero:not(.hero--playing) .hero__skip{transition-delay:0s; transition-duration:.25s}
+  .hero__skip:hover,.hero__skip:focus-visible{color:var(--gold-light); outline:none}
+
+  .hero__rail{position:absolute; left:0; right:0; bottom:0; height:2px; background:var(--rule-on-ink); z-index:5}
+  .hero__rail i{display:block; height:100%; width:0; background:var(--gold); transform-origin:left}
+
+  /* ---------------- responsive ---------------- */
+  @media (max-height:780px){
+    .links__inner{gap:.6rem; transform:translate(-50%,-50%)}
+    .cred__item{padding:.45rem .8rem}
+    .proof{padding:.5rem 0}
+    .links__path{padding:.7rem 1.1rem}
+  }
+  @media (max-width:600px){
+    .links__inner{width:calc(100% - 1.5rem); gap:.55rem; transform:translate(-50%,-50%)}
+    .links__name{font-size:var(--step-1)}
+    .proof{grid-template-columns:1fr 1fr; gap:.4rem .6rem; padding:.45rem 0}
+    .proof b{font-size:var(--step-0)}
+    .cred{grid-template-columns:1fr; gap:.35rem}
+    .cred__item{padding:.4rem .7rem; gap:.55rem}
+    .cred__item small{display:none}
+    .links__path{padding:.65rem 1rem}
+    .links__path b{font-size:var(--step-1)}
+    /* the door fills the centre on a phone, so the pop-ups become a bottom row */
+    .pops{left:.75rem; right:.75rem; top:auto; bottom:clamp(1.6rem,5vh,3rem); width:auto; display:flex; gap:.5rem; overflow-x:auto; scroll-snap-type:x mandatory; -webkit-overflow-scrolling:touch; scrollbar-width:none; padding:0 0 .2rem}
+    .pops::-webkit-scrollbar{display:none}
+    .pops__item{flex:0 0 66%; scroll-snap-align:start; padding:.55rem .8rem}
+    .door__copy{gap:.5rem; padding:.8rem .7rem}
+    .door__copy b{font-size:1rem}
+  }
+
+  /* ---------------- no-JS / reduced motion ---------------- */
+  :global(.no-js) .hero{height:100svh}
+  :global(.no-js) .cue,:global(.no-js) .door,:global(.no-js) .pops,:global(.no-js) .hero__skip{display:none}
+  @media (prefers-reduced-motion:reduce){
+    .hero{height:100svh}
+    .hero__video,.hero__hold{display:none}
+    .cue,.door,.pops,.hero__beats,.hero__skip{display:none}
+    .links,.links__inner > *,.pops__item{transition:none; animation:none}
+  }
+</style>
+
+<script>
+(function () {
+  "use strict";
+  /* the site's convention: html.no-js until a script runs (idempotent here) */
+  document.documentElement.classList.remove("no-js");
+  var hero  = document.getElementById("hero") as HTMLElement | null;
+  var video = document.getElementById("heroVideo") as HTMLVideoElement | null;
+  var hold  = document.getElementById("heroHold") as HTMLCanvasElement | null;
+  var rail  = document.getElementById("heroRail") as HTMLElement | null;
+  var links = document.getElementById("links") as HTMLElement | null;
+  var path  = document.getElementById("path") as HTMLAnchorElement | null;
+  var cue   = document.getElementById("cue") as HTMLElement | null;
+  var pops  = document.getElementById("pops") as HTMLElement | null;
+  var door  = document.getElementById("door") as HTMLButtonElement | null;
+  var skip  = document.getElementById("skip") as HTMLButtonElement | null;
+  if (!hero || !video || !hold || !rail || !links || !path || !cue || !pops || !door || !skip) return;
+  var beats = [].slice.call(document.querySelectorAll("[data-beat]")) as HTMLElement[];
+  var poster = hero.querySelector(".hero__poster") as HTMLImageElement;
+
+  var reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  /* The site scrolls with Lenis on fine pointers (scripts/motion.ts exposes the
+     instance on window.lenis). While the gate holds, Lenis must be stopped —
+     otherwise its lerp keeps writing the scroll position and fights the snap —
+     and every snap goes through it so the two never disagree. */
+  function lenisOf(): any { return (window as any).lenis || null; }
+  function snapTo(y: number) {
+    var l = lenisOf();
+    if (l && typeof l.scrollTo === "function") l.scrollTo(y, { immediate: true, force: true });
+    else window.scrollTo({ top: y, behavior: "instant" });
+  }
+  function resizeLenis() { var l = lenisOf(); if (l && typeof l.resize === "function") l.resize(); }
+
+  var FPS = 24, JOIN = 202, PLATE_W = 1280, PLATE_H = 720;
+  var T_HOLD   = (JOIN - 1.5) / FPS;   /* last frame of room one, held */
+  var T_RESUME = (JOIN + 0.5) / FPS;   /* first frame of room two */
+  var CROSSFADE_MS = 1100;             /* must match .hero__hold's transition */
+  var PLAYBACK_RATE = 1.5;             /* room two plays itself at this speed */
+
+  function paintBeats(t: number) {
+    for (var i = 0; i < beats.length; i++) {
+      var b = beats[i];
+      var on = t >= parseFloat(b.dataset.tIn || "0") && t < parseFloat(b.dataset.tOut || "0");
+      if (on) b.setAttribute("data-on", ""); else b.removeAttribute("data-on");
+    }
+  }
+  function tellNav() { document.dispatchEvent(new CustomEvent("rts:intro")); }
+
+  /* The path in: no navigation, the proof fades, the cue appears. */
+  path.addEventListener("click", function (e) {
+    if (reduced) return;
+    e.preventDefault();
+    video!.preload = "auto";
+    if (links!.hasAttribute("data-chosen")) return;
+    links!.setAttribute("data-chosen", "");
+    hero!.setAttribute("data-path", "mens-coaching");
+    cue!.classList.add("cue--on");
+  });
+
+  if (reduced) {                               /* the landing only; the nav behaves as normal */
+    poster.src = "/img/rts-hero-end.jpg";
+    hero.setAttribute("data-done", "");
+    tellNav();
+    return;
+  }
+
+  var src = document.createElement("source");
+  src.src = "/video/rts-hero.mp4";
+  src.type = "video/mp4";
+  video.appendChild(src);
+  video.load();
+
+  var duration = 0, pGate = 0, gateY = 0;
+  var target = 0, eased = 0, pending = false, ready = false, watchdog = 0;
+  var gated = false, answered = false, transitioning = false, playing = false, done = false;
+
+  function clamp(v: number, a: number, b: number) { return v < a ? a : v > b ? b : v; }
+  function runway() { return hero!.offsetHeight - window.innerHeight; }
+  function progress() {
+    var r = runway();
+    if (r <= 0) return 0;
+    return clamp(-hero!.getBoundingClientRect().top / r, 0, 1);
+  }
+  function timeFor(p: number) { return Math.min(p / pGate, 1) * T_HOLD; }
+
+  /* ---------- the plate, mapped through object-fit:cover ---------- */
+  var objX = 50;
+  function applyObjX(x: number) {
+    var v = x + "% 50%";
+    video!.style.objectPosition = v;
+    poster.style.objectPosition = v;
+  }
+  function setObjX(x: number) {
+    x = Math.round(x * 10) / 10;
+    if (x === objX) return;
+    objX = x; applyObjX(x);
+  }
+  function easeObjX(to: number, ms: number) {
+    var from = objX, t0 = performance.now();
+    (function step(now: number) {
+      var k = clamp((now - t0) / ms, 0, 1); k = 1 - Math.pow(1 - k, 3);
+      objX = Math.round((from + (to - from) * k) * 10) / 10; applyObjX(objX);
+      if (k < 1) requestAnimationFrame(step);
+    })(t0);
+  }
+  function plateRect() {
+    var W = window.innerWidth, H = window.innerHeight;
+    var s = Math.max(W / PLATE_W, H / PLATE_H);
+    var pw = PLATE_W * s, ph = PLATE_H * s;
+    return { x: (W - pw) * objX / 100, y: (H - ph) / 2, w: pw, h: ph };
+  }
+  function placeOnPlate(el: HTMLElement) {
+    var r = plateRect();
+    el.style.left = r.x + "px"; el.style.top = r.y + "px"; el.style.width = r.w + "px"; el.style.height = r.h + "px";
+  }
+  function doorBox() {
+    var cs = getComputedStyle(hero!);
+    return {
+      x: parseFloat(cs.getPropertyValue("--door-x")), y: parseFloat(cs.getPropertyValue("--door-y")),
+      w: parseFloat(cs.getPropertyValue("--door-w")), h: parseFloat(cs.getPropertyValue("--door-h"))
+    };
+  }
+  function placeDoor() {
+    var r = plateRect(), d = doorBox();
+    var L = r.x + r.w * d.x / 100, T = r.y + r.h * d.y / 100, Wd = r.w * d.w / 100, Hd = r.h * d.h / 100;
+    door!.style.left = L + "px"; door!.style.top = T + "px"; door!.style.width = Wd + "px"; door!.style.height = Hd + "px";
+    /* the pop-ups sit beside the door, centred on its height; on a phone the CSS row takes over */
+    if (window.matchMedia("(max-width:600px)").matches) { pops!.style.left = ""; pops!.style.top = ""; return; }
+    var gap = 18, pw = pops!.offsetWidth, ph = pops!.offsetHeight;
+    var left = L + Wd + gap;
+    if (left + pw > window.innerWidth - 12) left = Math.max(12, L - gap - pw);
+    var top = clamp(T + (Hd - ph) / 2, 12, window.innerHeight - ph - 12);
+    pops!.style.left = left + "px"; pops!.style.top = top + "px";
+  }
+  /* Keep the door in frame on any crop: if the doorway box is not fully
+     visible at centre, drift over the last stretch of the approach — just
+     enough to centre it, never to an edge. */
+  function panFor(p: number) {
+    if (answered) return 50;
+    var W = window.innerWidth, H = window.innerHeight;
+    var s = Math.max(W / PLATE_W, H / PLATE_H);
+    var visW = W / s;
+    if (visW >= PLATE_W - 1) return 50;
+    var d = doorBox();
+    var dx = d.x / 100 * PLATE_W, dw = d.w / 100 * PLATE_W;
+    var leftAt50 = (PLATE_W - visW) / 2;
+    if (dx >= leftAt50 && dx + dw <= leftAt50 + visW) return 50;
+    var want = clamp(dx + dw / 2 - visW / 2, 0, PLATE_W - visW);
+    var targetX = want / (PLATE_W - visW) * 100;
+    var start = pGate - 0.16;
+    var k = clamp((p - start) / (pGate - start), 0, 1);
+    return 50 + (targetX - 50) * k;
+  }
+
+  function onScroll() {
+    var p = progress();
+    if (p > 0.02 && video!.preload !== "auto") video!.preload = "auto";
+    if (ready && !answered && !gated && p >= pGate) engage();
+    if (gated) {
+      if (Math.abs(window.scrollY - gateY) > 1) snapTo(gateY);
+      p = pGate;
+    }
+    if (!answered) {
+      target = timeFor(p);
+      if (!transitioning) setObjX(panFor(p));
+      if (gated) placeDoor();
+      rail!.style.width = (p * 100).toFixed(2) + "%";
+    }
+    if (p > 0.06) hero!.setAttribute("data-progress-past", ""); else hero!.removeAttribute("data-progress-past");
+    var landing = p < 0.08 && !answered;
+    links!.classList.toggle("links--hidden", !landing);
+    hero!.classList.toggle("hero--landing", landing);
+  }
+
+  /* ---------- seeking (room one only): one in flight, three ways to settle ---------- */
+  function settle() { pending = false; clearTimeout(watchdog); }
+  video.addEventListener("seeked", settle);
+  function issueSeek(t: number) {
+    pending = true;
+    clearTimeout(watchdog);
+    watchdog = window.setTimeout(settle, 220);
+    if ("requestVideoFrameCallback" in video!) (video as any).requestVideoFrameCallback(settle);
+    try { video!.currentTime = t; } catch (e) { settle(); }
+  }
+  function tick() {
+    if (playing) {
+      var t = video!.currentTime;
+      rail!.style.width = (t / duration * 100).toFixed(2) + "%";
+      paintBeats(t);
+    } else if (ready && !answered && !pending && Math.abs(eased - video!.currentTime) > 1 / 48) {
+      eased += (target - eased) * 0.14;
+      issueSeek(eased);
+    } else if (ready && !answered) {
+      eased += (target - eased) * 0.14;
+    }
+    requestAnimationFrame(tick);
+  }
+
+  /* ---------- the gate ---------- */
+  var SCROLL_KEYS: Record<string, number> = { " ": 1, PageDown: 1, PageUp: 1, ArrowDown: 1, ArrowUp: 1, Home: 1, End: 1 };
+  /* Capture phase, so Lenis (which listens on window in the bubble phase) never
+     sees the wheel. Stopping Lenis instead would put overflow:hidden on <html>
+     via .lenis-stopped, and that detaches the sticky frame from the viewport. */
+  function preventScroll(e: Event) {
+    if (pops!.scrollWidth > pops!.clientWidth + 2 && pops!.contains(e.target as Node)) return;   /* the phone's pop-up row may scroll sideways */
+    e.preventDefault();
+    e.stopImmediatePropagation();
+  }
+  var CAPTURE: AddEventListenerOptions = { passive: false, capture: true };
+  function onKey(e: KeyboardEvent) {
+    if (!gated) return;
+    if (e.key === "Escape") { e.preventDefault(); if (playing) finish(true); else enter(); return; }
+    if (SCROLL_KEYS[e.key] && !(e.key === " " && (e.target === door || e.target === skip))) e.preventDefault();
+  }
+  function lock() {
+    window.addEventListener("wheel", preventScroll, CAPTURE);
+    window.addEventListener("touchmove", preventScroll, CAPTURE);
+    window.addEventListener("keydown", onKey);
+  }
+  function unlock() {
+    window.removeEventListener("wheel", preventScroll, CAPTURE);
+    window.removeEventListener("touchmove", preventScroll, CAPTURE);
+    window.removeEventListener("keydown", onKey);
+  }
+
+  function engage() {
+    gated = true;
+    gateY = pGate * runway();
+    snapTo(gateY);
+    target = eased = T_HOLD;
+    issueSeek(T_HOLD);
+    setObjX(panFor(pGate));
+    lock();
+    hero!.setAttribute("data-gated", "");
+    door!.hidden = false;
+    pops!.hidden = false;
+    placeDoor();
+    requestAnimationFrame(function () { requestAnimationFrame(function () {
+      hero!.classList.add("hero--gated");
+      door!.focus({ preventScroll: true });
+    }); });
+  }
+
+  /* Through the door. Room one is frozen on the canvas exactly where the
+     plate sits; room two is seeked underneath; the canvas dissolves and room
+     two plays itself to the title card. Scroll stays held until it ends. */
+  function enter() {
+    if (transitioning || answered) return;
+    transitioning = true;
+    placeOnPlate(hold!);
+    try { hold!.getContext("2d")!.drawImage(video!, 0, 0, PLATE_W, PLATE_H); } catch (e) {}
+    hold!.classList.remove("hero__hold--out");
+    hold!.hidden = false;
+    hero!.classList.remove("hero--gated");
+
+    var landed = false;
+    function onLanded() {
+      if (landed) return;
+      landed = true;
+      video!.removeEventListener("seeked", onLanded);
+      answered = true;
+      hero!.setAttribute("data-answered", "");
+      requestAnimationFrame(function () { hold!.classList.add("hero__hold--out"); });
+      playing = true;
+      hero!.classList.add("hero--playing");
+      video!.playbackRate = PLAYBACK_RATE;
+      var p = video!.play();
+      if (p && p.catch) p.catch(function () { finish(true); });
+      setTimeout(function () {
+        hold!.hidden = true;
+        door!.hidden = true;
+        pops!.hidden = true;
+        transitioning = false;
+        if (objX !== 50) easeObjX(50, 700);
+      }, CROSSFADE_MS + 60);
+    }
+    video!.addEventListener("seeked", onLanded);
+    setTimeout(onLanded, 400);
+    pending = true;
+    try { video!.currentTime = T_RESUME; } catch (e) { onLanded(); }
+  }
+  door.addEventListener("click", enter);
+
+  /* The film has reached its title card. The runway is cut to where the
+     visitor stands, so the next scroll lets the frame go into the page. */
+  function finish(skipped: boolean) {
+    if (done) return;
+    done = true; playing = false;
+    if (skipped) { try { video!.pause(); video!.currentTime = Math.max(0, duration - 0.04); } catch (e) {} }
+    hold!.hidden = true;
+    hero!.classList.remove("hero--playing");
+    hero!.setAttribute("data-done", "");
+    rail!.style.width = "100%";
+    paintBeats(duration);
+    unlock();
+    gated = false; transitioning = false;
+    hero!.removeAttribute("data-gated");
+    hero!.style.height = (window.scrollY + window.innerHeight) + "px";
+    resizeLenis();
+    onScroll();
+    tellNav();
+  }
+  video.addEventListener("ended", function () { finish(false); });
+  skip.addEventListener("click", function () { if (playing) finish(true); });
+
+  /* If the film cannot load, the landing carries the page and the nav returns. */
+  function bail() {
+    if (done) return;
+    done = true;
+    hero!.classList.remove("hero--ready");
+    hero!.setAttribute("data-done", "");
+    hero!.style.height = window.innerHeight + "px";
+    unlock();
+    resizeLenis();
+    tellNav();
+  }
+  video.addEventListener("error", bail);
+
+  /* ---------- arming ---------- */
+  function arm() {
+    if (ready) return;
+    duration = video!.duration || 0;
+    if (!duration) return;
+    pGate = T_HOLD / duration;
+    ready = true;
+    hero!.classList.add("hero--ready");
+    onScroll();
+    eased = target;
+    requestAnimationFrame(tick);
+  }
+  /* Order matters: metadata first, THEN the iOS unlock (a muted play() that is
+     paused the moment it resolves — Safari refuses currentTime on an element
+     that has never played), THEN arm the scrub. */
+  function unlockThenArm() {
+    var kick = video!.play();
+    if (kick && kick.then) {
+      kick.then(function () { video!.pause(); arm(); })
+          .catch(function () { arm(); });
+    } else { arm(); }
+  }
+  if (video.readyState >= 1) unlockThenArm();
+  else video.addEventListener("loadedmetadata", unlockThenArm, { once: true });
+
+  window.addEventListener("scroll", onScroll, { passive: true });
+  window.addEventListener("resize", function () {
+    if (gated) { gateY = pGate * runway(); snapTo(gateY); placeDoor(); if (!hold!.hidden) placeOnPlate(hold!); }
+    onScroll();
+  });
+  onScroll();
+})();
+</script>

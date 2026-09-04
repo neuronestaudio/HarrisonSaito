@@ -279,7 +279,10 @@ function initProgress() {
 export function initMotion() {
   document.documentElement.classList.remove('no-js');
 
-  initLenis();
+  // Exposed so the home page's intro film (RtsHero.astro) can stop Lenis while
+  // its gate holds and snap through it — a second scroll driver would fight.
+  const lenis = initLenis();
+  (window as unknown as { lenis?: Lenis | null }).lenis = lenis;
   initReveals();
 
   if (!reduceMotion) {

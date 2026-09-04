@@ -8,7 +8,7 @@
  * on /mens-coaching and /hsc-tutoring where it can rank on its own terms.
  */
 import Base from '../layouts/Base.astro';
-import Hero from '../components/Hero.astro';
+import RtsHero from '../components/RtsHero.astro';
 import Calligraphy from '../components/Calligraphy.astro';
 import Picture from '../components/Picture.astro';
 import Testimonials from '../components/Testimonials.astro';
@@ -37,7 +37,10 @@ const schema = graph(
 ---
 
 <Base title={title} description={description} path="/" schema={schema}>
-  <Hero />
+  {/* The intro film replaces the static hero (Hero.astro stays in the tree
+      for the record). Its landing carries the h1; the nav stays hidden until
+      the film marks itself done. */}
+  <RtsHero />
 
   {/* ------------------------------------------------------------- story */}
   <section class="section" id="story" data-section="story">
