@@ -14,17 +14,16 @@
  * business tools terms both make an explicit signal the safer default, so
  * Consent Mode v2 initialises to denied. ConsentBar.astro grants it.
  *
+ * This component is the <head> half of the GTM install only. The <noscript>
+ * half lives in GtmNoscript.astro, which Base.astro renders immediately after
+ * the opening <body> tag, as Google's instructions require.
+ *
  * Note: every script here is a top-level `is:inline` block with its guards in
  * JavaScript rather than an Astro conditional. Script bodies nested inside a
  * `{cond && (...)}` expression get parsed as JSX, and object literals like
  * `{ 'gtm.start': ... }` break the build.
  */
-const GTM_ID = import.meta.env.PUBLIC_GTM_ID ?? '';
-const GA4_ID = import.meta.env.PUBLIC_GA4_ID ?? '';
-const PIXEL_ID = import.meta.env.PUBLIC_META_PIXEL_ID ?? '';
-const gtmNoscript = GTM_ID
-  ? `<iframe src="https://www.googletagmanager.com/ns.html?id=${GTM_ID}" height="0" width="0" style="display:none;visibility:hidden"></iframe>`
-  : '';
+import { GTM_ID, GA4_ID, PIXEL_ID } from '../lib/tracking-config';
 ---
 
 <script is:inline define:vars={{ GTM_ID, GA4_ID, PIXEL_ID }}>
@@ -121,5 +120,3 @@ const gtmNoscript = GTM_ID
     setTimeout(loadPixel, 2500);
   }
 </script>
-
-{gtmNoscript && <noscript set:html={gtmNoscript} />}

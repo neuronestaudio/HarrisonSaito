@@ -48,6 +48,33 @@ if (existsSync(path.join(ROOT, 'functions', 'api', 'lead.ts'))) {
   bad('C1', 'no Conversions API endpoint');
 }
 
+// C1 — GTM installed to Google's spec, on every page.
+// Guards a real regression: the noscript half was originally rendered inside
+// <head> along with the rest of the analytics component, which is invalid and
+// silently broke the no-JS fallback.
+{
+  const GTM = 'GTM-5GPC5FDS';
+  const problems = [];
+  for (const p of pages) {
+    const h = html[p];
+    const headEnd = h.indexOf('</head>');
+    const bodyOpen = h.indexOf('>', h.indexOf('<body')) + 1;
+    const js = h.indexOf('googletagmanager.com/gtm.js');
+    const ns = h.indexOf('googletagmanager.com/ns.html');
+    const consent = h.indexOf("'consent'");
+
+    if (js < 0) problems.push(`${p}: no gtm.js`);
+    else if (js > headEnd) problems.push(`${p}: gtm.js outside <head>`);
+    if (ns < 0) problems.push(`${p}: no noscript fallback`);
+    else if (ns < headEnd) problems.push(`${p}: noscript inside <head> (must follow <body>)`);
+    else if (ns - bodyOpen > 400) problems.push(`${p}: noscript not immediately after <body>`);
+    if (consent > js) problems.push(`${p}: consent init after gtm.js`);
+    if (!h.includes(GTM)) problems.push(`${p}: container id missing`);
+  }
+  if (problems.length) problems.slice(0, 4).forEach((m) => bad('C1', m));
+  else ok('C1', `GTM ${GTM} on all ${pages.length} pages — gtm.js in head, consent before it, noscript after <body>`);
+}
+
 // C2 — lead capture exists
 const formPages = pages.filter((p) => /<form/.test(html[p]));
 if (formPages.length >= 3) {
