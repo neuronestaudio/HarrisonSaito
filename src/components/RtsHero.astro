@@ -276,12 +276,22 @@
     animation:breathe 4.4s ease-in-out infinite alternate;
   }
   @keyframes breathe{from{opacity:.58} to{opacity:.9}}
+  /* the beam: a 5px ring just outside the panel with a bright segment that
+     travels the edge — the cue that the door is the thing to press. The faint
+     base track keeps the outline visible all the way round. */
+  @property --sweep{syntax:'<angle>'; inherits:false; initial-value:0deg}
   .door__ring{
-    position:absolute; inset:0; z-index:3; pointer-events:none;
-    box-shadow:inset 0 0 0 1px oklch(90% 0.07 82 / .6), inset 0 0 18px 0 oklch(90% 0.07 82 / .32);
-    animation:edge 4.4s ease-in-out infinite alternate;
+    position:absolute; inset:-5px; z-index:3; pointer-events:none; padding:5px; border-radius:1px;
+    background:conic-gradient(from var(--sweep),
+      oklch(84% 0.11 78 / .16) 0 62%, oklch(84% 0.11 78 / .45) 78%, oklch(92% 0.10 80) 90%, oklch(84% 0.11 78 / .16) 100%);
+    -webkit-mask:linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+    -webkit-mask-composite:xor;
+    mask:linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+    mask-composite:exclude;
+    filter:drop-shadow(0 0 6px oklch(84% 0.11 78 / .55));
+    animation:sweep 2.6s linear infinite;
   }
-  @keyframes edge{from{opacity:.55} to{opacity:1}}
+  @keyframes sweep{to{--sweep:360deg}}
   .door__copy{
     position:absolute; inset:0; z-index:2; display:grid; align-content:center; justify-items:center; gap:.85rem;
     padding:1.1rem 1rem; color:var(--card-ink);
@@ -296,7 +306,7 @@
   }
   .door:hover .door__paper,.door:focus-visible .door__paper{filter:brightness(1.04)}
   .door:hover .door__glow,.door:focus-visible .door__glow{animation-play-state:paused; opacity:.92}
-  .door:hover .door__ring,.door:focus-visible .door__ring{animation-play-state:paused; opacity:1; box-shadow:inset 0 0 0 1px var(--gold), inset 0 0 22px 0 oklch(90% 0.07 82 / .4)}
+  .door:hover .door__ring,.door:focus-visible .door__ring{animation-duration:1.6s}
   .door:hover .door__enter,.door:focus-visible .door__enter{background:var(--gold-light); border-color:var(--gold-light)}
   .door:focus-visible{outline:none}
 
