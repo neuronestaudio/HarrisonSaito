@@ -23,9 +23,22 @@
  * /img/rts-hero-poster.jpg, /img/rts-hero-end.jpg, /img/rts-door-panel.jpg.
  * Encode and mechanics are documented in the rts-hero-parallax repo.
  */
+
+interface Props {
+  /**
+   * Where the visitor is dropped in.
+   *   'top'  — the landing: proof, links, then the approach on scroll.
+   *   'door' — straight to the gate, film skipped. Paid traffic wants the
+   *            offer, not the approach; the ad already did that work.
+   * Both render the same page, so scrolling up from the door reverses the
+   * approach into the landing rather than navigating anywhere.
+   */
+  start?: 'top' | 'door';
+}
+const { start = 'top' } = Astro.props;
 ---
 
-<section class="hero hero--landing" id="hero" data-hero-intro data-section="hero" aria-label="Harrison Saito — Return to Self">
+<section class="hero hero--landing" id="hero" data-hero-intro data-start={start} data-section="hero" aria-label="Harrison Saito — Return to Self">
   <div class="hero__frame">
     <img class="hero__poster" src="/img/rts-hero-poster.jpg" alt="" aria-hidden="true" width="1280" height="720" fetchpriority="high" decoding="sync" />
     <video class="hero__video" id="heroVideo" muted playsinline preload="metadata"
@@ -804,6 +817,10 @@
     onScroll();
     eased = target;
     requestAnimationFrame(tick);
+    /* Deep entry: /enter drops the visitor at the gate. engage() does the rest
+       — it snaps scroll to gateY, seeks the hold frame and places the door — so
+       the page above still exists and scrolling back reverses the approach. */
+    if (hero!.dataset.start === "door" && !answered && !gated) engage();
   }
   /* Order matters: metadata first, THEN the iOS unlock (a muted play() that is
      paused the moment it resolves — Safari refuses currentTime on an element
