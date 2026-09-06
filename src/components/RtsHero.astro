@@ -55,6 +55,7 @@
           <li><a class="cred__item" href="https://www.shinbukan.com.au/shinbukan-instructors" target="_blank" rel="noopener"><span class="cred__tag">Dojo</span><span><b>Shinbukan 神武館</b><small>Instructor wall · 2nd Dan, Shido-In</small></span></a></li>
           <li><a class="cred__item" href="https://www.shingon.org.au/about" target="_blank" rel="noopener"><span class="cred__tag">Temple</span><span><b>Seizanji Temple 青山寺</b><small>Kōyasan Shingon · ordained 2014</small></span></a></li>
           <li><a class="cred__item" href="https://www.linkedin.com/in/harrison-saito" target="_blank" rel="noopener"><span class="cred__tag">Him</span><span><b>LinkedIn</b><small>Teacher, NSW Department of Education</small></span></a></li>
+          <li><a class="cred__item" href="https://www.youtube.com/@Harrison_saito" target="_blank" rel="noopener"><span class="cred__tag">Him</span><span><b>YouTube</b><small>Films, interviews and dojo practice</small></span></a></li>
         </ol>
 
         {/* The path in. Click fades the proof and reveals the scroll cue; the href is the no-JS fallback. */}
@@ -75,6 +76,7 @@
       <a class="pops__item pops__item--cta" href="/book" data-track="cta_click" data-track-label="Intro — Book a chat"><b>Book a chat</b><small>A discovery call · one-to-one coaching</small></a>
       <a class="pops__item" href="https://www.shinbukan.com.au/the-saitos" target="_blank" rel="noopener"><b>The Saitos</b><small>The dojo his father founded, 1978</small></a>
       <a class="pops__item" href="https://www.facebook.com/shinbukanmartialarts/" target="_blank" rel="noopener"><b>Dojo reviews</b><small>Shinbukan on Facebook</small></a>
+      <button class="pops__item pops__item--back" type="button" id="backToLinks" data-track="cta_click" data-track-label="Intro — Back to the links"><b>All his links</b><small>Back to the start</small></button>
     </nav>
 
     {/* THE DOOR. The room's own sliding door over the centre doorway, positioned by script. */}
@@ -282,6 +284,7 @@
   .pops__item small{display:block; font-family:var(--font-body); font-size:.72rem; color:color-mix(in oklab, var(--card-ink) 62%, var(--card-paper)); margin-top:.12rem}
   .pops__item:hover,.pops__item:focus-visible{background:var(--card-paper); border-color:var(--gold-deep); outline:none}
   .pops__item:focus-visible{box-shadow:0 0 0 2px var(--gold-deep)}
+  .pops__item--back{width:100%; text-align:left; font:inherit; cursor:pointer; border:1px solid var(--rule-on-ink)}
   .pops__item--cta{background:var(--gold); color:var(--ink-900); border-color:var(--gold)}
   .pops__item--cta small{color:oklch(11% 0.008 55 / .72)}
   .pops__item--cta:hover,.pops__item--cta:focus-visible{background:var(--gold-light); border-color:var(--gold-light)}
@@ -752,6 +755,30 @@
   }
   video.addEventListener("ended", function () { finish(false); });
   skip.addEventListener("click", function () { if (playing) finish(true); });
+
+  /* Back to the links. The film is scroll-driven, so returning to the start is
+     literally scrolling to the top — the approach reverses on the way, which is
+     the point: he passes the proof again rather than being teleported past it.
+     unlock() first, because the gate holds scroll while the door is up and a
+     held page cannot be scrolled anywhere. */
+  var backToLinks = document.getElementById("backToLinks");
+  if (backToLinks) {
+    backToLinks.addEventListener("click", function () {
+      unlock();
+      gated = false;
+      hero!.removeAttribute("data-gated");
+      hero!.classList.remove("hero--gated");
+      door!.hidden = true;
+      pops!.hidden = true;
+      /* lenisOf() rather than a bare `lenis` — the instance is owned by
+         scripts/motion.ts and exposed on window; there is no local binding. */
+      var l = lenisOf();
+      try {
+        if (l && typeof l.scrollTo === "function") l.scrollTo(0, { duration: 1.4 });
+        else window.scrollTo({ top: 0, behavior: "smooth" });
+      } catch (e) { window.scrollTo(0, 0); }
+    });
+  }
 
   /* If the film cannot load, the landing carries the page and the nav returns. */
   function bail() {
