@@ -56,10 +56,14 @@ const TRAY = [
   <div class="hero__frame">
     <img class="hero__poster" src="/img/rts-hero-poster.webp" alt="" aria-hidden="true" width="1280" height="720" fetchpriority="high" decoding="sync" />
     <video class="hero__video" id="heroVideo" muted playsinline preload="metadata"
-           aria-label="A slow walk through a traditional Japanese interior, arriving at the words Return To Self, 12 Weeks Training."></video>
+           aria-label="A slow walk through a traditional Japanese interior, arriving at the words Return to Self, The Programme."></video>
     {/* room one, frozen at the door so it can dissolve into room two */}
     <canvas class="hero__hold" id="heroHold" width="1280" height="720" aria-hidden="true" hidden></canvas>
     <div class="hero__scrim" aria-hidden="true"></div>
+    {/* The portal's light. Peaks halfway through the step, centred on the
+        doorway, and is the reason the join between the two rooms is never on
+        screen at the moment it would show. */}
+    <div class="hero__bloom" id="heroBloom" aria-hidden="true" hidden></div>
 
     {/* THE LANDING. Social proof first. Every destination verified live on
         2026-09-03 against the Credibility Map. */}
@@ -165,7 +169,7 @@ const TRAY = [
         <p class="beat__sub">Go back to the origin. You are an adaptation of your environment — and you had far less say in that than you think.</p>
       </div>
       <div class="beat beat--close" data-beat data-t-in="16.5" data-t-out="999">
-        <p class="beat__line beat__line--portrait">Return to Self.<br /><em>Twelve weeks.</em></p>
+        <p class="beat__line beat__line--portrait">Return to Self.<br /><em>The programme.</em></p>
         <p class="hero__scrollcue"><span aria-hidden="true"></span>Scroll to continue</p>
         <div class="hero__actions">
           <a class="btn btn--gold" href="/apply" data-track="cta_click" data-track-label="Intro — Apply">Apply</a>
@@ -229,12 +233,39 @@ const TRAY = [
 
   /* max-width:none — the site's media reset would otherwise cap the canvas at
      the viewport and squash the frozen frame on portrait */
-  .hero__hold{position:absolute; z-index:1; pointer-events:none; opacity:1; max-width:none; max-height:none; transition:opacity 1.1s ease}
-  .hero__hold--out{opacity:0}
-  /* The step through: faster than the room-to-room crossfade, and it scales
-     forward so the frame reads as being walked into rather than cut away. */
-  .hero__hold--quick{transition:opacity .72s ease, transform .72s cubic-bezier(.32,0,.24,1)}
-  .hero__hold--zoom{transform:scale(1.085)}
+  /* ---- the step through the door -------------------------------------
+     Two clips meet at the door and the join between them shows: the second
+     room is lit and framed differently from the first. Rather than cut, the
+     step is a portal — the last frame of the first room is held on a canvas
+     and walked into, the doorway itself turns to light and grows to fill the
+     frame, and the new room is only ever revealed under that light. All of it
+     is keyed to scroll through --portal (0 at the gate, 1 through), so it
+     runs backwards as readily as forwards; nothing here is on a timer. */
+  .hero__hold{
+    position:absolute; z-index:1; pointer-events:none; max-width:none; max-height:none;
+    opacity:var(--hold-o, 1); transform:scale(var(--hold-s, 1));
+    transform-origin:var(--bx, 50%) var(--by, 52%);
+  }
+  .hero__bloom{
+    position:absolute; inset:0; z-index:2; pointer-events:none;
+    opacity:var(--bloom, 0);
+    background:radial-gradient(ellipse 64% 80% at var(--bx, 50%) var(--by, 52%),
+      oklch(98.5% 0.022 88) 0%, oklch(97% 0.04 86 / .97) 15%,
+      oklch(93.5% 0.07 84 / .78) 34%, oklch(88% 0.08 80 / .34) 56%, transparent 78%);
+  }
+  .hero[data-answered] .door{
+    opacity:var(--door-o, 0); pointer-events:none; transition:none;
+    transform:scale(var(--door-s, 1)); transform-origin:50% 56%;
+  }
+  .hero[data-answered] .door__copy{opacity:calc(1 - min(1, var(--portal, 0) * 2.4)); transition:none}
+  .hero[data-answered] .door__paper{
+    opacity:calc(.96 * (1 - var(--portal, 0)));
+    background:radial-gradient(ellipse at 50% 50%, oklch(99% 0.02 90 / .96), oklch(95.5% 0.05 85 / .84) 46%, oklch(92% 0.07 82 / .6) 100%);
+    filter:blur(calc(var(--portal, 0) * 7px));
+    transition:none;
+  }
+  .hero[data-answered] .door__glow{animation:none; opacity:calc(.92 * (1 - var(--portal, 0)))}
+  .hero[data-answered] .door__ring{animation-duration:1.1s; opacity:calc(1 - var(--portal, 0))}
 
   .hero__scrim{
     position:absolute; inset:0; pointer-events:none; z-index:1;
@@ -386,6 +417,7 @@ const TRAY = [
   .pops__track[aria-hidden="true"]{display:none}
   .hero--gated .pops{opacity:1; pointer-events:auto}
   .hero--tray-crowded .pops{opacity:0; pointer-events:none}
+  .hero--tray-single .pops__band[data-band="1"]{display:none}
   .pops__item{
     display:block; text-decoration:none; color:var(--card-ink); text-align:left;
     background:color-mix(in oklab, var(--card-paper) 84%, transparent);
@@ -572,6 +604,8 @@ const TRAY = [
   }
   @keyframes morebob{0%,100%{transform:translateY(-2px); opacity:.55} 50%{transform:translateY(3px); opacity:1}}
   .hero--playing:not([data-done]) .hero__more{opacity:1}
+  /* Not while he is still in the doorway. */
+  .hero--playing:not([data-done])[data-answered] .hero__more{opacity:var(--portal, 0)}
 
   .hero__rail{position:absolute; left:0; right:0; bottom:0; height:2px; background:var(--rule-on-ink); z-index:5}
   .hero__rail i{display:block; height:100%; width:0; background:var(--gold); transform-origin:left}
@@ -593,8 +627,18 @@ const TRAY = [
     .cred__item small{display:none}
     .links__path{padding:.65rem 1rem}
     .links__path b{font-size:var(--step-1)}
-    .door__copy{gap:.5rem; padding:.8rem .7rem}
-    .door__copy b{font-size:1.2rem}
+    /* The handle in the film sits just past halfway down the doorway, on the
+       left, and the promise was running straight across it. The name goes to
+       the top, bigger; the promise and Enter sit below the handle. The
+       flexible middle row is what keeps them there whatever the door's size. */
+    .door__copy{
+      gap:.45rem; padding:8% .6rem 10%;
+      grid-template-rows:auto auto 1fr auto; align-content:stretch;
+    }
+    .door__copy small{grid-row:1; font-size:clamp(.8rem, 3.9vw, 1.05rem); letter-spacing:.1em; margin-right:-.1em; margin-bottom:.1rem}
+    .door__vsl{grid-row:2}
+    .door__copy b{grid-row:3; font-size:clamp(1rem, 4.6vw, 1.2rem); align-self:end}
+    .door__enter{grid-row:4}
   }
 
   /* The door fills the centre of a small screen, so the pop-ups become a
@@ -635,6 +679,15 @@ const TRAY = [
     .pops__item b{font-size:var(--step-1)}
   }
   @keyframes tray{from{transform:translateX(0)} to{transform:translateX(-100%)}}
+  @media (max-width:600px) and (max-height:760px){
+    /* A 640px phone cannot hold the name, the film slot, the promise and Enter
+       inside a 308px doorway. The slot is what gives way: it is a placeholder
+       until the film arrives, and the words are the offer. */
+    .door__vsl{display:none}
+    .door__copy{gap:.35rem; padding:7% .6rem 8%}
+    .door__copy b{font-size:.92rem}
+  }
+
   /* Two stripes need roughly 130px plus breathing room below the door. A 640px
      phone does not have it, and the guard was correctly hiding the whole tray
      rather than covering Enter. One stripe fits, so it gets one. */
@@ -651,7 +704,7 @@ const TRAY = [
        and every card stretches with it, which pushed the row into the
        doorway and made it hide itself. */
     .pops{bottom:calc(.5rem + var(--consent-h, 0px))}
-    .pops__band{padding:0; rotate:0deg; margin:0; width:100%; margin-left:0}
+    .pops__band,.pops__band[data-band="0"]{padding:0; rotate:0deg; margin:0; width:100%; margin-left:0}
     .pops__band[data-band="1"]{display:none}
     .pops__item{width:11rem; padding:.32rem .6rem}
     .pops__item small{display:none}
@@ -674,7 +727,7 @@ const TRAY = [
   :global(.no-js) .cue,:global(.no-js) .door,:global(.no-js) .pops,:global(.no-js) .hero__skip{display:none}
   @media (prefers-reduced-motion:reduce){
     .hero{height:100svh}
-    .hero__video,.hero__hold{display:none}
+    .hero__video,.hero__hold,.hero__bloom{display:none}
     .cue,.door,.pops,.hero__beats,.hero__skip{display:none}
     .links,.links__inner > *,.pops__item,.pops__track{transition:none; animation:none}
     .links__path::after,.door__ring,.door__glow{animation:none}
@@ -689,6 +742,7 @@ const TRAY = [
   var hero  = document.getElementById("hero") as HTMLElement | null;
   var video = document.getElementById("heroVideo") as HTMLVideoElement | null;
   var hold  = document.getElementById("heroHold") as HTMLCanvasElement | null;
+  var bloom = document.getElementById("heroBloom") as HTMLElement | null;
   var rail  = document.getElementById("heroRail") as HTMLElement | null;
   var links = document.getElementById("links") as HTMLElement | null;
   var path  = document.getElementById("path") as HTMLAnchorElement | null;
@@ -717,7 +771,8 @@ const TRAY = [
   var FPS = 24, JOIN = 202, PLATE_W = 1280, PLATE_H = 720;
   var T_HOLD   = (JOIN - 1.5) / FPS;   /* last frame of room one, held */
   var T_RESUME = (JOIN + 0.5) / FPS;   /* first frame of room two */
-  var ENTER_MS = 760;                  /* must match .hero__hold--quick */
+  var PORTAL_SPAN = 0.09;              /* of the runway: the step through the door */
+  var STEP_MS = 1300;                  /* how long Enter takes to walk it */
 
   function paintBeats(t: number) {
     for (var i = 0; i < beats.length; i++) {
@@ -774,7 +829,12 @@ const TRAY = [
   function timeFor(p: number) {
     if (p <= pGate) return Math.min(p / pGate, 1) * T_HOLD;
     if (!answered) return T_HOLD;
-    return T_RESUME + clamp((p - pGate) / (1 - pGate), 0, 1) * (duration - T_RESUME);
+    /* The first frame of room two holds for the whole step, so the portal is
+       a dissolve between two stills — motion under a crossfade is what makes
+       a join visible. The rest of the runway drives the rest of the film. */
+    var p0 = pGate + PORTAL_SPAN;
+    if (p <= p0) return T_RESUME;
+    return T_RESUME + clamp((p - p0) / (1 - p0), 0, 1) * (duration - T_RESUME);
   }
 
   /* ---------- the plate, mapped through object-fit:cover ---------- */
@@ -824,6 +884,8 @@ const TRAY = [
        one thing that matters being where the eye already is. */
     if (window.matchMedia("(max-width:600px)").matches) L = (window.innerWidth - Wd) / 2;
     door!.style.left = L + "px"; door!.style.top = T + "px"; door!.style.width = Wd + "px"; door!.style.height = Hd + "px";
+    hero!.style.setProperty("--bx", ((L + Wd / 2) / window.innerWidth * 100).toFixed(2) + "%");
+    hero!.style.setProperty("--by", ((T + Hd / 2) / window.innerHeight * 100).toFixed(2) + "%");
     /* the pop-ups sit beside the door, centred on its height; on a phone the CSS row takes over */
     var consentH = parseFloat(getComputedStyle(document.documentElement).getPropertyValue("--consent-h")) || 0;
     if (window.matchMedia("(max-width:600px), (max-height:560px)").matches) {
@@ -837,9 +899,25 @@ const TRAY = [
          Measured rather than derived: the bands are rotated, so their real
          extent is not something the door box can be used to predict. */
       var enterEl = door!.querySelector(".door__enter") as HTMLElement | null;
-      var guardY = enterEl ? enterEl.getBoundingClientRect().bottom : T + Hd;
-      var trayTop = pops!.getBoundingClientRect().top;
-      hero!.classList.toggle("hero--tray-crowded", trayTop < guardY + 8);
+      var eb = enterEl ? enterEl.getBoundingClientRect() : { left: L, right: L + Wd, bottom: T + Hd };
+      var crowded = function () {
+        var trayTop = Infinity, cards = pops!.querySelectorAll(".pops__item");
+        for (var ci = 0; ci < cards.length; ci++) {
+          var cr = cards[ci].getBoundingClientRect();
+          if (cr.width === 0) continue;
+          /* Only the cards under Enter: the band is a rigid line, so whatever
+             card arrives here later will be at exactly this height. And the
+             card's true top, not its bounding box — a tilted card's box sits
+             well above its edge, and read as a collision that was not one. */
+          if (cr.right < eb.left - 24 || cr.left > eb.right + 24) continue;
+          trayTop = Math.min(trayTop, (cr.top + cr.bottom) / 2 - (cards[ci] as HTMLElement).offsetHeight / 2);
+        }
+        return trayTop < eb.bottom + 8;
+      };
+      hero!.classList.remove("hero--tray-single");
+      var tight = crowded();
+      if (tight) { hero!.classList.add("hero--tray-single"); tight = crowded(); }
+      hero!.classList.toggle("hero--tray-crowded", tight);
       return;
     }
     hero!.classList.remove("hero--tray-crowded");
@@ -854,7 +932,6 @@ const TRAY = [
      visible at centre, drift over the last stretch of the approach — just
      enough to centre it, never to an edge. */
   function panFor(p: number) {
-    if (answered) return 50;
     var W = window.innerWidth, H = window.innerHeight;
     var s = Math.max(W / PLATE_W, H / PLATE_H);
     var visW = W / s;
@@ -881,6 +958,7 @@ const TRAY = [
     if (!cut) {
       target = timeFor(p);
       if (!answered && !transitioning) setObjX(panFor(p));
+      if (answered) drivePortal(p);
       if (gated) placeDoor();
       rail!.style.width = (p * 100).toFixed(2) + "%";
       /* End of room two. The runway is not cut here — he scrolled every pixel
@@ -959,61 +1037,67 @@ const TRAY = [
     }); });
   }
 
-  /* Through the door. Room one freezes on the canvas exactly where the plate
-     sits, room two is seeked underneath, and the canvas pushes forward and
-     fades — a step through the doorway rather than a cut between two films.
-     Then scroll is handed straight back: room two rides the rest of the same
-     runway, so the whole intro is one continuous scroll. */
+  /* Through the door. Everything about the step is a function of scroll —
+     see the portal notes in the stylesheet — so Enter does not run a
+     transition of its own. It freezes the first room on the canvas, parks the
+     second room on its first frame underneath, hands scroll back, and then
+     takes the step for him with an eased scroll through the portal window.
+     The same keyframes that answer his wheel answer the click, and going
+     back is just the wheel. */
+  function drivePortal(p: number) {
+    var k = clamp((p - pGate) / PORTAL_SPAN, 0, 1);
+    var inWindow = p >= pGate && k < 1;
+    /* The pan follows the step: from wherever the approach left the plate to
+       centre, on the same scroll, so it walks back too. */
+    setObjX(p < pGate ? panFor(p) : panFor(pGate) + (50 - panFor(pGate)) * k);
+    if (inWindow) { placeOnPlate(hold!); placeDoor(); }
+    hold!.hidden = !inWindow; door!.hidden = !inWindow; bloom!.hidden = !inWindow;
+    var e = k * k;                              /* the held frame stays, then lets go */
+    var b = Math.pow(Math.sin(Math.PI * k), 1.25);
+    var st = hero!.style;
+    st.setProperty("--portal", k.toFixed(4));
+    st.setProperty("--hold-o", (1 - e).toFixed(4));
+    st.setProperty("--hold-s", (1 + 0.16 * k).toFixed(4));
+    st.setProperty("--door-s", (1 + 1.15 * e).toFixed(4));
+    st.setProperty("--door-o", (inWindow ? 1 - k * k * k : 0).toFixed(4));
+    st.setProperty("--bloom", b.toFixed(4));
+  }
   function enter() {
     if (transitioning || answered) return;
     transitioning = true;
-
-    /* Room one is frozen on the canvas exactly where the plate sits, then
-       pushed forward and faded — a step through the doorway rather than a
-       dissolve between two films. Underneath, the video is parked on its title
-       card so there is something composed to land on.
-
-       This used to play room two in full while scroll stayed locked. It now
-       hands the page over as soon as the transition ends: the door is a
-       threshold, not an interlude, and holding someone's scroll after they
-       have committed is the wrong instinct. */
     placeOnPlate(hold!);
     try { hold!.getContext("2d")!.drawImage(video!, 0, 0, PLATE_W, PLATE_H); } catch (e) {}
-    hold!.classList.remove("hero__hold--out");
-    hold!.classList.add("hero__hold--quick");
-    hold!.hidden = false;
-
     answered = true;
     hero!.setAttribute("data-answered", "");
     hero!.classList.remove("hero--gated");
-    door!.hidden = true;
+    hero!.classList.remove("hero--tray-crowded");
     pops!.hidden = true;
-
-    /* Seeked while the canvas is still up, so what the fade reveals is the
-       first frame of the next room and never a black gap. */
+    try { door!.blur(); } catch (e) {}
     target = eased = T_RESUME;
     issueSeek(T_RESUME);
-
-    requestAnimationFrame(function () {
-      hold!.classList.add("hero__hold--out", "hero__hold--zoom");
-    });
-
-    window.setTimeout(function () {
-      hold!.hidden = true;
-      hold!.classList.remove("hero__hold--quick", "hero__hold--zoom");
-      transitioning = false;
-      if (objX !== 50) easeObjX(50, 500);
-      /* Scroll is his again. Holding it after someone has committed is the
-         wrong instinct: the door is a threshold, not an interlude. */
-      unlock();
-      gated = false;
-      hero!.removeAttribute("data-gated");
-      playing = true;
-      hero!.classList.add("hero--playing");
-      resizeLenis();
+    unlock();
+    gated = false;
+    hero!.removeAttribute("data-gated");
+    playing = true;
+    hero!.classList.add("hero--playing");
+    resizeLenis();
+    drivePortal(pGate);
+    /* The step is driven here rather than left to the scroller: Lenis is only
+       on fine pointers and native smooth scroll covers this distance in a
+       third of a second, which is a cut with extra steps. A wheel or a finger
+       during the step takes over from it — the step is his, not a cutscene. */
+    var fromY = window.scrollY, endY = (pGate + PORTAL_SPAN) * runway() + 2;
+    var t0 = performance.now(), expected = fromY;
+    (function step(now: number) {
+      if (Math.abs(window.scrollY - expected) > 40) { transitioning = false; return; }
+      var k = clamp((now - t0) / STEP_MS, 0, 1);
+      k = 1 - Math.pow(1 - k, 3);
+      expected = fromY + (endY - fromY) * k;
+      snapTo(expected);
       onScroll();
-      tellNav();
-    }, ENTER_MS + 60);
+      if (k < 1) requestAnimationFrame(step); else transitioning = false;
+    })(t0);
+    tellNav();
   }
   door.addEventListener("click", enter);
 
@@ -1022,7 +1106,7 @@ const TRAY = [
   function finish(skipped: boolean) {
     if (done) return;
     done = true; playing = false;
-    hold!.hidden = true;
+    hold!.hidden = true; bloom!.hidden = true; door!.hidden = true;
     hero!.classList.remove("hero--playing");
     hero!.setAttribute("data-done", "");
     rail!.style.width = "100%";
