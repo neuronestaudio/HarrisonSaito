@@ -132,8 +132,15 @@ if (existsSync(heroMp4)) {
   const mobile = statSync(path.join(DIST, 'video', 'hero-mobile.mp4')).size / 1024;
   if (kb <= 1536) ok('H5', `hero.mp4 ${kb.toFixed(0)} KB (target <=1536), mobile cut ${mobile.toFixed(0)} KB`);
   else bad('H5', `hero.mp4 ${kb.toFixed(0)} KB exceeds 1.5 MB target`);
-  if (/preload="none"/.test(home)) ok('H5', 'hero video preload="none" — poster paints first');
-  else bad('H5', 'hero video is not poster-first');
+  /* The intro hero is scroll-scrubbed: it cannot arm without a duration, so
+     preload="none" would leave it dead. metadata is the correct value there —
+     it fetches the header, not the frames, and the poster still paints first.
+     What actually matters is that a poster exists and nothing auto-plays. */
+  const lazyVideo = /preload="(none|metadata)"/.test(home);
+  const posterFirst = /class="hero__poster"/.test(home) || /<video[^>]+poster=/.test(home);
+  if (lazyVideo && posterFirst) ok('H5', 'hero video is poster-first, frames not preloaded');
+  else if (!lazyVideo) bad('H5', 'hero video preloads its frames');
+  else bad('H5', 'hero video has no poster');
 } else {
   bad('H5', 'no hero video built');
 }

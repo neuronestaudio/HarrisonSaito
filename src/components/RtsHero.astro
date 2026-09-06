@@ -20,7 +20,7 @@
  * watches [data-hero-intro][data-done]. Reduced motion gets the landing only.
  *
  * Assets: /video/rts-hero.mp4 (short-GOP H.264 so it can be scrubbed),
- * /img/rts-hero-poster.jpg, /img/rts-hero-end.jpg, /img/rts-door-panel.jpg.
+ * /img/rts-hero-poster.webp, /img/rts-hero-end.webp, /img/rts-door-panel.jpg.
  * Encode and mechanics are documented in the rts-hero-parallax repo.
  */
 
@@ -40,7 +40,7 @@ const { start = 'top' } = Astro.props;
 
 <section class="hero hero--landing" id="hero" data-hero-intro data-start={start} data-section="hero" aria-label="Harrison Saito — Return to Self">
   <div class="hero__frame">
-    <img class="hero__poster" src="/img/rts-hero-poster.jpg" alt="" aria-hidden="true" width="1280" height="720" fetchpriority="high" decoding="sync" />
+    <img class="hero__poster" src="/img/rts-hero-poster.webp" alt="" aria-hidden="true" width="1280" height="720" fetchpriority="high" decoding="sync" />
     <video class="hero__video" id="heroVideo" muted playsinline preload="metadata"
            aria-label="A slow walk through a traditional Japanese interior, arriving at the words Return To Self, 12 Weeks Training."></video>
     {/* room one, frozen at the door so it can dissolve into room two */}
@@ -549,7 +549,7 @@ const { start = 'top' } = Astro.props;
   });
 
   if (reduced) {                               /* the landing only; the nav behaves as normal */
-    poster.src = "/img/rts-hero-end.jpg";
+    poster.src = "/img/rts-hero-end.webp";
     hero.setAttribute("data-done", "");
     tellNav();
     return;
