@@ -36,6 +36,20 @@ interface Props {
   start?: 'top' | 'door';
 }
 const { start = 'top' } = Astro.props;
+
+/**
+ * The tray beside the door. Rendered twice on small screens so it can run as a
+ * seamless marquee — hence data rather than markup, so the second pass carries
+ * no duplicate ids and no second tab stop.
+ */
+const TRAY = [
+  { title: 'Films and video interviews', sub: 'SBS, the dojo films, the archive', href: '/media' },
+  { title: 'Client testimonies', sub: 'Eleven, in their own words', href: '/testimonials' },
+  { title: 'Book a chat', sub: 'A discovery call · one-to-one coaching', href: '/book', cta: true, track: 'Intro — Book a chat' },
+  { title: 'The Saitos', sub: 'Shinbukan, Chatswood — since 1978', href: 'https://www.shinbukan.com.au/the-saitos', ext: true },
+  { title: 'Dojo reviews', sub: 'Shinbukan on Facebook', href: 'https://www.facebook.com/shinbukanmartialarts/', ext: true },
+  { title: 'Portfolio', sub: 'Back to the start', back: true, track: 'Intro — Portfolio (back to start)' },
+];
 ---
 
 <section class="hero hero--landing" id="hero" data-hero-intro data-start={start} data-section="hero" aria-label="Harrison Saito — Return to Self">
@@ -84,13 +98,36 @@ const { start = 'top' } = Astro.props;
 
     {/* THE FORK: beside the door on the held frame. Book a chat is the one CTA-styled item. */}
     <nav class="pops" id="pops" aria-label="More from Harrison" hidden>
-      <a class="pops__item" href="/media"><b>Films and video interviews</b><small>SBS, the dojo films, the archive</small></a>
-      <a class="pops__item" href="/testimonials"><b>Client testimonies</b><small>Eleven, in their own words</small></a>
-      <a class="pops__item pops__item--cta" href="/book" data-track="cta_click" data-track-label="Intro — Book a chat"><b>Book a chat</b><small>A discovery call · one-to-one coaching</small></a>
-      <a class="pops__item" href="https://www.shinbukan.com.au/the-saitos" target="_blank" rel="noopener"><b>The Saitos</b><small>The dojo his father founded, 1978</small></a>
-      <a class="pops__item" href="https://www.facebook.com/shinbukanmartialarts/" target="_blank" rel="noopener"><b>Dojo reviews</b><small>Shinbukan on Facebook</small></a>
-      <button class="pops__item pops__item--back" type="button" id="backToLinks" data-track="cta_click" data-track-label="Intro — Portfolio (back to start)"><b>Portfolio</b><small>Back to the start</small></button>
+      {[0, 1].map((pass) => (
+        <div class="pops__track" aria-hidden={pass === 1 ? 'true' : undefined}>
+          {TRAY.map((t) =>
+            t.back ? (
+              <button
+                class:list={['pops__item', 'pops__item--back']}
+                type="button"
+                data-back
+                tabindex={pass === 1 ? -1 : undefined}
+                data-track="cta_click"
+                data-track-label={t.track}><b>{t.title}</b><small>{t.sub}</small></button>
+            ) : (
+              <a
+                class:list={['pops__item', { 'pops__item--cta': t.cta }]}
+                href={t.href}
+                tabindex={pass === 1 ? -1 : undefined}
+                target={t.ext ? '_blank' : undefined}
+                rel={t.ext ? 'noopener' : undefined}
+                data-track={t.track ? 'cta_click' : undefined}
+                data-track-label={t.track}><b>{t.title}</b><small>{t.sub}</small></a>
+            )
+          )}
+        </div>
+      ))}
     </nav>
+
+    {/* The entrance point, in the empty band above the door. */}
+    <p class="door__line" aria-hidden="false">
+      To gain agency of your life <em>—</em> which translates to success across every domain.
+    </p>
 
     {/* THE DOOR. The room's own sliding door over the centre doorway, positioned by script. */}
     <button class="door" id="door" type="button" aria-label="Enter — Return to Self" hidden>
@@ -279,9 +316,13 @@ const { start = 'top' } = Astro.props;
 
   /* ---------------- the fork ---------------- */
   .pops{
-    position:absolute; z-index:2; width:15.5rem;
+    position:absolute; z-index:4; width:15.5rem;
     display:grid; gap:.5rem; opacity:0; pointer-events:none; transition:opacity .4s ease;
   }
+  /* Beside the door the track is not a box at all — the items are the grid.
+     The second pass exists only for the marquee and stays out of the way. */
+  .pops__track{display:contents}
+  .pops__track[aria-hidden="true"]{display:none}
   .hero--gated .pops{opacity:1; pointer-events:auto}
   .hero--tray-crowded .pops{opacity:0; pointer-events:none}
   .pops__item{
@@ -308,6 +349,23 @@ const { start = 'top' } = Astro.props;
   .pops__item--cta:hover,.pops__item--cta:focus-visible{background:var(--gold-light); border-color:var(--gold-light)}
 
   /* ---------------- the door ---------------- */
+  /* The band above the door was dead screen. This is the entrance point: what
+     the twelve weeks are actually for, said once, before the offer. */
+  .door__line{
+    position:absolute; z-index:3; left:50%; translate:-50% 0;
+    top:clamp(1.8rem, 8vh, 5.5rem);
+    width:min(88vw, 32rem); margin:0; text-align:center; text-wrap:balance;
+    font-family:var(--font-display); font-weight:300; font-style:italic;
+    font-size:clamp(1.02rem, 2.2vw, 1.55rem); line-height:1.34;
+    color:oklch(97% 0.018 88);
+    text-shadow:0 0 20px oklch(86% 0.10 82 / .45), 0 0 52px oklch(80% 0.09 80 / .26);
+    opacity:0; pointer-events:none; transition:opacity 1s ease .3s;
+  }
+  .door__line em{font-style:normal; color:var(--gold-light); opacity:.85}
+  .hero--gated .door__line{opacity:1}
+  /* No room for it on a short screen — the door has to win there. */
+  @media (max-height:560px){ .door__line{display:none} }
+
   .door{
     position:absolute; z-index:3; display:block;
     background:none; border:0; padding:0; cursor:pointer; text-align:center;
@@ -458,13 +516,36 @@ const { start = 'top' } = Astro.props;
      miss a max-width rule, but far too short to stack six cards beside the
      door — they were being pushed off the top of the screen. */
   @media (max-width:600px), (max-height:560px){
-    .pops{left:.75rem; right:.75rem; top:auto; bottom:calc(clamp(1.6rem,5vh,3rem) + var(--consent-h, 0px)); width:auto; display:flex; gap:.5rem; overflow-x:auto; scroll-snap-type:x mandatory; -webkit-overflow-scrolling:touch; scrollbar-width:none; padding:0 0 .2rem}
-    .pops::-webkit-scrollbar{display:none}
-    .pops__item{flex:0 0 66%; scroll-snap-align:start; padding:.55rem .8rem}
+    /* A marquee, not a scroller. Two identical tracks sit side by side and both
+       travel one full track width; at the end of the cycle the layout is
+       pixel-identical to the start, so it loops with no seam and no cloned ids.
+       It holds still while a finger or a focus ring is on it. */
+    .pops{
+      left:0; right:0; top:auto; bottom:calc(clamp(1.6rem,5vh,3rem) + var(--consent-h, 0px));
+      width:auto; display:flex; gap:0; overflow:hidden; padding:.15rem 0;
+      -webkit-mask:linear-gradient(90deg, transparent, #000 4%, #000 96%, transparent);
+      mask:linear-gradient(90deg, transparent, #000 4%, #000 96%, transparent);
+    }
+    .pops__track{
+      display:flex; flex:0 0 auto; gap:.5rem; padding-right:.5rem;
+      animation:tray 18s linear infinite; will-change:transform;
+    }
+    .pops__track[aria-hidden="true"]{display:flex}
+    .pops:hover .pops__track,
+    .pops:focus-within .pops__track,
+    .pops:active .pops__track{animation-play-state:paused}
+    .pops__item{flex:0 0 auto; width:15.5rem; padding:.55rem .8rem}
   }
+  @keyframes tray{from{transform:translateX(0)} to{transform:translateX(-100%)}}
   @media (max-height:560px){
-    .pops__item{flex:0 0 min(46%, 15rem)}
+    /* One line per card on a short screen: the row has to stay thin enough to
+       clear the foot of the door. Without nowrap the longest title wraps and
+       every card stretches with it, which is what pushed the row into the
+       doorway and made it hide itself. */
+    .pops{bottom:calc(.5rem + var(--consent-h, 0px)); padding:.1rem 0}
+    .pops__item{width:11rem; padding:.32rem .6rem}
     .pops__item small{display:none}
+    .pops__item b{font-size:.82rem; line-height:1.2; white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
   }
 
   /* A short viewport — a landscape phone, or a small desktop window — maps the
@@ -485,7 +566,7 @@ const { start = 'top' } = Astro.props;
     .hero{height:100svh}
     .hero__video,.hero__hold{display:none}
     .cue,.door,.pops,.hero__beats,.hero__skip{display:none}
-    .links,.links__inner > *,.pops__item{transition:none; animation:none}
+    .links,.links__inner > *,.pops__item,.pops__track{transition:none; animation:none}
     .links__path::after,.door__ring,.door__glow{animation:none}
   }
 </style>
@@ -835,9 +916,11 @@ const { start = 'top' } = Astro.props;
      the point: he passes the proof again rather than being teleported past it.
      unlock() first, because the gate holds scroll while the door is up and a
      held page cannot be scrolled anywhere. */
-  var backToLinks = document.getElementById("backToLinks");
-  if (backToLinks) {
-    backToLinks.addEventListener("click", function () {
+  /* Delegated: in marquee mode the tray is rendered twice, so "back" is two
+     elements and neither may carry an id. */
+  pops.addEventListener("click", function (ev) {
+    if (!(ev.target as HTMLElement).closest("[data-back]")) return;
+    (function () {
       unlock();
       gated = false;
       hero!.removeAttribute("data-gated");
@@ -851,8 +934,8 @@ const { start = 'top' } = Astro.props;
         if (l && typeof l.scrollTo === "function") l.scrollTo(0, { duration: 1.4 });
         else window.scrollTo({ top: 0, behavior: "smooth" });
       } catch (e) { window.scrollTo(0, 0); }
-    });
-  }
+    })();
+  });
 
   /* If the film cannot load, the landing carries the page and the nav returns. */
   function bail() {
