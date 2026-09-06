@@ -199,7 +199,7 @@ const TRAY = [
     --card-ink:     #493D2F;
     --card-shadow:  #C8B299;
     --door-x: 35.5; --door-y: 27.5; --door-w: 14.5; --door-h: 48.2;
-    --hero-scroll: 420vh;
+    --hero-scroll: 500vh;
 
     /* The scroll behind the glass. Every card and chip on this screen carries
        a cropped piece of it, faded off diagonally so the pattern is there to
@@ -257,15 +257,22 @@ const TRAY = [
     opacity:var(--door-o, 0); pointer-events:none; transition:none;
     transform:scale(var(--door-s, 1)); transform-origin:50% 56%;
   }
-  .hero[data-answered] .door__copy{opacity:calc(1 - min(1, var(--portal, 0) * 2.4)); transition:none}
+  .hero[data-answered] .door__copy{opacity:var(--copy-o, 1); transition:none}
+  /* The paper stays the paper — the shoji panel — with light rising through
+     it as it grows, so what fills the screen is still the door. */
   .hero[data-answered] .door__paper{
-    opacity:calc(.96 * (1 - var(--portal, 0)));
-    background:radial-gradient(ellipse at 50% 50%, oklch(99% 0.02 90 / .96), oklch(95.5% 0.05 85 / .84) 46%, oklch(92% 0.07 82 / .6) 100%);
-    filter:blur(calc(var(--portal, 0) * 7px));
+    opacity:var(--pane-o, .96);
+    background:
+      radial-gradient(ellipse at 50% 50%,
+        oklch(99% 0.02 90 / var(--pane-light, .2)),
+        oklch(95.5% 0.05 85 / calc(var(--pane-light, .2) * .88)) 46%,
+        oklch(92% 0.07 82 / calc(var(--pane-light, .2) * .62)) 100%),
+      url("/img/rts-door-panel.jpg") center / 100% 100% no-repeat;
+    filter:blur(calc(var(--portal, 0) * 5px));
     transition:none;
   }
-  .hero[data-answered] .door__glow{animation:none; opacity:calc(.92 * (1 - var(--portal, 0)))}
-  .hero[data-answered] .door__ring{animation-duration:1.1s; opacity:calc(1 - var(--portal, 0))}
+  .hero[data-answered] .door__glow{animation:none; opacity:var(--glow-o, .7)}
+  .hero[data-answered] .door__ring{animation-duration:1.4s; opacity:var(--ring-o, .85)}
 
   .hero__scrim{
     position:absolute; inset:0; pointer-events:none; z-index:1;
@@ -604,8 +611,6 @@ const TRAY = [
   }
   @keyframes morebob{0%,100%{transform:translateY(-2px); opacity:.55} 50%{transform:translateY(3px); opacity:1}}
   .hero--playing:not([data-done]) .hero__more{opacity:1}
-  /* Not while he is still in the doorway. */
-  .hero--playing:not([data-done])[data-answered] .hero__more{opacity:var(--portal, 0)}
 
   .hero__rail{position:absolute; left:0; right:0; bottom:0; height:2px; background:var(--rule-on-ink); z-index:5}
   .hero__rail i{display:block; height:100%; width:0; background:var(--gold); transform-origin:left}
@@ -771,8 +776,10 @@ const TRAY = [
   var FPS = 24, JOIN = 202, PLATE_W = 1280, PLATE_H = 720;
   var T_HOLD   = (JOIN - 1.5) / FPS;   /* last frame of room one, held */
   var T_RESUME = (JOIN + 0.5) / FPS;   /* first frame of room two */
-  var PORTAL_SPAN = 0.09;              /* of the runway: the step through the door */
-  var STEP_MS = 1300;                  /* how long Enter takes to walk it */
+  var doorBoxPx = { x: 0, y: 0, w: 1, h: 1 };
+  var PORTAL_SPAN = 0.22;              /* of the runway: the walk through the door */
+  var NUDGE = 0.10;                    /* how far Enter walks it for him, so the click is seen to do something */
+  var STEP_MS = 650;
 
   function paintBeats(t: number) {
     for (var i = 0; i < beats.length; i++) {
@@ -884,6 +891,7 @@ const TRAY = [
        one thing that matters being where the eye already is. */
     if (window.matchMedia("(max-width:600px)").matches) L = (window.innerWidth - Wd) / 2;
     door!.style.left = L + "px"; door!.style.top = T + "px"; door!.style.width = Wd + "px"; door!.style.height = Hd + "px";
+    doorBoxPx = { x: L, y: T, w: Wd, h: Hd };
     hero!.style.setProperty("--bx", ((L + Wd / 2) / window.innerWidth * 100).toFixed(2) + "%");
     hero!.style.setProperty("--by", ((T + Hd / 2) / window.innerHeight * 100).toFixed(2) + "%");
     /* the pop-ups sit beside the door, centred on its height; on a phone the CSS row takes over */
@@ -1044,23 +1052,46 @@ const TRAY = [
      takes the step for him with an eased scroll through the portal window.
      The same keyframes that answer his wheel answer the click, and going
      back is just the wheel. */
+  function smooth(a: number, b: number, x: number) {
+    var t = clamp((x - a) / (b - a), 0, 1);
+    return t * t * (3 - 2 * t);
+  }
+  /* The walk, in two movements over the window.
+
+     Approach (k 0 -> .8): the door stays where it is in the frame and grows —
+     quadratic, so it barely moves while its copy fades and then comes at you
+     — until its edges are past the screen. The silhouette is the point: it is
+     the panel, the shoji paper and the beam round it, and it is kept the
+     whole way. As it grows the paper turns to light. The first room is held
+     under it until late.
+
+     Collapse (k .8 -> 1): with the doorway filling the screen and the bloom at
+     full, the held room lets go, the pane and the light dissolve, and what is
+     under them is the second room — on its first frame, still. The join is
+     never on screen without the light over it. */
   function drivePortal(p: number) {
     var k = clamp((p - pGate) / PORTAL_SPAN, 0, 1);
     var inWindow = p >= pGate && k < 1;
-    /* The pan follows the step: from wherever the approach left the plate to
-       centre, on the same scroll, so it walks back too. */
-    setObjX(p < pGate ? panFor(p) : panFor(pGate) + (50 - panFor(pGate)) * k);
+    var kA = clamp(k / 0.8, 0, 1), kB = clamp((k - 0.8) / 0.2, 0, 1);
+    setObjX(p < pGate ? panFor(p) : panFor(pGate) + (50 - panFor(pGate)) * kA);
     if (inWindow) { placeOnPlate(hold!); placeDoor(); }
     hold!.hidden = !inWindow; door!.hidden = !inWindow; bloom!.hidden = !inWindow;
-    var e = k * k;                              /* the held frame stays, then lets go */
-    var b = Math.pow(Math.sin(Math.PI * k), 1.25);
+    /* How big the door has to get, from where it sits, to be past every edge. */
+    var d = doorBoxPx, cx = d.x + d.w / 2, cy = d.y + d.h * 0.56;
+    var cover = 1.1 * Math.max(cx / (d.w / 2), (window.innerWidth - cx) / (d.w / 2), cy / (d.h * 0.56), (window.innerHeight - cy) / (d.h * 0.44));
+    var grow = kA * kA;
     var st = hero!.style;
     st.setProperty("--portal", k.toFixed(4));
-    st.setProperty("--hold-o", (1 - e).toFixed(4));
-    st.setProperty("--hold-s", (1 + 0.16 * k).toFixed(4));
-    st.setProperty("--door-s", (1 + 1.15 * e).toFixed(4));
-    st.setProperty("--door-o", (inWindow ? 1 - k * k * k : 0).toFixed(4));
-    st.setProperty("--bloom", b.toFixed(4));
+    st.setProperty("--door-s", (1 + (cover - 1) * grow + 0.35 * kB).toFixed(4));
+    st.setProperty("--door-o", (inWindow ? 1 - kB * kB : 0).toFixed(4));
+    st.setProperty("--copy-o", (1 - clamp(k / 0.18, 0, 1)).toFixed(4));
+    st.setProperty("--pane-light", (0.18 + 0.82 * smooth(0.05, 0.8, k)).toFixed(4));
+    st.setProperty("--pane-o", (0.96 * (1 - kB)).toFixed(4));
+    st.setProperty("--ring-o", (0.85 * (1 - kB)).toFixed(4));
+    st.setProperty("--glow-o", ((0.6 + 0.4 * kA) * (1 - kB)).toFixed(4));
+    st.setProperty("--bloom", (smooth(0.35, 0.8, k) * (1 - Math.pow(kB, 1.5))).toFixed(4));
+    st.setProperty("--hold-o", (1 - smooth(0.66, 0.9, k)).toFixed(4));
+    st.setProperty("--hold-s", (1 + 0.18 * k).toFixed(4));
   }
   function enter() {
     if (transitioning || answered) return;
@@ -1082,11 +1113,11 @@ const TRAY = [
     hero!.classList.add("hero--playing");
     resizeLenis();
     drivePortal(pGate);
-    /* The step is driven here rather than left to the scroller: Lenis is only
-       on fine pointers and native smooth scroll covers this distance in a
-       third of a second, which is a cut with extra steps. A wheel or a finger
-       during the step takes over from it — the step is his, not a cutscene. */
-    var fromY = window.scrollY, endY = (pGate + PORTAL_SPAN) * runway() + 2;
+    /* Enter takes the first few steps so the click is seen to do something,
+       then the walk is his: the door grows with the wheel and only the wheel,
+       all the way past the edges of the screen. A wheel or a finger during
+       the nudge takes over from it. */
+    var fromY = window.scrollY, endY = (pGate + PORTAL_SPAN * NUDGE) * runway();
     var t0 = performance.now(), expected = fromY;
     (function step(now: number) {
       if (Math.abs(window.scrollY - expected) > 40) { transitioning = false; return; }
