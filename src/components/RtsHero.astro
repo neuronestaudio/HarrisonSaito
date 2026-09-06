@@ -98,28 +98,38 @@ const TRAY = [
 
     {/* THE FORK: beside the door on the held frame. Book a chat is the one CTA-styled item. */}
     <nav class="pops" id="pops" aria-label="More from Harrison" hidden>
-      {[0, 1].map((pass) => (
-        <div class="pops__track" aria-hidden={pass === 1 ? 'true' : undefined}>
-          {TRAY.map((t) =>
-            t.back ? (
-              <button
-                class:list={['pops__item', 'pops__item--back']}
-                type="button"
-                data-back
-                tabindex={pass === 1 ? -1 : undefined}
-                data-track="cta_click"
-                data-track-label={t.track}><b>{t.title}</b><small>{t.sub}</small></button>
-            ) : (
-              <a
-                class:list={['pops__item', { 'pops__item--cta': t.cta }]}
-                href={t.href}
-                tabindex={pass === 1 ? -1 : undefined}
-                target={t.ext ? '_blank' : undefined}
-                rel={t.ext ? 'noopener' : undefined}
-                data-track={t.track ? 'cta_click' : undefined}
-                data-track-label={t.track}><b>{t.title}</b><small>{t.sub}</small></a>
-            )
-          )}
+      {[0, 1].map((band) => (
+        <div class="pops__band" data-band={band}>
+          {[0, 1].map((pass) => {
+            /* Only the first pass of the first band is real. Everything else
+               exists to make the loop seamless and the stripes cross, so it is
+               hidden from the reader and taken out of the tab order. */
+            const ghost = band === 1 || pass === 1;
+            return (
+              <div class="pops__track" aria-hidden={ghost ? 'true' : undefined}>
+                {TRAY.map((t) =>
+                  t.back ? (
+                    <button
+                      class:list={['pops__item', 'pops__item--back']}
+                      type="button"
+                      data-back
+                      tabindex={ghost ? -1 : undefined}
+                      data-track="cta_click"
+                      data-track-label={t.track}><b>{t.title}</b><small>{t.sub}</small></button>
+                  ) : (
+                    <a
+                      class:list={['pops__item', { 'pops__item--cta': t.cta }]}
+                      href={t.href}
+                      tabindex={ghost ? -1 : undefined}
+                      target={t.ext ? '_blank' : undefined}
+                      rel={t.ext ? 'noopener' : undefined}
+                      data-track={t.track ? 'cta_click' : undefined}
+                      data-track-label={t.track}><b>{t.title}</b><small>{t.sub}</small></a>
+                  )
+                )}
+              </div>
+            );
+          })}
         </div>
       ))}
     </nav>
@@ -138,11 +148,11 @@ const TRAY = [
         {/* VSL slot. Placeholder until the film is supplied — deliberately a
             real 16:9 box rather than a grey rectangle, so the layout it will
             occupy is the layout being reviewed now. */}
+        <small>Return to Self</small>
         <span class="door__vsl" data-vsl aria-hidden="true">
           <span class="door__vsl-play"></span>
           <span class="door__vsl-label">Video</span>
         </span>
-        <small>Return to Self</small>
         <b>Helping high-performing men break old habits and rebuild self-trust.</b>
         <span class="door__enter">Enter →</span>
       </span>
@@ -244,22 +254,37 @@ const TRAY = [
   }
   .links__name small{display:block; font-family:var(--font-body); font-size:var(--step--1); font-weight:600; letter-spacing:.22em; text-transform:uppercase; color:var(--gold); margin-top:.3rem}
 
+  /* Glass, not a ruled band. Each marker is its own pill so the row reads as
+     four separate claims rather than one block of small print, and the blur
+     gives the light type something to sit on over a moving frame. */
   .proof{
-    list-style:none; margin:0; padding:.65rem 0;
-    display:grid; grid-template-columns:repeat(4,1fr); gap:.6rem; text-align:center;
-    border-top:1px solid var(--rule-on-ink); border-bottom:1px solid var(--rule-on-ink);
+    list-style:none; margin:0; padding:0;
+    display:grid; grid-template-columns:repeat(4,1fr); gap:.5rem; text-align:center;
+  }
+  .proof li{
+    padding:.55rem .7rem; border-radius:999px;
+    background:oklch(30% 0.012 60 / .34);
+    -webkit-backdrop-filter:blur(16px) saturate(1.15); backdrop-filter:blur(16px) saturate(1.15);
+    border:1px solid oklch(92% 0.02 85 / .17);
+    box-shadow:inset 0 1px 0 oklch(100% 0 0 / .10), 0 6px 18px oklch(0% 0 0 / .22);
   }
   .proof b{display:block; font-family:var(--font-display); font-weight:400; font-size:var(--step-1); color:var(--text-on-ink); line-height:1.1}
   .proof small{display:block; font-family:var(--font-body); font-size:.62rem; font-weight:600; letter-spacing:.16em; text-transform:uppercase; color:var(--text-on-ink-faint); margin-top:.2rem}
 
   .cred{list-style:none; margin:0; padding:0; display:grid; grid-template-columns:1fr 1fr; gap:.45rem .9rem}
   .cred__item{
-    display:grid; grid-template-columns:auto 1fr; gap:.7rem; align-items:start;
+    /* Centred, tag over title. The proof strip above and the path bar below
+       both sit on the centre line; these cards were the one thing left reading
+       off a left margin, which is what made the screen look untidy rather than
+       off-centre. */
+    display:grid; grid-template-columns:1fr; gap:.22rem; justify-items:center; text-align:center;
     text-decoration:none; color:var(--card-ink);
-    background:color-mix(in oklab, var(--card-paper) 84%, transparent);
-    -webkit-backdrop-filter:blur(12px); backdrop-filter:blur(12px);
-    border:1px solid color-mix(in oklab, var(--card-shadow) 70%, transparent);
-    padding:.55rem .85rem;
+    background:color-mix(in oklab, var(--card-paper) 80%, transparent);
+    -webkit-backdrop-filter:blur(16px) saturate(1.15); backdrop-filter:blur(16px) saturate(1.15);
+    border:1px solid color-mix(in oklab, var(--card-shadow) 62%, transparent);
+    border-radius:999px;
+    box-shadow:inset 0 1px 0 oklch(100% 0 0 / .34), 0 6px 18px oklch(0% 0 0 / .2);
+    padding:.6rem 1.15rem;
     transition:background .3s ease, border-color .3s ease;
   }
   .cred__tag{font-family:var(--font-body); font-size:.58rem; font-weight:600; letter-spacing:.2em; text-transform:uppercase; color:var(--gold-deep); padding-top:.28rem; white-space:nowrap}
@@ -271,7 +296,8 @@ const TRAY = [
   .links__path{
     display:grid; grid-template-columns:1fr auto; align-items:center; gap:1rem;
     text-decoration:none; background:var(--gold); color:var(--ink-900); border:1px solid var(--gold);
-    padding:.85rem 1.25rem; transition:background .3s ease, border-color .3s ease;
+    border-radius:999px; box-shadow:0 8px 26px oklch(0% 0 0 / .3);
+    padding:.85rem 1.6rem; transition:background .3s ease, border-color .3s ease;
   }
   .links__path-text{display:block}
   .links__path b{display:block; font-family:var(--font-display); font-weight:500; font-size:var(--step-2); line-height:1.1}
@@ -290,7 +316,7 @@ const TRAY = [
      via inset/padding + an excluded mask, so it never touches the label. */
   .links__path{position:relative; isolation:isolate}
   .links__path::after{
-    content:''; position:absolute; inset:-5px; padding:5px; border-radius:1px; pointer-events:none;
+    content:''; position:absolute; inset:-5px; padding:5px; border-radius:999px; pointer-events:none;
     background:conic-gradient(from var(--sweep),
       oklch(88% 0.09 82 / .10) 0 58%, oklch(94% 0.07 84 / .55) 76%, oklch(99% 0.03 90) 88%, oklch(88% 0.09 82 / .10) 100%);
     -webkit-mask:linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
@@ -326,7 +352,7 @@ const TRAY = [
   }
   /* Beside the door the track is not a box at all — the items are the grid.
      The second pass exists only for the marquee and stays out of the way. */
-  .pops__track{display:contents}
+  .pops__band,.pops__track{display:contents}
   .pops__track[aria-hidden="true"]{display:none}
   .hero--gated .pops{opacity:1; pointer-events:auto}
   .hero--tray-crowded .pops{opacity:0; pointer-events:none}
@@ -334,9 +360,10 @@ const TRAY = [
     display:block; text-decoration:none; color:var(--card-ink); text-align:left;
     background:color-mix(in oklab, var(--card-paper) 84%, transparent);
     -webkit-backdrop-filter:blur(12px); backdrop-filter:blur(12px);
-    border:1px solid color-mix(in oklab, var(--card-shadow) 70%, transparent);
-    border-radius:12px;
-    padding:.65rem 1rem; transform:translateX(18px); opacity:0;
+    border:1px solid color-mix(in oklab, var(--card-shadow) 62%, transparent);
+    border-radius:999px;
+    box-shadow:inset 0 1px 0 oklch(100% 0 0 / .34), 0 6px 18px oklch(0% 0 0 / .2);
+    padding:.65rem 1.25rem; transform:translateX(18px); opacity:0;
     transition:background .3s ease, border-color .3s ease;
   }
   .hero--gated .pops__item{animation:popin .6s cubic-bezier(.22,.61,.36,1) forwards}
@@ -416,12 +443,16 @@ const TRAY = [
     position:absolute; inset:0; z-index:2; display:grid; align-content:center; justify-items:center; gap:.85rem;
     padding:1.1rem 1rem; color:var(--card-ink);
   }
-  .door__copy small{font-family:var(--font-body); font-size:.78rem; font-weight:700; letter-spacing:.26em; text-transform:uppercase; color:var(--card-ink)}
-  .door__copy b{font-family:var(--font-display); font-weight:400; font-size:clamp(1.02rem, 1.4vw, 1.3rem); line-height:1.28; text-wrap:balance}
+  .door__copy small{
+    font-family:var(--font-body); font-weight:700; text-transform:uppercase; color:var(--card-ink);
+    font-size:clamp(.58rem, 2.3vw, .78rem); letter-spacing:.2em;
+    white-space:nowrap;
+  }
+  .door__copy b{font-family:var(--font-display); font-weight:400; font-size:clamp(1.22rem, 1.68vw, 1.56rem); line-height:1.28; text-wrap:balance}
   .door__enter{
     font-family:var(--font-body); font-size:.7rem; font-weight:700; letter-spacing:.2em; text-transform:uppercase;
-    background:var(--gold); color:var(--ink-900); border:1px solid var(--gold); border-radius:1px;
-    padding:.62rem 1.1rem; margin-top:.3rem;
+    background:var(--gold); color:var(--ink-900); border:1px solid var(--gold); border-radius:999px;
+    padding:.62rem 1.3rem; margin-top:.3rem;
     transition:background .3s ease, border-color .3s ease;
   }
   .door:hover .door__paper,.door:focus-visible .door__paper{filter:brightness(1.04)}
@@ -528,12 +559,12 @@ const TRAY = [
     .proof{grid-template-columns:1fr 1fr; gap:.4rem .6rem; padding:.45rem 0}
     .proof b{font-size:var(--step-0)}
     .cred{grid-template-columns:1fr; gap:.35rem}
-    .cred__item{padding:.4rem .7rem; gap:.55rem}
+    .cred__item{padding:.4rem .7rem; gap:.18rem}
     .cred__item small{display:none}
     .links__path{padding:.65rem 1rem}
     .links__path b{font-size:var(--step-1)}
     .door__copy{gap:.5rem; padding:.8rem .7rem}
-    .door__copy b{font-size:1rem}
+    .door__copy b{font-size:1.2rem}
   }
 
   /* The door fills the centre of a small screen, so the pop-ups become a
@@ -546,28 +577,52 @@ const TRAY = [
        pixel-identical to the start, so it loops with no seam and no cloned ids.
        It holds still while a finger or a focus ring is on it. */
     .pops{
-      left:0; right:0; top:auto; bottom:calc(clamp(1.6rem,5vh,3rem) + var(--consent-h, 0px));
-      width:auto; display:flex; gap:0; overflow:hidden; padding:.15rem 0;
-      -webkit-mask:linear-gradient(90deg, transparent, #000 4%, #000 96%, transparent);
-      mask:linear-gradient(90deg, transparent, #000 4%, #000 96%, transparent);
+      left:0; right:0; top:auto; bottom:calc(clamp(2.4rem,8vh,5rem) + var(--consent-h, 0px));
+      width:auto; display:grid; gap:0; overflow:visible; padding:0;
+      -webkit-mask:none; mask:none;
     }
+    /* Two stripes, tilted against each other and running opposite ways, so
+       they read as crossing rather than as one more row of buttons. They
+       overhang both edges, which is what makes the tilt look deliberate. */
+    .pops__band{
+      display:flex; overflow:hidden; width:118%; margin-left:-9%;
+      padding:.2rem 0;
+      -webkit-mask:linear-gradient(90deg, transparent, #000 12%, #000 88%, transparent);
+      mask:linear-gradient(90deg, transparent, #000 12%, #000 88%, transparent);
+    }
+    .pops__band[data-band="0"]{rotate:-4.5deg}
+    .pops__band[data-band="1"]{rotate:4.5deg; margin-top:-.55rem}
     .pops__track{
-      display:flex; flex:0 0 auto; gap:.5rem; padding-right:.5rem;
-      animation:tray 18s linear infinite; will-change:transform;
+      display:flex; flex:0 0 auto; gap:.6rem; padding-right:.6rem;
+      animation:tray 20s linear infinite; will-change:transform;
     }
+    .pops__band[data-band="1"] .pops__track{animation-direction:reverse; animation-duration:26s}
     .pops__track[aria-hidden="true"]{display:flex}
     .pops:hover .pops__track,
     .pops:focus-within .pops__track,
     .pops:active .pops__track{animation-play-state:paused}
-    .pops__item{flex:0 0 auto; width:15.5rem; padding:.55rem .8rem}
+    .pops__item{flex:0 0 auto; width:17rem; padding:.8rem 1.4rem}
+    .pops__item b{font-size:var(--step-1)}
   }
   @keyframes tray{from{transform:translateX(0)} to{transform:translateX(-100%)}}
+  /* Two stripes need roughly 130px plus breathing room below the door. A 640px
+     phone does not have it, and the guard was correctly hiding the whole tray
+     rather than covering Enter. One stripe fits, so it gets one. */
+  @media (max-height:700px){
+    .pops{bottom:calc(clamp(1.2rem,4vh,2.4rem) + var(--consent-h, 0px))}
+    .pops__band[data-band="1"]{display:none}
+    .pops__band[data-band="0"]{rotate:-3deg}
+    .pops__item{padding:.6rem 1.15rem}
+  }
+
   @media (max-height:560px){
-    /* One line per card on a short screen: the row has to stay thin enough to
-       clear the foot of the door. Without nowrap the longest title wraps and
-       every card stretches with it, which is what pushed the row into the
+    /* No room to cross on a short screen: one stripe, flat, kept thin enough
+       to clear the foot of the door. Without nowrap the longest title wraps
+       and every card stretches with it, which pushed the row into the
        doorway and made it hide itself. */
-    .pops{bottom:calc(.5rem + var(--consent-h, 0px)); padding:.1rem 0}
+    .pops{bottom:calc(.5rem + var(--consent-h, 0px))}
+    .pops__band{padding:0; rotate:0deg; margin:0; width:100%; margin-left:0}
+    .pops__band[data-band="1"]{display:none}
     .pops__item{width:11rem; padding:.32rem .6rem}
     .pops__item small{display:none}
     .pops__item b{font-size:.82rem; line-height:1.2; white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
@@ -732,18 +787,29 @@ const TRAY = [
   function placeDoor() {
     var r = plateRect(), d = doorBox();
     var L = r.x + r.w * d.x / 100, T = r.y + r.h * d.y / 100, Wd = r.w * d.w / 100, Hd = r.h * d.h / 100;
+    /* On a phone the pan cannot always bring the doorway to the middle — the
+       plate runs out of room first, and at 360px the door ended up hard
+       against the left edge. The card goes on the centre line instead: it
+       drifts a little off the doorway behind it, which is a fair trade for the
+       one thing that matters being where the eye already is. */
+    if (window.matchMedia("(max-width:600px)").matches) L = (window.innerWidth - Wd) / 2;
     door!.style.left = L + "px"; door!.style.top = T + "px"; door!.style.width = Wd + "px"; door!.style.height = Hd + "px";
     /* the pop-ups sit beside the door, centred on its height; on a phone the CSS row takes over */
     var consentH = parseFloat(getComputedStyle(document.documentElement).getPropertyValue("--consent-h")) || 0;
     if (window.matchMedia("(max-width:600px), (max-height:560px)").matches) {
       pops!.style.left = ""; pops!.style.top = "";
-      /* The row lives in the band between the foot of the door and whatever is
-         fixed over the bottom of the screen — the consent bar, usually. If the
-         band cannot hold it, the tray waits: a card sitting across the doorway
-         reads as a broken layout, and the door is the one thing that matters
-         here. It comes back by itself once the bar is answered. */
-      var band = window.innerHeight - consentH - (T + Hd) - 10;
-      hero!.classList.toggle("hero--tray-crowded", band < pops!.offsetHeight);
+      /* What the stripes must not cover is the way in. Most of the door below
+         the copy is empty paper, and the tilted bands riding over that is the
+         point — but the moment they reach the Enter button they stop being
+         decoration and start being a broken layout, so the tray waits instead.
+         It comes back by itself once the consent bar is answered.
+
+         Measured rather than derived: the bands are rotated, so their real
+         extent is not something the door box can be used to predict. */
+      var enterEl = door!.querySelector(".door__enter") as HTMLElement | null;
+      var guardY = enterEl ? enterEl.getBoundingClientRect().bottom : T + Hd;
+      var trayTop = pops!.getBoundingClientRect().top;
+      hero!.classList.toggle("hero--tray-crowded", trayTop < guardY + 8);
       return;
     }
     hero!.classList.remove("hero--tray-crowded");
