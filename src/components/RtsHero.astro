@@ -197,6 +197,13 @@ const TRAY = [
     --door-x: 35.5; --door-y: 27.5; --door-w: 14.5; --door-h: 48.2;
     --hero-scroll: 420vh;
 
+    /* The scroll behind the glass. Every card and chip on this screen carries
+       a cropped piece of it, faded off diagonally so the pattern is there to
+       be noticed and never there to be read through. Swap this one line to
+       change the paper everywhere. */
+    --scroll-tex: url('/img/ink-wash-768.webp');
+    --scroll-radius: 16px;
+
     position:relative; height:var(--hero-scroll); background:var(--ink-900);
     color:var(--text-on-ink); font-family:var(--font-body); font-size:var(--step-0); line-height:1.65;
   }
@@ -262,12 +269,31 @@ const TRAY = [
     display:grid; grid-template-columns:repeat(4,1fr); gap:.5rem; text-align:center;
   }
   .proof li{
-    padding:.55rem .7rem; border-radius:999px;
+    padding:.6rem .75rem; border-radius:calc(var(--scroll-radius) - 3px);
     background:oklch(30% 0.012 60 / .34);
     -webkit-backdrop-filter:blur(16px) saturate(1.15); backdrop-filter:blur(16px) saturate(1.15);
     border:1px solid oklch(92% 0.02 85 / .17);
     box-shadow:inset 0 1px 0 oklch(100% 0 0 / .10), 0 6px 18px oklch(0% 0 0 / .22);
   }
+  /* Sits above the card's own background and below its text: a negative
+     z-index child paints after the parent background but before inline
+     content, so the pattern reads without ever fighting the words. */
+  .proof li::before,
+  .cred__item::before,
+  .pops__item::before,
+  .links__path::before{
+    content:''; position:absolute; inset:0; z-index:-1; border-radius:inherit;
+    background:var(--scroll-tex) center / cover no-repeat;
+    pointer-events:none;
+    -webkit-mask-image:linear-gradient(108deg, #000 0%, oklch(0% 0 0 / .5) 42%, transparent 88%);
+    mask-image:linear-gradient(108deg, #000 0%, oklch(0% 0 0 / .5) 42%, transparent 88%);
+  }
+  .proof li{position:relative; isolation:isolate}
+  .proof li::before{opacity:.26}
+  .cred__item::before{opacity:.2}
+  .pops__item::before{opacity:.2}
+  .links__path::before{opacity:.16; mix-blend-mode:multiply}
+
   .proof b{display:block; font-family:var(--font-display); font-weight:400; font-size:var(--step-1); color:var(--text-on-ink); line-height:1.1}
   .proof small{display:block; font-family:var(--font-body); font-size:.62rem; font-weight:600; letter-spacing:.16em; text-transform:uppercase; color:var(--text-on-ink-faint); margin-top:.2rem}
 
@@ -282,7 +308,7 @@ const TRAY = [
     background:color-mix(in oklab, var(--card-paper) 80%, transparent);
     -webkit-backdrop-filter:blur(16px) saturate(1.15); backdrop-filter:blur(16px) saturate(1.15);
     border:1px solid color-mix(in oklab, var(--card-shadow) 62%, transparent);
-    border-radius:999px;
+    border-radius:var(--scroll-radius); position:relative; isolation:isolate;
     box-shadow:inset 0 1px 0 oklch(100% 0 0 / .34), 0 6px 18px oklch(0% 0 0 / .2);
     padding:.6rem 1.15rem;
     transition:background .3s ease, border-color .3s ease;
@@ -293,11 +319,14 @@ const TRAY = [
   .cred__item:hover,.cred__item:focus-visible{background:var(--card-paper); border-color:var(--gold-deep); outline:none}
   .cred__item:focus-visible{box-shadow:0 0 0 2px var(--gold-deep)}
 
+  /* Centred. Label left and button right read as a toolbar, which is the one
+     thing this is not — it is the single intended click on the screen, and it
+     should look like a destination rather than a row of controls. */
   .links__path{
-    display:grid; grid-template-columns:1fr auto; align-items:center; gap:1rem;
+    display:grid; grid-template-columns:1fr; justify-items:center; text-align:center; gap:.3rem;
     text-decoration:none; background:var(--gold); color:var(--ink-900); border:1px solid var(--gold);
-    border-radius:999px; box-shadow:0 8px 26px oklch(0% 0 0 / .3);
-    padding:.85rem 1.6rem; transition:background .3s ease, border-color .3s ease;
+    border-radius:calc(var(--scroll-radius) + 2px); box-shadow:0 8px 26px oklch(0% 0 0 / .3);
+    padding:.9rem 1.6rem; transition:background .3s ease, border-color .3s ease;
   }
   .links__path-text{display:block}
   .links__path b{display:block; font-family:var(--font-display); font-weight:500; font-size:var(--step-2); line-height:1.1}
@@ -316,7 +345,8 @@ const TRAY = [
      via inset/padding + an excluded mask, so it never touches the label. */
   .links__path{position:relative; isolation:isolate}
   .links__path::after{
-    content:''; position:absolute; inset:-5px; padding:5px; border-radius:999px; pointer-events:none;
+    content:''; position:absolute; inset:-5px; padding:5px; pointer-events:none;
+    border-radius:calc(var(--scroll-radius) + 7px);
     background:conic-gradient(from var(--sweep),
       oklch(88% 0.09 82 / .10) 0 58%, oklch(94% 0.07 84 / .55) 76%, oklch(99% 0.03 90) 88%, oklch(88% 0.09 82 / .10) 100%);
     -webkit-mask:linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
@@ -361,7 +391,7 @@ const TRAY = [
     background:color-mix(in oklab, var(--card-paper) 84%, transparent);
     -webkit-backdrop-filter:blur(12px); backdrop-filter:blur(12px);
     border:1px solid color-mix(in oklab, var(--card-shadow) 62%, transparent);
-    border-radius:999px;
+    border-radius:var(--scroll-radius); position:relative; isolation:isolate;
     box-shadow:inset 0 1px 0 oklch(100% 0 0 / .34), 0 6px 18px oklch(0% 0 0 / .2);
     padding:.65rem 1.25rem; transform:translateX(18px); opacity:0;
     transition:background .3s ease, border-color .3s ease;
@@ -451,7 +481,7 @@ const TRAY = [
   .door__copy b{font-family:var(--font-display); font-weight:400; font-size:clamp(1.22rem, 1.68vw, 1.56rem); line-height:1.28; text-wrap:balance}
   .door__enter{
     font-family:var(--font-body); font-size:.7rem; font-weight:700; letter-spacing:.2em; text-transform:uppercase;
-    background:var(--gold); color:var(--ink-900); border:1px solid var(--gold); border-radius:999px;
+    background:var(--gold); color:var(--ink-900); border:1px solid var(--gold); border-radius:11px;
     padding:.62rem 1.3rem; margin-top:.3rem;
     transition:background .3s ease, border-color .3s ease;
   }
