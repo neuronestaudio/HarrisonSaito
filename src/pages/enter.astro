@@ -23,7 +23,6 @@ import Testimonials from '../components/Testimonials.astro';
 import YouTubeFacade from '../components/YouTubeFacade.astro';
 import OfferCard from '../components/OfferCard.astro';
 import ArchetypeCarousel from '../components/ArchetypeCarousel.astro';
-import Lineage from '../components/Lineage.astro';
 import Enso from '../components/Enso.astro';
 import { SITE, CREDENTIALS, VIDEO_IDS, OFFERS } from '../data/site';
 import { graph, personSchema, localBusinessSchema, websiteSchema, videoSchema } from '../lib/seo';
@@ -167,13 +166,6 @@ const schema = graph(
           data-track-label="Home — Apply (programme)"
           data-track-section="programme">Apply</a>
       </div>
-    </div>
-  </section>
-
-  {/* ------------------------------------------------------------ lineage */}
-  <section class="section section--deep" data-section="lineage">
-    <div class="container container--wide" data-reveal>
-      <Lineage />
     </div>
   </section>
 

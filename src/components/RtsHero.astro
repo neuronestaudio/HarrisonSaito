@@ -89,7 +89,7 @@ const { start = 'top' } = Astro.props;
       <a class="pops__item pops__item--cta" href="/book" data-track="cta_click" data-track-label="Intro — Book a chat"><b>Book a chat</b><small>A discovery call · one-to-one coaching</small></a>
       <a class="pops__item" href="https://www.shinbukan.com.au/the-saitos" target="_blank" rel="noopener"><b>The Saitos</b><small>The dojo his father founded, 1978</small></a>
       <a class="pops__item" href="https://www.facebook.com/shinbukanmartialarts/" target="_blank" rel="noopener"><b>Dojo reviews</b><small>Shinbukan on Facebook</small></a>
-      <button class="pops__item pops__item--back" type="button" id="backToLinks" data-track="cta_click" data-track-label="Intro — Back to the links"><b>All his links</b><small>Back to the start</small></button>
+      <button class="pops__item pops__item--back" type="button" id="backToLinks" data-track="cta_click" data-track-label="Intro — Portfolio (back to start)"><b>Portfolio</b><small>Back to the start</small></button>
     </nav>
 
     {/* THE DOOR. The room's own sliding door over the centre doorway, positioned by script. */}
@@ -172,6 +172,10 @@ const { start = 'top' } = Astro.props;
      the viewport and squash the frozen frame on portrait */
   .hero__hold{position:absolute; z-index:1; pointer-events:none; opacity:1; max-width:none; max-height:none; transition:opacity 1.1s ease}
   .hero__hold--out{opacity:0}
+  /* The step through: faster than the room-to-room crossfade, and it scales
+     forward so the frame reads as being walked into rather than cut away. */
+  .hero__hold--quick{transition:opacity .72s ease, transform .72s cubic-bezier(.32,0,.24,1)}
+  .hero__hold--zoom{transform:scale(1.085)}
 
   .hero__scrim{
     position:absolute; inset:0; pointer-events:none; z-index:1;
@@ -279,6 +283,7 @@ const { start = 'top' } = Astro.props;
     display:grid; gap:.5rem; opacity:0; pointer-events:none; transition:opacity .4s ease;
   }
   .hero--gated .pops{opacity:1; pointer-events:auto}
+  .hero--tray-crowded .pops{opacity:0; pointer-events:none}
   .pops__item{
     display:block; text-decoration:none; color:var(--card-ink); text-align:left;
     background:color-mix(in oklab, var(--card-paper) 84%, transparent);
@@ -444,12 +449,33 @@ const { start = 'top' } = Astro.props;
     .cred__item small{display:none}
     .links__path{padding:.65rem 1rem}
     .links__path b{font-size:var(--step-1)}
-    /* the door fills the centre on a phone, so the pop-ups become a bottom row */
-    .pops{left:.75rem; right:.75rem; top:auto; bottom:clamp(1.6rem,5vh,3rem); width:auto; display:flex; gap:.5rem; overflow-x:auto; scroll-snap-type:x mandatory; -webkit-overflow-scrolling:touch; scrollbar-width:none; padding:0 0 .2rem}
-    .pops::-webkit-scrollbar{display:none}
-    .pops__item{flex:0 0 66%; scroll-snap-align:start; padding:.55rem .8rem}
     .door__copy{gap:.5rem; padding:.8rem .7rem}
     .door__copy b{font-size:1rem}
+  }
+
+  /* The door fills the centre of a small screen, so the pop-ups become a
+     bottom row. Keyed on width OR height: a landscape phone is wide enough to
+     miss a max-width rule, but far too short to stack six cards beside the
+     door — they were being pushed off the top of the screen. */
+  @media (max-width:600px), (max-height:560px){
+    .pops{left:.75rem; right:.75rem; top:auto; bottom:calc(clamp(1.6rem,5vh,3rem) + var(--consent-h, 0px)); width:auto; display:flex; gap:.5rem; overflow-x:auto; scroll-snap-type:x mandatory; -webkit-overflow-scrolling:touch; scrollbar-width:none; padding:0 0 .2rem}
+    .pops::-webkit-scrollbar{display:none}
+    .pops__item{flex:0 0 66%; scroll-snap-align:start; padding:.55rem .8rem}
+  }
+  @media (max-height:560px){
+    .pops__item{flex:0 0 min(46%, 15rem)}
+    .pops__item small{display:none}
+  }
+
+  /* A short viewport — a landscape phone, or a small desktop window — maps the
+     doorway to a rectangle far too small to hold the whole offer, and the copy
+     spilled out over the wall. The paragraph and the video slot are the parts
+     that can go; the name and the way in cannot. */
+  @media (max-height:560px){
+    .door__copy{gap:.35rem; padding:.5rem .4rem}
+    .door__copy b,.door__vsl{display:none}
+    .door__copy small{font-size:.6rem; letter-spacing:.14em}
+    .door__enter{padding:.42rem .7rem; font-size:.56rem; letter-spacing:.14em; margin-top:.1rem}
   }
 
   /* ---------------- no-JS / reduced motion ---------------- */
@@ -500,8 +526,7 @@ const { start = 'top' } = Astro.props;
   var FPS = 24, JOIN = 202, PLATE_W = 1280, PLATE_H = 720;
   var T_HOLD   = (JOIN - 1.5) / FPS;   /* last frame of room one, held */
   var T_RESUME = (JOIN + 0.5) / FPS;   /* first frame of room two */
-  var CROSSFADE_MS = 1100;             /* must match .hero__hold's transition */
-  var PLAYBACK_RATE = 1.5;             /* room two plays itself at this speed */
+  var ENTER_MS = 760;                  /* must match .hero__hold--quick */
 
   function paintBeats(t: number) {
     for (var i = 0; i < beats.length; i++) {
@@ -547,7 +572,13 @@ const { start = 'top' } = Astro.props;
     if (r <= 0) return 0;
     return clamp(-hero!.getBoundingClientRect().top / r, 0, 1);
   }
-  function timeFor(p: number) { return Math.min(p / pGate, 1) * T_HOLD; }
+  /* Two rooms, one runway. Before the door, scroll drives room one up to the
+     held frame; after it, the rest of the runway drives room two. Same
+     mechanic either side, so the pace stays his rather than the file's. */
+  function timeFor(p: number) {
+    if (!answered) return Math.min(p / pGate, 1) * T_HOLD;
+    return T_RESUME + clamp((p - pGate) / (1 - pGate), 0, 1) * (duration - T_RESUME);
+  }
 
   /* ---------- the plate, mapped through object-fit:cover ---------- */
   var objX = 50;
@@ -591,11 +622,24 @@ const { start = 'top' } = Astro.props;
     var L = r.x + r.w * d.x / 100, T = r.y + r.h * d.y / 100, Wd = r.w * d.w / 100, Hd = r.h * d.h / 100;
     door!.style.left = L + "px"; door!.style.top = T + "px"; door!.style.width = Wd + "px"; door!.style.height = Hd + "px";
     /* the pop-ups sit beside the door, centred on its height; on a phone the CSS row takes over */
-    if (window.matchMedia("(max-width:600px)").matches) { pops!.style.left = ""; pops!.style.top = ""; return; }
+    var consentH = parseFloat(getComputedStyle(document.documentElement).getPropertyValue("--consent-h")) || 0;
+    if (window.matchMedia("(max-width:600px), (max-height:560px)").matches) {
+      pops!.style.left = ""; pops!.style.top = "";
+      /* The row lives in the band between the foot of the door and whatever is
+         fixed over the bottom of the screen — the consent bar, usually. If the
+         band cannot hold it, the tray waits: a card sitting across the doorway
+         reads as a broken layout, and the door is the one thing that matters
+         here. It comes back by itself once the bar is answered. */
+      var band = window.innerHeight - consentH - (T + Hd) - 10;
+      hero!.classList.toggle("hero--tray-crowded", band < pops!.offsetHeight);
+      return;
+    }
+    hero!.classList.remove("hero--tray-crowded");
     var gap = 44, pw = pops!.offsetWidth, ph = pops!.offsetHeight;
     var left = L + Wd + gap;
     if (left + pw > window.innerWidth - 12) left = Math.max(12, L - gap - pw);
-    var top = clamp(T + (Hd - ph) / 2, 12, window.innerHeight - ph - 12);
+    /* Keep clear of the consent bar, which is fixed over the bottom edge. */
+    var top = clamp(T + (Hd - ph) / 2, 12, window.innerHeight - ph - 12 - consentH);
     pops!.style.left = left + "px"; pops!.style.top = top + "px";
   }
   /* Keep the door in frame on any crop: if the doorway box is not fully
@@ -626,11 +670,15 @@ const { start = 'top' } = Astro.props;
       if (Math.abs(window.scrollY - gateY) > 1) snapTo(gateY);
       p = pGate;
     }
-    if (!answered) {
+    if (!done) {
       target = timeFor(p);
-      if (!transitioning) setObjX(panFor(p));
+      if (!answered && !transitioning) setObjX(panFor(p));
       if (gated) placeDoor();
       rail!.style.width = (p * 100).toFixed(2) + "%";
+      /* End of room two: cut the runway where he stands, let the page go on.
+         finish(true) so the frame left on screen is the last one, not wherever
+         the lerp happened to be when a fast scroll overran the tail. */
+      if (playing && p >= 0.998) finish(true);
     }
     if (p > 0.06) hero!.setAttribute("data-progress-past", ""); else hero!.removeAttribute("data-progress-past");
     var landing = p < 0.08 && !answered;
@@ -649,15 +697,10 @@ const { start = 'top' } = Astro.props;
     try { video!.currentTime = t; } catch (e) { settle(); }
   }
   function tick() {
-    if (playing) {
-      var t = video!.currentTime;
-      rail!.style.width = (t / duration * 100).toFixed(2) + "%";
-      paintBeats(t);
-    } else if (ready && !answered && !pending && Math.abs(eased - video!.currentTime) > 1 / 48) {
+    if (ready && !done) {
       eased += (target - eased) * 0.14;
-      issueSeek(eased);
-    } else if (ready && !answered) {
-      eased += (target - eased) * 0.14;
+      if (!pending && Math.abs(eased - video!.currentTime) > 1 / 48) issueSeek(eased);
+      paintBeats(eased);
     }
     requestAnimationFrame(tick);
   }
@@ -707,43 +750,61 @@ const { start = 'top' } = Astro.props;
     }); });
   }
 
-  /* Through the door. Room one is frozen on the canvas exactly where the
-     plate sits; room two is seeked underneath; the canvas dissolves and room
-     two plays itself to the title card. Scroll stays held until it ends. */
+  /* Through the door. Room one freezes on the canvas exactly where the plate
+     sits, room two is seeked underneath, and the canvas pushes forward and
+     fades — a step through the doorway rather than a cut between two films.
+     Then scroll is handed straight back: room two rides the rest of the same
+     runway, so the whole intro is one continuous scroll. */
   function enter() {
     if (transitioning || answered) return;
     transitioning = true;
+
+    /* Room one is frozen on the canvas exactly where the plate sits, then
+       pushed forward and faded — a step through the doorway rather than a
+       dissolve between two films. Underneath, the video is parked on its title
+       card so there is something composed to land on.
+
+       This used to play room two in full while scroll stayed locked. It now
+       hands the page over as soon as the transition ends: the door is a
+       threshold, not an interlude, and holding someone's scroll after they
+       have committed is the wrong instinct. */
     placeOnPlate(hold!);
     try { hold!.getContext("2d")!.drawImage(video!, 0, 0, PLATE_W, PLATE_H); } catch (e) {}
     hold!.classList.remove("hero__hold--out");
+    hold!.classList.add("hero__hold--quick");
     hold!.hidden = false;
-    hero!.classList.remove("hero--gated");
 
-    var landed = false;
-    function onLanded() {
-      if (landed) return;
-      landed = true;
-      video!.removeEventListener("seeked", onLanded);
-      answered = true;
-      hero!.setAttribute("data-answered", "");
-      requestAnimationFrame(function () { hold!.classList.add("hero__hold--out"); });
+    answered = true;
+    hero!.setAttribute("data-answered", "");
+    hero!.classList.remove("hero--gated");
+    door!.hidden = true;
+    pops!.hidden = true;
+
+    /* Seeked while the canvas is still up, so what the fade reveals is the
+       first frame of the next room and never a black gap. */
+    target = eased = T_RESUME;
+    issueSeek(T_RESUME);
+
+    requestAnimationFrame(function () {
+      hold!.classList.add("hero__hold--out", "hero__hold--zoom");
+    });
+
+    window.setTimeout(function () {
+      hold!.hidden = true;
+      hold!.classList.remove("hero__hold--quick", "hero__hold--zoom");
+      transitioning = false;
+      if (objX !== 50) easeObjX(50, 500);
+      /* Scroll is his again. Holding it after someone has committed is the
+         wrong instinct: the door is a threshold, not an interlude. */
+      unlock();
+      gated = false;
+      hero!.removeAttribute("data-gated");
       playing = true;
       hero!.classList.add("hero--playing");
-      video!.playbackRate = PLAYBACK_RATE;
-      var p = video!.play();
-      if (p && p.catch) p.catch(function () { finish(true); });
-      setTimeout(function () {
-        hold!.hidden = true;
-        door!.hidden = true;
-        pops!.hidden = true;
-        transitioning = false;
-        if (objX !== 50) easeObjX(50, 700);
-      }, CROSSFADE_MS + 60);
-    }
-    video!.addEventListener("seeked", onLanded);
-    setTimeout(onLanded, 400);
-    pending = true;
-    try { video!.currentTime = T_RESUME; } catch (e) { onLanded(); }
+      resizeLenis();
+      onScroll();
+      tellNav();
+    }, ENTER_MS + 60);
   }
   door.addEventListener("click", enter);
 

@@ -98,10 +98,29 @@ const configured = TRACKING_ENABLED;
       /* private mode — treat as undecided but do not persist */
     }
 
+    /* The bar is fixed across the bottom of the page, which is also where the
+       intro parks its portfolio tray. Publish the height it actually occupies
+       so anything anchored to the bottom can step above it instead of being
+       buried — measured rather than assumed, because the text reflows to two
+       and three lines depending on the width. */
+    let lastH = -1;
+    const publishHeight = () => {
+      const h = bar.hidden ? 0 : Math.max(0, window.innerHeight - bar.getBoundingClientRect().top);
+      if (h === lastH) return;
+      lastH = h;
+      document.documentElement.style.setProperty('--consent-h', h + 'px');
+      /* Anything laid out around the bottom edge needs to re-measure. Guarded
+         on a real change so this never loops against its own resize listener. */
+      window.dispatchEvent(new Event('resize'));
+    };
+    publishHeight();
+    window.addEventListener('resize', publishHeight);
+
     if (!saved) {
       // Let the page settle before interrupting.
       setTimeout(() => {
         bar.hidden = false;
+        requestAnimationFrame(publishHeight);
       }, 1400);
     }
 
@@ -119,6 +138,7 @@ const configured = TRACKING_ENABLED;
       });
       window.dataLayer?.push({ event: 'consent_decision', consent_state: value });
       bar.hidden = true;
+      publishHeight();
     };
 
     bar.querySelector('[data-consent-allow]')?.addEventListener('click', () => decide('granted'));

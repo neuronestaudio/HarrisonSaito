@@ -48,7 +48,6 @@ export const WHATSAPP = {
  */
 export const NAV = [
   { label: "Men's Coaching", href: '/mens-coaching' },
-  { label: 'HSC & Youth', href: '/hsc-tutoring' },
   { label: 'The Story', href: '/about' },
   { label: 'Resources', href: '/media' },
   { label: 'Testimonials', href: '/testimonials' },
@@ -871,11 +870,14 @@ export const PROOF: Proof[] = [
 /**
  * The lineage, in the words it was verified in.
  *
- * This is the answer to "what makes this different from any other coach", and
- * it is why the programme is training rather than therapy. Deliberately framed
- * martial-first: the same man was also a Buddhist monk, and that arrives later
- * as method. Leading with "monk" reads as spiritual guru to precisely the
- * sceptical reader this page has to keep.
+ * Verified from the SBS broadcast and from Harrison's and his father's own
+ * recordings. It is deliberately framed martial-first: the same man was also a
+ * Buddhist monk, and that arrives later as method — leading with "monk" reads
+ * as spiritual guru to precisely the sceptical reader.
+ *
+ * Kept, but no longer rendered anywhere: see Lineage.astro for why the father
+ * came off the selling pages. The compressed marker in PROOF stays — a
+ * three-word credential is credibility; a biography is a topic.
  */
 export const LINEAGE = {
   headline: 'It is not therapy. It is a dojo.',

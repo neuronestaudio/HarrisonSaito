@@ -16,7 +16,6 @@ import OfferCard from '../components/OfferCard.astro';
 import YouTubeFacade from '../components/YouTubeFacade.astro';
 import Enso from '../components/Enso.astro';
 import ProofStrip from '../components/ProofStrip.astro';
-import Lineage from '../components/Lineage.astro';
 import { OFFERS, VIDEO_IDS, RETURN_LOOP } from '../data/site';
 import {
   graph,
@@ -126,13 +125,6 @@ const schema = graph(
           parallax={10}
         />
       </div>
-    </div>
-  </section>
-
-  {/* ------------------------------------------------------------ lineage */}
-  <section class="section section--deep" data-section="lineage">
-    <div class="container container--wide" data-reveal>
-      <Lineage />
     </div>
   </section>
 
