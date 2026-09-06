@@ -1,0 +1,21 @@
+---
+/**
+ * The Google Tag Manager <noscript> fallback.
+ *
+ * Split out of Analytics.astro because Google's install instructions put the
+ * two snippets in different places: the script goes in <head>, and this goes
+ * "immediately after the opening <body> tag". It was previously rendered
+ * inside <head> along with the rest of Analytics, which is invalid HTML —
+ * a <noscript> containing an <iframe> is not permitted there, and the
+ * fallback did not work for the visitors it exists to cover.
+ *
+ * Renders nothing when no container is configured.
+ */
+import { GTM_ID } from '../lib/tracking-config';
+
+const html = GTM_ID
+  ? `<iframe src="https://www.googletagmanager.com/ns.html?id=${GTM_ID}" height="0" width="0" style="display:none;visibility:hidden"></iframe>`
+  : '';
+---
+
+{html && <noscript set:html={html} />}

@@ -9,11 +9,11 @@
  *
  * Renders nothing at all when no tags are configured.
  */
-const configured = Boolean(
-  import.meta.env.PUBLIC_GTM_ID ||
-    import.meta.env.PUBLIC_GA4_ID ||
-    import.meta.env.PUBLIC_META_PIXEL_ID
-);
+import { TRACKING_ENABLED } from '../lib/tracking-config';
+
+/* Must agree with what Analytics.astro actually loads. Reading env directly
+   here is what previously let GTM load while this rendered nothing. */
+const configured = TRACKING_ENABLED;
 ---
 
 {

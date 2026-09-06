@@ -23,9 +23,22 @@
  * /img/rts-hero-poster.jpg, /img/rts-hero-end.jpg, /img/rts-door-panel.jpg.
  * Encode and mechanics are documented in the rts-hero-parallax repo.
  */
+
+interface Props {
+  /**
+   * Where the visitor is dropped in.
+   *   'top'  — the landing: proof, links, then the approach on scroll.
+   *   'door' — straight to the gate, film skipped. Paid traffic wants the
+   *            offer, not the approach; the ad already did that work.
+   * Both render the same page, so scrolling up from the door reverses the
+   * approach into the landing rather than navigating anywhere.
+   */
+  start?: 'top' | 'door';
+}
+const { start = 'top' } = Astro.props;
 ---
 
-<section class="hero hero--landing" id="hero" data-hero-intro data-section="hero" aria-label="Harrison Saito — Return to Self">
+<section class="hero hero--landing" id="hero" data-hero-intro data-start={start} data-section="hero" aria-label="Harrison Saito — Return to Self">
   <div class="hero__frame">
     <img class="hero__poster" src="/img/rts-hero-poster.jpg" alt="" aria-hidden="true" width="1280" height="720" fetchpriority="high" decoding="sync" />
     <video class="hero__video" id="heroVideo" muted playsinline preload="metadata"
@@ -44,7 +57,7 @@
           <li><b>SBS News</b><small>National broadcast feature</small></li>
           <li><b>3 generations</b><small>Japanese karate lineage</small></li>
           <li><b>2nd Dan</b><small>Shido-In, Shinbukan</small></li>
-          <li><b>Still teaching</b><small>NSW Department of Education</small></li>
+          <li><b>Teacher</b><small>NSW Department of Education</small></li>
         </ul>
 
         <ol class="cred" aria-label="Where a stranger can verify him">
@@ -55,10 +68,11 @@
           <li><a class="cred__item" href="https://www.shinbukan.com.au/shinbukan-instructors" target="_blank" rel="noopener"><span class="cred__tag">Dojo</span><span><b>Shinbukan 神武館</b><small>Instructor wall · 2nd Dan, Shido-In</small></span></a></li>
           <li><a class="cred__item" href="https://www.shingon.org.au/about" target="_blank" rel="noopener"><span class="cred__tag">Temple</span><span><b>Seizanji Temple 青山寺</b><small>Kōyasan Shingon · ordained 2014</small></span></a></li>
           <li><a class="cred__item" href="https://www.linkedin.com/in/harrison-saito" target="_blank" rel="noopener"><span class="cred__tag">Him</span><span><b>LinkedIn</b><small>Teacher, NSW Department of Education</small></span></a></li>
+          <li><a class="cred__item" href="https://www.youtube.com/@Harrison_saito" target="_blank" rel="noopener"><span class="cred__tag">Him</span><span><b>YouTube</b><small>Films, interviews and dojo practice</small></span></a></li>
         </ol>
 
         {/* The path in. Click fades the proof and reveals the scroll cue; the href is the no-JS fallback. */}
-        <a class="links__path" id="path" href="/mens-coaching" data-track="cta_click" data-track-label="Intro — Men's coaching"><span class="links__path-text"><small>The path in</small><b>Men's coaching</b></span><span class="links__path-go">Begin →</span></a>
+        <a class="links__path" id="path" data-beam href="/mens-coaching" data-track="cta_click" data-track-label="Intro — Men's coaching"><span class="links__path-text"><small>The path in</small><b>Men's coaching</b></span><span class="links__path-go">Begin →</span></a>
       </div>
     </nav>
 
@@ -75,6 +89,7 @@
       <a class="pops__item pops__item--cta" href="/book" data-track="cta_click" data-track-label="Intro — Book a chat"><b>Book a chat</b><small>A discovery call · one-to-one coaching</small></a>
       <a class="pops__item" href="https://www.shinbukan.com.au/the-saitos" target="_blank" rel="noopener"><b>The Saitos</b><small>The dojo his father founded, 1978</small></a>
       <a class="pops__item" href="https://www.facebook.com/shinbukanmartialarts/" target="_blank" rel="noopener"><b>Dojo reviews</b><small>Shinbukan on Facebook</small></a>
+      <button class="pops__item pops__item--back" type="button" id="backToLinks" data-track="cta_click" data-track-label="Intro — Back to the links"><b>All his links</b><small>Back to the start</small></button>
     </nav>
 
     {/* THE DOOR. The room's own sliding door over the centre doorway, positioned by script. */}
@@ -83,6 +98,13 @@
       <span class="door__glow" aria-hidden="true"></span>
       <span class="door__ring" aria-hidden="true"></span>
       <span class="door__copy">
+        {/* VSL slot. Placeholder until the film is supplied — deliberately a
+            real 16:9 box rather than a grey rectangle, so the layout it will
+            occupy is the layout being reviewed now. */}
+        <span class="door__vsl" data-vsl aria-hidden="true">
+          <span class="door__vsl-play"></span>
+          <span class="door__vsl-label">Video</span>
+        </span>
         <small>Return to Self</small>
         <b>Helping high-performing men break old habits and rebuild self-trust.</b>
         <span class="door__enter">Enter →</span>
@@ -97,6 +119,7 @@
       </div>
       <div class="beat beat--close" data-beat data-t-in="16.5" data-t-out="999">
         <p class="beat__line beat__line--portrait">Return to Self.<br /><em>Twelve weeks.</em></p>
+        <p class="hero__scrollcue"><span aria-hidden="true"></span>Scroll to continue</p>
         <div class="hero__actions">
           <a class="btn btn--gold" href="/apply" data-track="cta_click" data-track-label="Intro — Apply">Apply</a>
           <a class="btn btn--ghost" href="/book" data-track="cta_click" data-track-label="Intro — Book a call">Book a call</a>
@@ -211,6 +234,29 @@
   .links__path:hover,.links__path:focus-visible{background:var(--gold-light); border-color:var(--gold-light); outline:none}
   .links__path:focus-visible{box-shadow:0 0 0 2px var(--ink-900)}
 
+  /* The same travelling beam the door carries, so a moving gold edge means one
+     thing everywhere on this page: this is the way through. The tray beside it
+     is a list of places to look; this is the single intended click, and on
+     landing it should be obvious which is which without reading.
+
+     The segment is near-white rather than gold — the button is already gold,
+     so a gold beam on it would not read. Sits entirely outside the border box
+     via inset/padding + an excluded mask, so it never touches the label. */
+  .links__path{position:relative; isolation:isolate}
+  .links__path::after{
+    content:''; position:absolute; inset:-5px; padding:5px; border-radius:1px; pointer-events:none;
+    background:conic-gradient(from var(--sweep),
+      oklch(88% 0.09 82 / .10) 0 58%, oklch(94% 0.07 84 / .55) 76%, oklch(99% 0.03 90) 88%, oklch(88% 0.09 82 / .10) 100%);
+    -webkit-mask:linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+    -webkit-mask-composite:xor;
+    mask:linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+    mask-composite:exclude;
+    filter:drop-shadow(0 0 7px oklch(92% 0.08 82 / .6));
+    animation:sweep 2.6s linear infinite;
+  }
+  /* Once he has chosen the path there is nothing left to point at. */
+  .links[data-chosen] .links__path::after{animation:none; opacity:0; transition:opacity .4s ease}
+
   .links[data-chosen] .links__inner > *{opacity:0; pointer-events:none}
   .links[data-chosen] .links__path{transition-delay:.3s}
 
@@ -251,6 +297,7 @@
   .pops__item small{display:block; font-family:var(--font-body); font-size:.72rem; color:color-mix(in oklab, var(--card-ink) 62%, var(--card-paper)); margin-top:.12rem}
   .pops__item:hover,.pops__item:focus-visible{background:var(--card-paper); border-color:var(--gold-deep); outline:none}
   .pops__item:focus-visible{box-shadow:0 0 0 2px var(--gold-deep)}
+  .pops__item--back{width:100%; text-align:left; font:inherit; cursor:pointer; border:1px solid var(--rule-on-ink)}
   .pops__item--cta{background:var(--gold); color:var(--ink-900); border-color:var(--gold)}
   .pops__item--cta small{color:oklch(11% 0.008 55 / .72)}
   .pops__item--cta:hover,.pops__item--cta:focus-visible{background:var(--gold-light); border-color:var(--gold-light)}
@@ -276,12 +323,22 @@
     animation:breathe 4.4s ease-in-out infinite alternate;
   }
   @keyframes breathe{from{opacity:.58} to{opacity:.9}}
+  /* the beam: a 5px ring just outside the panel with a bright segment that
+     travels the edge — the cue that the door is the thing to press. The faint
+     base track keeps the outline visible all the way round. */
+  @property --sweep{syntax:'<angle>'; inherits:false; initial-value:0deg}
   .door__ring{
-    position:absolute; inset:0; z-index:3; pointer-events:none;
-    box-shadow:inset 0 0 0 1px oklch(90% 0.07 82 / .6), inset 0 0 18px 0 oklch(90% 0.07 82 / .32);
-    animation:edge 4.4s ease-in-out infinite alternate;
+    position:absolute; inset:-5px; z-index:3; pointer-events:none; padding:5px; border-radius:1px;
+    background:conic-gradient(from var(--sweep),
+      oklch(84% 0.11 78 / .16) 0 62%, oklch(84% 0.11 78 / .45) 78%, oklch(92% 0.10 80) 90%, oklch(84% 0.11 78 / .16) 100%);
+    -webkit-mask:linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+    -webkit-mask-composite:xor;
+    mask:linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+    mask-composite:exclude;
+    filter:drop-shadow(0 0 6px oklch(84% 0.11 78 / .55));
+    animation:sweep 2.6s linear infinite;
   }
-  @keyframes edge{from{opacity:.55} to{opacity:1}}
+  @keyframes sweep{to{--sweep:360deg}}
   .door__copy{
     position:absolute; inset:0; z-index:2; display:grid; align-content:center; justify-items:center; gap:.85rem;
     padding:1.1rem 1rem; color:var(--card-ink);
@@ -296,11 +353,45 @@
   }
   .door:hover .door__paper,.door:focus-visible .door__paper{filter:brightness(1.04)}
   .door:hover .door__glow,.door:focus-visible .door__glow{animation-play-state:paused; opacity:.92}
-  .door:hover .door__ring,.door:focus-visible .door__ring{animation-play-state:paused; opacity:1; box-shadow:inset 0 0 0 1px var(--gold), inset 0 0 22px 0 oklch(90% 0.07 82 / .4)}
+  .door:hover .door__ring,.door:focus-visible .door__ring{animation-duration:1.6s}
   .door:hover .door__enter,.door:focus-visible .door__enter{background:var(--gold-light); border-color:var(--gold-light)}
   .door:focus-visible{outline:none}
 
   /* ---------------- beats, after the door ---------------- */
+  /* Sits above the two closing CTAs: the film has finished, but the page has
+     not — without this the end of the reel reads as the end of the site. */
+  .hero__scrollcue{
+    display:flex; align-items:center; gap:.55rem; margin:0 0 .85rem;
+    font-family:var(--font-body); font-size:.66rem; font-weight:700;
+    letter-spacing:.22em; text-transform:uppercase; color:oklch(93% 0.005 60 / .58);
+  }
+  .hero__scrollcue span{
+    width:1px; height:22px; background:var(--rule-on-ink); position:relative; overflow:hidden; flex:0 0 auto;
+  }
+  .hero__scrollcue span::after{
+    content:''; position:absolute; left:0; top:-45%; width:100%; height:45%;
+    background:var(--gold); animation:cue 2.2s cubic-bezier(.6,0,.4,1) infinite;
+  }
+
+  /* The VSL slot inside the door. The panel is a narrow shoji, so the box is
+     sized off its width and stays 16:9 — if the finished film needs more room
+     than this, the door is the wrong home for it and it moves out. */
+  .door__vsl{
+    display:block; width:100%; aspect-ratio:16/9; position:relative;
+    background:oklch(24% 0.012 60); border:1px solid oklch(11% 0.008 55 / .28);
+    display:grid; place-items:center; gap:.3rem;
+  }
+  .door__vsl-play{
+    width:0; height:0; border-left:14px solid oklch(96% 0.02 85 / .92);
+    border-top:9px solid transparent; border-bottom:9px solid transparent;
+    margin-left:3px;
+  }
+  .door__vsl-label{
+    position:absolute; bottom:.3rem; left:0; right:0; text-align:center;
+    font-family:var(--font-body); font-size:.5rem; font-weight:700;
+    letter-spacing:.2em; text-transform:uppercase; color:oklch(96% 0.02 85 / .5);
+  }
+
   .hero__beats{position:absolute; inset:0; z-index:2; display:grid; place-items:end start; padding:0 clamp(1.5rem,5vw,5.5rem) clamp(3.5rem,9vh,6.5rem); pointer-events:none}
   .hero__beats a{pointer-events:auto}
   .beat{grid-area:1/1; max-width:38rem; opacity:0; transform:translateY(14px); transition:opacity .4s ease-out, transform .4s ease-out; will-change:opacity,transform}
@@ -369,6 +460,7 @@
     .hero__video,.hero__hold{display:none}
     .cue,.door,.pops,.hero__beats,.hero__skip{display:none}
     .links,.links__inner > *,.pops__item{transition:none; animation:none}
+    .links__path::after,.door__ring,.door__glow{animation:none}
   }
 </style>
 
@@ -500,7 +592,7 @@
     door!.style.left = L + "px"; door!.style.top = T + "px"; door!.style.width = Wd + "px"; door!.style.height = Hd + "px";
     /* the pop-ups sit beside the door, centred on its height; on a phone the CSS row takes over */
     if (window.matchMedia("(max-width:600px)").matches) { pops!.style.left = ""; pops!.style.top = ""; return; }
-    var gap = 18, pw = pops!.offsetWidth, ph = pops!.offsetHeight;
+    var gap = 44, pw = pops!.offsetWidth, ph = pops!.offsetHeight;
     var left = L + Wd + gap;
     if (left + pw > window.innerWidth - 12) left = Math.max(12, L - gap - pw);
     var top = clamp(T + (Hd - ph) / 2, 12, window.innerHeight - ph - 12);
@@ -677,6 +769,30 @@
   video.addEventListener("ended", function () { finish(false); });
   skip.addEventListener("click", function () { if (playing) finish(true); });
 
+  /* Back to the links. The film is scroll-driven, so returning to the start is
+     literally scrolling to the top — the approach reverses on the way, which is
+     the point: he passes the proof again rather than being teleported past it.
+     unlock() first, because the gate holds scroll while the door is up and a
+     held page cannot be scrolled anywhere. */
+  var backToLinks = document.getElementById("backToLinks");
+  if (backToLinks) {
+    backToLinks.addEventListener("click", function () {
+      unlock();
+      gated = false;
+      hero!.removeAttribute("data-gated");
+      hero!.classList.remove("hero--gated");
+      door!.hidden = true;
+      pops!.hidden = true;
+      /* lenisOf() rather than a bare `lenis` — the instance is owned by
+         scripts/motion.ts and exposed on window; there is no local binding. */
+      var l = lenisOf();
+      try {
+        if (l && typeof l.scrollTo === "function") l.scrollTo(0, { duration: 1.4 });
+        else window.scrollTo({ top: 0, behavior: "smooth" });
+      } catch (e) { window.scrollTo(0, 0); }
+    });
+  }
+
   /* If the film cannot load, the landing carries the page and the nav returns. */
   function bail() {
     if (done) return;
@@ -701,6 +817,10 @@
     onScroll();
     eased = target;
     requestAnimationFrame(tick);
+    /* Deep entry: /enter drops the visitor at the gate. engage() does the rest
+       — it snaps scroll to gateY, seeks the hold frame and places the door — so
+       the page above still exists and scrolling back reverses the approach. */
+    if (hero!.dataset.start === "door" && !answered && !gated) engage();
   }
   /* Order matters: metadata first, THEN the iOS unlock (a muted play() that is
      paused the moment it resolves — Safari refuses currentTime on an element
