@@ -625,8 +625,14 @@ const TRAY = [
   @media (max-width:600px){
     .links__inner{width:calc(100% - 1.5rem); gap:.55rem; transform:translate(-50%,-50%)}
     .links__name{font-size:var(--step-1)}
-    .proof{grid-template-columns:1fr 1fr; gap:.4rem .6rem; padding:.45rem 0}
-    .proof b{font-size:var(--step-0)}
+    /* One row of four, as on the desktop. Two-by-two read as cramped and
+       broke the strip into a block; four small chips read as four claims.
+       The value is sized to the column so "3 generations" stays one word
+       wide, and the label is allowed its second line. */
+    .proof{grid-template-columns:repeat(4,1fr); gap:.3rem; padding:.3rem 0}
+    .proof li{padding:.45rem .25rem}
+    .proof b{font-size:clamp(.7rem, 3.05vw, .95rem); letter-spacing:-.01em}
+    .proof small{font-size:.46rem; letter-spacing:.07em; margin-top:.15rem; line-height:1.25}
     .cred{grid-template-columns:1fr; gap:.35rem}
     .cred__item{padding:.4rem .7rem; gap:.18rem}
     .cred__item small{display:none}
@@ -775,7 +781,14 @@ const TRAY = [
 
   var FPS = 24, JOIN = 202, PLATE_W = 1280, PLATE_H = 720;
   var T_HOLD   = (JOIN - 1.5) / FPS;   /* last frame of room one, held */
-  var T_RESUME = (JOIN + 0.5) / FPS;   /* first frame of room two */
+  /* Room two does not start on its first frame. Measured against the last
+     frame of room one, frame 202 is 31 luma away — the same room, lit and
+     framed a little differently, which is exactly what reads as a cut. By
+     frame 242 it is 43 away and brighter: a different place. Frames 236-243
+     are also the stillest stretch of the opening, so the frame held under the
+     portal is a composed one. The first 1.7s of room two are never shown. */
+  var RESUME = 242;
+  var T_RESUME = (RESUME + 0.5) / FPS;  /* the frame room two is revealed on */
   var doorBoxPx = { x: 0, y: 0, w: 1, h: 1 };
   var PORTAL_SPAN = 0.22;              /* of the runway: the walk through the door */
   var NUDGE = 0.10;                    /* how far Enter walks it for him, so the click is seen to do something */
@@ -1056,41 +1069,44 @@ const TRAY = [
     var t = clamp((x - a) / (b - a), 0, 1);
     return t * t * (3 - 2 * t);
   }
-  /* The walk, in two movements over the window.
+  /* The walk, in three movements over the window.
 
-     Approach (k 0 -> .8): the door stays where it is in the frame and grows —
+     Approach (k 0 -> .62): the door stays where it is in the frame and grows —
      quadratic, so it barely moves while its copy fades and then comes at you
-     — until its edges are past the screen. The silhouette is the point: it is
-     the panel, the shoji paper and the beam round it, and it is kept the
-     whole way. As it grows the paper turns to light. The first room is held
-     under it until late.
+     — until its edges are past every edge of the screen. The silhouette is
+     the point: it is the panel, the shoji paper and the beam round it, and it
+     is kept the whole way. As it grows the paper turns to light.
 
-     Collapse (k .8 -> 1): with the doorway filling the screen and the bloom at
-     full, the held room lets go, the pane and the light dissolve, and what is
-     under them is the second room — on its first frame, still. The join is
-     never on screen without the light over it. */
+     Through (k .62 -> .85): the silhouette fills the screen and holds there,
+     opaque, with the light at full. This is where the rooms change hands: the
+     first room lets go entirely behind the pane, and the second is already
+     underneath on the frame it will be revealed on. Nothing of the join is
+     ever on screen — there is a wall of light over it for the whole handover.
+
+     Collapse (k .85 -> 1): the pane and the light dissolve and what is under
+     them is the second room, still, a couple of seconds into itself. */
   function drivePortal(p: number) {
     var k = clamp((p - pGate) / PORTAL_SPAN, 0, 1);
     var inWindow = p >= pGate && k < 1;
-    var kA = clamp(k / 0.8, 0, 1), kB = clamp((k - 0.8) / 0.2, 0, 1);
+    var kA = clamp(k / 0.62, 0, 1), kB = clamp((k - 0.85) / 0.15, 0, 1);
     setObjX(p < pGate ? panFor(p) : panFor(pGate) + (50 - panFor(pGate)) * kA);
     if (inWindow) { placeOnPlate(hold!); placeDoor(); }
     hold!.hidden = !inWindow; door!.hidden = !inWindow; bloom!.hidden = !inWindow;
     /* How big the door has to get, from where it sits, to be past every edge. */
     var d = doorBoxPx, cx = d.x + d.w / 2, cy = d.y + d.h * 0.56;
-    var cover = 1.1 * Math.max(cx / (d.w / 2), (window.innerWidth - cx) / (d.w / 2), cy / (d.h * 0.56), (window.innerHeight - cy) / (d.h * 0.44));
+    var cover = 1.12 * Math.max(cx / (d.w / 2), (window.innerWidth - cx) / (d.w / 2), cy / (d.h * 0.56), (window.innerHeight - cy) / (d.h * 0.44));
     var grow = kA * kA;
     var st = hero!.style;
     st.setProperty("--portal", k.toFixed(4));
-    st.setProperty("--door-s", (1 + (cover - 1) * grow + 0.35 * kB).toFixed(4));
+    st.setProperty("--door-s", (1 + (cover - 1) * grow + 0.25 * kB).toFixed(4));
     st.setProperty("--door-o", (inWindow ? 1 - kB * kB : 0).toFixed(4));
-    st.setProperty("--copy-o", (1 - clamp(k / 0.18, 0, 1)).toFixed(4));
-    st.setProperty("--pane-light", (0.18 + 0.82 * smooth(0.05, 0.8, k)).toFixed(4));
-    st.setProperty("--pane-o", (0.96 * (1 - kB)).toFixed(4));
+    st.setProperty("--copy-o", (1 - clamp(k / 0.16, 0, 1)).toFixed(4));
+    st.setProperty("--pane-light", (0.18 + 0.82 * smooth(0.05, 0.62, k)).toFixed(4));
+    st.setProperty("--pane-o", (0.98 * (1 - kB)).toFixed(4));
     st.setProperty("--ring-o", (0.85 * (1 - kB)).toFixed(4));
     st.setProperty("--glow-o", ((0.6 + 0.4 * kA) * (1 - kB)).toFixed(4));
-    st.setProperty("--bloom", (smooth(0.35, 0.8, k) * (1 - Math.pow(kB, 1.5))).toFixed(4));
-    st.setProperty("--hold-o", (1 - smooth(0.66, 0.9, k)).toFixed(4));
+    st.setProperty("--bloom", (smooth(0.4, 0.7, k) * (1 - Math.pow(kB, 1.5))).toFixed(4));
+    st.setProperty("--hold-o", (1 - smooth(0.64, 0.82, k)).toFixed(4));
     st.setProperty("--hold-s", (1 + 0.18 * k).toFixed(4));
   }
   function enter() {
