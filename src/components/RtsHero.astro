@@ -790,6 +790,16 @@ const TRAY = [
   var RESUME = 242;
   var T_RESUME = (RESUME + 0.5) / FPS;  /* the frame room two is revealed on */
   var doorBoxPx = { x: 0, y: 0, w: 1, h: 1 };
+  /* The film has two hold points either side of the join: the last frame of
+     room one under the door, and the frame room two is revealed on. Nothing
+     between them is ever shown. A seek from one to the other is a crossing:
+     it snaps rather than eases, and the held frame stays over the video until
+     the browser reports it has landed. */
+  var crossing = false;
+  /* Just below the gate, on the way back: the door fades over the still frame
+     rather than popping off it, and the crossing seek has this much scroll to
+     land under cover before the film is allowed to rewind. */
+  var BAND = 0.02;
   var PORTAL_SPAN = 0.22;              /* of the runway: the walk through the door */
   var NUDGE = 0.10;                    /* how far Enter walks it for him, so the click is seen to do something */
   var STEP_MS = 650;
@@ -847,6 +857,7 @@ const TRAY = [
      when he scrolls back, so every pixel of the runway does something instead
      of being screens of frozen frame to wade through. */
   function timeFor(p: number) {
+    if (answered && p >= pGate - BAND && p <= pGate) return T_HOLD;
     if (p <= pGate) return Math.min(p / pGate, 1) * T_HOLD;
     if (!answered) return T_HOLD;
     /* The first frame of room two holds for the whole step, so the portal is
@@ -995,7 +1006,10 @@ const TRAY = [
   }
 
   /* ---------- seeking (room one only): one in flight, three ways to settle ---------- */
-  function settle() { pending = false; clearTimeout(watchdog); }
+  function settle() {
+    pending = false; clearTimeout(watchdog);
+    if (crossing) { crossing = false; if (answered && !cut) onScroll(); }
+  }
   video.addEventListener("seeked", settle);
   function issueSeek(t: number) {
     pending = true;
@@ -1006,8 +1020,18 @@ const TRAY = [
   }
   function tick() {
     if (ready && !cut) {
-      eased += (target - eased) * 0.14;
-      if (!pending && Math.abs(eased - video!.currentTime) > 1 / 48) issueSeek(eased);
+      var fromOne = eased <= T_HOLD + 0.001, toTwo = target >= T_RESUME - 0.001;
+      var fromTwo = eased >= T_RESUME - 0.001, toOne = target <= T_HOLD + 0.001;
+      if ((fromOne && toTwo) || (fromTwo && toOne)) {
+        /* Never ease through the join. Snap to the far hold point and keep
+           the held frame over the video until the seek has landed. */
+        eased = target; crossing = true;
+        issueSeek(eased);
+        if (answered) drivePortal(progress());
+      } else {
+        eased += (target - eased) * 0.14;
+        if (!pending && Math.abs(eased - video!.currentTime) > 1 / 48) issueSeek(eased);
+      }
       paintBeats(eased);
     }
     requestAnimationFrame(tick);
@@ -1077,35 +1101,60 @@ const TRAY = [
      the point: it is the panel, the shoji paper and the beam round it, and it
      is kept the whole way. As it grows the paper turns to light.
 
-     Through (k .62 -> .85): the silhouette fills the screen and holds there,
+     Through (k .62 -> .9): the silhouette fills the screen and holds there,
      opaque, with the light at full. This is where the rooms change hands: the
      first room lets go entirely behind the pane, and the second is already
      underneath on the frame it will be revealed on. Nothing of the join is
      ever on screen — there is a wall of light over it for the whole handover.
 
-     Collapse (k .85 -> 1): the pane and the light dissolve and what is under
-     them is the second room, still, a couple of seconds into itself. */
+     Collapse (k .9 -> 1): the pane and the light dissolve — late and fast,
+     so that reversed the light is there the moment room two is left — and
+     what is under them is the second room, still, two seconds into itself.
+
+     And a threshold band just below the gate, on the way back: the door
+     fades over the still frame it sits on instead of popping off it, while
+     the seek back across the join lands under cover. */
   function drivePortal(p: number) {
     var k = clamp((p - pGate) / PORTAL_SPAN, 0, 1);
     var inWindow = p >= pGate && k < 1;
-    var kA = clamp(k / 0.62, 0, 1), kB = clamp((k - 0.85) / 0.15, 0, 1);
+    var band = p >= pGate - BAND && p < pGate;
+    var kA = clamp(k / 0.62, 0, 1), kB = clamp((k - 0.9) / 0.1, 0, 1);
     setObjX(p < pGate ? panFor(p) : panFor(pGate) + (50 - panFor(pGate)) * kA);
-    if (inWindow) { placeOnPlate(hold!); placeDoor(); }
-    hold!.hidden = !inWindow; door!.hidden = !inWindow; bloom!.hidden = !inWindow;
+    if (inWindow || band) { placeOnPlate(hold!); placeDoor(); }
+    /* The held frame stays up through the band, and for as long as a seek
+       across the join is still in flight — that is the one time the video
+       underneath could be showing something from between the rooms. */
+    hold!.hidden = !(inWindow || band || crossing);
+    door!.hidden = !(inWindow || band);
+    bloom!.hidden = !inWindow;
+    if (band) {
+      /* Below the gate on the way back: the door as it was at the gate,
+         fading over the still frame it sits on, so it arrives and leaves
+         rather than popping. */
+      var fade = clamp((p - (pGate - BAND)) / BAND, 0, 1);
+      var sb = hero!.style;
+      sb.setProperty("--portal", "0"); sb.setProperty("--door-s", "1"); sb.setProperty("--door-o", fade.toFixed(4));
+      sb.setProperty("--copy-o", "1"); sb.setProperty("--pane-light", "0.18"); sb.setProperty("--pane-o", "0.98");
+      sb.setProperty("--ring-o", "0.85"); sb.setProperty("--glow-o", "0.7"); sb.setProperty("--bloom", "0");
+      sb.setProperty("--hold-o", "1"); sb.setProperty("--hold-s", "1");
+      return;
+    }
     /* How big the door has to get, from where it sits, to be past every edge. */
     var d = doorBoxPx, cx = d.x + d.w / 2, cy = d.y + d.h * 0.56;
     var cover = 1.12 * Math.max(cx / (d.w / 2), (window.innerWidth - cx) / (d.w / 2), cy / (d.h * 0.56), (window.innerHeight - cy) / (d.h * 0.44));
     var grow = kA * kA;
     var st = hero!.style;
     st.setProperty("--portal", k.toFixed(4));
-    st.setProperty("--door-s", (1 + (cover - 1) * grow + 0.25 * kB).toFixed(4));
+    st.setProperty("--door-s", (1 + (cover - 1) * grow + 0.2 * kB).toFixed(4));
     st.setProperty("--door-o", (inWindow ? 1 - kB * kB : 0).toFixed(4));
     st.setProperty("--copy-o", (1 - clamp(k / 0.16, 0, 1)).toFixed(4));
     st.setProperty("--pane-light", (0.18 + 0.82 * smooth(0.05, 0.62, k)).toFixed(4));
-    st.setProperty("--pane-o", (0.98 * (1 - kB)).toFixed(4));
-    st.setProperty("--ring-o", (0.85 * (1 - kB)).toFixed(4));
-    st.setProperty("--glow-o", ((0.6 + 0.4 * kA) * (1 - kB)).toFixed(4));
-    st.setProperty("--bloom", (smooth(0.4, 0.7, k) * (1 - Math.pow(kB, 1.5))).toFixed(4));
+    /* The collapse clears late and fast — (1 - kB^2) — so that, run the other
+       way, the light is there almost the moment room two is left. */
+    st.setProperty("--pane-o", (0.98 * (1 - kB * kB)).toFixed(4));
+    st.setProperty("--ring-o", (0.85 * (1 - kB * kB)).toFixed(4));
+    st.setProperty("--glow-o", ((0.6 + 0.4 * kA) * (1 - kB * kB)).toFixed(4));
+    st.setProperty("--bloom", (smooth(0.4, 0.7, k) * (1 - kB * kB)).toFixed(4));
     st.setProperty("--hold-o", (1 - smooth(0.64, 0.82, k)).toFixed(4));
     st.setProperty("--hold-s", (1 + 0.18 * k).toFixed(4));
   }
