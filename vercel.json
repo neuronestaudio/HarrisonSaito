@@ -3,39 +3,153 @@
   "cleanUrls": true,
   "trailingSlash": false,
   "redirects": [
-    { "source": "/about-harrison-saito", "destination": "/about", "permanent": true },
-    { "source": "/about-harrison", "destination": "/about", "permanent": true },
-    { "source": "/about-me", "destination": "/about", "permanent": true },
-    { "source": "/contact-harrison-saito", "destination": "/contact", "permanent": true },
-    { "source": "/youth-education", "destination": "/hsc-tutoring", "permanent": true },
-    { "source": "/student-testimonies", "destination": "/testimonials", "permanent": true },
-    { "source": "/testimonies", "destination": "/testimonials", "permanent": true },
-    { "source": "/adult-coaching", "destination": "/mens-coaching", "permanent": true },
-    { "source": "/coaching", "destination": "/mens-coaching", "permanent": true },
-    { "source": "/adults", "destination": "/mens-coaching", "permanent": true },
-    { "source": "/youth", "destination": "/hsc-tutoring", "permanent": true },
-    { "source": "/tutoring", "destination": "/hsc-tutoring", "permanent": true },
-    { "source": "/hsc", "destination": "/hsc-tutoring", "permanent": true },
-    { "source": "/services", "destination": "/", "permanent": true },
-    { "source": "/media-appearances", "destination": "/media", "permanent": true },
-    { "source": "/return-to-self", "destination": "/mens-coaching", "permanent": true },
-    { "source": "/returntoself", "destination": "/mens-coaching", "permanent": true },
-    { "source": "/programme", "destination": "/mens-coaching", "permanent": true },
-    { "source": "/program", "destination": "/mens-coaching", "permanent": true },
-    { "source": "/apply-now", "destination": "/apply", "permanent": true },
-    { "source": "/booking", "destination": "/book", "permanent": true },
-    { "source": "/book-a-call", "destination": "/book", "permanent": true },
-    { "source": "/privacy-policy", "destination": "/privacy", "permanent": true },
-    { "source": "/terms-and-conditions", "destination": "/terms", "permanent": true },
-    { "source": "/terms-of-service", "destination": "/terms", "permanent": true }
+    {
+      "source": "/enter",
+      "destination": "/landing",
+      "permanent": true
+    },
+    {
+      "source": "/about-harrison-saito",
+      "destination": "/about",
+      "permanent": true
+    },
+    {
+      "source": "/about-harrison",
+      "destination": "/about",
+      "permanent": true
+    },
+    {
+      "source": "/about-me",
+      "destination": "/about",
+      "permanent": true
+    },
+    {
+      "source": "/contact-harrison-saito",
+      "destination": "/contact",
+      "permanent": true
+    },
+    {
+      "source": "/youth-education",
+      "destination": "/hsc-tutoring",
+      "permanent": true
+    },
+    {
+      "source": "/student-testimonies",
+      "destination": "/testimonials",
+      "permanent": true
+    },
+    {
+      "source": "/testimonies",
+      "destination": "/testimonials",
+      "permanent": true
+    },
+    {
+      "source": "/adult-coaching",
+      "destination": "/mens-coaching",
+      "permanent": true
+    },
+    {
+      "source": "/coaching",
+      "destination": "/mens-coaching",
+      "permanent": true
+    },
+    {
+      "source": "/adults",
+      "destination": "/mens-coaching",
+      "permanent": true
+    },
+    {
+      "source": "/youth",
+      "destination": "/hsc-tutoring",
+      "permanent": true
+    },
+    {
+      "source": "/tutoring",
+      "destination": "/hsc-tutoring",
+      "permanent": true
+    },
+    {
+      "source": "/hsc",
+      "destination": "/hsc-tutoring",
+      "permanent": true
+    },
+    {
+      "source": "/services",
+      "destination": "/",
+      "permanent": true
+    },
+    {
+      "source": "/media-appearances",
+      "destination": "/media",
+      "permanent": true
+    },
+    {
+      "source": "/return-to-self",
+      "destination": "/mens-coaching",
+      "permanent": true
+    },
+    {
+      "source": "/returntoself",
+      "destination": "/mens-coaching",
+      "permanent": true
+    },
+    {
+      "source": "/programme",
+      "destination": "/mens-coaching",
+      "permanent": true
+    },
+    {
+      "source": "/program",
+      "destination": "/mens-coaching",
+      "permanent": true
+    },
+    {
+      "source": "/apply-now",
+      "destination": "/apply",
+      "permanent": true
+    },
+    {
+      "source": "/booking",
+      "destination": "/book",
+      "permanent": true
+    },
+    {
+      "source": "/book-a-call",
+      "destination": "/book",
+      "permanent": true
+    },
+    {
+      "source": "/privacy-policy",
+      "destination": "/privacy",
+      "permanent": true
+    },
+    {
+      "source": "/terms-and-conditions",
+      "destination": "/terms",
+      "permanent": true
+    },
+    {
+      "source": "/terms-of-service",
+      "destination": "/terms",
+      "permanent": true
+    }
   ],
   "headers": [
     {
       "source": "/(.*)",
       "headers": [
-        { "key": "X-Content-Type-Options", "value": "nosniff" },
-        { "key": "X-Frame-Options", "value": "SAMEORIGIN" },
-        { "key": "Referrer-Policy", "value": "strict-origin-when-cross-origin" },
+        {
+          "key": "X-Content-Type-Options",
+          "value": "nosniff"
+        },
+        {
+          "key": "X-Frame-Options",
+          "value": "SAMEORIGIN"
+        },
+        {
+          "key": "Referrer-Policy",
+          "value": "strict-origin-when-cross-origin"
+        },
         {
           "key": "Permissions-Policy",
           "value": "geolocation=(), microphone=(), camera=(), interest-cohort=()"
@@ -48,21 +162,42 @@
     },
     {
       "source": "/_astro/(.*)",
-      "headers": [{ "key": "Cache-Control", "value": "public, max-age=31536000, immutable" }]
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=31536000, immutable"
+        }
+      ]
     },
     {
       "source": "/img/(.*)",
-      "headers": [{ "key": "Cache-Control", "value": "public, max-age=31536000, immutable" }]
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=31536000, immutable"
+        }
+      ]
     },
     {
       "source": "/video/(.*)",
-      "headers": [{ "key": "Cache-Control", "value": "public, max-age=31536000, immutable" }]
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=31536000, immutable"
+        }
+      ]
     },
     {
       "source": "/fonts/(.*)",
       "headers": [
-        { "key": "Cache-Control", "value": "public, max-age=31536000, immutable" },
-        { "key": "Access-Control-Allow-Origin", "value": "*" }
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=31536000, immutable"
+        },
+        {
+          "key": "Access-Control-Allow-Origin",
+          "value": "*"
+        }
       ]
     }
   ]

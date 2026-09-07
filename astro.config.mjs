@@ -16,7 +16,7 @@ export default defineConfig({
     sitemap({
       // Landing pages and legal boilerplate stay out of the sitemap.
       filter: (page) =>
-        !page.includes('/lp/') && !page.includes('/thank-you') && !page.endsWith('/enter'),
+        !page.includes('/lp/') && !page.includes('/thank-you') && !page.endsWith('/landing'),
       changefreq: 'monthly',
       lastmod: new Date(),
       serialize(item) {

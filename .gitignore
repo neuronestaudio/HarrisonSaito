@@ -19,3 +19,7 @@ _shots/
 # is committed. See brand-drop/README.md.
 brand-drop/*
 !brand-drop/README.md
+
+# raw film drops never ship; the encoded /video/rts-hero.mp4 does
+public/video/full hero animation*
+public/video/*4k*

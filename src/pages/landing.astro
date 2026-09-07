@@ -1,16 +1,21 @@
 ---
 /**
- * /enter — the paid-traffic entry point.
+ * /landing — the landing page. The door.
  *
- * The SAME page as /, dropped at the door instead of the landing. A man who
- * clicked an ad about breaking old habits wants the offer, not a menu of
- * press; the ad already did the emotional work the approach normally does.
+ * Two URLs, one page. / is the portfolio: the link tree, the proof, the
+ * approach. /landing is the same page dropped at the door: a man who clicked
+ * an ad about breaking old habits wants the offer, not a menu of press, and
+ * the ad already did the work the approach normally does.
  *
- * Deliberately one page with two entry points rather than two pages:
- *   - nothing is duplicated, so the film and the door cannot drift apart
- *   - scrolling up from the door reverses the approach into the landing, so
- *     "All his links" is a real destination and not a fake
- *   - two URLs still give GA4 two landing pages for clean ad reporting
+ * They reach each other without a reload in one direction and with one in
+ * the other. From / the path in walks the film to the door. From /landing,
+ * Portfolio goes home, where the credentials are — a real destination, since
+ * the approach is the same film run backwards.
+ *
+ * Deliberately one page with two entry points rather than two pages: nothing
+ * is duplicated, so the film and the door cannot drift apart, and GA4 still
+ * sees two landing pages for clean ad reporting. /enter was the old name and
+ * redirects here.
  *
  * noindex + out of the sitemap: it is the same content as /, and the canonical
  * points home so no duplicate-content signal is created.
