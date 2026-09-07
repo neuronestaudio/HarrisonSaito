@@ -19,8 +19,10 @@
  * The nav stays out of the way until the film is done — see Nav.astro, which
  * watches [data-hero-intro][data-done]. Reduced motion gets the landing only.
  *
- * Assets: /video/rts-hero.mp4 (short-GOP H.264 so it can be scrubbed),
- * /img/rts-hero-poster.webp, /img/rts-hero-end.webp, /img/rts-door-panel.jpg.
+ * Assets: /video/rts-hero-v3.mp4 (short-GOP H.264 so it can be scrubbed),
+ * /img/rts-hero-poster-v3.webp, /img/rts-hero-end-v3.webp. Versioned names:
+ * /video and /img ship with a one-year immutable cache, so a new film under
+ * the old name is the old film on every phone that has ever loaded it.
  * Encode and mechanics are documented in the rts-hero-parallax repo.
  */
 
@@ -54,7 +56,7 @@ const TRAY = [
 
 <section class="hero hero--landing" id="hero" data-hero-intro data-start={start} data-section="hero" aria-label="Harrison Saito — Return to Self">
   <div class="hero__frame">
-    <img class="hero__poster" src="/img/rts-hero-poster.webp" alt="" aria-hidden="true" width="1280" height="720" fetchpriority="high" decoding="sync" />
+    <img class="hero__poster" src="/img/rts-hero-poster-v3.webp" alt="" aria-hidden="true" width="1280" height="720" fetchpriority="high" decoding="sync" />
     <video class="hero__video" id="heroVideo" muted playsinline preload="metadata"
            aria-label="A slow walk through a traditional Japanese interior, arriving at the words Return to Self."></video>
     {/* room one, frozen at the door so it can dissolve into room two */}
@@ -200,7 +202,6 @@ const TRAY = [
     --card-paper-2: #DED0BD;
     --card-ink:     #493D2F;
     --card-shadow:  #C8B299;
-    --door-x: 35.5; --door-y: 27.5; --door-w: 14.5; --door-h: 48.2;
     --hero-scroll: 500vh;
 
     /* The scroll behind the glass. Every card and chip on this screen carries
@@ -277,17 +278,7 @@ const TRAY = [
   .hero[data-answered] .door__copy{opacity:var(--copy-o, 1); transition:none}
   /* The paper stays the paper — the shoji panel — with light rising through
      it as it grows, so what fills the screen is still the door. */
-  .hero[data-answered] .door__paper{
-    opacity:var(--pane-o, .96);
-    background:
-      radial-gradient(ellipse at 50% 50%,
-        oklch(99% 0.02 90 / var(--pane-light, .2)),
-        oklch(95.5% 0.05 85 / calc(var(--pane-light, .2) * .88)) 46%,
-        oklch(92% 0.07 82 / calc(var(--pane-light, .2) * .62)) 100%),
-      url("/img/rts-door-panel.jpg") center / 100% 100% no-repeat;
-    filter:blur(calc(var(--portal, 0) * 5px));
-    transition:none;
-  }
+  .hero[data-answered] .door__paper{opacity:var(--pane-o, .98); transition:none}
   .hero[data-answered] .door__glow{animation:none; opacity:var(--glow-o, .7)}
   .hero[data-answered] .door__ring{animation-duration:1.4s; opacity:var(--ring-o, .85)}
 
@@ -497,9 +488,13 @@ const TRAY = [
   }
   .hero--gated .door{opacity:1; pointer-events:auto; transition-duration:.7s}
   .door__paper{
-    position:absolute; inset:0;
-    background:url("/img/rts-door-panel.jpg") center / 100% 100% no-repeat;
-    box-shadow:inset 0 0 0 1px oklch(11% 0.008 55 / .18), 0 24px 60px -24px oklch(11% 0.008 55 / .55);
+    position:absolute; inset:0; border-radius:var(--scroll-radius);
+    background:
+      linear-gradient(180deg, oklch(100% 0 0 / .22), transparent 38%),
+      var(--scroll-tex) center / cover no-repeat,
+      linear-gradient(180deg, var(--card-paper), var(--card-paper-2));
+    background-blend-mode:normal, soft-light, normal;
+    box-shadow:inset 0 1px 0 oklch(100% 0 0 / .45), inset 0 0 0 1px oklch(11% 0.008 55 / .16), 0 30px 70px -28px oklch(11% 0.008 55 / .6);
     transition:filter .3s ease, box-shadow .3s ease;
   }
   .door__glow{
@@ -514,7 +509,7 @@ const TRAY = [
      base track keeps the outline visible all the way round. */
   @property --sweep{syntax:'<angle>'; inherits:false; initial-value:0deg}
   .door__ring{
-    position:absolute; inset:-5px; z-index:3; pointer-events:none; padding:5px; border-radius:1px;
+    position:absolute; inset:-5px; z-index:3; pointer-events:none; padding:5px; border-radius:calc(var(--scroll-radius) + 5px);
     background:conic-gradient(from var(--sweep),
       oklch(84% 0.11 78 / .16) 0 62%, oklch(84% 0.11 78 / .45) 78%, oklch(92% 0.10 80) 90%, oklch(84% 0.11 78 / .16) 100%);
     -webkit-mask:linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
@@ -532,12 +527,12 @@ const TRAY = [
   }
   .door__copy small{
     font-family:var(--font-body); font-weight:700; text-transform:uppercase; color:var(--card-ink);
-    font-size:clamp(.7rem, calc(var(--dw, 240px) * .08), 1.25rem); letter-spacing:.13em; margin-right:-.13em;
+    font-size:clamp(.9rem, calc(var(--dw, 480px) * .042), 1.25rem); letter-spacing:.13em; margin-right:-.13em;
     white-space:nowrap;
   }
-  .door__copy b{font-family:var(--font-display); font-weight:400; font-size:clamp(1.05rem, calc(var(--dw, 240px) * .102), 1.6rem); line-height:1.24; text-wrap:balance}
+  .door__copy b{font-family:var(--font-display); font-weight:400; font-size:clamp(1.1rem, calc(var(--dw, 480px) * .056), 1.55rem); line-height:1.24; text-wrap:balance}
   .door__enter{
-    font-family:var(--font-body); font-size:clamp(.82rem, calc(var(--dw, 240px) * .05), 1rem); font-weight:700; letter-spacing:.22em; text-transform:uppercase;
+    font-family:var(--font-body); font-size:clamp(.85rem, calc(var(--dw, 480px) * .03), 1rem); font-weight:700; letter-spacing:.22em; text-transform:uppercase;
     background:var(--gold); color:var(--ink-900); border:1px solid var(--gold); border-radius:11px;
     width:100%; box-sizing:border-box; padding:1.15rem 1rem; margin-top:.2rem;
     transition:background .3s ease, border-color .3s ease;
@@ -568,7 +563,8 @@ const TRAY = [
      sized off its width and stays 16:9 — if the finished film needs more room
      than this, the door is the wrong home for it and it moves out. */
   .door__vsl{
-    display:block; width:100%; aspect-ratio:16/9; position:relative;
+    display:block; width:100%; max-width:100%; aspect-ratio:16/9; position:relative;
+    min-height:0; max-height:100%; justify-self:center;
     background:oklch(24% 0.012 60); border:1px solid oklch(11% 0.008 55 / .28);
     display:grid; place-items:center; gap:.3rem;
   }
@@ -666,7 +662,7 @@ const TRAY = [
     }
     .door__copy small{grid-row:1; margin-bottom:.05rem}
     .door__copy b{grid-row:2; align-self:start}
-    .door__vsl{grid-row:3; align-self:center}
+    .door__vsl{grid-row:3; align-self:center; width:auto; height:100%}
     .door__enter{grid-row:4}
   }
 
@@ -807,16 +803,17 @@ const TRAY = [
      over 2.4s — the transition is in the film now, not staged over a cut —
      and the walk through the door is that morph, scrubbed. The card is fully
      in at 17.4s. */
-  var GATE = 252;                        /* last frame of the approach: the door */
-  var MORPH_END = 325;                   /* room two, arrived */
+  var GATE = 252;                        /* last frame of the approach: all four doors closed */
+  /* The doorway in the plate, in percentages of the 1280x720 film, measured
+     on the held frame. The pan uses it to keep the doors centred on a crop
+     that cannot show the whole width. */
+  var DOORWAY = { x: 35.5, y: 27.5, w: 14.5, h: 48.2 };
   var T_HOLD  = (GATE + 0.5) / FPS;
-  var T_MORPH = (MORPH_END + 0.5) / FPS;
   var doorBoxPx = { x: 0, y: 0, w: 1, h: 1 };
   /* Just below the gate, on the way back: the door fades over the still frame
      rather than popping off it. */
   var BAND = 0.02;
-  var PORTAL_SPAN = 0.22;              /* of the runway: the walk through the door */
-  var NUDGE = 0.10;                    /* how far Enter walks it for him, so the click is seen to do something */
+  var FADE_SPAN = 0.06;                /* of the runway: the card fades out past the gate */
   var STEP_MS = 650;
 
   function paintBeats(t: number) {
@@ -844,14 +841,14 @@ const TRAY = [
   });
 
   if (reduced) {                               /* the landing only; the nav behaves as normal */
-    poster.src = "/img/rts-hero-end.webp";
+    poster.src = "/img/rts-hero-end-v3.webp";
     hero.setAttribute("data-done", "");
     tellNav();
     return;
   }
 
   var src = document.createElement("source");
-  src.src = "/video/rts-hero.mp4";
+  src.src = "/video/rts-hero-v3.mp4";
   src.type = "video/mp4";
   video.appendChild(src);
   video.load();
@@ -879,13 +876,9 @@ const TRAY = [
     if (answered && p >= pGate - BAND && p <= pGate) return T_HOLD;
     if (p <= pGate) return Math.min(p / pGate, 1) * T_HOLD;
     if (!answered) return T_HOLD;
-    /* The window is the morph: the film crosses from one room to the other
-       under the silhouette at the pace of the scroll. The rest of the runway
-       drives the rest of the film. One continuous mapping — no hold points,
-       no join, nothing to cover. */
-    var p0 = pGate + PORTAL_SPAN;
-    if (p <= p0) return T_HOLD + clamp((p - pGate) / PORTAL_SPAN, 0, 1) * (T_MORPH - T_HOLD);
-    return T_MORPH + clamp((p - p0) / (1 - p0), 0, 1) * (duration - T_MORPH);
+    /* Past the gate the rest of the runway drives the rest of the film at one
+       pace: the doors opening and the room changing are in the footage. */
+    return T_HOLD + clamp((p - pGate) / (1 - pGate), 0, 1) * (duration - T_HOLD);
   }
 
   /* ---------- the plate, mapped through object-fit:cover ---------- */
@@ -923,22 +916,14 @@ const TRAY = [
     var r = plateRect();
     el.style.left = r.x + "px"; el.style.top = r.y + "px"; el.style.width = r.w + "px"; el.style.height = r.h + "px";
   }
-  function doorBox() {
-    var cs = getComputedStyle(hero!);
-    return {
-      x: parseFloat(cs.getPropertyValue("--door-x")), y: parseFloat(cs.getPropertyValue("--door-y")),
-      w: parseFloat(cs.getPropertyValue("--door-w")), h: parseFloat(cs.getPropertyValue("--door-h"))
-    };
-  }
   function placeDoor() {
-    var r = plateRect(), d = doorBox();
-    var L = r.x + r.w * d.x / 100, T = r.y + r.h * d.y / 100, Wd = r.w * d.w / 100, Hd = r.h * d.h / 100;
-    /* On a phone the pan cannot always bring the doorway to the middle — the
-       plate runs out of room first, and at 360px the door ended up hard
-       against the left edge. The card goes on the centre line instead: it
-       drifts a little off the doorway behind it, which is a fair trade for the
-       one thing that matters being where the eye already is. */
-    if (window.matchMedia("(max-width:600px)").matches) L = (window.innerWidth - Wd) / 2;
+    /* The pop-up is a card on the centre line, not the doorway in the film:
+       the film holds on all four doors closed and the card sits over the
+       middle of that. Sized to the screen and capped, a little taller than
+       wide. On a phone it rides high so the tray has the band beneath it. */
+    var f = frameSize(), fw = f.W, fh = f.H;
+    var Wd = Math.min(fw * 0.86, 480), Hd = Math.min(Wd * 1.12, fh * 0.78);
+    var L = (fw - Wd) / 2, T = (fh - Hd) * (fw <= 600 ? 0.38 : 0.5);
     door!.style.left = L + "px"; door!.style.top = T + "px"; door!.style.width = Wd + "px"; door!.style.height = Hd + "px";
     doorBoxPx = { x: L, y: T, w: Wd, h: Hd };
     door!.style.setProperty("--dw", Wd.toFixed(2) + "px");
@@ -1001,7 +986,7 @@ const TRAY = [
     var s = Math.max(W / PLATE_W, H / PLATE_H);
     var visW = W / s;
     if (visW >= PLATE_W - 1) return 50;
-    var d = doorBox();
+    var d = DOORWAY;
     var dx = d.x / 100 * PLATE_W, dw = d.w / 100 * PLATE_W;
     var leftAt50 = (PLATE_W - visW) / 2;
     if (dx >= leftAt50 && dx + dw <= leftAt50 + visW) return 50;
@@ -1114,61 +1099,24 @@ const TRAY = [
     var t = clamp((x - a) / (b - a), 0, 1);
     return t * t * (3 - 2 * t);
   }
-  /* The walk, in three movements over the window, over a film that is
-     morphing from one room to the other underneath at the pace of the scroll.
-
-     Approach (k 0 -> .62): the door stays where it is in the frame and grows —
-     quadratic, so it barely moves while its copy fades and then comes at you
-     — until its edges are past every edge of the screen. The silhouette is
-     the point: it is the panel, the shoji paper and the beam round it, and it
-     is kept the whole way. As it grows the paper turns to light.
-
-     Through (k .62 -> .9): the silhouette fills the screen and holds there,
-     opaque, with the light at full, while the film does most of its morphing.
-
-     Collapse (k .9 -> 1): the pane and the light dissolve — late and fast, so
-     that reversed the light is there the moment room two is left — and what
-     is under them is the second room, arrived.
-
-     And a threshold band just below the gate, on the way back: the door fades
-     over the still frame it sits on instead of popping off it. */
+  /* After Enter the card fades over the first stretch past the gate and the
+     film carries on under it — the doors opening are in the footage, so
+     nothing is staged here. Keyed to scroll, so it fades back in on the way
+     up; on the band just below the gate it is simply the card again. */
   function drivePortal(p: number) {
-    var k = clamp((p - pGate) / PORTAL_SPAN, 0, 1);
-    var inWindow = p >= pGate && k < 1;
+    var k = clamp((p - pGate) / FADE_SPAN, 0, 1);
     var band = p >= pGate - BAND && p < pGate;
-    var kA = clamp(k / 0.62, 0, 1), kB = clamp((k - 0.9) / 0.1, 0, 1);
-    setObjX(p < pGate ? panFor(p) : panFor(pGate) + (50 - panFor(pGate)) * kA);
-    if (inWindow || band) placeDoor();
-    hold!.hidden = true;                       /* the film carries its own transition now */
-    door!.hidden = !(inWindow || band);
-    bloom!.hidden = !inWindow;
-    if (band) {
-      /* Below the gate on the way back: the door as it was at the gate,
-         fading over the still frame it sits on, so it arrives and leaves
-         rather than popping. */
-      var fade = clamp((p - (pGate - BAND)) / BAND, 0, 1);
-      var sb = hero!.style;
-      sb.setProperty("--portal", "0"); sb.setProperty("--door-s", "1"); sb.setProperty("--door-o", fade.toFixed(4));
-      sb.setProperty("--copy-o", "1"); sb.setProperty("--pane-light", "0.18"); sb.setProperty("--pane-o", "0.98");
-      sb.setProperty("--ring-o", "0.85"); sb.setProperty("--glow-o", "0.7"); sb.setProperty("--bloom", "0");
-      return;
-    }
-    /* How big the door has to get, from where it sits, to be past every edge. */
-    var d = doorBoxPx, cx = d.x + d.w / 2, cy = d.y + d.h * 0.56;
-    var cover = 1.12 * Math.max(cx / (d.w / 2), (window.innerWidth - cx) / (d.w / 2), cy / (d.h * 0.56), (window.innerHeight - cy) / (d.h * 0.44));
-    var grow = kA * kA;
+    var show = (p >= pGate && k < 1) || band;
+    setObjX(p < pGate ? panFor(p) : panFor(pGate) + (50 - panFor(pGate)) * k);
+    if (show) placeDoor();
+    hold!.hidden = true; bloom!.hidden = true;
+    door!.hidden = !show;
     var st = hero!.style;
-    st.setProperty("--portal", k.toFixed(4));
-    st.setProperty("--door-s", (1 + (cover - 1) * grow + 0.2 * kB).toFixed(4));
-    st.setProperty("--door-o", (inWindow ? 1 - kB * kB : 0).toFixed(4));
-    st.setProperty("--copy-o", (1 - clamp(k / 0.16, 0, 1)).toFixed(4));
-    st.setProperty("--pane-light", (0.18 + 0.82 * smooth(0.05, 0.62, k)).toFixed(4));
-    /* The collapse clears late and fast — (1 - kB^2) — so that, run the other
-       way, the light is there almost the moment room two is left. */
-    st.setProperty("--pane-o", (0.98 * (1 - kB * kB)).toFixed(4));
-    st.setProperty("--ring-o", (0.85 * (1 - kB * kB)).toFixed(4));
-    st.setProperty("--glow-o", ((0.6 + 0.4 * kA) * (1 - kB * kB)).toFixed(4));
-    st.setProperty("--bloom", (smooth(0.4, 0.7, k) * (1 - kB * kB)).toFixed(4));
+    st.setProperty("--portal", "0");
+    st.setProperty("--door-s", "1");
+    st.setProperty("--door-o", (show ? 1 - k : 0).toFixed(4));
+    st.setProperty("--copy-o", "1"); st.setProperty("--pane-light", "0.18"); st.setProperty("--pane-o", "0.98");
+    st.setProperty("--ring-o", "0.85"); st.setProperty("--glow-o", "0.7"); st.setProperty("--bloom", "0");
   }
   function enter() {
     if (transitioning || answered) return;
@@ -1191,7 +1139,7 @@ const TRAY = [
        then the walk is his: the door grows with the wheel and only the wheel,
        all the way past the edges of the screen. A wheel or a finger during
        the nudge takes over from it. */
-    var fromY = window.scrollY, endY = (pGate + PORTAL_SPAN * NUDGE) * runway();
+    var fromY = window.scrollY, endY = (pGate + FADE_SPAN * 0.6) * runway();
     var t0 = performance.now(), expected = fromY;
     (function step(now: number) {
       if (Math.abs(window.scrollY - expected) > 40) { transitioning = false; return; }
