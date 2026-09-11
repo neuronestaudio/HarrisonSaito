@@ -37,6 +37,16 @@ import BookImagePage from './BookImagePage.astro';
 const total = CHAPTERS.length;
 /** Page-edge layers making up the text block. */
 const STACK = 9;
+/**
+ * The phone's book is a single tall page, hinged at the spine, and every face
+ * is its own leaf: text, then the photograph, chapter by chapter — fourteen
+ * leaves, thirteen turns. A leaf's back is blank paper with the print showing
+ * through, as the back of a printed sheet does.
+ */
+const FACES = CHAPTERS.flatMap((c, i) => [
+  { kind: 'text' as const, c, i },
+  { kind: 'image' as const, c, i },
+]);
 ---
 
 <div class="book" data-book style={`--book-count:${total}`}>
@@ -115,6 +125,56 @@ const STACK = 9;
     </div>
   </div>
 
+  {/* ---------------------------------------- the single-page book (phones)
+      One page at a time, hinged at the spine on the left, on the same desk
+      in the same rooms. Turned leaves pile at the spine; the unturned block
+      shows its edges on the right. Scroll turns the page; so does a tap on
+      either half. */}
+  <div class="book__single" data-book-single>
+    <div class="book__sviewport" data-single-viewport>
+      <div class="book__sobject" data-single-object>
+        <div class="book__desk" aria-hidden="true"></div>
+        <div class="book__contact" aria-hidden="true"></div>
+        <div class="book__pile" aria-hidden="true">
+          {Array.from({ length: 6 }).map((_, i) => <span style={`--i:${i}`} />)}
+        </div>
+        <div class="book__sblock" aria-hidden="true">
+          {Array.from({ length: STACK }).map((_, i) => <span style={`--i:${i}`} />)}
+        </div>
+        {
+          FACES.map((f, k) => (
+            <div
+              class="book__sleaf"
+              data-sleaf
+              data-index={k}
+              style={`z-index:${FACES.length - k}`}
+              aria-label={`Chapter ${f.i + 1}: ${f.c.title}${f.kind === 'image' ? ' — ' + f.c.caption : ''}`}
+            >
+              <div class="book__sface book__sface--front">
+                {f.kind === 'text' ? (
+                  <BookTextPage chapter={f.c} index={f.i} total={total} />
+                ) : (
+                  <BookImagePage chapter={f.c} index={f.i} eager={k < 2} />
+                )}
+                <span class="book__scast" aria-hidden="true" />
+                <span class="book__shade" aria-hidden="true" />
+              </div>
+              <div class="book__sface book__sface--back">
+                <span class="book__verso" lang="ja" aria-hidden="true">{f.c.kanji}</span>
+                <span class="book__shade book__shade--back" aria-hidden="true" />
+              </div>
+            </div>
+          ))
+        }
+        <span class="book__spine" aria-hidden="true"></span>
+      </div>
+      <div class="book__taps" aria-hidden="true">
+        <button type="button" data-turn="-1" tabindex="-1"></button>
+        <button type="button" data-turn="1" tabindex="-1"></button>
+      </div>
+    </div>
+  </div>
+
   {/* -------------------------------------------------------- the controls */}
   <div class="book__controls">
     <div class="book__dots" role="tablist" aria-label="Chapters">
@@ -163,7 +223,8 @@ const STACK = 9;
 
   /* Everything 3D is off until JS turns it on. */
   .book__room,
-  .book__viewport { display: none; }
+  .book__viewport,
+  .book__single { display: none; }
 
   /* ================= stacked fallback ================= */
   .book__stacked { display: grid; gap: clamp(1.5rem, 3vw, 2.5rem); }
@@ -175,6 +236,10 @@ const STACK = 9;
   }
   .book__spread-text,
   .book__spread-image { position: relative; min-height: 26rem; }
+  /* The text page is absolute inside a leaf; stacked, it has to be a block
+     that grows with the chapter, or the longer chapters clip mid-line. */
+  .book__spread-text { min-height: 0; }
+  .book__spread-text :global(.tp) { position: relative; inset: auto; overflow: visible; }
 
   @media (min-width: 900px) {
     .book__spread { grid-template-columns: 1fr 1fr; }
@@ -244,7 +309,8 @@ const STACK = 9;
   .book.is-live .book__viewport { display: block; }
 
   /* ---- the room ---- */
-  .book.is-live .book__room {
+  .book.is-live .book__room,
+  .book.is-single .book__room {
     position: absolute;
     inset: -22% -20%;
     z-index: 0;
@@ -258,15 +324,18 @@ const STACK = 9;
   }
 
   /* Plates are stacked and cross-faded; --o is written by JS from the turn. */
-  .book.is-live .book__plate {
+  .book.is-live .book__plate,
+  .book.is-single .book__plate {
     position: absolute;
     inset: 0;
     opacity: var(--o, 0);
     will-change: opacity;
   }
-  .book.is-live .book__plate:first-child { opacity: var(--o, 1); }
+  .book.is-live .book__plate:first-child,
+  .book.is-single .book__plate:first-child { opacity: var(--o, 1); }
 
-  .book.is-live .book__plate img {
+  .book.is-live .book__plate img,
+  .book.is-single .book__plate img {
     width: 100%;
     height: 100%;
     object-fit: cover;
@@ -278,7 +347,8 @@ const STACK = 9;
     transform: scale(1.15);
   }
 
-  .book.is-live .book__plate-tone {
+  .book.is-live .book__plate-tone,
+  .book.is-single .book__plate-tone {
     position: absolute;
     inset: 0;
     background: var(--tone);
@@ -286,7 +356,8 @@ const STACK = 9;
     opacity: 0.55;
   }
 
-  .book.is-live .book__room-wash {
+  .book.is-live .book__room-wash,
+  .book.is-single .book__room-wash {
     position: absolute;
     inset: 0;
     background:
@@ -294,7 +365,8 @@ const STACK = 9;
       linear-gradient(to bottom, oklch(11% 0.008 55 / 0.34), oklch(11% 0.008 55 / 0.82));
   }
 
-  .book.is-live .book__key-light {
+  .book.is-live .book__key-light,
+  .book.is-single .book__key-light {
     position: absolute;
     inset-block-start: -6%;
     inset-inline-start: 10%;
@@ -324,7 +396,8 @@ const STACK = 9;
   }
 
   /* ---- desk ---- */
-  .book.is-live .book__desk {
+  .book.is-live .book__desk,
+  .book.is-single .book__desk {
     position: absolute;
     inset: -18% -12%;
     transform: translateZ(-90px);
@@ -334,7 +407,8 @@ const STACK = 9;
     filter: blur(3px);
   }
 
-  .book.is-live .book__contact {
+  .book.is-live .book__contact,
+  .book.is-single .book__contact {
     position: absolute;
     inset-inline: 2%;
     inset-block-end: -6%;
@@ -404,7 +478,8 @@ const STACK = 9;
   }
 
   /* Lighting pass. --shade is written by JS from the leaf's own rotation. */
-  .book.is-live .book__shade {
+  .book.is-live .book__shade,
+  .book.is-single .book__shade {
     position: absolute;
     inset: 0;
     z-index: 6;
@@ -418,7 +493,8 @@ const STACK = 9;
       oklch(8% 0.004 55 / 0.66) 100%
     );
   }
-  .book.is-live .book__shade--back {
+  .book.is-live .book__shade--back,
+  .book.is-single .book__shade--back {
     background: linear-gradient(
       260deg,
       oklch(100% 0 0 / 0.12) 0%,
@@ -533,6 +609,185 @@ const STACK = 9;
     .book.is-live .book__room,
     .book.is-live .book__viewport { display: none; }
   }
+
+  /* ==================================================================== */
+  /* ================= SINGLE-PAGE MODE (phones), enabled by JS ========== */
+  /* ==================================================================== */
+
+  .book.is-single {
+    --leaf-depth: 3px;
+    --leaf-drop: 0.7px;
+  }
+  .book.is-single .book__stacked { display: none; }
+  .book.is-single .book__room,
+  .book.is-single .book__single { display: block; }
+  .book.is-single .book__room {
+    inset: -14% -12%;
+    -webkit-mask-image: radial-gradient(ellipse 70% 62% at 50% 44%, #000 30%, transparent 78%);
+    mask-image: radial-gradient(ellipse 70% 62% at 50% 44%, #000 30%, transparent 78%);
+  }
+
+  .book.is-single .book__sviewport {
+    position: relative;
+    perspective: 1500px;
+    perspective-origin: 50% 42%;
+    z-index: 1;
+    padding-block: 0.5rem 1.25rem;
+  }
+
+  /* A tall page, sized to the phone, with room at the spine for the pile and
+     at the fore-edge for the block. */
+  .book.is-single .book__sobject {
+    position: relative;
+    width: min(80vw, 23rem);
+    height: min(68svh, calc(min(80vw, 23rem) * 1.52));
+    margin: 0 auto;
+    transform-style: preserve-3d;
+    transform: rotateX(5deg) rotateZ(-0.5deg);
+    will-change: transform;
+  }
+  .book.is-single .book__desk { inset: -22% -28%; }
+  .book.is-single .book__contact { inset-inline: 4%; inset-block-end: -7%; height: 22%; }
+
+  /* the unturned block: page edges stepping back and to the right */
+  .book.is-single .book__sblock { position: absolute; inset: 0; transform-style: preserve-3d; pointer-events: none; }
+  .book.is-single .book__sblock span {
+    position: absolute;
+    inset: 0;
+    border-radius: 0 3px 3px 0;
+    background: linear-gradient(to right, oklch(93% 0.008 70) 0%, oklch(93% 0.008 70) 90%, var(--paper-edge) 96%, var(--paper-edge-dark) 100%);
+    transform: translateZ(calc(var(--i) * var(--leaf-depth) * -1))
+      translateX(calc(var(--i) * 1.1px)) translateY(calc(var(--i) * var(--leaf-drop)));
+    box-shadow: 0 1px 0 oklch(70% 0.02 66 / 0.5);
+  }
+
+  /* the turned pile at the spine: appears leaf by leaf as pages go over */
+  .book.is-single .book__pile { position: absolute; inset-block: 1%; inset-inline-start: 0; width: 12px; transform-style: preserve-3d; pointer-events: none; z-index: 45; }
+  .book.is-single .book__pile span {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    border-radius: 2px 0 0 2px;
+    background: linear-gradient(to right, var(--paper-edge-dark), var(--paper-edge) 60%, oklch(93% 0.008 70));
+    opacity: var(--pile, 0);
+    transform: translateX(calc(var(--i) * -1.6px)) translateZ(calc(var(--i) * 0.9px)) translateY(calc(var(--i) * -0.4px));
+    transition: opacity 0.25s ease;
+  }
+
+  /* leaves */
+  .book.is-single .book__sleaf {
+    position: absolute;
+    inset: 0;
+    transform-origin: left center;   /* the spine */
+    transform-style: preserve-3d;
+    will-change: transform;
+  }
+  .book.is-single .book__sface {
+    position: absolute;
+    inset: 0;
+    backface-visibility: hidden;
+    overflow: hidden;
+    border-radius: 0 3px 3px 0;
+  }
+  .book.is-single .book__sface--back {
+    transform: rotateY(180deg) translateZ(0.5px);
+    background: var(--paper-page);
+    border-radius: 3px 0 0 3px;
+  }
+  /* the print showing through the back of the sheet, mirrored */
+  .book.is-single .book__verso {
+    position: absolute;
+    inset: 0;
+    display: grid;
+    place-items: center;
+    font-family: var(--font-jp);
+    font-size: min(40vw, 11rem);
+    color: var(--ink-900);
+    opacity: 0.045;
+    transform: scaleX(-1);
+  }
+
+  /* paper physics, as on the desktop: the bow into the spine, the lit
+     fore-edge, the grain */
+  .book.is-single .book__sface::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: 4;
+    pointer-events: none;
+    background:
+      linear-gradient(to right, oklch(8% 0.004 55 / 0.24) 0%, transparent 14%),
+      linear-gradient(to left, oklch(100% 0 0 / 0.09) 0%, transparent 7%),
+      linear-gradient(to right, transparent 40%, oklch(8% 0.004 55 / 0.05) 100%);
+  }
+  .book.is-single .book__sface--back::before {
+    background:
+      linear-gradient(to left, oklch(8% 0.004 55 / 0.24) 0%, transparent 14%),
+      linear-gradient(to right, oklch(100% 0 0 / 0.09) 0%, transparent 7%),
+      linear-gradient(to left, transparent 40%, oklch(8% 0.004 55 / 0.05) 100%);
+  }
+  .book.is-single .book__sface::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: 4;
+    pointer-events: none;
+    opacity: 0.05;
+    mix-blend-mode: multiply;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
+
+  /* the shadow a lifting leaf throws on the page beneath, from the spine */
+  .book.is-single .book__scast {
+    position: absolute;
+    inset: 0;
+    z-index: 5;
+    pointer-events: none;
+    opacity: var(--cast, 0);
+    background: linear-gradient(
+      to right,
+      oklch(6% 0.004 55 / 0.7) 0%,
+      oklch(6% 0.004 55 / 0.32) calc(var(--cast-reach, 40%) * 0.5),
+      transparent var(--cast-reach, 40%)
+    );
+  }
+
+  .book.is-single .book__spine {
+    position: absolute;
+    inset-block: -1%;
+    inset-inline-start: -2px;
+    width: 8%;
+    z-index: 42;
+    pointer-events: none;
+    transform: translateZ(0.3px);
+    background: linear-gradient(to right, oklch(11% 0.008 55 / 0.5), oklch(11% 0.008 55 / 0.22) 45%, transparent);
+  }
+
+  /* tap either half to turn; the buttons are invisible and out of the tab order */
+  .book.is-single .book__taps { position: absolute; inset: 0; z-index: 60; display: grid; grid-template-columns: 1fr 1fr; }
+  .book.is-single .book__taps button { background: none; border: 0; padding: 0; cursor: pointer; -webkit-tap-highlight-color: transparent; }
+
+  /* the page's own type, at phone size — the sheet is narrow and must not clip */
+  .book.is-single :global(.tp__inner) { padding: 1.2rem 1.15rem 1.45rem; }
+  .book.is-single :global(.tp__chapter) { margin-bottom: 0.55rem; }
+  .book.is-single :global(.tp__kanji) { font-size: 2.6rem; margin-bottom: 0.2rem; }
+  .book.is-single :global(.tp__reading) { padding-bottom: 0.6rem; margin-bottom: 0.65rem; font-size: 0.76rem; }
+  .book.is-single :global(.tp__title) { font-size: 1.2rem; margin-bottom: 0.5rem; }
+  .book.is-single :global(.tp__body > p) { font-size: 0.83rem; line-height: 1.56; }
+  .book.is-single :global(.tp__body > p + p) { margin-top: 0.5rem; }
+  .book.is-single :global(.tp__credential) { margin-top: 0.7rem; padding-top: 0.55rem; font-size: 0.58rem; letter-spacing: 0.09em; }
+  .book.is-single :global(.tp__folio) { inset-block-end: 0.6rem; inset-inline-start: 1.25rem; }
+  .book.is-single :global(.ip__caption) { font-size: 1.05rem; inset-block-end: 1rem; inset-inline-start: 1.1rem; }
+
+  .book.is-single .book__controls { margin-top: 1.1rem; justify-content: center; }
+  .book.is-single .book__hint { width: 100%; text-align: center; }
+
+  @media (prefers-reduced-motion: reduce) {
+    .book.is-single .book__stacked { display: grid; }
+    .book.is-single .book__room,
+    .book.is-single .book__single { display: none; }
+  }
+
 </style>
 
 <script>
@@ -569,7 +824,26 @@ const STACK = 9;
       }
     };
 
-    if (reduce || !wide) {
+    /**
+     * Shading strength for a leaf at a given rotation: peaks as the sheet
+     * goes edge-on to the key light and falls away once it lies flat. This
+     * is what stops the turn reading as a texture swap.
+     */
+    const shadeFor = (deg: number) => Math.sin((Math.abs(deg) / 180) * Math.PI);
+
+    /**
+     * Cross-fade the room backdrops. `pos` is a continuous chapter index, so
+     * a plate is fully lit at its own index and gone one chapter either
+     * side — adjacent plates overlap through the middle of every turn.
+     */
+    const paintRoom = (pos: number) => {
+      plates.forEach((plate, i) => {
+        const o = Math.max(0, 1 - Math.abs(pos - i));
+        plate.style.setProperty('--o', o.toFixed(3));
+      });
+    };
+
+    if (reduce) {
       // Nothing turns in stacked mode, so the hint would be a lie.
       if (hint) hint.textContent = `${dots.length} chapters`;
 
@@ -588,30 +862,93 @@ const STACK = 9;
           stacked[i]?.scrollIntoView({ behavior: 'smooth', block: 'center' })
         )
       );
+    } else if (!wide) {
+      /* ---------------- the single-page book ----------------
+         Fourteen leaves hinged at the spine; scroll turns them, so does a
+         tap on either half of the page. The same lighting, lift, cast
+         shadow and room change as the desktop's spread. */
+      book.classList.add('is-single');
+      const sview = book.querySelector<HTMLElement>('[data-single-viewport]')!;
+      const sleaves = Array.from(book.querySelectorAll<HTMLElement>('[data-sleaf]'));
+      const pile = Array.from(book.querySelectorAll<HTMLElement>('.book__pile span'));
+      const faces = sleaves.length;
+      const turns = faces - 1;
+      const perFace = window.innerHeight * 0.6;
+
+      if (hint) hint.textContent = 'Scroll or tap to turn the page';
+
+      const tl = gsap.timeline({
+        scrollTrigger: {
+          trigger: sview,
+          start: 'center center',
+          end: () => `+=${perFace * turns}`,
+          pin: book,
+          scrub: 0.6,
+          // No inertia: a snap predicted from velocity turns a flick, or a
+          // jump from a dot, into several pages. Directional stays, so a
+          // short scroll still completes the turn it started.
+          snap: { snapTo: 1 / turns, duration: 0.25, delay: 0.06, inertia: false },
+          invalidateOnRefresh: true,
+          onUpdate: (self) => {
+            const face = self.progress * turns;
+            markChapter(Math.min(dots.length - 1, Math.round(face) >> 1));
+            hint?.classList.toggle('is-faded', self.progress > 0.02);
+            paintRoom(face / 2);
+            pile.forEach((sp, i) => sp.style.setProperty('--pile', face >= (i + 1) * 2 - 0.5 ? '1' : '0'));
+          },
+        },
+      });
+
+      sleaves.slice(0, -1).forEach((leaf, k) => {
+        const state = { deg: 0 };
+        const next = sleaves[k + 1];
+        tl.to(
+          state,
+          {
+            deg: -180,
+            ease: 'power1.inOut',
+            duration: 1,
+            onUpdate: () => {
+              const d = state.deg;
+              const t = Math.abs(d) / 180;
+              const arc = Math.sin(t * Math.PI);
+              const lift = arc * 18;
+              const squash = 1 - arc * 0.015;
+              leaf.style.transform = `translateZ(${lift}px) rotateY(${d}deg) scaleY(${squash.toFixed(4)})`;
+              leaf.style.setProperty('--shade', String(shadeFor(d)));
+              // past upright it belongs to the pile at the spine
+              leaf.style.zIndex = String(Math.abs(d) > 90 ? k : faces - k);
+              if (next) {
+                next.style.setProperty('--cast', (arc * 0.85).toFixed(3));
+                next.style.setProperty('--cast-reach', `${(16 + t * 60).toFixed(1)}%`);
+              }
+            },
+          },
+          k
+        );
+      });
+
+      const goTo = (face: number) => {
+        const st = tl.scrollTrigger;
+        if (!st) return;
+        const f = Math.max(0, Math.min(turns, face));
+        window.scrollTo({ top: st.start + (st.end - st.start) * (f / turns), behavior: 'smooth' });
+      };
+      dots.forEach((dot, i) => dot.addEventListener('click', () => goTo(i * 2)));
+      book.querySelectorAll<HTMLButtonElement>('[data-turn]').forEach((b) =>
+        b.addEventListener('click', () => {
+          const st = tl.scrollTrigger;
+          if (!st) return;
+          goTo(Math.round(st.progress * turns) + Number(b.dataset.turn));
+        })
+      );
+
+      paintRoom(0);
     } else {
       book.classList.add('is-live');
 
       const perPage = window.innerHeight * 0.9;
       const turns = leaves.length - 1;
-
-      /**
-       * Shading strength for a leaf at a given rotation: peaks as the sheet
-       * goes edge-on to the key light and falls away once it lies flat. This
-       * is what stops the turn reading as a texture swap.
-       */
-      const shadeFor = (deg: number) => Math.sin((Math.abs(deg) / 180) * Math.PI);
-
-      /**
-       * Cross-fade the room backdrops. `pos` is a continuous chapter index, so
-       * a plate is fully lit at its own index and gone one chapter either
-       * side — adjacent plates overlap through the middle of every turn.
-       */
-      const paintRoom = (pos: number) => {
-        plates.forEach((plate, i) => {
-          const o = Math.max(0, 1 - Math.abs(pos - i));
-          plate.style.setProperty('--o', o.toFixed(3));
-        });
-      };
 
       const tl = gsap.timeline({
         scrollTrigger: {
