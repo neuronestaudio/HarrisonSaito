@@ -19,7 +19,8 @@
  * The nav stays out of the way until the film is done — see Nav.astro, which
  * watches [data-hero-intro][data-done]. Reduced motion gets the landing only.
  *
- * Assets: /video/rts-hero-v3.mp4 (short-GOP H.264 so it can be scrubbed),
+ * Assets: /video/rts-hero-v4.mp4 and -m (short-GOP H.264 so it can be scrubbed;
+ *   720p at CRF 24 for wide screens, CRF 28 for phones — 4.6 / 3.0 MB),
  * /img/rts-hero-poster-v3.webp, /img/rts-hero-end-v3.webp. Versioned names:
  * /video and /img ship with a one-year immutable cache, so a new film under
  * the old name is the old film on every phone that has ever loaded it.
@@ -979,8 +980,11 @@ const TRAY = [
     return;
   }
 
+  /* Two encodes of the same 580 frames, same keyframe spacing: a tighter
+     one for phones, where the film is the page's whole weight and the plate
+     is upscaled anyway, and a fuller one for wide screens. */
   var src = document.createElement("source");
-  src.src = "/video/rts-hero-v3.mp4";
+  src.src = window.matchMedia("(max-width:600px)").matches ? "/video/rts-hero-v4-m.mp4" : "/video/rts-hero-v4.mp4";
   src.type = "video/mp4";
   video.appendChild(src);
   video.load();
