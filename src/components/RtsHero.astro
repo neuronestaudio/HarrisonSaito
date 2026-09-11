@@ -324,8 +324,10 @@ const TRAY = [
   }
 
   /* ---------------- the landing ---------------- */
-  .links{position:absolute; inset:0; z-index:2; pointer-events:none; opacity:1; transition:opacity .45s ease}
-  .links--hidden{opacity:0}
+  /* visibility as well as opacity: an invisible link still takes a tap, and
+     the landing sits under the door for the whole film. */
+  .links{position:absolute; inset:0; z-index:2; pointer-events:none; opacity:1; visibility:visible; transition:opacity .45s ease, visibility 0s linear 0s}
+  .links--hidden{opacity:0; visibility:hidden; transition:opacity .45s ease, visibility 0s linear .45s}
   .links__inner{
     position:absolute; left:50%; top:50%; transform:translate(-50%,-52%);
     width:min(46rem, calc(100% - 2.5rem)); display:grid; gap:.8rem; pointer-events:none;
@@ -1187,7 +1189,6 @@ const TRAY = [
     /* Which side of the gate he is on — with hysteresis, so a scroll that
        comes to rest on the line cannot flicker, and set outright by Enter
        (above) and by the flip back (below). */
-    if (ambient && p > 0.004) ambientStop(true);
     if (!gated && !transitioning) { if (p > pGate + 0.01) above = true; else if (p < pGate - 0.01) above = false; }
     var crossDown = (!answered && p >= pGate) || (!above && p >= pGate);
     var crossUp = above && p <= pGate;
@@ -1213,7 +1214,7 @@ const TRAY = [
     }
     if (p > 0.06) hero!.setAttribute("data-progress-past", ""); else hero!.removeAttribute("data-progress-past");
     /* The welcome goes with the first scroll that moves him on from it. */
-    if (greeted && Math.abs(p - greetP) > 0.012) hero!.classList.remove("hero--welcome");
+    if (greeted && !transitioning && Math.abs(p - greetP) > 0.012) hero!.classList.remove("hero--welcome");
     /* The landing comes back on the way up — and it is the landing, not the
        cue: once he has gone on and returned to the top, the choice he made
        on the path is undone and the links are the last beat. */
@@ -1226,8 +1227,6 @@ const TRAY = [
     }
     links!.classList.toggle("links--hidden", !landing);
     hero!.classList.toggle("hero--landing", landing);
-    /* At rest on the landing, the film runs by itself again. */
-    if (!ambient && ready && !cut && !gated && !transitioning && !leaving && p <= 0.002) ambientStart();
   }
   var above = false, wentOn = false;
 
@@ -1242,7 +1241,7 @@ const TRAY = [
     try { video!.currentTime = t; } catch (e) { settle(); }
   }
   function tick() {
-    if (ready && !cut && !ambient) {
+    if (ready && !cut) {
       eased += (target - eased) * 0.14;
       if (!pending && Math.abs(eased - video!.currentTime) > 1 / 48) issueSeek(eased);
       paintBeats(eased);
@@ -1250,55 +1249,6 @@ const TRAY = [
     requestAnimationFrame(tick);
   }
 
-  /* ---------- the landing plays ----------
-     At rest on the landing the film runs by itself, slowly, up the room
-     towards the doors and round to the start again, so the page is alive
-     before he has touched it. His first scroll ends that: the frame he is
-     on is frozen onto the canvas and dissolved into the scrub, so the room
-     goes from moving on its own to moving under his hand without a cut.
-     The loop point is the same dissolve. */
-  var ambient = false, AMBIENT_END = 7.6, AMBIENT_RATE = 0.7, holdFade = 0;
-  function ambientStart() {
-    if (ambient || reduced || !ready || cut || gated || transitioning || leaving) return;
-    ambient = true;
-    video!.preload = "auto";
-    try { video!.playbackRate = AMBIENT_RATE; } catch (e) {}
-    var kick = video!.play();
-    if (kick && kick.catch) kick.catch(function () { ambient = false; try { video!.playbackRate = 1; } catch (e) {} });
-  }
-  function ambientStop(dissolve: boolean) {
-    if (!ambient) return;
-    ambient = false;
-    if (dissolve) freezeFrame();
-    try { video!.pause(); video!.playbackRate = 1; } catch (e) {}
-    settle();
-    eased = video!.currentTime;          /* the scrub eases in from where the film is, not from 0 */
-  }
-  /* The frame on screen goes onto the canvas and fades away over the film. */
-  function freezeFrame() {
-    try {
-      var ctx = hold!.getContext("2d");
-      if (!ctx) return;
-      ctx.drawImage(video!, 0, 0, PLATE_W, PLATE_H);
-      placeOnPlate(hold!);
-      clearTimeout(holdFade);
-      hold!.style.transition = "none";
-      hold!.style.opacity = "1";
-      hold!.hidden = false;
-      requestAnimationFrame(function () { requestAnimationFrame(function () {
-        hold!.style.transition = "opacity .9s ease";
-        hold!.style.opacity = "0";
-      }); });
-      holdFade = window.setTimeout(function () { hold!.hidden = true; hold!.style.transition = ""; hold!.style.opacity = ""; }, 1000);
-    } catch (e) { hold!.hidden = true; }
-  }
-  video.addEventListener("timeupdate", function () {
-    if (!ambient) return;
-    if (video!.currentTime >= AMBIENT_END) {
-      freezeFrame();
-      try { video!.currentTime = 0; } catch (e) {}
-    }
-  });
 
   /* ---------- the gate ---------- */
   var SCROLL_KEYS: Record<string, number> = { " ": 1, PageDown: 1, PageUp: 1, ArrowDown: 1, ArrowUp: 1, Home: 1, End: 1 };
@@ -1309,11 +1259,17 @@ const TRAY = [
      upward — a wheel, a finger dragging down, ArrowUp — is read as intent
      and the gate lets go towards the landing (leave()). Down stays locked:
      the way in is Enter. */
-  var upAccum = 0, touchY0 = -1;
+  var upAccum = 0, touchY0 = -1, lockedAt = 0, touchFresh = false;
+  var LOCK_GRACE = 700;
   function preventScroll(e: Event) {
     if (pops!.scrollWidth > pops!.clientWidth + 2 && pops!.contains(e.target as Node)) return;   /* the phone's pop-up row may scroll sideways */
     e.preventDefault();
     e.stopImmediatePropagation();
+    /* The gesture that carried him to the door — a wheel's tail, a finger
+       still on the glass, momentum — is not a wish to leave it. Intent counts
+       only after a moment, and on touch only from a finger put down since. */
+    if (performance.now() - lockedAt < LOCK_GRACE) return;
+    if (e.type === "touchmove" && !touchFresh) return;
     if (e.type === "wheel") {
       var we = e as WheelEvent, dy = we.deltaY * (we.deltaMode === 1 ? 16 : we.deltaMode === 2 ? 400 : 1);
       upAccum = dy < 0 ? upAccum - dy : 0;
@@ -1323,6 +1279,7 @@ const TRAY = [
       if (t) { if (touchY0 < 0) touchY0 = t.clientY; else if (t.clientY - touchY0 > 70) { touchY0 = -1; leave(); } }
     }
   }
+  function onTouchStart() { touchFresh = true; touchY0 = -1; }
   function onTouchEnd() { touchY0 = -1; }
   var CAPTURE: AddEventListenerOptions = { passive: false, capture: true };
   var LISTEN: AddEventListenerOptions = { passive: true, capture: true };
@@ -1333,9 +1290,10 @@ const TRAY = [
     if (SCROLL_KEYS[e.key] && !(e.key === " " && (e.target === door || e.target === skip))) e.preventDefault();
   }
   function lock() {
-    upAccum = 0; touchY0 = -1;
+    upAccum = 0; touchY0 = -1; touchFresh = false; lockedAt = performance.now();
     window.addEventListener("wheel", preventScroll, CAPTURE);
     window.addEventListener("touchmove", preventScroll, CAPTURE);
+    window.addEventListener("touchstart", onTouchStart, LISTEN);
     window.addEventListener("touchend", onTouchEnd, LISTEN);
     window.addEventListener("touchcancel", onTouchEnd, LISTEN);
     window.addEventListener("keydown", onKey);
@@ -1343,13 +1301,13 @@ const TRAY = [
   function unlock() {
     window.removeEventListener("wheel", preventScroll, CAPTURE);
     window.removeEventListener("touchmove", preventScroll, CAPTURE);
+    window.removeEventListener("touchstart", onTouchStart, LISTEN);
     window.removeEventListener("touchend", onTouchEnd, LISTEN);
     window.removeEventListener("touchcancel", onTouchEnd, LISTEN);
     window.removeEventListener("keydown", onKey);
   }
 
   function engage() {
-    ambientStop(false);
     gated = true;
     gateY = pGate * runway();
     snapTo(gateY);
@@ -1447,8 +1405,9 @@ const TRAY = [
       expected = fromY + (endY - fromY) * k;
       snapTo(expected);
       onScroll();
-      if (k < 1) requestAnimationFrame(step); else { transitioning = false; release(); greet(); }
+      if (k < 1) requestAnimationFrame(step); else { transitioning = false; release(); }
     })(t0);
+    greet(pGate + WALK);
     tellNav();
   }
   door.addEventListener("click", enter);
@@ -1456,9 +1415,12 @@ const TRAY = [
   /* The welcome: shown once, where the step ends, and dismissed by the first
      scroll that moves him on from it in either direction. */
   var greeted = false, greetP = 0;
-  function greet() {
+  /* Shown the moment Enter is pressed — not at the end of the walk, which
+     read as a delay — and anchored to where the walk ends, so it stays up
+     through the step and goes with the first scroll of his own. */
+  function greet(at: number) {
     if (greeted || !welcome) return;
-    greeted = true; greetP = progress();
+    greeted = true; greetP = at;
     hero!.classList.add("hero--welcome");
   }
   /* Input that ends a scripted scroll: the walk in, and the flip back. */
@@ -1625,7 +1587,6 @@ const TRAY = [
        — it snaps scroll to gateY, seeks the hold frame and places the door — so
        the page above still exists and scrolling back reverses the approach. */
     if (hero!.dataset.start === "door" && !answered && !gated) engage();
-    else if (progress() <= 0.002) ambientStart();
   }
   /* Order matters: metadata first, THEN the iOS unlock (a muted play() that is
      paused the moment it resolves — Safari refuses currentTime on an element
