@@ -56,6 +56,7 @@ const TRAY = [
 
 <section class="hero hero--landing" id="hero" data-hero-intro data-start={start} data-section="hero" aria-label="Harrison Saito — Return to Self">
   <div class="hero__frame">
+    <img class="hero__fill" src="/img/rts-hero-end-v3.webp" alt="" aria-hidden="true" width="1280" height="720" loading="lazy" decoding="async" />
     <img class="hero__poster" src="/img/rts-hero-poster-v3.webp" alt="" aria-hidden="true" width="1280" height="720" fetchpriority="high" decoding="sync" />
     <video class="hero__video" id="heroVideo" muted playsinline preload="metadata"
            aria-label="A slow walk through a traditional Japanese interior, arriving at the words Return to Self."></video>
@@ -231,18 +232,32 @@ const TRAY = [
   }
   .hero [hidden]{display:none!important}
 
+  /* The dynamic viewport, not the small one: sized to 100svh the frame
+     stops short of the screen the moment Safari's toolbar collapses, and
+     the band it leaves below is black — "it can be dragged up" (Dion, 11
+     Sep). dvh follows the toolbar; the layout re-places itself on resize. */
   .hero__frame{
     position:sticky; top:0;
-    height:100svh; min-height:100vh;
+    height:100vh; height:100dvh;
     overflow:hidden;
     background:var(--ink-900);
   }
-  @supports (height:100svh){ .hero__frame{min-height:0} }
 
   .hero__video,.hero__poster{
     position:absolute; inset:0;
     width:100%; height:100%;
     object-fit:cover; object-position:50% 50%;
+  }
+  /* max-width:none — the site's media reset would otherwise cap the element
+     at the viewport when the end zoom sizes it to the plate (see placeFilm). */
+  .hero__video{max-width:none; max-height:none}
+  /* Behind the end zoom on a portrait phone: the card's own wall, blurred and
+     dimmed, so the film shrinks into a room rather than onto black. */
+  .hero__fill{
+    position:absolute; inset:-6%; width:112%; height:112%; max-width:none; max-height:none;
+    object-fit:cover; object-position:50% 50%; pointer-events:none;
+    filter:blur(26px) saturate(.9) brightness(.55);
+    opacity:var(--film-fill, 0);
   }
   .hero__video{opacity:0; transition:opacity .6s ease}
   .hero--ready .hero__video{opacity:1}
@@ -715,6 +730,13 @@ const TRAY = [
   .welcome__lead{font-family:var(--font-display); font-weight:300; font-size:var(--step-4); line-height:1; color:var(--text-on-ink); margin:0 0 .55rem; letter-spacing:.02em; text-shadow:0 2px 28px oklch(0% 0 0 / .55)}
   .welcome__sub{font-family:var(--font-body); font-size:var(--step--1); font-weight:600; letter-spacing:.26em; text-transform:uppercase; white-space:nowrap; color:var(--gold-light); margin:0 0 .9rem; text-shadow:0 1px 14px oklch(0% 0 0 / .5)}
   .hero--welcome .welcome{opacity:1; transition-duration:.7s}
+  /* The flip back to the landing: the card, its line and the tray go
+     together, over the first part of the scroll up. !important because the
+     answered-state rules drive these opacities from --door-o with no
+     transition, and the flip must win over them. */
+  .hero--leaving .door,.hero--leaving .pops,.hero--leaving .door__line{
+    opacity:0 !important; transition:opacity .6s ease !important; pointer-events:none !important;
+  }
   /* Neither while the welcome is up nor while the door and its tray are: the
      small sign is for the empty stretches of the film, not for a screen that
      already has something on it. */
@@ -773,22 +795,24 @@ const TRAY = [
       width:auto; display:grid; grid-template-columns:1fr; gap:0; overflow:visible; padding:0;
       -webkit-mask:none; mask:none;
     }
-    /* Two stripes, tilted against each other and running opposite ways, so
-       they read as crossing rather than as one more row of buttons. They
-       overhang both edges, which is what makes the tilt look deliberate. */
+    /* Two straight rows running opposite ways, faded at both edges. They were
+       tilted against each other to read as crossing; on a phone that read as
+       broken (Dion, 7 Sep), so they run level. */
     .pops__band{
-      display:flex; overflow:hidden; width:118%; margin-left:-9%;
-      padding:.2rem 0;
-      -webkit-mask:linear-gradient(90deg, transparent, #000 12%, #000 88%, transparent);
-      mask:linear-gradient(90deg, transparent, #000 12%, #000 88%, transparent);
+      display:flex; overflow:hidden; width:100%; margin:0;
+      padding:.15rem 0;
+      -webkit-mask:linear-gradient(90deg, transparent, #000 10%, #000 90%, transparent);
+      mask:linear-gradient(90deg, transparent, #000 10%, #000 90%, transparent);
     }
-    .pops__band[data-band="0"]{rotate:-4.5deg}
-    .pops__band[data-band="1"]{rotate:4.5deg; margin-top:-.55rem}
+    .pops__band[data-band="1"]{margin-top:.2rem}
     .pops__track{
       display:flex; flex:0 0 auto; gap:.6rem; padding-right:.6rem;
-      animation:tray 20s linear infinite; will-change:transform;
+      animation:tray 16s linear infinite; will-change:transform;
     }
-    .pops__band[data-band="1"] .pops__track{animation-direction:reverse; animation-duration:26s}
+    /* The second row runs the other way, offset half a lap, so the two rows
+       never show the same card one above the other and most of the six are
+       on screen within a couple of seconds. */
+    .pops__band[data-band="1"] .pops__track{animation-direction:reverse; animation-duration:20s; animation-delay:-10s}
     .pops__track[aria-hidden="true"]{display:flex}
     .pops:hover .pops__track,
     .pops:focus-within .pops__track,
@@ -805,13 +829,10 @@ const TRAY = [
   .door--short .door__vsl{display:none}
   .door--short .door__copy{gap:.4rem; padding:7% .6rem 8%}
 
-  /* Two stripes need roughly 130px plus breathing room below the door. A 640px
-     phone does not have it, and the guard was correctly hiding the whole tray
-     rather than covering Enter. One stripe fits, so it gets one. */
+  /* A short phone keeps both rows — the card gives up the height, see
+     placeDoor() — but the rows sit tighter to the foot of the screen. */
   @media (max-height:700px){
     .pops{bottom:calc(clamp(1.2rem,4vh,2.4rem) + var(--consent-h, 0px))}
-    .pops__band[data-band="1"]{display:none}
-    .pops__band[data-band="0"]{rotate:-3deg}
     .pops__item{padding:.6rem 1.15rem}
   }
 
@@ -821,7 +842,7 @@ const TRAY = [
        and every card stretches with it, which pushed the row into the
        doorway and made it hide itself. */
     .pops{bottom:calc(.5rem + var(--consent-h, 0px))}
-    .pops__band,.pops__band[data-band="0"]{padding:0; rotate:0deg; margin:0; width:100%; margin-left:0}
+    .pops__band{padding:0; margin:0}
     .pops__band[data-band="1"]{display:none}
     .pops__item{width:11rem; padding:.32rem .6rem}
     .pops__tag{display:none}
@@ -925,6 +946,12 @@ const TRAY = [
        over the next second of film, which is the last stretch of the runway. */
     var k = clamp((t - 17.55) / 1.05, 0, 1);
     hero!.style.setProperty("--program", (k * k * (3 - 2 * k)).toFixed(4));
+    var zm = zoomAt(t);
+    if (Math.abs(zm.z - filmS) > 0.0005) {
+      filmS = zm.z;
+      hero!.style.setProperty("--film-fill", zm.k.toFixed(3));
+      publishPlate();
+    }
   }
   function tellNav() { document.dispatchEvent(new CustomEvent("rts:intro")); }
 
@@ -1000,16 +1027,49 @@ const TRAY = [
       if (k < 1) requestAnimationFrame(step);
     })(t0);
   }
+  /* The end zoom. The title card is baked into a 16:9 frame, and a portrait
+     phone sees the middle quarter of it: "Return To Self" is guillotined. As
+     the card arrives (the camera is pushing in from 16.25s; it is framed by
+     17.5s) the film is scaled down about the frame's centre until the band
+     that holds the title — plate x 29–69%, so 52% with its margins — fits the
+     screen's width. A function of film time, so it reverses with the scroll;
+     landscape needs nothing and gets exactly 1. The plate follows it, so
+     "The Program" keeps its place under the title. */
+  var TITLE_FRAC = 0.52, ZOOM_IN = 16.6, ZOOM_OUT = 17.6;
+  var filmS = 1;
+  function zoomAt(t: number) {
+    var f = frameSize();
+    var fit = Math.min(1, f.W / (TITLE_FRAC * PLATE_W * Math.max(f.W / PLATE_W, f.H / PLATE_H)));
+    var k = fit < 1 ? smooth(ZOOM_IN, ZOOM_OUT, t) : 0;
+    return { z: 1 + (fit - 1) * k, k: k };
+  }
+  /* While zoomed, the video element *is* the plate — sized and placed to the
+     scaled 16:9 rectangle, so nothing of the frame is cropped away — and at 1
+     it goes back to filling the frame under object-fit:cover, which shows the
+     identical pixels, so the hand-over is invisible. */
+  function placeFilm() {
+    var vs = video!.style;
+    if (filmS === 1) { vs.left = ""; vs.top = ""; vs.width = ""; vs.height = ""; vs.clipPath = ""; vs.objectPosition = objX + "% 50%"; return; }
+    placeOnPlate(video!);
+    vs.objectPosition = "50% 50%";
+    /* The encode carries a black hairline along its top and bottom rows —
+       never on screen while the frame overflowed, a ruled line once the
+       whole frame is. */
+    vs.clipPath = "inset(2px 0)";
+  }
   function plateRect() {
     var f = frameSize(), W = f.W, H = f.H;
     var s = Math.max(W / PLATE_W, H / PLATE_H);
     var pw = PLATE_W * s, ph = PLATE_H * s;
-    return { x: (W - pw) * objX / 100, y: (H - ph) / 2, w: pw, h: ph };
+    var x = (W - pw) * objX / 100, y = (H - ph) / 2;
+    if (filmS !== 1) { x = W / 2 + (x - W / 2) * filmS; y = H / 2 + (y - H / 2) * filmS; pw *= filmS; ph *= filmS; }
+    return { x: x, y: y, w: pw, h: ph };
   }
   function publishPlate() {
     var r = plateRect(), st = hero!.style;
     st.setProperty("--plate-x", r.x.toFixed(1) + "px"); st.setProperty("--plate-y", r.y.toFixed(1) + "px");
     st.setProperty("--plate-w", r.w.toFixed(1) + "px"); st.setProperty("--plate-h", r.h.toFixed(1) + "px");
+    placeFilm();
   }
   function placeOnPlate(el: HTMLElement) {
     var r = plateRect();
@@ -1030,8 +1090,16 @@ const TRAY = [
     var LINE_GAP = 18, TRAY_GAP = 26;
     var Wd = Math.min(fw * 0.86, 480), Hd, T;
     if (row) {
-      Hd = Math.min(Wd * 1.12, fh * 0.78);
-      T = (fh - Hd) * 0.38;
+      /* The phone: the line, the card, and the tray in two rows across the
+         foot of the screen. The tray is placed by CSS; the card takes what
+         is left between the line and it, centred there, down to a floor
+         where it drops its film slot — so two rows always fit, and a short
+         phone gets a shorter card rather than one row. */
+      var trayTop = pops!.hidden ? fh : pops!.offsetTop;
+      var top0 = 10 + lineH + LINE_GAP;
+      var avail = Math.max(300, trayTop - TRAY_GAP - top0);
+      Hd = Math.min(Wd * 1.12, avail);
+      T = top0 + Math.max(0, (avail - Hd) / 2);
     } else {
       var trayH = pops!.hidden ? 0 : pops!.offsetHeight;
       var column = lineH + LINE_GAP + TRAY_GAP + trayH;
@@ -1113,7 +1181,17 @@ const TRAY = [
     var p = progress();
     publishPlate();
     if (p > 0.02 && video!.preload !== "auto") video!.preload = "auto";
-    if (ready && !answered && !gated && p >= pGate) engage();
+    /* The gate arms on the way down the first time, and on the way back up
+       every time after: the door is a page, and scrolling back to it locks
+       there rather than fading through it. */
+    /* Which side of the gate he is on — with hysteresis, so a scroll that
+       comes to rest on the line cannot flicker, and set outright by Enter
+       (above) and by the flip back (below). */
+    if (ambient && p > 0.004) ambientStop(true);
+    if (!gated && !transitioning) { if (p > pGate + 0.01) above = true; else if (p < pGate - 0.01) above = false; }
+    var crossDown = (!answered && p >= pGate) || (!above && p >= pGate);
+    var crossUp = above && p <= pGate;
+    if (ready && !gated && !transitioning && !leaving && (crossDown || crossUp)) engage();
     if (gated) {
       if (Math.abs(window.scrollY - gateY) > 1) snapTo(gateY);
       p = pGate;
@@ -1125,18 +1203,33 @@ const TRAY = [
       if (gated) placeDoor();
       rail!.style.width = (p * 100).toFixed(2) + "%";
       /* End of room two. The runway is not cut here — he scrolled every pixel
-         of it, so it stays mapped and stays reversible. */
-      if (playing && p >= 0.999) finish(false);
+         of it, so it stays mapped and stays reversible. Second time through
+         (back to the door, Enter again) there is nothing to finish, only the
+         playing state to drop and the nav to bring back. */
+      if (p >= 0.999) {
+        if (!done) finish(false);
+        else if (playing) { playing = false; hero!.classList.remove("hero--playing"); showNav(true); }
+      }
     }
     if (p > 0.06) hero!.setAttribute("data-progress-past", ""); else hero!.removeAttribute("data-progress-past");
     /* The welcome goes with the first scroll that moves him on from it. */
     if (greeted && Math.abs(p - greetP) > 0.012) hero!.classList.remove("hero--welcome");
-    /* The landing comes back on the way up. engage() is guarded on !answered,
-       so the gate never re-arms and he cannot be caught by the door twice. */
+    /* The landing comes back on the way up — and it is the landing, not the
+       cue: once he has gone on and returned to the top, the choice he made
+       on the path is undone and the links are the last beat. */
     var landing = p < 0.08;
+    if (!landing) wentOn = true;
+    if (landing && wentOn && p < 0.015 && links!.hasAttribute("data-chosen")) {
+      links!.removeAttribute("data-chosen");
+      cue!.classList.remove("cue--on");
+      wentOn = false;
+    }
     links!.classList.toggle("links--hidden", !landing);
     hero!.classList.toggle("hero--landing", landing);
+    /* At rest on the landing, the film runs by itself again. */
+    if (!ambient && ready && !cut && !gated && !transitioning && !leaving && p <= 0.002) ambientStart();
   }
+  var above = false, wentOn = false;
 
   /* ---------- seeking (room one only): one in flight, three ways to settle ---------- */
   function settle() { pending = false; clearTimeout(watchdog); }
@@ -1149,7 +1242,7 @@ const TRAY = [
     try { video!.currentTime = t; } catch (e) { settle(); }
   }
   function tick() {
-    if (ready && !cut) {
+    if (ready && !cut && !ambient) {
       eased += (target - eased) * 0.14;
       if (!pending && Math.abs(eased - video!.currentTime) > 1 / 48) issueSeek(eased);
       paintBeats(eased);
@@ -1157,34 +1250,106 @@ const TRAY = [
     requestAnimationFrame(tick);
   }
 
+  /* ---------- the landing plays ----------
+     At rest on the landing the film runs by itself, slowly, up the room
+     towards the doors and round to the start again, so the page is alive
+     before he has touched it. His first scroll ends that: the frame he is
+     on is frozen onto the canvas and dissolved into the scrub, so the room
+     goes from moving on its own to moving under his hand without a cut.
+     The loop point is the same dissolve. */
+  var ambient = false, AMBIENT_END = 7.6, AMBIENT_RATE = 0.7, holdFade = 0;
+  function ambientStart() {
+    if (ambient || reduced || !ready || cut || gated || transitioning || leaving) return;
+    ambient = true;
+    video!.preload = "auto";
+    try { video!.playbackRate = AMBIENT_RATE; } catch (e) {}
+    var kick = video!.play();
+    if (kick && kick.catch) kick.catch(function () { ambient = false; try { video!.playbackRate = 1; } catch (e) {} });
+  }
+  function ambientStop(dissolve: boolean) {
+    if (!ambient) return;
+    ambient = false;
+    if (dissolve) freezeFrame();
+    try { video!.pause(); video!.playbackRate = 1; } catch (e) {}
+    settle();
+    eased = video!.currentTime;          /* the scrub eases in from where the film is, not from 0 */
+  }
+  /* The frame on screen goes onto the canvas and fades away over the film. */
+  function freezeFrame() {
+    try {
+      var ctx = hold!.getContext("2d");
+      if (!ctx) return;
+      ctx.drawImage(video!, 0, 0, PLATE_W, PLATE_H);
+      placeOnPlate(hold!);
+      clearTimeout(holdFade);
+      hold!.style.transition = "none";
+      hold!.style.opacity = "1";
+      hold!.hidden = false;
+      requestAnimationFrame(function () { requestAnimationFrame(function () {
+        hold!.style.transition = "opacity .9s ease";
+        hold!.style.opacity = "0";
+      }); });
+      holdFade = window.setTimeout(function () { hold!.hidden = true; hold!.style.transition = ""; hold!.style.opacity = ""; }, 1000);
+    } catch (e) { hold!.hidden = true; }
+  }
+  video.addEventListener("timeupdate", function () {
+    if (!ambient) return;
+    if (video!.currentTime >= AMBIENT_END) {
+      freezeFrame();
+      try { video!.currentTime = 0; } catch (e) {}
+    }
+  });
+
   /* ---------- the gate ---------- */
   var SCROLL_KEYS: Record<string, number> = { " ": 1, PageDown: 1, PageUp: 1, ArrowDown: 1, ArrowUp: 1, Home: 1, End: 1 };
   /* Capture phase, so Lenis (which listens on window in the bubble phase) never
      sees the wheel. Stopping Lenis instead would put overflow:hidden on <html>
      via .lenis-stopped, and that detaches the sticky frame from the viewport. */
+  /* Up is the way out. The lock swallows every scroll, but enough of it
+     upward — a wheel, a finger dragging down, ArrowUp — is read as intent
+     and the gate lets go towards the landing (leave()). Down stays locked:
+     the way in is Enter. */
+  var upAccum = 0, touchY0 = -1;
   function preventScroll(e: Event) {
     if (pops!.scrollWidth > pops!.clientWidth + 2 && pops!.contains(e.target as Node)) return;   /* the phone's pop-up row may scroll sideways */
     e.preventDefault();
     e.stopImmediatePropagation();
+    if (e.type === "wheel") {
+      var we = e as WheelEvent, dy = we.deltaY * (we.deltaMode === 1 ? 16 : we.deltaMode === 2 ? 400 : 1);
+      upAccum = dy < 0 ? upAccum - dy : 0;
+      if (upAccum > 90) { upAccum = 0; leave(); }
+    } else if (e.type === "touchmove") {
+      var t = (e as TouchEvent).touches[0];
+      if (t) { if (touchY0 < 0) touchY0 = t.clientY; else if (t.clientY - touchY0 > 70) { touchY0 = -1; leave(); } }
+    }
   }
+  function onTouchEnd() { touchY0 = -1; }
   var CAPTURE: AddEventListenerOptions = { passive: false, capture: true };
+  var LISTEN: AddEventListenerOptions = { passive: true, capture: true };
   function onKey(e: KeyboardEvent) {
     if (!gated) return;
     if (e.key === "Escape") { e.preventDefault(); if (playing) finish(true); else enter(); return; }
+    if (e.key === "ArrowUp" || e.key === "PageUp" || e.key === "Home") { e.preventDefault(); leave(); return; }
     if (SCROLL_KEYS[e.key] && !(e.key === " " && (e.target === door || e.target === skip))) e.preventDefault();
   }
   function lock() {
+    upAccum = 0; touchY0 = -1;
     window.addEventListener("wheel", preventScroll, CAPTURE);
     window.addEventListener("touchmove", preventScroll, CAPTURE);
+    window.addEventListener("touchend", onTouchEnd, LISTEN);
+    window.addEventListener("touchcancel", onTouchEnd, LISTEN);
     window.addEventListener("keydown", onKey);
   }
   function unlock() {
     window.removeEventListener("wheel", preventScroll, CAPTURE);
     window.removeEventListener("touchmove", preventScroll, CAPTURE);
+    window.removeEventListener("touchend", onTouchEnd, LISTEN);
+    window.removeEventListener("touchcancel", onTouchEnd, LISTEN);
     window.removeEventListener("keydown", onKey);
   }
 
   function engage() {
+    ambientStop(false);
     gated = true;
     gateY = pGate * runway();
     snapTo(gateY);
@@ -1192,6 +1357,12 @@ const TRAY = [
     issueSeek(T_HOLD);
     setObjX(panFor(pGate));
     lock();
+    /* Arriving back at the door is a fresh arrival: Enter walks again and
+       the welcome greets again. */
+    greeted = false;
+    hero!.classList.remove("hero--welcome");
+    hero!.classList.remove("hero--leaving");
+    showNav(false);
     hero!.setAttribute("data-gated", "");
     door!.hidden = false;
     pops!.hidden = false;
@@ -1219,6 +1390,7 @@ const TRAY = [
      nothing is staged here. Keyed to scroll, so it fades back in on the way
      up; on the band just below the gate it is simply the card again. */
   function drivePortal(p: number) {
+    if (leaving) return;                        /* the flip back fades the card itself */
     var k = clamp((p - pGate) / FADE_SPAN, 0, 1);
     var band = p >= pGate - BAND && p < pGate;
     var show = (p >= pGate && k < 1) || band;
@@ -1240,9 +1412,10 @@ const TRAY = [
     st.setProperty("--ring-o", "0.85"); st.setProperty("--glow-o", "0.7"); st.setProperty("--bloom", "0");
   }
   function enter() {
-    if (transitioning || answered) return;
+    if (transitioning || !gated) return;
     transitioning = true;
     answered = true;
+    above = true;
     hero!.setAttribute("data-answered", "");
     hero!.classList.remove("hero--gated");
     try { door!.blur(); } catch (e) {}
@@ -1264,12 +1437,11 @@ const TRAY = [
        Measured against the scroll position alone it would not: the page
        scrolls smoothly, so a wheel or a slow finger moves it a few pixels a
        frame and the step, snapping every frame, would win the wrestle. */
-    var TAKE = ["wheel", "touchstart", "keydown"];
     var take = function () { taken = true; };
     for (var ti = 0; ti < TAKE.length; ti++) window.addEventListener(TAKE[ti], take, { passive: true, capture: true });
     var release = function () { for (var ri = 0; ri < TAKE.length; ri++) window.removeEventListener(TAKE[ri], take, { capture: true } as EventListenerOptions); };
     (function step(now: number) {
-      if (taken || done || Math.abs(window.scrollY - expected) > 40) { transitioning = false; release(); return; }
+      if (taken || cut || Math.abs(window.scrollY - expected) > 40) { transitioning = false; release(); return; }
       var k = clamp((now - t0) / WALK_MS, 0, 1);
       k = k * k * (3 - 2 * k);
       expected = fromY + (endY - fromY) * k;
@@ -1285,9 +1457,57 @@ const TRAY = [
      scroll that moves him on from it in either direction. */
   var greeted = false, greetP = 0;
   function greet() {
-    if (greeted || done || !welcome) return;
+    if (greeted || !welcome) return;
     greeted = true; greetP = progress();
     hero!.classList.add("hero--welcome");
+  }
+  /* Input that ends a scripted scroll: the walk in, and the flip back. */
+  var TAKE = ["wheel", "touchstart", "keydown"];
+
+  /* Up from the door. The gate lets go and the page flips back to the
+     landing: an eased scroll to the top with the card, the line and the tray
+     fading as it goes and the approach running backwards under them. A wheel
+     or a finger during the flip takes over, as with the walk. Portfolio in
+     the tray does the same. */
+  var leaving = false, LEAVE_MS = 1500;
+  function leave() {
+    if (!gated || transitioning) return;
+    unlock();
+    gated = false; transitioning = true; leaving = true; above = false;
+    hero!.removeAttribute("data-gated");
+    hero!.classList.remove("hero--gated");
+    hero!.classList.add("hero--leaving");
+    try { door!.blur(); } catch (e) {}
+    var fromY = window.scrollY, t0 = performance.now(), expected = fromY, taken = false;
+    /* The wheel gesture that asked for this keeps ticking for a few hundred
+       milliseconds; that tail is not a new intent. */
+    var take = function (e: Event) { if (e.type === "wheel" && performance.now() - t0 < 450) return; taken = true; };
+    for (var ti = 0; ti < TAKE.length; ti++) window.addEventListener(TAKE[ti], take, { passive: true, capture: true });
+    var end = function () {
+      for (var ri = 0; ri < TAKE.length; ri++) window.removeEventListener(TAKE[ri], take, { capture: true } as EventListenerOptions);
+      leaving = false; transitioning = false;
+      hero!.classList.remove("hero--leaving");
+      hero!.classList.remove("hero--at-door");
+      door!.hidden = true; pops!.hidden = true;
+      showNav(done);
+      onScroll();
+    };
+    (function step(now: number) {
+      if (taken || Math.abs(window.scrollY - expected) > 40) { end(); return; }
+      var k = clamp((now - t0) / LEAVE_MS, 0, 1);
+      k = k * k * (3 - 2 * k);
+      expected = fromY * (1 - k);
+      snapTo(expected);
+      onScroll();
+      if (k < 1) requestAnimationFrame(step); else end();
+    })(t0);
+  }
+  /* The nav follows the film: away while it plays, back once it has been
+     seen through — and away again whenever the door is the page. */
+  function showNav(on: boolean) {
+    if (on === hero!.hasAttribute("data-done")) return;
+    if (on) hero!.setAttribute("data-done", ""); else hero!.removeAttribute("data-done");
+    tellNav();
   }
 
   /* The film has reached its title card. The runway is cut to where the
@@ -1330,8 +1550,9 @@ const TRAY = [
   pops.addEventListener("click", function (ev) {
     if (!(ev.target as HTMLElement).closest("[data-back]")) return;
     (function () {
+      if (location.pathname !== "/") { unlock(); location.href = "/"; return; }
+      if (gated) { leave(); return; }
       unlock();
-      gated = false;
       hero!.removeAttribute("data-gated");
       hero!.classList.remove("hero--gated");
       hero!.classList.remove("hero--at-door");
@@ -1339,7 +1560,6 @@ const TRAY = [
       pops!.hidden = true;
       /* lenisOf() rather than a bare `lenis` — the instance is owned by
          scripts/motion.ts and exposed on window; there is no local binding. */
-      if (location.pathname !== "/") { location.href = "/"; return; }
       var l = lenisOf();
       try {
         if (l && typeof l.scrollTo === "function") l.scrollTo(0, { duration: 1.4 });
@@ -1348,18 +1568,46 @@ const TRAY = [
     })();
   });
 
-  /* If the film cannot load, the landing carries the page and the nav returns. */
+  /* If the film cannot load, the landing carries the page and the nav returns.
+     Everything the film had put up comes down with it — the gate, the card,
+     the tray, the welcome — or the door is left standing over a page that
+     scrolls, under a nav, with the next section showing beneath it. */
   function bail() {
     if (done) return;
     done = true;
     hero!.classList.remove("hero--ready");
     hero!.setAttribute("data-done", "");
-    hero!.style.height = window.innerHeight + "px";
     unlock();
+    gated = false; transitioning = false; leaving = false; playing = false;
+    hero!.removeAttribute("data-gated"); hero!.removeAttribute("data-answered");
+    hero!.classList.remove("hero--gated"); hero!.classList.remove("hero--at-door"); hero!.classList.remove("hero--welcome");
+    hero!.classList.remove("hero--playing"); hero!.classList.remove("hero--leaving");
+    door!.hidden = true; pops!.hidden = true; hold!.hidden = true; bloom!.hidden = true;
+    links!.classList.remove("links--hidden"); hero!.classList.add("hero--landing");
+    hero!.style.height = window.innerHeight + "px";
+    try { window.scrollTo(0, 0); } catch (e) {}
     resizeLenis();
     tellNav();
   }
-  video.addEventListener("error", bail);
+  /* A network hiccup mid-film fires `error` as readily as a missing file.
+     Once the film has been playing, one reload at the frame we were on is
+     tried before the page is given up. */
+  var recovered = false;
+  video.addEventListener("error", function () {
+    if (ready && !recovered && !done) {
+      recovered = true;
+      var at = eased;
+      try { video!.load(); } catch (e) { bail(); return; }
+      video!.addEventListener("loadedmetadata", function () {
+        settle();
+        var kick = video!.play();
+        if (kick && kick.then) kick.then(function () { video!.pause(); issueSeek(at); }).catch(function () { issueSeek(at); });
+        else issueSeek(at);
+      }, { once: true });
+      return;
+    }
+    bail();
+  });
 
   /* ---------- arming ---------- */
   function arm() {
@@ -1377,6 +1625,7 @@ const TRAY = [
        — it snaps scroll to gateY, seeks the hold frame and places the door — so
        the page above still exists and scrolling back reverses the approach. */
     if (hero!.dataset.start === "door" && !answered && !gated) engage();
+    else if (progress() <= 0.002) ambientStart();
   }
   /* Order matters: metadata first, THEN the iOS unlock (a muted play() that is
      paused the moment it resolves — Safari refuses currentTime on an element
