@@ -305,6 +305,10 @@ const TRAY = [
     opacity:var(--door-o, 0); pointer-events:none; transition:none;
     transform:scale(var(--door-s, 1)); transform-origin:50% 56%;
   }
+  /* Back at the door, locked, it is the card again — and a card that can be
+     pressed. The answered rule above turns its pointer events off for the
+     fade; while the gate holds it is a button. */
+  .hero[data-answered].hero--gated .door{pointer-events:auto}
   .hero[data-answered] .door__copy{opacity:var(--copy-o, 1); transition:none}
   /* The paper stays the paper — the shoji panel — with light rising through
      it as it grows, so what fills the screen is still the door. */
