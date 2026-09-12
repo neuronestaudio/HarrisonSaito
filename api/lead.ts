@@ -232,8 +232,25 @@ async function sendEmail(env: Env, body: Payload): Promise<boolean> {
   return true;
 }
 
+/** The env as configured, with the obvious spellings of the GHL pair accepted. */
+function readEnv(): Env {
+  const e = process.env;
+  const pick = (...keys: string[]) => keys.map((k) => e[k]).find((v) => v && v.trim()) || undefined;
+  return {
+    ...(e as Env),
+    GHL_TOKEN: pick('GHL_TOKEN', 'GHL_API_KEY', 'GHL_PRIVATE_TOKEN', 'GHL_PIT', 'GOHIGHLEVEL_TOKEN', 'HIGHLEVEL_TOKEN'),
+    GHL_LOCATION_ID: pick('GHL_LOCATION_ID', 'GHL_LOCATION', 'GOHIGHLEVEL_LOCATION_ID', 'HIGHLEVEL_LOCATION_ID'),
+  };
+}
+
+/** Names only — never values — of the variables that matter, so a test post can
+    show what the deployment was actually given. */
+function envSeen(): string[] {
+  return Object.keys(process.env).filter((k) => /GHL|HIGHLEVEL|LEAD_|RESEND|META_|TEST_EVENT/i.test(k)).sort();
+}
+
 export async function POST(request: Request): Promise<Response> {
-  const env = process.env as Env;
+  const env = readEnv();
   let body: Payload;
 
   try {
@@ -275,7 +292,7 @@ export async function POST(request: Request): Promise<Response> {
   // integration: Vercel → Project → Logs, filter "[lead]".
   console.log('[lead]', JSON.stringify({ ...body, received_at: new Date().toISOString(), delivered, integrations }));
 
-  return reply(200, { ok: true, delivered, integrations });
+  return reply(200, { ok: true, delivered, integrations, env_seen: envSeen() });
 }
 
 /** Anything other than POST gets a clear answer rather than a framework 404. */
