@@ -838,7 +838,9 @@ const TRAY = [
 
   /* A short phone keeps both rows — the card gives up the height, see
      placeDoor() — but the rows sit tighter to the foot of the screen. */
-  @media (max-height:700px){
+  /* Phones only: a desktop window under 700px tall keeps the grid under the
+     card, and a bottom edge here would squash that grid between the two. */
+  @media (max-width:600px) and (max-height:700px){
     .pops{bottom:calc(clamp(1.2rem,4vh,2.4rem) + var(--consent-h, 0px))}
     .pops__item{padding:.6rem 1.15rem}
   }
