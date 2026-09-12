@@ -42,8 +42,8 @@ if (/dataLayer/.test(home) && /consent/i.test(home)) {
 } else {
   bad('C1', 'no dataLayer / consent bootstrap found');
 }
-if (existsSync(path.join(ROOT, 'functions', 'api', 'lead.ts'))) {
-  ok('C1', 'server-side Conversions API endpoint present (functions/api/lead.ts)');
+if (existsSync(path.join(ROOT, 'api', 'lead.ts'))) {
+  ok('C1', 'server-side Conversions API endpoint present (api/lead.ts, Vercel)');
 } else {
   bad('C1', 'no Conversions API endpoint');
 }

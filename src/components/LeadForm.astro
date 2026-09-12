@@ -1,168 +1,227 @@
 ---
 /**
- * Lead capture.
+ * Lead capture — three taps and a name.
  *
- * Closes audit finding C2 — the legacy site had zero forms. Every CTA was a
- * WhatsApp deep link, which meant no email list, no measurable conversion, and
- * no visibility into where people dropped off.
+ * Closes audit finding C2 (the legacy site had zero forms) in the shape the
+ * campaign playbook asks for: the low-commitment questions first, contact
+ * details last, once someone has already invested a few taps. Rebuilt on
+ * 12 Sep 2026 at Dion's ask as a stepped, glass form: each tap answers the
+ * question and moves on by itself, and the only typing is at the end.
  *
- * Design follows the campaign playbook referenced in the audit: a two-step
- * application, the form embedded in the fold, contact details asked for last.
- * Step one is low-commitment qualifying questions; the phone number only gets
- * requested once someone has already invested a few clicks.
+ *   1  What is this about?               (skipped where the page already says)
+ *   2  What would you like to talk about? (the choices follow the answer above)
+ *   3  When suits you?
+ *   4  Your name, phone and email          → send
  *
- * Submission fires a Lead event with an event_id shared with the server-side
- * Conversions API call, so Meta can deduplicate the pair.
+ * Submission posts JSON to /api/lead (api/lead.ts on Vercel) and fires a Lead
+ * event with an event_id shared with the server-side Conversions API call, so
+ * Meta can deduplicate the pair. The success screen also offers WhatsApp with
+ * the answers already written, so nothing is ever stranded.
  */
-interface Field {
-  name: string;
+import { SITE } from '../data/site';
+
+interface Choice {
+  value: string;
   label: string;
-  type?: 'text' | 'email' | 'tel' | 'textarea' | 'select' | 'radio';
-  required?: boolean;
-  placeholder?: string;
-  options?: string[];
-  help?: string;
-  autocomplete?: string;
+  hint?: string;
 }
 
 interface Props {
   formId: string;
-  /** 'application' asks qualifying questions first; 'simple' is one step. */
-  variant?: 'application' | 'simple';
-  stepOne?: Field[];
-  stepTwo?: Field[];
-  fields?: Field[];
-  submitLabel?: string;
   /** GA4/Meta event name fired on success. */
   eventName?: string;
   /** Value attributed to the conversion, for ROAS reporting. */
   eventValue?: number;
+  submitLabel?: string;
   successHeading?: string;
   successBody?: string;
+  /** Answers "What is this about?" for the page, so the form opens on the next question. */
+  preset?: string;
 }
 
 const {
   formId,
-  variant = 'simple',
-  stepOne = [],
-  stepTwo = [],
-  fields = [],
-  submitLabel = 'Send',
   eventName = 'lead',
   eventValue,
+  submitLabel = 'Send',
   successHeading = 'Thank you.',
   successBody = "Your message is with me. I'll reply personally, usually within a day.",
+  preset,
 } = Astro.props;
 
-const steps = variant === 'application' ? [stepOne, stepTwo] : [fields];
+const ABOUT: Choice[] = [
+  { value: 'coaching', label: "Men's coaching", hint: 'One to one, with Harrison' },
+  { value: 'programme', label: 'Return to Self', hint: 'The twelve-week programme' },
+  { value: 'hsc', label: 'HSC & youth mentoring', hint: 'For a student, or their parent' },
+  { value: 'martial', label: 'Martial arts', hint: 'Shinbukan, Chatswood' },
+  { value: 'media', label: 'Media or speaking', hint: 'Interviews, talks, collaborations' },
+  { value: 'other', label: 'Something else', hint: 'A question, or just a conversation' },
+];
+
+const TOPICS: Record<string, Choice[]> = {
+  coaching: [
+    { value: 'where-i-am', label: 'Where I am right now', hint: 'What is going on, honestly' },
+    { value: 'is-this-for-me', label: 'Whether this is for me', hint: 'What coaching with Harrison actually is' },
+    { value: 'one-to-one', label: 'Working together one to one', hint: 'How it runs, what it costs' },
+    { value: 'on-the-call', label: "I'd rather say it on the call" },
+  ],
+  programme: [
+    { value: 'the-twelve-weeks', label: 'How the twelve weeks work', hint: 'Separate, return, integrate' },
+    { value: 'is-this-for-me', label: 'Whether this is for me', hint: 'Where you are, and where it leads' },
+    { value: 'next-intake', label: 'When the next intake starts', hint: 'Places and timing' },
+    { value: 'on-the-call', label: "I'd rather say it on the call" },
+  ],
+  hsc: [
+    { value: 'my-child', label: 'My son or daughter', hint: 'Confidence, focus, the year ahead' },
+    { value: 'the-hsc', label: 'The HSC itself', hint: 'English, the markers, the pressure' },
+    { value: 'mentoring', label: 'Mentoring, not tutoring', hint: 'What it looks like week to week' },
+    { value: 'on-the-call', label: "I'd rather say it on the call" },
+  ],
+  martial: [
+    { value: 'training', label: 'Training at Shinbukan', hint: 'Classes, grading, the dojo' },
+    { value: 'private', label: 'Private sessions', hint: 'One to one on the mat' },
+    { value: 'on-the-call', label: "I'd rather say it on the call" },
+  ],
+  media: [
+    { value: 'interview', label: 'An interview or podcast' },
+    { value: 'talk', label: 'A talk or workshop' },
+    { value: 'collaboration', label: 'A collaboration' },
+  ],
+  other: [
+    { value: 'question', label: 'A question' },
+    { value: 'conversation', label: 'Just a conversation' },
+    { value: 'on-the-call', label: "I'll explain on the call" },
+  ],
+};
+
+const TIMING: Choice[] = [
+  { value: 'weekday-mornings', label: 'Weekday mornings' },
+  { value: 'weekday-evenings', label: 'Weekday evenings' },
+  { value: 'weekends', label: 'Weekends' },
+  { value: 'flexible', label: "I'm flexible" },
+];
+
+const RAIL = preset ? ['Talk about', 'When', 'You'] : ['About', 'Talk about', 'When', 'You'];
+const presetLabel = preset ? ABOUT.find((c) => c.value === preset)?.label ?? '' : '';
 ---
 
-<div class="lf" data-lead-form={formId} data-event={eventName} data-event-value={eventValue}>
+<div
+  class="lf"
+  data-lead-form={formId}
+  data-event={eventName}
+  data-event-value={eventValue}
+  data-preset={preset}
+  data-preset-label={presetLabel}
+  data-whatsapp={SITE.whatsapp}
+>
   <form class="lf__form" novalidate>
-    {
-      variant === 'application' && (
-        <ol class="lf__steps" aria-hidden="true">
-          <li class="is-active" data-step-dot="0">
-            <span>1</span> About you
+    <header class="lf__head">
+      <button type="button" class="lf__back" data-step-back aria-label="Back to the previous question" hidden>
+        <span aria-hidden="true">←</span>
+      </button>
+      <ol class="lf__rail" aria-label="Progress">
+        {RAIL.map((l, i) => (
+          <li class:list={[{ 'is-active': i === 0 }]} data-rail={i}>
+            <span class="lf__rail-bar" aria-hidden="true"></span>
+            <span class="lf__rail-label">{l}</span>
           </li>
-          <li data-step-dot="1">
-            <span>2</span> How to reach you
-          </li>
-        </ol>
-      )
-    }
+        ))}
+      </ol>
+      <p class="lf__count" data-count aria-live="polite">1 of {RAIL.length}</p>
+    </header>
 
-    {
-      steps.map((group, index) => (
-        <fieldset class="lf__step" data-step={index} hidden={index !== 0}>
-          <legend class="visually-hidden">Step {index + 1}</legend>
-
-          {group.map((f) => (
-            <div class:list={['lf__field', { 'lf__field--wide': f.type === 'textarea' }]}>
-              <label class="lf__label" for={`${formId}-${f.name}`}>
-                {f.label}
-                {f.required && <span class="lf__req" aria-hidden="true">*</span>}
-              </label>
-
-              {f.type === 'textarea' && (
-                <textarea
-                  id={`${formId}-${f.name}`}
-                  name={f.name}
-                  rows="4"
-                  required={f.required}
-                  placeholder={f.placeholder}
-                />
-              )}
-
-              {f.type === 'select' && (
-                <select id={`${formId}-${f.name}`} name={f.name} required={f.required}>
-                  <option value="">Choose one…</option>
-                  {f.options?.map((o) => <option value={o}>{o}</option>)}
-                </select>
-              )}
-
-              {f.type === 'radio' && (
-                <div class="lf__radios" role="radiogroup" aria-labelledby={`${formId}-${f.name}`}>
-                  {f.options?.map((o, i) => (
-                    <label class="lf__radio">
-                      <input type="radio" name={f.name} value={o} required={f.required && i === 0} />
-                      <span>{o}</span>
-                    </label>
-                  ))}
-                </div>
-              )}
-
-              {(!f.type || ['text', 'email', 'tel'].includes(f.type)) && (
-                <input
-                  id={`${formId}-${f.name}`}
-                  name={f.name}
-                  type={f.type ?? 'text'}
-                  required={f.required}
-                  placeholder={f.placeholder}
-                  autocomplete={f.autocomplete}
-                  inputmode={f.type === 'tel' ? 'tel' : undefined}
-                />
-              )}
-
-              {f.help && <p class="lf__help">{f.help}</p>}
-              <p class="lf__error" data-error-for={f.name} hidden />
-            </div>
+    <div class="lf__stage" data-stage>
+      {/* ---- 1. what is this about ---- */}
+      <fieldset class="lf__step" data-step="about" hidden={!!preset}>
+        <legend class="lf__q">What is this about?</legend>
+        <div class="lf__choices lf__choices--two" role="radiogroup" aria-label="What is this about?">
+          {ABOUT.map((c) => (
+            <button type="button" class="lf__choice" role="radio" aria-checked="false" data-choice="about" data-value={c.value} data-label={c.label}>
+              <span class="lf__choice-label">{c.label}</span>
+              {c.hint && <span class="lf__choice-hint">{c.hint}</span>}
+              <span class="lf__choice-mark" aria-hidden="true"></span>
+            </button>
           ))}
-        </fieldset>
-      ))
-    }
+        </div>
+        <input type="hidden" name="about" value={preset ?? ''} />
+        <input type="hidden" name="about_label" value={presetLabel} />
+      </fieldset>
+
+      {/* ---- 2. what would you like to talk about (the set follows step 1) ---- */}
+      <fieldset class="lf__step" data-step="topic" hidden={!preset}>
+        <legend class="lf__q">What would you like to talk about?</legend>
+        {Object.entries(TOPICS).map(([key, list]) => (
+          <div class="lf__choices lf__choices--two" role="radiogroup" aria-label="What would you like to talk about?" data-topics={key} hidden>
+            {list.map((c) => (
+              <button type="button" class="lf__choice" role="radio" aria-checked="false" data-choice="topic" data-value={c.value} data-label={c.label}>
+                <span class="lf__choice-label">{c.label}</span>
+                {c.hint && <span class="lf__choice-hint">{c.hint}</span>}
+                <span class="lf__choice-mark" aria-hidden="true"></span>
+              </button>
+            ))}
+          </div>
+        ))}
+        <input type="hidden" name="topic" value="" />
+        <input type="hidden" name="topic_label" value="" />
+      </fieldset>
+
+      {/* ---- 3. when suits you ---- */}
+      <fieldset class="lf__step" data-step="timing" hidden>
+        <legend class="lf__q">When suits you?</legend>
+        <div class="lf__choices lf__choices--two" role="radiogroup" aria-label="When suits you?">
+          {TIMING.map((c) => (
+            <button type="button" class="lf__choice" role="radio" aria-checked="false" data-choice="timing" data-value={c.value} data-label={c.label}>
+              <span class="lf__choice-label">{c.label}</span>
+              <span class="lf__choice-mark" aria-hidden="true"></span>
+            </button>
+          ))}
+        </div>
+        <input type="hidden" name="timing" value="" />
+        <input type="hidden" name="timing_label" value="" />
+      </fieldset>
+
+      {/* ---- 4. you ---- */}
+      <fieldset class="lf__step lf__step--contact" data-step="contact" hidden>
+        <legend class="lf__q">Where can I reach you?</legend>
+        <ul class="lf__summary" data-summary aria-label="Your answers so far"></ul>
+
+        <div class="lf__fields">
+          <div class="lf__field lf__field--wide">
+            <label class="lf__label" for={`${formId}-name`}>Your name</label>
+            <input class="lf__input" id={`${formId}-name`} name="name" type="text" required autocomplete="name" placeholder="First and last" />
+            <p class="lf__error" data-error-for="name" hidden></p>
+          </div>
+          <div class="lf__field">
+            <label class="lf__label" for={`${formId}-phone`}>Phone</label>
+            <input class="lf__input" id={`${formId}-phone`} name="phone" type="tel" required autocomplete="tel" inputmode="tel" placeholder="04…" />
+            <p class="lf__help">So I can call rather than trade emails for a week.</p>
+            <p class="lf__error" data-error-for="phone" hidden></p>
+          </div>
+          <div class="lf__field">
+            <label class="lf__label" for={`${formId}-email`}>Email</label>
+            <input class="lf__input" id={`${formId}-email`} name="email" type="email" required autocomplete="email" placeholder="you@…" />
+            <p class="lf__error" data-error-for="email" hidden></p>
+          </div>
+        </div>
+
+        <label class="lf__consent">
+          <input type="checkbox" name="consent" required />
+          <span>
+            I agree to Harrison Saito storing these details in order to respond. See the
+            <a href="/privacy" target="_blank" rel="noopener">Privacy Policy</a>.
+          </span>
+        </label>
+
+        <button type="submit" class="lf__submit" data-submit>
+          <span>{submitLabel}</span><span aria-hidden="true">→</span>
+        </button>
+      </fieldset>
+    </div>
 
     {/* Honeypot — bots fill it, humans never see it. */}
     <div class="lf__pot" aria-hidden="true">
       <label for={`${formId}-website`}>Website</label>
       <input id={`${formId}-website`} name="website" type="text" tabindex="-1" autocomplete="off" />
-    </div>
-
-    <label class="lf__consent">
-      <input type="checkbox" name="consent" required />
-      <span>
-        I agree to Harrison Saito storing these details in order to respond. See the
-        <a href="/privacy" target="_blank" rel="noopener">Privacy Policy</a>.
-      </span>
-    </label>
-
-    <div class="lf__actions">
-      <button type="button" class="btn btn--ghost lf__back" data-step-back hidden>Back</button>
-      {
-        variant === 'application' ? (
-          <button type="button" class="btn btn--lg lf__next" data-step-next>
-            Continue
-          </button>
-        ) : null
-      }
-      <button
-        type="submit"
-        class="btn btn--lg lf__submit"
-        hidden={variant === 'application'}
-        data-submit
-      >
-        {submitLabel}
-      </button>
     </div>
 
     <p class="lf__formerror" data-form-error hidden role="alert"></p>
@@ -172,190 +231,324 @@ const steps = variant === 'application' ? [stepOne, stepTwo] : [fields];
     <span class="lf__success-mark" aria-hidden="true">円</span>
     <h3>{successHeading}</h3>
     <p>{successBody}</p>
+    <a class="lf__wa" data-whatsapp-link href={`https://wa.me/${SITE.whatsapp}`} target="_blank" rel="noopener">
+      Or message me on WhatsApp <span aria-hidden="true">→</span>
+    </a>
   </div>
 </div>
 
 <style>
+  /* ---- the glass ----------------------------------------------------------
+     Sits in the site's deep sections. A pane of frosted glass over the ink,
+     lit from the top-left, a gold breath behind the question. */
   .lf {
-    background: var(--paper);
-    border: 1px solid var(--rule);
-    border-top: 2px solid var(--gold);
-    padding: clamp(1.5rem, 4vw, 3rem);
-    /* The card is always cream, but it usually sits inside a dark section that
-       sets a light `color`. Without this, anything that inherits rather than
-       declaring its own colour — radio labels most visibly — renders white on
-       cream and becomes unreadable. */
-    color: var(--text-on-paper);
+    --glass-bg: linear-gradient(160deg, oklch(100% 0 0 / 0.11), oklch(100% 0 0 / 0.035) 46%, oklch(100% 0 0 / 0.07));
+    --glass-line: oklch(100% 0 0 / 0.14);
+    --glass-tile: oklch(100% 0 0 / 0.06);
+    --glass-tile-hover: oklch(100% 0 0 / 0.1);
+    position: relative;
+    isolation: isolate;
+    color: var(--text-on-ink);
+    border-radius: 24px;
+    padding: clamp(1.4rem, 4vw, 2.6rem);
+    background: var(--glass-bg);
+    -webkit-backdrop-filter: blur(28px) saturate(1.25);
+    backdrop-filter: blur(28px) saturate(1.25);
+    border: 1px solid var(--glass-line);
+    box-shadow:
+      inset 0 1px 0 oklch(100% 0 0 / 0.18),
+      inset 0 -1px 0 oklch(0% 0 0 / 0.25),
+      0 30px 80px -30px oklch(0% 0 0 / 0.75);
+    overflow: hidden;
+  }
+  .lf::before {
+    content: '';
+    position: absolute;
+    inset: -30% -20% auto -20%;
+    height: 70%;
+    z-index: -1;
+    pointer-events: none;
+    background: radial-gradient(ellipse at 22% 18%, oklch(84% 0.11 78 / 0.22), transparent 58%);
+    filter: blur(20px);
   }
 
-  .lf__steps {
-    display: flex;
-    gap: 1.5rem;
-    list-style: none;
-    padding: 0;
-    margin: 0 0 2rem;
-    flex-wrap: wrap;
-  }
-  .lf__steps li {
-    display: flex;
+  /* ---- head: back, rail, count ---- */
+  .lf__head {
+    display: grid;
+    grid-template-columns: auto 1fr auto;
     align-items: center;
-    gap: 0.6rem;
-    font-size: var(--step--1);
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-    color: var(--text-on-paper-faint);
-    transition: color var(--dur-fast) ease;
+    gap: 0.9rem;
+    margin-bottom: clamp(1.4rem, 3vw, 2rem);
   }
-  .lf__steps li span {
+  .lf__back {
+    width: 38px;
+    height: 38px;
     display: grid;
     place-items: center;
-    width: 28px;
-    height: 28px;
-    border: 1px solid var(--rule);
     border-radius: 50%;
-    font-family: var(--font-display);
-    font-size: 0.9rem;
+    border: 1px solid var(--glass-line);
+    background: var(--glass-tile);
+    color: var(--text-on-ink);
+    font-size: 1.05rem;
+    cursor: pointer;
+    transition: background var(--dur-fast) ease, border-color var(--dur-fast) ease, transform var(--dur-fast) var(--ease-out-expo);
   }
-  .lf__steps li.is-active { color: var(--gold-deep); }
-  .lf__steps li.is-active span { border-color: var(--gold); background: var(--gold); color: var(--ink-900); }
+  .lf__back:hover { background: var(--glass-tile-hover); border-color: var(--gold); transform: translateX(-2px); }
+  .lf__back[hidden] { display: none; }
+  .lf__head:has(.lf__back[hidden]) { grid-template-columns: 1fr auto; }
 
+  .lf__rail {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    grid-auto-flow: column;
+    grid-auto-columns: 1fr;
+    gap: 0.45rem;
+  }
+  .lf__rail li { display: grid; gap: 0.4rem; }
+  .lf__rail-bar {
+    height: 3px;
+    border-radius: 3px;
+    background: oklch(100% 0 0 / 0.14);
+    transition: background var(--dur) ease, box-shadow var(--dur) ease;
+  }
+  .lf__rail li.is-done .lf__rail-bar { background: var(--gold-deep); }
+  .lf__rail li.is-active .lf__rail-bar { background: var(--gold); box-shadow: 0 0 12px oklch(75% 0.12 75 / 0.6); }
+  .lf__rail-label {
+    font-size: 0.62rem;
+    font-weight: 700;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--text-on-ink-faint);
+    transition: color var(--dur-fast) ease;
+  }
+  .lf__rail li.is-active .lf__rail-label, .lf__rail li.is-done .lf__rail-label { color: var(--text-on-ink-muted); }
+  .lf__rail li.is-active .lf__rail-label { color: var(--gold); }
+  @media (max-width: 480px) { .lf__rail-label { display: none; } }
+
+  .lf__count {
+    font-family: var(--font-display);
+    font-size: 0.95rem;
+    color: var(--text-on-ink-muted);
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+  }
+
+  /* ---- the stage: one question at a time ---- */
+  .lf__stage { display: grid; }
   .lf__step {
+    grid-area: 1 / 1;
     border: 0;
     padding: 0;
     margin: 0;
-    display: grid;
-    gap: 1.35rem;
+    min-width: 0;
   }
   .lf__step[hidden] { display: none; }
-
-  .lf__field { display: grid; gap: 0.5rem; }
-
-  .lf__label {
-    font-size: var(--step--1);
-    font-weight: 600;
-    letter-spacing: 0.06em;
-    color: var(--text-on-paper);
+  .lf__step.is-entering { animation: lf-in 0.5s var(--ease-out-expo) both; }
+  @keyframes lf-in {
+    from { opacity: 0; transform: translateX(26px); }
+    to { opacity: 1; transform: none; }
   }
-  .lf__req { color: var(--gold-deep); margin-left: 0.25rem; }
-
-  .lf input[type='text'],
-  .lf input[type='email'],
-  .lf input[type='tel'],
-  .lf textarea,
-  .lf select {
-    width: 100%;
-    padding: 0.9rem 1rem;
-    background: var(--paper-warm);
-    border: 1px solid var(--rule);
-    border-radius: 0;
-    font-size: var(--step-0);
-    color: var(--text-on-paper);
-    transition: border-color var(--dur-fast) ease, background var(--dur-fast) ease;
+  .lf__step.is-entering.is-backwards { animation-name: lf-in-back; }
+  @keyframes lf-in-back {
+    from { opacity: 0; transform: translateX(-26px); }
+    to { opacity: 1; transform: none; }
   }
-  .lf input:focus,
-  .lf textarea:focus,
-  .lf select:focus {
-    outline: none;
-    border-color: var(--gold);
-    background: var(--paper);
-  }
-  .lf textarea { resize: vertical; min-height: 7rem; line-height: 1.6; }
 
-  .lf__radios { display: grid; gap: 0.6rem; }
-  .lf__radio {
-    display: flex;
-    align-items: center;
-    gap: 0.7rem;
-    padding: 0.8rem 1rem;
-    border: 1px solid var(--rule);
+  .lf__q {
+    font-family: var(--font-display);
+    font-weight: 400;
+    font-size: clamp(1.5rem, 3.2vw, 2.1rem);
+    line-height: 1.15;
+    letter-spacing: 0.005em;
+    color: var(--text-on-ink);
+    margin-bottom: clamp(1rem, 2.4vw, 1.5rem);
+    text-wrap: balance;
+    padding: 0;
+  }
+
+  /* ---- choices: glass tiles that answer on tap ---- */
+  .lf__choices { display: grid; gap: 0.6rem; }
+  .lf__choices[hidden] { display: none; }
+  @media (min-width: 560px) { .lf__choices--two { grid-template-columns: 1fr 1fr; } }
+
+  .lf__choice {
+    position: relative;
+    display: grid;
+    gap: 0.15rem;
+    text-align: left;
+    padding: 0.95rem 3rem 0.95rem 1.1rem;
+    border-radius: 14px;
+    border: 1px solid var(--glass-line);
+    background: var(--glass-tile);
+    color: var(--text-on-ink);
     cursor: pointer;
-    font-size: var(--step--1);
-    transition: border-color var(--dur-fast) ease, background var(--dur-fast) ease;
+    font: inherit;
+    box-shadow: inset 0 1px 0 oklch(100% 0 0 / 0.08);
+    transition: background var(--dur-fast) ease, border-color var(--dur-fast) ease, transform var(--dur-fast) var(--ease-out-expo), box-shadow var(--dur-fast) ease;
+    -webkit-tap-highlight-color: transparent;
   }
-  .lf__radio span { color: var(--text-on-paper); line-height: 1.5; }
-  .lf__radio:hover { border-color: oklch(75% 0.12 75 / 0.5); }
-  .lf__radio:has(input:checked) { border-color: var(--gold); background: oklch(75% 0.12 75 / 0.08); }
-  .lf__radio input { accent-color: var(--gold-deep); width: 1rem; height: 1rem; }
-
-  .lf__help { font-size: 0.78rem; color: var(--text-on-paper-faint); line-height: 1.5; }
-
-  .lf__error {
-    font-size: 0.78rem;
-    color: oklch(52% 0.19 27);
-    font-weight: 600;
-  }
-  .lf__error[hidden] { display: none; }
-
-  .lf__pot {
+  .lf__choice:hover { background: var(--glass-tile-hover); border-color: oklch(84% 0.11 78 / 0.5); transform: translateY(-1px); }
+  .lf__choice:focus-visible { outline: none; border-color: var(--gold); box-shadow: 0 0 0 3px oklch(75% 0.12 75 / 0.28), inset 0 1px 0 oklch(100% 0 0 / 0.08); }
+  .lf__choice-label { font-family: var(--font-display); font-size: 1.18rem; line-height: 1.2; }
+  .lf__choice-hint { font-size: 0.78rem; color: var(--text-on-ink-muted); line-height: 1.4; }
+  .lf__choice-mark {
     position: absolute;
-    left: -9999px;
-    width: 1px;
-    height: 1px;
-    overflow: hidden;
+    right: 0.95rem;
+    top: 50%;
+    width: 22px;
+    height: 22px;
+    margin-top: -11px;
+    border-radius: 50%;
+    border: 1px solid oklch(100% 0 0 / 0.22);
+    transition: border-color var(--dur-fast) ease, background var(--dur-fast) ease, transform var(--dur-fast) var(--ease-out-expo);
   }
+  .lf__choice-mark::after {
+    content: '';
+    position: absolute;
+    left: 7px;
+    top: 4px;
+    width: 5px;
+    height: 9px;
+    border: solid var(--ink-900);
+    border-width: 0 2px 2px 0;
+    transform: rotate(45deg) scale(0);
+    transition: transform var(--dur-fast) var(--ease-out-expo);
+  }
+  .lf__choice[aria-checked='true'] {
+    border-color: var(--gold);
+    background: oklch(75% 0.12 75 / 0.14);
+    box-shadow: 0 0 0 1px oklch(75% 0.12 75 / 0.35), 0 10px 30px -14px oklch(75% 0.12 75 / 0.7);
+  }
+  .lf__choice[aria-checked='true'] .lf__choice-mark { background: var(--gold); border-color: var(--gold); transform: scale(1.05); }
+  .lf__choice[aria-checked='true'] .lf__choice-mark::after { transform: rotate(45deg) scale(1); }
+
+  /* ---- the last step: the answers, then the person ---- */
+  .lf__summary {
+    list-style: none;
+    margin: 0 0 1.2rem;
+    padding: 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.45rem;
+  }
+  .lf__summary:empty { display: none; }
+  /* :global — the chips are created by script and carry no scoped attribute */
+  .lf__summary :global(button) {
+    font: inherit;
+    font-size: 0.78rem;
+    color: var(--text-on-ink-muted);
+    background: var(--glass-tile);
+    border: 1px solid var(--glass-line);
+    border-radius: 999px;
+    padding: 0.35rem 0.8rem;
+    cursor: pointer;
+    transition: color var(--dur-fast) ease, border-color var(--dur-fast) ease;
+  }
+  .lf__summary :global(button:hover), .lf__summary :global(button:focus-visible) { color: var(--gold); border-color: var(--gold); outline: none; }
+  .lf__summary :global(button)::after { content: ' ✎'; opacity: 0.55; }
+
+  .lf__fields { display: grid; gap: 1rem; }
+  @media (min-width: 640px) {
+    .lf__fields { grid-template-columns: 1fr 1fr; }
+    .lf__field--wide { grid-column: 1 / -1; }
+  }
+  .lf__field { display: grid; gap: 0.45rem; }
+  .lf__label { font-size: 0.7rem; font-weight: 700; letter-spacing: 0.16em; text-transform: uppercase; color: var(--text-on-ink-muted); }
+  .lf__input {
+    width: 100%;
+    padding: 0.95rem 1.05rem;
+    border-radius: 12px;
+    border: 1px solid var(--glass-line);
+    background: var(--glass-tile);
+    color: var(--text-on-ink);
+    font-size: var(--step-0);
+    box-shadow: inset 0 1px 0 oklch(100% 0 0 / 0.06);
+    transition: border-color var(--dur-fast) ease, background var(--dur-fast) ease, box-shadow var(--dur-fast) ease;
+  }
+  .lf__input::placeholder { color: var(--text-on-ink-faint); }
+  .lf__input:focus { outline: none; border-color: var(--gold); background: oklch(100% 0 0 / 0.09); box-shadow: 0 0 0 3px oklch(75% 0.12 75 / 0.22); }
+  .lf__help { font-size: 0.76rem; color: var(--text-on-ink-faint); line-height: 1.5; }
+  .lf__error { font-size: 0.78rem; font-weight: 600; color: oklch(78% 0.14 30); }
+  .lf__error[hidden] { display: none; }
 
   .lf__consent {
     display: flex;
     align-items: flex-start;
     gap: 0.7rem;
-    margin-top: 1.5rem;
-    font-size: 0.8rem;
-    line-height: 1.6;
-    color: var(--text-on-paper-muted);
+    margin-top: 1.2rem;
+    font-size: 0.78rem;
+    line-height: 1.55;
+    color: var(--text-on-ink-muted);
     cursor: pointer;
   }
-  .lf__consent input { margin-top: 0.25rem; accent-color: var(--gold-deep); flex-shrink: 0; }
-  .lf__consent a { color: var(--gold-deep); text-decoration: underline; text-underline-offset: 2px; }
+  .lf__consent input { margin-top: 0.2rem; accent-color: var(--gold); flex-shrink: 0; }
+  .lf__consent a { color: var(--gold); text-decoration: underline; text-underline-offset: 2px; }
 
-  .lf__actions {
+  .lf__submit {
     display: flex;
-    flex-wrap: wrap;
-    gap: 0.75rem;
-    margin-top: 1.75rem;
+    align-items: center;
+    justify-content: center;
+    gap: 0.7rem;
+    width: 100%;
+    margin-top: 1.3rem;
+    padding: 1.05rem 1.4rem;
+    border-radius: 14px;
+    border: 1px solid oklch(87% 0.11 80 / 0.9);
+    background: linear-gradient(112deg, oklch(69% 0.135 66) 0%, var(--gold) 48%, oklch(83% 0.12 80) 100%);
+    color: var(--ink-900);
+    font-family: var(--font-body);
+    font-weight: 700;
+    font-size: 0.86rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    cursor: pointer;
+    box-shadow: inset 0 1px 0 oklch(100% 0 0 / 0.5), 0 14px 34px -14px oklch(64% 0.13 68 / 0.9);
+    transition: filter var(--dur-fast) ease, transform var(--dur-fast) var(--ease-out-expo);
   }
-  .lf__actions .btn { flex: 1 1 auto; }
-  .lf__back[hidden], .lf__next[hidden], .lf__submit[hidden] { display: none; }
+  .lf__submit:hover { filter: brightness(1.05); transform: translateY(-1px); }
+  .lf__submit:focus-visible { outline: none; box-shadow: 0 0 0 3px oklch(75% 0.12 75 / 0.35); }
+  .lf__submit[aria-busy='true'] { opacity: 0.7; pointer-events: none; }
 
-  .lf__submit[aria-busy='true'] { opacity: 0.65; pointer-events: none; }
+  .lf__pot { position: absolute; left: -9999px; width: 1px; height: 1px; overflow: hidden; }
 
   .lf__formerror {
     margin-top: 1rem;
     padding: 0.85rem 1rem;
-    background: oklch(52% 0.19 27 / 0.08);
-    border-left: 2px solid oklch(52% 0.19 27);
+    border-radius: 12px;
+    background: oklch(52% 0.19 27 / 0.14);
+    border: 1px solid oklch(62% 0.17 27 / 0.5);
     font-size: var(--step--1);
-    color: oklch(42% 0.19 27);
+    color: var(--text-on-ink);
   }
+  .lf__formerror a { color: var(--gold); }
   .lf__formerror[hidden] { display: none; }
 
   /* ---- success ---- */
-  .lf__success { text-align: center; padding: clamp(1.5rem, 4vw, 3rem) 0; }
+  .lf__success { text-align: center; padding: clamp(1rem, 3vw, 2rem) 0; }
   .lf__success[hidden] { display: none; }
-  .lf__success-mark {
-    display: block;
-    font-family: var(--font-jp);
-    font-size: 4.5rem;
-    line-height: 1;
-    color: var(--gold);
-    opacity: 0.5;
-    margin-bottom: 1.25rem;
+  .lf__success-mark { display: block; font-family: var(--font-jp); font-size: 4.5rem; line-height: 1; color: var(--gold); opacity: 0.55; margin-bottom: 1.1rem; }
+  .lf__success h3 { font-family: var(--font-display); font-size: var(--step-3); font-weight: 300; margin-bottom: 0.7rem; color: var(--text-on-ink); }
+  .lf__success p { color: var(--text-on-ink-muted); max-width: 40ch; margin-inline: auto; line-height: 1.7; }
+  .lf__wa {
+    display: inline-flex;
+    gap: 0.5rem;
+    margin-top: 1.4rem;
+    padding: 0.7rem 1.1rem;
+    border-radius: 999px;
+    border: 1px solid var(--glass-line);
+    background: var(--glass-tile);
+    color: var(--text-on-ink);
+    text-decoration: none;
+    font-size: 0.86rem;
+    transition: border-color var(--dur-fast) ease, color var(--dur-fast) ease;
   }
-  .lf__success h3 {
-    font-size: var(--step-3);
-    font-weight: 300;
-    margin-bottom: 0.85rem;
-  }
-  .lf__success p {
-    color: var(--text-on-paper-muted);
-    max-width: 40ch;
-    margin-inline: auto;
-    line-height: 1.7;
-  }
+  .lf__wa:hover, .lf__wa:focus-visible { border-color: var(--gold); color: var(--gold); outline: none; }
 
-  @media (min-width: 640px) {
-    .lf__step { grid-template-columns: repeat(2, 1fr); }
-    .lf__field--wide, .lf__field:has(.lf__radios) { grid-column: 1 / -1; }
-    .lf__actions .btn { flex: 0 1 auto; }
+  @media (prefers-reduced-motion: reduce) {
+    .lf__step.is-entering { animation: none; }
+    .lf__choice, .lf__back, .lf__submit { transition: none; }
   }
 </style>
 
@@ -363,97 +556,129 @@ const steps = variant === 'application' ? [stepOne, stepTwo] : [fields];
   import { track, eventId } from '../scripts/tracking';
 
   const ENDPOINT = import.meta.env.PUBLIC_FORM_ENDPOINT || '/api/lead';
+  const ADVANCE_MS = 340;
 
   document.querySelectorAll<HTMLElement>('[data-lead-form]').forEach((root) => {
     const form = root.querySelector('form')!;
     const formId = root.dataset.leadForm!;
+    const preset = root.dataset.preset || '';
     const success = root.querySelector<HTMLElement>('[data-success]')!;
     const formError = root.querySelector<HTMLElement>('[data-form-error]')!;
-    const steps = Array.from(root.querySelectorAll<HTMLElement>('[data-step]'));
-    const dots = Array.from(root.querySelectorAll<HTMLElement>('[data-step-dot]'));
-    const nextBtn = root.querySelector<HTMLButtonElement>('[data-step-next]');
-    const backBtn = root.querySelector<HTMLButtonElement>('[data-step-back]');
+    const backBtn = root.querySelector<HTMLButtonElement>('[data-step-back]')!;
+    const count = root.querySelector<HTMLElement>('[data-count]')!;
+    const rail = Array.from(root.querySelectorAll<HTMLElement>('[data-rail]'));
+    const summary = root.querySelector<HTMLElement>('[data-summary]')!;
     const submitBtn = root.querySelector<HTMLButtonElement>('[data-submit]')!;
     const consent = form.querySelector<HTMLInputElement>('[name="consent"]')!;
+    const waLink = root.querySelector<HTMLAnchorElement>('[data-whatsapp-link]');
+
+    const all = Array.from(root.querySelectorAll<HTMLElement>('[data-step]'));
+    const steps = preset ? all.filter((s) => s.dataset.step !== 'about') : all;
+    const labels: Record<string, string> = { about: root.dataset.presetLabel || '' };
 
     let current = 0;
     let startedFired = false;
+    let advancing = 0;
 
-    /* ---- validation ------------------------------------------------- */
+    const hidden = (name: string) => form.querySelector<HTMLInputElement>(`input[type="hidden"][name="${name}"]`)!;
 
-    const showError = (field: HTMLElement, message: string) => {
-      const name = (field as HTMLInputElement).name;
-      const slot = root.querySelector<HTMLElement>(`[data-error-for="${name}"]`);
-      if (slot) {
-        slot.textContent = message;
-        slot.hidden = false;
+    /* ---- the stage ---------------------------------------------------- */
+
+    const showTopics = () => {
+      const about = hidden('about').value || 'other';
+      root.querySelectorAll<HTMLElement>('[data-topics]').forEach((g) => {
+        g.hidden = g.dataset.topics !== about && !(g.dataset.topics === 'other' && !(about in topicKeys));
+      });
+    };
+    const topicKeys: Record<string, true> = {};
+    root.querySelectorAll<HTMLElement>('[data-topics]').forEach((g) => (topicKeys[g.dataset.topics!] = true));
+
+    const paintSummary = () => {
+      summary.innerHTML = '';
+      steps.slice(0, -1).forEach((s, i) => {
+        const name = s.dataset.step!;
+        const label = labels[name];
+        if (!label) return;
+        const b = document.createElement('button');
+        b.type = 'button';
+        b.textContent = label;
+        b.setAttribute('aria-label', `Change: ${label}`);
+        b.addEventListener('click', () => goTo(i, true));
+        const li = document.createElement('li');
+        li.appendChild(b);
+        summary.appendChild(li);
+      });
+    };
+
+    const goTo = (index: number, backwards = false, focus = true) => {
+      current = index;
+      steps.forEach((s, i) => {
+        s.hidden = i !== index;
+        s.classList.remove('is-entering', 'is-backwards');
+      });
+      const step = steps[index];
+      // restart the entrance
+      void step.offsetWidth;
+      step.classList.add('is-entering');
+      if (backwards) step.classList.add('is-backwards');
+
+      rail.forEach((r, i) => {
+        r.classList.toggle('is-done', i < index);
+        r.classList.toggle('is-active', i === index);
+      });
+      count.textContent = `${index + 1} of ${steps.length}`;
+      backBtn.hidden = index === 0;
+
+      if (step.dataset.step === 'topic') showTopics();
+      if (step.dataset.step === 'contact') paintSummary();
+      // Focus follows a step change, never the page load: a ring on the first
+      // tile at rest reads as an answer already given.
+      if (!focus) return;
+      if (step.dataset.step === 'contact') {
+        window.setTimeout(() => step.querySelector<HTMLElement>('input[name="name"]')?.focus({ preventScroll: true }), 80);
+      } else {
+        const checked = step.querySelector<HTMLElement>('.lf__choice[aria-checked="true"]:not([hidden])');
+        window.setTimeout(() => (checked ?? step.querySelector<HTMLElement>('.lf__choice'))?.focus({ preventScroll: true }), 80);
       }
     };
 
-    const clearErrors = (scope: HTMLElement) => {
-      scope.querySelectorAll<HTMLElement>('[data-error-for]').forEach((el) => {
-        el.hidden = true;
-        el.textContent = '';
-      });
-    };
+    /* ---- a tap answers, and moves on ---------------------------------- */
 
-    const validate = (scope: HTMLElement): boolean => {
-      clearErrors(scope);
-      let ok = true;
+    root.querySelectorAll<HTMLButtonElement>('[data-choice]').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        const name = btn.dataset.choice!;
+        const group = btn.closest<HTMLElement>('.lf__choices')!;
+        group.querySelectorAll<HTMLElement>('[data-choice]').forEach((b) => b.setAttribute('aria-checked', String(b === btn)));
+        hidden(name).value = btn.dataset.value || '';
+        hidden(`${name}_label`).value = btn.dataset.label || '';
+        labels[name] = btn.dataset.label || '';
 
-      scope.querySelectorAll<HTMLInputElement>('input, textarea, select').forEach((el) => {
-        if (el.type === 'radio') {
-          const group = scope.querySelectorAll<HTMLInputElement>(`[name="${el.name}"]`);
-          const anyRequired = Array.from(group).some((r) => r.required);
-          const anyChecked = Array.from(group).some((r) => r.checked);
-          if (anyRequired && !anyChecked && ok) {
-            showError(el, 'Please choose an option.');
-            ok = false;
-          }
-          return;
+        // A new "about" makes the topic question a different question.
+        if (name === 'about') {
+          hidden('topic').value = '';
+          hidden('topic_label').value = '';
+          labels.topic = '';
+          root.querySelectorAll<HTMLElement>('[data-topics] [data-choice]').forEach((b) => b.setAttribute('aria-checked', 'false'));
         }
 
-        if (!el.required) return;
-
-        if (!el.value.trim()) {
-          showError(el, 'This one is needed.');
-          ok = false;
-        } else if (el.type === 'email' && !/^[^@\s]+@[^@\s]+\.[^@\s]{2,}$/.test(el.value)) {
-          showError(el, 'That email address does not look right.');
-          ok = false;
-        } else if (el.type === 'tel' && el.value.replace(/\D/g, '').length < 8) {
-          showError(el, 'Please include a full phone number.');
-          ok = false;
+        if (!startedFired) {
+          startedFired = true;
+          track('form_start', { form_id: formId, page_path: location.pathname });
         }
+        track('form_step', { form_id: formId, step: current + 1, question: name, answer: btn.dataset.value, page_path: location.pathname });
+
+        window.clearTimeout(advancing);
+        advancing = window.setTimeout(() => {
+          if (current < steps.length - 1) goTo(current + 1);
+        }, ADVANCE_MS);
       });
-
-      return ok;
-    };
-
-    /* ---- steps ------------------------------------------------------ */
-
-    const goTo = (index: number) => {
-      current = index;
-      steps.forEach((s, i) => (s.hidden = i !== index));
-      dots.forEach((d, i) => d.classList.toggle('is-active', i <= index));
-
-      const last = index === steps.length - 1;
-      if (backBtn) backBtn.hidden = index === 0;
-      if (nextBtn) nextBtn.hidden = last;
-      submitBtn.hidden = !last;
-
-      steps[index]?.querySelector<HTMLElement>('input, textarea, select')?.focus();
-    };
-
-    nextBtn?.addEventListener('click', () => {
-      if (!validate(steps[current])) return;
-      track('form_step', { form_id: formId, step: current + 1, page_path: location.pathname });
-      goTo(Math.min(current + 1, steps.length - 1));
     });
 
-    backBtn?.addEventListener('click', () => goTo(Math.max(current - 1, 0)));
+    backBtn.addEventListener('click', () => {
+      window.clearTimeout(advancing);
+      goTo(Math.max(current - 1, 0), true);
+    });
 
-    // First interaction with the form is itself a signal worth having.
     form.addEventListener(
       'input',
       () => {
@@ -464,14 +689,51 @@ const steps = variant === 'application' ? [stepOne, stepTwo] : [fields];
       { once: true }
     );
 
-    /* ---- submit ----------------------------------------------------- */
+    /* ---- validation --------------------------------------------------- */
+
+    const showError = (name: string, message: string) => {
+      const slot = root.querySelector<HTMLElement>(`[data-error-for="${name}"]`);
+      if (slot) {
+        slot.textContent = message;
+        slot.hidden = false;
+      }
+    };
+    const clearErrors = () => {
+      root.querySelectorAll<HTMLElement>('[data-error-for]').forEach((el) => {
+        el.hidden = true;
+        el.textContent = '';
+      });
+    };
+    const validate = (): boolean => {
+      clearErrors();
+      let ok = true;
+      let first: HTMLInputElement | null = null;
+      form.querySelectorAll<HTMLInputElement>('.lf__input[required]').forEach((el) => {
+        let msg = '';
+        if (!el.value.trim()) msg = 'This one is needed.';
+        else if (el.type === 'email' && !/^[^@\s]+@[^@\s]+\.[^@\s]{2,}$/.test(el.value)) msg = 'That email address does not look right.';
+        else if (el.type === 'tel' && el.value.replace(/\D/g, '').length < 8) msg = 'Please include a full phone number.';
+        if (msg) {
+          showError(el.name, msg);
+          ok = false;
+          first ??= el;
+        }
+      });
+      first?.focus();
+      return ok;
+    };
+
+    /* ---- send --------------------------------------------------------- */
 
     form.addEventListener('submit', async (e) => {
       e.preventDefault();
       formError.hidden = true;
 
-      if (!validate(steps[current])) return;
-
+      if (steps[current].dataset.step !== 'contact') {
+        goTo(steps.length - 1);
+        return;
+      }
+      if (!validate()) return;
       if (!consent.checked) {
         formError.textContent = 'Please tick the consent box so I can reply.';
         formError.hidden = false;
@@ -479,8 +741,6 @@ const steps = variant === 'application' ? [stepOne, stepTwo] : [fields];
       }
 
       const data = new FormData(form);
-
-      // Honeypot: silently pretend success so bots stop retrying.
       if ((data.get('website') as string)?.trim()) {
         form.hidden = true;
         success.hidden = false;
@@ -492,24 +752,33 @@ const steps = variant === 'application' ? [stepOne, stepTwo] : [fields];
         if (key !== 'website') payload[key] = value;
       });
 
-      // Shared id so the browser Pixel event and the server-side Conversions
-      // API event collapse into one conversion rather than two.
       const id = eventId();
       const eventName = root.dataset.event || 'lead';
       const value = root.dataset.eventValue ? Number(root.dataset.eventValue) : undefined;
-
       payload.form_id = formId;
       payload.event_id = id;
       payload.event_name = eventName;
+      if (value) payload.value = value;
       payload.page_path = location.pathname;
       payload.page_url = location.href;
       payload.referrer = document.referrer || undefined;
-      // Meta click id / browser id, when present, materially improve match rate.
       payload.fbc = document.cookie.match(/_fbc=([^;]+)/)?.[1];
       payload.fbp = document.cookie.match(/_fbp=([^;]+)/)?.[1];
 
+      // The answers, written for WhatsApp as well, so the direct route
+      // carries the same context if they choose it.
+      if (waLink) {
+        const lines = [
+          `Hi Harrison, I'd like to talk about ${labels.about || 'working with you'}.`,
+          labels.topic ? `Specifically: ${labels.topic.toLowerCase()}.` : '',
+          labels.timing ? `${labels.timing} suit me best.` : '',
+          `— ${String(payload.name || '')}`,
+        ].filter(Boolean);
+        waLink.href = `https://wa.me/${root.dataset.whatsapp}?text=${encodeURIComponent(lines.join('\n'))}`;
+      }
+
       submitBtn.setAttribute('aria-busy', 'true');
-      submitBtn.textContent = 'Sending…';
+      submitBtn.firstElementChild!.textContent = 'Sending…';
 
       try {
         const res = await fetch(ENDPOINT, {
@@ -517,22 +786,13 @@ const steps = variant === 'application' ? [stepOne, stepTwo] : [fields];
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(payload),
         });
-
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
 
-        track(eventName, {
-          event_id: id,
-          form_id: formId,
-          value,
-          currency: value ? 'AUD' : undefined,
-          page_path: location.pathname,
-        });
-
+        track(eventName, { event_id: id, form_id: formId, value, currency: value ? 'AUD' : undefined, page_path: location.pathname });
         form.hidden = true;
         success.hidden = false;
         success.scrollIntoView({ behavior: 'smooth', block: 'center' });
       } catch (err) {
-        // Never strand a lead: surface the direct routes instead.
         formError.innerHTML =
           'Something went wrong sending that. Please email ' +
           '<a href="mailto:hello@harrisonsaito.com.au">hello@harrisonsaito.com.au</a> ' +
@@ -541,10 +801,14 @@ const steps = variant === 'application' ? [stepOne, stepTwo] : [fields];
         track('form_error', { form_id: formId, message: String(err) });
       } finally {
         submitBtn.removeAttribute('aria-busy');
-        submitBtn.textContent = submitBtn.dataset.label || 'Send';
+        submitBtn.firstElementChild!.textContent = submitBtn.dataset.label || 'Send';
       }
     });
 
-    submitBtn.dataset.label = submitBtn.textContent?.trim() || 'Send';
+    submitBtn.dataset.label = submitBtn.firstElementChild?.textContent?.trim() || 'Send';
+
+    // Open on the first question, or on the second where the page has answered the first.
+    goTo(0, false, false);
+    if (preset) showTopics();
   });
 </script>

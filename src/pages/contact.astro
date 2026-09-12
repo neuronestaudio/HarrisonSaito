@@ -25,32 +25,6 @@ const schema = graph(
   ])
 );
 
-const fields = [
-  { name: 'name', label: 'Your name', type: 'text' as const, required: true, autocomplete: 'name' },
-  { name: 'email', label: 'Email', type: 'email' as const, required: true, autocomplete: 'email' },
-  { name: 'phone', label: 'Phone (optional)', type: 'tel' as const, required: false, autocomplete: 'tel' },
-  {
-    name: 'about',
-    label: 'What is this about?',
-    type: 'select' as const,
-    required: true,
-    options: [
-      "Men's coaching",
-      'Return to Self programme',
-      'HSC or youth mentoring',
-      'Martial arts',
-      'Media or speaking',
-      'Something else',
-    ],
-  },
-  {
-    name: 'message',
-    label: 'Your message',
-    type: 'textarea' as const,
-    required: true,
-    placeholder: 'Tell me where you are at and what you are looking for.',
-  },
-];
 ---
 
 <Base title={title} description={description} path="/contact" schema={schema}>
@@ -117,9 +91,7 @@ const fields = [
       <div class="contact__form" data-reveal>
         <LeadForm
           formId="general-contact"
-          variant="simple"
-          fields={fields}
-          submitLabel="Send Message"
+          submitLabel="Send"
           eventName="contact"
           successHeading="Message sent."
           successBody="I'll reply personally, usually within a day."

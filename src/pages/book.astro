@@ -27,38 +27,6 @@ const schema = graph(
   ])
 );
 
-const fields = [
-  { name: 'name', label: 'Your name', type: 'text' as const, required: true, autocomplete: 'name' },
-  { name: 'email', label: 'Email', type: 'email' as const, required: true, autocomplete: 'email' },
-  { name: 'phone', label: 'Phone', type: 'tel' as const, required: true, autocomplete: 'tel' },
-  {
-    name: 'service',
-    label: 'What is this about?',
-    type: 'select' as const,
-    required: true,
-    options: [
-      '1:1 Life Coaching',
-      'Return to Self — 12-week programme',
-      'HSC & Youth Mentoring',
-      'Martial arts training',
-      'Something else',
-    ],
-  },
-  {
-    name: 'availability',
-    label: 'When suits you?',
-    type: 'text' as const,
-    required: false,
-    placeholder: 'Weekday evenings, Saturday mornings…',
-  },
-  {
-    name: 'message',
-    label: 'What would you like to talk about?',
-    type: 'textarea' as const,
-    required: false,
-    placeholder: 'A sentence or two is plenty.',
-  },
-];
 ---
 
 <Base title={title} description={description} path="/book" schema={schema}>
@@ -103,9 +71,7 @@ const fields = [
           ) : (
             <LeadForm
               formId="discovery-chat"
-              variant="simple"
-              fields={fields}
-              submitLabel="Request a Time"
+              submitLabel="Request a time"
               eventName="schedule"
               successHeading="Request received."
               successBody="I'll come back to you with a couple of times that work, usually within a day."
@@ -188,24 +154,12 @@ const fields = [
 </style>
 
 <script>
-  // /book?service=hsc arrives from the HSC page — preselect so the visitor
-  // does not have to restate what they already told us by clicking.
-  const params = new URLSearchParams(location.search);
-  const service = params.get('service');
+  // /book?service=hsc arrives from the HSC page — answer the first question
+  // for the visitor so they do not restate what they already told us by
+  // clicking. The form advances by itself, as it does for a tap.
+  const service = new URLSearchParams(location.search).get('service');
   if (service) {
-    const select = document.querySelector<HTMLSelectElement>('select[name="service"]');
-    if (select) {
-      const match: Record<string, string> = {
-        hsc: 'HSC & Youth Mentoring',
-        coaching: '1:1 Life Coaching',
-        programme: 'Return to Self — 12-week programme',
-        martial: 'Martial arts training',
-      };
-      const wanted = match[service];
-      if (wanted) {
-        const option = Array.from(select.options).find((o) => o.value === wanted);
-        if (option) select.value = option.value;
-      }
-    }
+    const choice = document.querySelector<HTMLButtonElement>(`[data-lead-form="discovery-chat"] [data-choice="about"][data-value="${service}"]`);
+    if (choice) choice.click();
   }
 </script>
