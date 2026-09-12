@@ -252,22 +252,30 @@ export async function POST(request: Request): Promise<Response> {
 
   // Integrations run in parallel and are individually non-fatal: a CRM outage
   // must never cost us the lead or show the visitor an error.
+  const names = ['meta', 'ghl', 'webhook', 'email'];
   const results = await Promise.allSettled([
     sendToMeta(env, body, request),
     sendToGHL(env, body),
     sendToWebhook(env, body),
     sendEmail(env, body),
   ]);
+  // What each integration did — "unconfigured", "ok", or its error — so a
+  // test post from outside can see why a lead went nowhere without anyone
+  // reading the function log. Never carries a secret.
+  const integrations: Record<string, string> = {};
   results.forEach((r, i) => {
-    if (r.status === 'rejected') console.error(['meta', 'ghl', 'webhook', 'email'][i], 'failed:', r.reason);
+    if (r.status === 'rejected') {
+      console.error(names[i], 'failed:', r.reason);
+      integrations[names[i]] = 'error: ' + String((r.reason && (r.reason as Error).message) || r.reason).slice(0, 160);
+    } else integrations[names[i]] = r.value ? 'ok' : 'unconfigured';
   });
   const delivered = results.slice(1).some((r) => r.status === 'fulfilled' && r.value === true);
 
   // Always in the function log, in full, so nothing is ever lost to a missing
   // integration: Vercel → Project → Logs, filter "[lead]".
-  console.log('[lead]', JSON.stringify({ ...body, received_at: new Date().toISOString(), delivered }));
+  console.log('[lead]', JSON.stringify({ ...body, received_at: new Date().toISOString(), delivered, integrations }));
 
-  return reply(200, { ok: true, delivered });
+  return reply(200, { ok: true, delivered, integrations });
 }
 
 /** Anything other than POST gets a clear answer rather than a framework 404. */
