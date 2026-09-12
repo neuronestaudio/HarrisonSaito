@@ -14,8 +14,9 @@
  * (`delivered: false`) so the page can offer the direct route as well.
  *
  * Environment (Vercel → Project → Settings → Environment Variables):
+ *   GHL_TOKEN, GHL_LOCATION_ID       GoHighLevel private integration → contact upsert
  *   META_PIXEL_ID, META_CAPI_TOKEN   Meta Conversions API
- *   LEAD_WEBHOOK_URL                 CRM / automation endpoint
+ *   LEAD_WEBHOOK_URL                 any other CRM / automation endpoint
  *   RESEND_API_KEY, LEAD_NOTIFY_TO   email notification
  *   TEST_EVENT_CODE                  optional, for Meta's Test Events tab
  */
@@ -23,12 +24,96 @@
 declare const process: { env: Record<string, string | undefined> };
 
 interface Env {
+  GHL_TOKEN?: string;
+  GHL_LOCATION_ID?: string;
   META_PIXEL_ID?: string;
   META_CAPI_TOKEN?: string;
   LEAD_WEBHOOK_URL?: string;
   RESEND_API_KEY?: string;
   LEAD_NOTIFY_TO?: string;
   TEST_EVENT_CODE?: string;
+}
+
+/* ---------------------------------------------------------------- GHL ----
+   The contact lands in the "Harrison Saito - Return to Self" sub-account with
+   the form's answers on custom fields created 12 Sep 2026 (keys below), tags a
+   workflow can trigger on, and the form as its source. Field ids are looked
+   up by key at runtime and cached, so the fields may be recreated in GHL
+   without touching this file. GHL's edge answers a bare client with
+   Cloudflare 1010, hence the browser-shaped User-Agent. */
+
+const GHL = 'https://services.leadconnectorhq.com';
+const GHL_FIELDS: Record<string, string> = {
+  about_label: 'contact.enquiry__about',
+  topic_label: 'contact.enquiry__topic',
+  timing_label: 'contact.enquiry__when_suits',
+  form_id: 'contact.enquiry__form',
+  page_url: 'contact.enquiry__page',
+  referrer: 'contact.enquiry__referrer',
+  fbc: 'contact.meta_fbc',
+  fbp: 'contact.meta_fbp',
+};
+let ghlFieldIds: { at: number; map: Record<string, string> } | null = null;
+
+function ghlHeaders(env: Env): Record<string, string> {
+  return {
+    Authorization: `Bearer ${env.GHL_TOKEN}`,
+    Version: '2021-07-28',
+    Accept: 'application/json',
+    'Content-Type': 'application/json',
+    'User-Agent': 'Mozilla/5.0 (harrisonsaito.com.au lead function)',
+  };
+}
+
+async function ghlFieldMap(env: Env): Promise<Record<string, string>> {
+  if (ghlFieldIds && Date.now() - ghlFieldIds.at < 10 * 60 * 1000) return ghlFieldIds.map;
+  const res = await fetch(`${GHL}/locations/${env.GHL_LOCATION_ID}/customFields?model=contact`, { headers: ghlHeaders(env) });
+  if (!res.ok) throw new Error(`GHL customFields HTTP ${res.status}`);
+  const data = (await res.json()) as { customFields?: Array<{ id: string; fieldKey: string }> };
+  const map: Record<string, string> = {};
+  for (const f of data.customFields ?? []) map[f.fieldKey] = f.id;
+  ghlFieldIds = { at: Date.now(), map };
+  return map;
+}
+
+/** "+61…" for GHL, from whatever an Australian typed. */
+function e164(raw: string): string {
+  const digits = raw.replace(/\D/g, '');
+  if (!digits) return '';
+  if (digits.startsWith('61')) return `+${digits}`;
+  if (digits.startsWith('0')) return `+61${digits.slice(1)}`;
+  return `+${digits}`;
+}
+
+async function sendToGHL(env: Env, body: Payload): Promise<boolean> {
+  if (!env.GHL_TOKEN || !env.GHL_LOCATION_ID) return false;
+  const ids = await ghlFieldMap(env);
+
+  const name = typeof body.name === 'string' ? body.name.trim() : '';
+  const parts = name.split(/\s+/).filter(Boolean);
+  const customFields: Array<{ id: string; field_value: string }> = [];
+  for (const [key, fieldKey] of Object.entries(GHL_FIELDS)) {
+    const v = body[key];
+    const id = ids[fieldKey];
+    if (id && typeof v === 'string' && v) customFields.push({ id, field_value: v });
+  }
+
+  const formId = typeof body.form_id === 'string' ? body.form_id : 'website';
+  const about = typeof body.about === 'string' && body.about ? body.about : 'other';
+  const payload: Payload = {
+    locationId: env.GHL_LOCATION_ID,
+    firstName: parts[0] ?? '',
+    lastName: parts.slice(1).join(' '),
+    email: body.email,
+    phone: typeof body.phone === 'string' ? e164(body.phone) : undefined,
+    source: `Website - ${formId}`,
+    tags: ['website', `enquiry-${about}`, `form-${formId}`],
+    customFields,
+  };
+
+  const res = await fetch(`${GHL}/contacts/upsert`, { method: 'POST', headers: ghlHeaders(env), body: JSON.stringify(payload) });
+  if (!res.ok) throw new Error(`GHL upsert HTTP ${res.status}: ${(await res.text()).slice(0, 200)}`);
+  return true;
 }
 
 type Payload = Record<string, unknown>;
@@ -169,11 +254,12 @@ export async function POST(request: Request): Promise<Response> {
   // must never cost us the lead or show the visitor an error.
   const results = await Promise.allSettled([
     sendToMeta(env, body, request),
+    sendToGHL(env, body),
     sendToWebhook(env, body),
     sendEmail(env, body),
   ]);
   results.forEach((r, i) => {
-    if (r.status === 'rejected') console.error(['meta', 'webhook', 'email'][i], 'failed:', r.reason);
+    if (r.status === 'rejected') console.error(['meta', 'ghl', 'webhook', 'email'][i], 'failed:', r.reason);
   });
   const delivered = results.slice(1).some((r) => r.status === 'fulfilled' && r.value === true);
 
