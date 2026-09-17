@@ -1,0 +1,642 @@
+---
+/**
+ * The landing, below the hero.
+ *
+ * Structure and register from the harrison-saito-morel build, cut down to
+ * what Dion asked for on 17 Sep: fewer words, who it is for, the person, and
+ * the ways to work with him. The five archetypes, the three-phase breakdown,
+ * the long intro and the newsletter are gone — they diagnosed; this invites.
+ * Everything cut still lives on /mens-coaching and /about.
+ *
+ * Six panels, each a rounded card in the page's frame:
+ *   proof strip · who this is for · the man · ways in · in their words ·
+ *   see the work · reach out
+ */
+import YouTubeFacade from './YouTubeFacade.astro';
+import { SITE, VIDEO_IDS } from '../data/site';
+import { srcset, src } from '../lib/images';
+import '../styles/landing.css';
+
+const FOR_YOU = [
+  { icon: 'mask',   lead: 'They call you solid,',            hit: 'you feel like a fraud.' },
+  { icon: 'cross',  lead: 'You say yes when you mean no,',   hit: 'then call it keeping the peace.' },
+  { icon: 'loop',   lead: 'You chase an approval',           hit: 'you never actually feel.' },
+  { icon: 'flame',  lead: 'There is an anger underneath',    hit: 'you cannot name.' },
+  { icon: 'bar',    lead: 'You still meet a standard',       hit: 'someone else set.' },
+  { icon: 'gap',    lead: 'You want to be close,',           hit: 'and keep everyone at arm’s length.' },
+];
+
+const ICONS: Record<string, string> = {
+  mask:  '<path d="M16 4.5c-4.7 0-8.4 3.2-8.4 7.3v6.4c0 5.3 3.8 9.3 8.4 9.3s8.4-4 8.4-9.3v-6.4c0-4.1-3.7-7.3-8.4-7.3z"/><path d="M9.8 14.2h4.2M18 14.2h4.2"/>',
+  cross: '<path d="M6 11.5h20M6 20.5h20"/><path d="M24 6.5 8 25.5"/>',
+  loop:  '<path d="M27 16a11 11 0 1 1-3.6-8.1"/><path d="M23.6 3.4v4.9h-4.9"/>',
+  flame: '<path d="M16 27c4.4 0 7.5-2.9 7.5-7 0-5-4.6-7.7-5.9-13-2.6 2.3-9.1 6-9.1 13 0 4.1 3.1 7 7.5 7z"/><path d="M16 27c2 0 3.4-1.4 3.4-3.3 0-2.3-2.1-3.5-2.7-6-1.2 1-4.1 2.7-4.1 6 0 1.9 1.4 3.3 3.4 3.3z"/>',
+  bar:   '<path d="M4 10.5h24M9 10.5v3.5M23 10.5v3.5"/><path d="M16 18.5v7.5M11.5 26h9"/>',
+  gap:   '<path d="M9 6.5v19M23 6.5v19"/><path d="M12.5 16h7"/><path d="m14.5 13.5-2 2.5 2 2.5M17.5 13.5l2 2.5-2 2.5"/>',
+};
+
+const NUMBERS = [
+  { value: '10+',   label: 'Years coaching men in Chatswood.' },
+  { value: '2nd Dan', label: 'Black belt. Training since the age of 11.' },
+  { value: '3',     label: 'Generations of Japanese karate lineage.' },
+  { value: 'SBS',   label: 'National broadcast feature, SBS World News.' },
+];
+
+const QUOTES = [
+  { q: 'He guides you to confront and unlock the mental barriers that limit both martial and psychological growth.', by: 'Matt Halpin', ctx: 'Return to Self' },
+  { q: 'Sometimes our light goes out, but is blown again into instant flame by an encounter with another human being.', by: 'James Bolton', ctx: 'Return to Self, quoting Albert Schweitzer' },
+  { q: 'I learned how to be calm by being in a state of panic.', by: 'Harshil Dave', ctx: 'Martial arts' },
+  { q: 'The lessons I have learnt have far exceeded the realms I thought were possible from learning a martial art.', by: 'Alex Wei', ctx: 'Three years of training' },
+];
+---
+
+<div class="lp">
+  {/* ------------------------------------------------------ proof strip */}
+  <div class="lp-logos" data-reveal aria-label="As seen on">
+    <a href="https://www.youtube.com/watch?v=YnHlcZLzu50" target="_blank" rel="noopener" aria-label="SBS World News">
+      <img src="/img/logo-sbs-world-news.svg" alt="SBS World News" width="140" height="40" loading="lazy" />
+    </a>
+    <a href="https://www.sbs.com.au/language/japanese/en/podcast-episode/generational-and-cultural-divides-within-a-family-two-cultures-coming-together-at-a-karate-dojo/vlc7i0h27" target="_blank" rel="noopener" aria-label="SBS Japanese">
+      <img src="/img/logo-sbs.svg" alt="" width="64" height="32" loading="lazy" />
+      <span class="lp-logos__word">Japanese</span>
+    </a>
+    <a href="https://inthecove.com.au/2025/04/12/how-a-japanese-karate-grandmaster-came-to-teach-in-lane-cove/" target="_blank" rel="noopener" aria-label="In the Cove">
+      <span class="lp-logos__word lp-logos__word--serif">In the Cove</span>
+    </a>
+    <a href="https://www.shinbukan.com.au/the-saitos" target="_blank" rel="noopener" aria-label="Shinbukan">
+      <img src="/img/mark-shinbukan-dark.webp" alt="Shinbukan" width="44" height="44" loading="lazy" />
+    </a>
+    <a href="https://www.shingon.org.au/about" target="_blank" rel="noopener" aria-label="Seizanji Temple">
+      <img src="/img/mark-seizanji-dark.webp" alt="Seizanji" width="80" height="44" loading="lazy" />
+    </a>
+  </div>
+
+  {/* --------------------------------------------------- who this is for */}
+  <section class="lp-section lp-section--flush lp-fy" id="for-you" data-section="for-you">
+    <div class="lp-wide">
+      <header class="lp-fy__head" data-reveal>
+        <p class="lp-eyebrow">Who this is for</p>
+        <h2 class="lp-h">You built the life that looks right. <mark>It does not feel like yours.</mark></h2>
+        <p class="lp-lede">If more than one of these lands, you are in the right place.</p>
+      </header>
+
+      <div class="lp-fy__grid" data-reveal-stagger="70">
+        {FOR_YOU.map((f) => (
+          <article class="lp-fy__card">
+            <svg class="lp-fy__icon" viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" set:html={ICONS[f.icon]} />
+            <p>{f.lead} <strong>{f.hit}</strong></p>
+          </article>
+        ))}
+      </div>
+
+      <div class="lp-fy__foot" data-reveal>
+        <a class="lp-btn lp-btn--line" href="#ways-in">See the ways in</a>
+      </div>
+    </div>
+  </section>
+
+  {/* ------------------------------------------------------------ the man */}
+  <section class="lp-section lp-section--dark lp-on-dark lp-man" id="story" data-section="story">
+    <div class="lp-wide lp-man__cols">
+      <div class="lp-man__text">
+        <p class="lp-eyebrow" data-reveal>The man</p>
+        <h2 class="lp-h" data-reveal>It is not therapy. <mark>It is a dojo.</mark></h2>
+        <div class="lp-man__prose" data-reveal>
+          <p>
+            My father was a war survivor, a karate grandmaster and, later, a practising Buddhist
+            monk. He gave me discipline, martial arts and Buddhism. He also gave me
+            <strong>people-pleasing, suppressed rage, and a five-year-old frozen inside a grown man’s body.</strong>
+          </p>
+          <p>
+            The same tools that caused my trauma became the exact things that set me free. I do
+            not teach anything I have not been through.
+          </p>
+        </div>
+        <div class="lp-man__ctas" data-reveal>
+          <a class="lp-btn lp-btn--gold" href="/book" data-track="cta_click" data-track-label="Landing — Book a chat (story)" data-track-section="story">Book a discovery chat</a>
+          <a class="lp-btn lp-btn--line" href="/about">Read the full story</a>
+        </div>
+
+        <div class="lp-numbers" data-reveal-stagger="80">
+          {NUMBERS.map((n) => (
+            <div>
+              <p class="lp-numbers__value"><span class="lp-mark">{n.value}</span></p>
+              <p>{n.label}</p>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <div class="lp-man__photo" data-reveal>
+        <img
+          src={src('harrison-gi')}
+          srcset={srcset('harrison-gi') || undefined}
+          sizes="(max-width: 960px) 90vw, 42vw"
+          alt="Harrison Saito seated in a karate gi and black belt"
+          width="1026"
+          height="1400"
+          loading="lazy"
+          decoding="async"
+        />
+      </div>
+    </div>
+  </section>
+
+  {/* ------------------------------------------------------------ ways in */}
+  <section class="lp-section lp-section--flush lp-ways" id="ways-in" data-section="ways-in">
+    <div class="lp-wide">
+      <header class="lp-ways__head" data-reveal>
+        <p class="lp-eyebrow">Work with Harrison</p>
+        <h2 class="lp-h">Choose the door that <mark>fits where you are.</mark></h2>
+        <p class="lp-lede">One to one, a monthly breathwork room, or the twelve-week core. At your pace.</p>
+      </header>
+
+      <article class="lp-core lp-on-dark" data-reveal style={`--bg:url(${src('about-bed')})`}>
+        <div class="lp-core__body">
+          <p class="lp-pill">The Core · 12 weeks</p>
+          <h3 class="lp-h lp-core__title">Return <mark>to Self.</mark></h3>
+          <p class="lp-core__phases" aria-label="Three phases">Separate <i></i> Return <i></i> Integrate</p>
+          <p class="lp-core__text">
+            Twelve weeks, one to one, for men who built the life that looks right and cannot say
+            why it feels hollow.
+          </p>
+          <div class="lp-core__ctas">
+            <a class="lp-btn lp-btn--gold" href="/apply" data-track="cta_click" data-track-label="Landing — Apply (core)" data-track-section="ways-in">Apply</a>
+            <a class="lp-btn lp-btn--line" href="/mens-coaching#return-to-self" data-track="cta_click" data-track-label="Landing — Programme detail" data-track-section="ways-in">What the twelve weeks contain</a>
+          </div>
+        </div>
+        <div class="lp-core__aside" aria-hidden="true">
+          <span class="lp-lockup"><span>The</span><span>Core</span></span>
+        </div>
+      </article>
+
+      <div class="lp-ways__grid" data-reveal-stagger="110">
+        <a class="lp-door lp-on-dark" href="/book" style={`--bg:url(${src('karate-training')})`} data-track="cta_click" data-track-label="Landing — One to one" data-track-section="ways-in">
+          <span class="lp-lockup lp-lockup--md"><span>One</span><span>to one</span></span>
+          <p>Session by session. Karate and Buddhist philosophy for nervous-system regulation and breaking the people-pleasing pattern.</p>
+          <span class="lp-btn lp-btn--gold">Book a discovery chat</span>
+        </a>
+        <a class="lp-door lp-on-dark" href="/contact" style={`--bg:url(${src('buddha')})`} data-track="cta_click" data-track-label="Landing — Breathwork" data-track-section="ways-in">
+          <span class="lp-pill">Monthly</span>
+          <span class="lp-lockup lp-lockup--md"><span>Breath</span><span>work</span></span>
+          <p class="lp-door__accent">Small group, sixteen places, Chatswood</p>
+          <p>Regulate the nervous system in a room, then take the practice home.</p>
+          <span class="lp-btn lp-btn--gold">Ask about the next one</span>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  {/* -------------------------------------------------------------- quote */}
+  <section class="lp-section lp-section--dark lp-on-dark lp-quote" aria-label="A line from Harrison">
+    <div class="lp-quote__wash" aria-hidden="true" style={`background-image:url(${src('ink-wash')})`}></div>
+    <p class="lp-quote__text" data-reveal>Compassion naturally arises when the illusion of separation softens.</p>
+  </section>
+
+  {/* ----------------------------------------------------- in their words */}
+  <section class="lp-section lp-section--bg4 lp-words" id="testimonials" data-section="testimonials">
+    <div class="lp-wide">
+      <header class="lp-words__head" data-reveal>
+        <p class="lp-eyebrow">In their words</p>
+        <h2 class="lp-h">“He doesn’t just <mark>train the body.”</mark></h2>
+      </header>
+      <div class="lp-words__grid" data-reveal-stagger="90">
+        {QUOTES.map((t) => (
+          <figure class="lp-tcard">
+            <blockquote>“{t.q}”</blockquote>
+            <figcaption><b>{t.by}</b><span>{t.ctx}</span></figcaption>
+          </figure>
+        ))}
+      </div>
+      <div class="lp-words__foot" data-reveal>
+        <a class="lp-btn lp-btn--line" href="/testimonials">Read all eleven</a>
+      </div>
+    </div>
+  </section>
+
+  {/* ------------------------------------------------------- see the work */}
+  <section class="lp-section lp-section--white lp-films" id="films" data-section="media">
+    <div class="lp-wide">
+      <header class="lp-films__head" data-reveal>
+        <div>
+          <p class="lp-eyebrow">As seen on</p>
+          <h2 class="lp-h">See the <mark>work.</mark></h2>
+        </div>
+        <a class="lp-btn lp-btn--line" href="/media">All films &amp; interviews</a>
+      </header>
+      <div class="lp-films__feature" data-reveal>
+        <YouTubeFacade id={VIDEO_IDS.sbsWorldNews} title="SBS World News" label="As seen on" description="The national broadcast feature on youth and adult mental health." />
+      </div>
+      <div class="lp-films__pair" data-reveal-stagger="120">
+        <div><YouTubeFacade id={VIDEO_IDS.fatherSonShort} title="A father & son talk & heal" label="Featured" /></div>
+        <div><YouTubeFacade id={VIDEO_IDS.chakra} title="5 Minute Guided Chakra Meditation" label="Guided practice" /></div>
+      </div>
+    </div>
+  </section>
+
+  {/* ---------------------------------------------------------- reach out */}
+  <section class="lp-section lp-section--dark lp-on-dark lp-close" id="reach-out" data-section="close">
+    <div class="lp-close__enso" aria-hidden="true">
+      <img src="/img/logo-light-512.webp" alt="" width="320" height="320" loading="lazy" decoding="async" />
+    </div>
+    <div class="lp-content lp-close__inner" data-reveal>
+      <h2 class="lp-h">If something here resonated, <mark>reach out.</mark></h2>
+      <p class="lp-close__sub">No pitch. No pressure. Just a conversation about where you are and what you’re looking for.</p>
+      <div class="lp-close__ctas">
+        <a class="lp-btn lp-btn--gold" href="/book" data-track="cta_click" data-track-label="Landing — Close — Book a chat" data-track-section="close">Start a conversation</a>
+        <a class="lp-btn lp-btn--line" href={`mailto:${SITE.email}`} data-track="cta_click" data-track-label="Landing — Close — Email">Email instead</a>
+      </div>
+      <p class="lp-close__aside">Looking for HSC or youth mentoring? <a href="/hsc-tutoring">That work lives here.</a></p>
+    </div>
+  </section>
+</div>
+
+<style>
+  /* ---- the frame ---- */
+  .lp {
+    position: relative;
+    z-index: 1;                          /* over the hero's sticky frame */
+    background: var(--lp-bg3);
+    color: var(--lp-fg1);
+    font-family: var(--lp-font);
+    font-size: clamp(1rem, 0.95rem + 0.3vw, 1.2rem);
+    font-weight: 500;
+    line-height: 1.6;
+    padding: var(--lp-frame) var(--lp-frame) 0;
+  }
+  .lp-wide { width: 100%; max-width: 1360px; margin-inline: auto; }
+  .lp-content { width: 100%; max-width: 960px; margin-inline: auto; }
+
+  .lp-section {
+    position: relative;
+    border-radius: var(--lp-radius-lg);
+    padding: clamp(2.5rem, 7vw, 7.5rem) clamp(1rem, 2.5vw, 2rem);
+    margin-bottom: var(--lp-frame);
+    overflow: clip;
+  }
+  .lp-section--flush { padding-top: clamp(2.5rem, 7vw, 7.5rem); padding-bottom: clamp(2rem, 6vw, 6rem); }
+  .lp-section--white { background: var(--lp-bg1); }
+  .lp-section--bg4 { background: var(--lp-bg4); }
+  .lp-section--dark { background: var(--lp-fg1); color: var(--lp-bg1); }
+  .lp-section--dark p { color: var(--lp-bg1); }
+
+  /* ---- type ---- */
+  .lp-h {
+    font-family: var(--lp-font);
+    font-weight: 700;
+    font-size: clamp(2rem, 1.2rem + 3.8vw, 4.75rem);
+    line-height: 0.98;
+    letter-spacing: -0.03em;
+    text-transform: uppercase;
+    color: inherit;
+    margin: 0 0 clamp(1rem, 2.5vw, 2rem);
+    text-wrap: balance;
+  }
+  .lp-eyebrow {
+    font-family: var(--lp-accent);
+    font-size: clamp(1.25rem, 1.15rem + 0.6vw, 1.75rem);
+    font-weight: 500;
+    color: var(--lp-gold-deep);
+    margin: 0 0 clamp(0.8rem, 2vw, 1.5rem);
+  }
+  .lp-on-dark .lp-eyebrow { color: var(--lp-gold-light); }
+  .lp-lede { color: var(--lp-fg4); max-width: 56ch; margin: 0; }
+  .lp-on-dark .lp-lede { color: rgba(252, 250, 248, 0.78); }
+
+  .lp-pill {
+    display: inline-block;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.16);
+    color: var(--lp-bg1);
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    line-height: 1.6;
+    padding: 5px 14px 4px;
+    margin: 0 0 1rem;
+  }
+
+  /* ---- proof strip ---- */
+  .lp-logos {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 1.25rem 2.5rem;
+    padding: clamp(1.25rem, 3vw, 2rem) clamp(1rem, 4vw, 3rem);
+  }
+  .lp-logos a {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: var(--lp-fg1);
+    opacity: 0.85;
+    transition: opacity 0.3s ease;
+  }
+  .lp-logos a:hover { opacity: 1; }
+  .lp-logos img { height: auto; }
+  .lp-logos__word { font-weight: 700; letter-spacing: 0.02em; }
+  .lp-logos__word--serif { font-family: var(--lp-accent); font-size: 1.55rem; font-weight: 500; }
+  @media (max-width: 960px) {
+    .lp-logos { justify-content: center; gap: 1.25rem 2rem; }
+  }
+
+  /* ---- who this is for ---- */
+  .lp-fy__head { max-width: 960px; margin-bottom: clamp(2rem, 5vw, 4.5rem); }
+  .lp-fy__head .lp-h { max-width: 20ch; }
+  .lp-fy__grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 20px; }
+  .lp-fy__card {
+    display: flex;
+    flex-direction: column;
+    gap: clamp(1.25rem, 3vw, 2.5rem);
+    background: var(--lp-bg1);
+    border: 1px solid var(--lp-bg4);
+    border-radius: var(--lp-radius);
+    padding: clamp(1.4rem, 3vw, 2.4rem) clamp(1.4rem, 3vw, 2.4rem) clamp(1.6rem, 3.5vw, 3rem);
+    transition: transform 0.4s var(--lp-ease), box-shadow 0.4s ease, border-color 0.4s ease;
+  }
+  .lp-fy__card:hover { transform: translateY(-4px); border-color: rgba(218, 162, 79, 0.55); box-shadow: 0 18px 40px rgba(20, 16, 13, 0.07); }
+  .lp-fy__icon { width: 44px; height: 44px; color: var(--lp-primary); flex: none; }
+  .lp-fy__card p {
+    margin: 0;
+    font-size: clamp(1.05rem, 1rem + 0.35vw, 1.3rem);
+    font-weight: 700;
+    line-height: 1.25;
+    letter-spacing: -0.01em;
+    text-transform: uppercase;
+    text-wrap: balance;
+  }
+  .lp-fy__card strong { display: block; color: var(--lp-gold-deep); }
+  .lp-fy__foot { margin-top: clamp(1.5rem, 4vw, 3rem); }
+  @media (max-width: 1080px) { .lp-fy__grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+  @media (max-width: 680px) { .lp-fy__grid { grid-template-columns: 1fr; } }
+
+  /* ---- the man ---- */
+  .lp-man {
+    background:
+      radial-gradient(60% 70% at 78% 40%, rgba(218, 162, 79, 0.22), transparent 70%),
+      var(--lp-fg1);
+    padding-bottom: 0;
+  }
+  .lp-man__cols {
+    display: grid;
+    grid-template-columns: minmax(0, 1.05fr) minmax(0, 0.95fr);
+    gap: clamp(1.5rem, 4vw, 4rem);
+    align-items: end;
+  }
+  .lp-man__text { padding-bottom: clamp(2.5rem, 7vw, 7.5rem); }
+  .lp-man__prose p { margin: 0 0 1.1em; max-width: 52ch; color: rgba(252, 250, 248, 0.86); }
+  .lp-man__prose strong { color: var(--lp-bg1); }
+  .lp-man__ctas { display: flex; flex-wrap: wrap; gap: 0.7rem; margin-top: 1.6rem; }
+
+  .lp-man__photo {
+    align-self: end;
+    display: flex;
+    justify-content: center;
+    padding-top: clamp(1rem, 3vw, 2rem);
+  }
+  .lp-man__photo img {
+    width: min(100%, 560px);
+    height: auto;
+    filter: drop-shadow(0 30px 60px rgba(0, 0, 0, 0.5));
+  }
+
+  .lp-numbers {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1.5rem 2rem;
+    margin-top: clamp(2rem, 5vw, 4rem);
+    padding-top: clamp(1.5rem, 3vw, 2.5rem);
+    border-top: 1px solid rgba(252, 250, 248, 0.14);
+  }
+  .lp-numbers__value {
+    font-size: clamp(1.75rem, 1.4rem + 1.6vw, 3rem);
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: -0.03em;
+    line-height: 1;
+    margin: 0 0 0.5rem;
+  }
+  .lp-numbers p:not(.lp-numbers__value) { font-size: 0.95rem; color: rgba(252, 250, 248, 0.7); margin: 0; }
+
+  @media (max-width: 960px) {
+    .lp-man__cols { grid-template-columns: 1fr; }
+    .lp-man__text { padding-bottom: 0; }
+    .lp-man__photo img { width: min(100%, 440px); }
+  }
+
+  /* ---- ways in ---- */
+  .lp-ways__head { text-align: center; max-width: 1000px; margin: 0 auto clamp(2rem, 5vw, 4.5rem); }
+  .lp-ways__head .lp-lede { margin-inline: auto; }
+
+  .lp-core, .lp-door {
+    position: relative;
+    overflow: hidden;
+    border-radius: var(--lp-radius);
+    background: var(--lp-fg1);
+    color: var(--lp-bg1);
+    box-shadow: inset 0 0 150px rgba(218, 162, 79, 0);
+    transition: transform 1s ease, box-shadow 1s ease;
+  }
+  .lp-core::before, .lp-door::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    z-index: 0;
+    background: var(--bg) center / cover no-repeat;
+    transition: transform 1s ease;
+    will-change: transform;
+  }
+  .lp-core::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    z-index: 1;
+    pointer-events: none;
+    background:
+      linear-gradient(204deg, rgba(218, 162, 79, 0) 38%, rgba(218, 162, 79, 0.34) 89%),
+      linear-gradient(209deg, rgba(17, 15, 14, 0) 3%, rgba(17, 15, 14, 0.96) 89%);
+  }
+  .lp-core > * { position: relative; z-index: 2; }
+  @media (min-width: 980px) {
+    .lp-core:hover, .lp-door:hover { transform: translateY(-5px); box-shadow: inset 0 0 150px rgba(218, 162, 79, 0.55); }
+    .lp-core:hover::before, .lp-door:hover::before { transform: scale(1.08); }
+  }
+
+  .lp-core {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    align-items: center;
+    gap: clamp(1rem, 2.5vw, 2rem);
+    min-height: 520px;
+    padding: clamp(2rem, 5vw, 5rem);
+    margin-bottom: 24px;
+  }
+  .lp-core__title { margin-bottom: 1rem; }
+  .lp-core__phases {
+    display: flex;
+    align-items: center;
+    gap: 0.7rem;
+    font-family: var(--lp-accent);
+    font-size: clamp(1.2rem, 1.1rem + 0.6vw, 1.7rem);
+    font-style: italic;
+    color: var(--lp-gold-light);
+    margin: 0 0 1.2rem;
+  }
+  .lp-core__phases i { display: block; width: 1.4rem; height: 1px; background: var(--lp-gold-light); opacity: 0.7; }
+  .lp-core__text { max-width: 40ch; color: rgba(252, 250, 248, 0.86); margin: 0 0 1.8rem; }
+  .lp-core__ctas { display: flex; flex-wrap: wrap; gap: 0.7rem; }
+  .lp-core__aside { display: grid; place-items: center; }
+
+  .lp-lockup {
+    display: block;
+    text-align: center;
+    font-weight: 700;
+    text-transform: uppercase;
+    line-height: 0.95;
+    letter-spacing: -0.02em;
+    color: #fff;
+    filter: drop-shadow(0 12px 24px rgba(0, 0, 0, 0.3));
+  }
+  .lp-lockup span { display: block; }
+  .lp-lockup > span:first-child { font-size: clamp(3rem, 6.5vw, 6.5rem); }
+  .lp-lockup > span:nth-child(2) { font-size: clamp(2.2rem, 5vw, 5rem); letter-spacing: 0.12em; }
+  .lp-lockup--md > span:first-child { font-size: clamp(2.4rem, 4.2vw, 3.6rem); }
+  .lp-lockup--md > span:nth-child(2) { font-size: clamp(2.4rem, 4.2vw, 3.6rem); font-weight: 400; letter-spacing: 0.06em; }
+
+  .lp-ways__grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+  .lp-door {
+    min-height: 600px;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    align-items: center;
+    text-align: center;
+    text-decoration: none;
+    padding: clamp(1.75rem, 5vw, 4rem) clamp(1.25rem, 3vw, 3rem);
+  }
+  .lp-door::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    z-index: 1;
+    pointer-events: none;
+    background: linear-gradient(180deg, rgba(17, 15, 14, 0) 15%, rgba(17, 15, 14, 0.98) 69%);
+  }
+  .lp-door > * { position: relative; z-index: 2; }
+  .lp-door .lp-lockup { margin: clamp(2rem, 6vw, 7rem) 0 1.4rem; }
+  .lp-door p { font-size: 1rem; max-width: 40ch; margin: 0 auto 1.4rem; color: rgba(252, 250, 248, 0.86); }
+  .lp-door__accent {
+    font-family: var(--lp-accent);
+    font-style: italic;
+    font-size: clamp(1.2rem, 1.1rem + 0.5vw, 1.55rem);
+    color: var(--lp-gold-light) !important;
+    margin-bottom: 0.7rem !important;
+  }
+  .lp-door .lp-btn { pointer-events: none; }
+  .lp-door:hover .lp-btn--gold { background: #fff; box-shadow: 0 5px 30px rgba(218, 162, 79, 0.4); }
+
+  @media (max-width: 960px) {
+    .lp-core { grid-template-columns: 1fr; min-height: 0; }
+    .lp-core__aside { display: none; }
+    .lp-ways__grid { grid-template-columns: 1fr; }
+    .lp-door { min-height: 440px; }
+  }
+
+  /* ---- quote ---- */
+  .lp-quote { padding-block: clamp(3.5rem, 8vw, 8rem); text-align: center; }
+  .lp-quote__wash {
+    position: absolute;
+    inset: 0;
+    background: center / cover no-repeat;
+    opacity: 0.16;
+    filter: grayscale(1) contrast(1.1);
+    pointer-events: none;
+  }
+  .lp-quote__text {
+    position: relative;
+    z-index: 1;
+    font-family: var(--lp-accent);
+    font-size: clamp(1.6rem, 1.2rem + 2vw, 3rem);
+    font-style: italic;
+    font-weight: 400;
+    line-height: 1.35;
+    max-width: 24ch;
+    margin: 0 auto;
+    text-wrap: balance;
+  }
+
+  /* ---- in their words ---- */
+  .lp-words__head { max-width: 900px; margin-bottom: clamp(2rem, 5vw, 4rem); }
+  .lp-words__grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 20px; }
+  .lp-tcard {
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    gap: clamp(1.5rem, 3vw, 2.5rem);
+    min-height: 300px;
+    border-radius: var(--lp-radius);
+    background: var(--lp-bg1);
+    padding: clamp(1.5rem, 3.5vw, 3rem);
+  }
+  .lp-tcard blockquote {
+    margin: 0;
+    font-family: var(--lp-accent);
+    font-size: clamp(1.35rem, 1.15rem + 1vw, 2rem);
+    font-weight: 500;
+    line-height: 1.3;
+    text-wrap: pretty;
+  }
+  .lp-tcard figcaption { display: grid; gap: 0.15rem; font-size: 0.95rem; color: var(--lp-fg4); }
+  .lp-tcard figcaption b { color: var(--lp-fg1); }
+  .lp-words__foot { margin-top: clamp(1.5rem, 4vw, 3rem); text-align: center; }
+  @media (max-width: 760px) { .lp-words__grid { grid-template-columns: 1fr; } .lp-tcard { min-height: 0; } }
+
+  /* ---- see the work ---- */
+  .lp-films__head {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 1.5rem;
+    margin-bottom: clamp(1.5rem, 4vw, 3rem);
+  }
+  .lp-films__head .lp-h { margin-bottom: 0; }
+  .lp-films__feature { margin-bottom: 20px; }
+  .lp-films__pair { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 20px; }
+  .lp-films :global(.yt__frame) { border-radius: var(--lp-radius); }
+  .lp-films :global(.yt__label) { font-family: var(--lp-font); color: var(--lp-gold-deep); }
+  .lp-films :global(.yt__title) { font-family: var(--lp-accent); font-weight: 500; }
+  @media (max-width: 780px) { .lp-films__pair { grid-template-columns: 1fr; } }
+
+  /* ---- reach out ---- */
+  .lp-close { padding-block: clamp(4rem, 9vw, 9rem); text-align: center; }
+  .lp-close__enso {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    width: min(520px, 80%);
+    opacity: 0.07;
+    pointer-events: none;
+  }
+  .lp-close__enso img { width: 100%; height: auto; }
+  .lp-close__inner { position: relative; z-index: 1; }
+  .lp-close .lp-h { max-width: 18ch; margin-inline: auto; }
+  .lp-close__sub { color: rgba(252, 250, 248, 0.72) !important; max-width: 46ch; margin: 0 auto clamp(1.5rem, 4vw, 3rem); }
+  .lp-close__ctas { display: flex; flex-wrap: wrap; gap: 0.7rem; justify-content: center; }
+  .lp-close__aside {
+    margin: clamp(2rem, 5vw, 3.5rem) auto 0;
+    padding-top: 1.25rem;
+    border-top: 1px solid rgba(252, 250, 248, 0.12);
+    max-width: 40ch;
+    font-size: 0.9rem;
+    color: rgba(252, 250, 248, 0.6) !important;
+  }
+  .lp-close__aside a { color: var(--lp-gold-light); text-decoration: underline; text-underline-offset: 0.2em; }
+</style>

@@ -138,7 +138,12 @@ if (existsSync(heroMp4)) {
      What actually matters is that a poster exists and nothing auto-plays. */
   const lazyVideo = /preload="(none|metadata)"/.test(home);
   const posterFirst = /class="hero__poster"/.test(home) || /<video[^>]+poster=/.test(home);
-  if (lazyVideo && posterFirst) ok('H5', 'hero video is poster-first, frames not preloaded');
+  /* Since 17 Sep the home hero is one held frame (StraightHero.astro): no
+     video element at all, the still fetched first. That is the lightest
+     possible answer to this finding, so it passes outright. */
+  const stillHero = !/<video/.test(home) && /class="hero__plate"[^>]*fetchpriority="high"/.test(home);
+  if (stillHero) ok('H5', 'home hero is a still frame fetched first; no video on the page');
+  else if (lazyVideo && posterFirst) ok('H5', 'hero video is poster-first, frames not preloaded');
   else if (!lazyVideo) bad('H5', 'hero video preloads its frames');
   else bad('H5', 'hero video has no poster');
 } else {

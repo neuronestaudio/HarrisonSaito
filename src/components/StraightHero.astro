@@ -1,0 +1,263 @@
+---
+/**
+ * The hero — one frame of the film, held, and a straight line down.
+ *
+ * Replaces RtsHero's three movements (the proof landing, the locked door, the
+ * walk through to the title card). Dion, 17 Sep: the frame he wanted as the
+ * hero is the second room with the alcove in view — the film at 15.0s, just
+ * before the camera rolls left toward the title wall. That roll was the part
+ * that read as confusing and was the source of most of the gate bugs.
+ *
+ * So: the frame is the page's first screen. Scroll pushes the camera forward
+ * into the alcove (a scale about the alcove's centre, keyed to scroll so it
+ * runs backwards as readily as forwards) while the copy lifts away, and the
+ * next panel arrives straight underneath. No video element, no seeking, no
+ * lock — one custom property, --p, drives everything.
+ *
+ * Asset: /img/rts-still-v1-{768,1280,1920,2560}.webp — the 15.0s frame of
+ * rts-hero-v4.mp4, upscaled 2x with Real-ESRGAN so it holds on a 1440p
+ * screen. Versioned name: /img ships with a one-year immutable cache.
+ */
+import { srcset, src } from '../lib/images';
+import '../styles/landing.css';
+
+const STILL = 'rts-still-v1';
+---
+
+<section class="hero lp-on-dark" id="hero" data-straight-hero aria-label="Harrison Saito — Return to Self">
+  <div class="hero__frame">
+    <img
+      class="hero__plate"
+      src={src(STILL)}
+      srcset={srcset(STILL) || undefined}
+      sizes="100vw"
+      alt="A traditional Japanese room, its sliding doors open onto an alcove with a hanging scroll"
+      width="1920"
+      height="1080"
+      fetchpriority="high"
+      decoding="sync"
+    />
+    <div class="hero__scrim" aria-hidden="true"></div>
+    <div class="hero__veil" aria-hidden="true"></div>
+
+    <div class="hero__copy">
+      <p class="hero__eyebrow">Harrison Saito · Men's coaching · Chatswood, Sydney</p>
+      <h1 class="hero__title">Break the habits <mark>you never chose.</mark></h1>
+      <p class="hero__sub">Return to Self. Martial arts, Buddhism and honest inner work.</p>
+      <div class="hero__ctas">
+        <a class="lp-btn lp-btn--gold" href="/book" data-track="cta_click" data-track-label="Hero — Book a chat" data-track-section="hero">Book a discovery chat</a>
+        <a class="lp-btn lp-btn--line" href="#for-you">Who it's for</a>
+      </div>
+    </div>
+
+    <div class="hero__cue" aria-hidden="true">
+      <span>Scroll</span>
+      <i></i>
+    </div>
+  </div>
+</section>
+
+<style>
+  .hero {
+    --p: 0;
+    --hero-scroll: 200vh;
+    position: relative;
+    height: var(--hero-scroll);
+    background: #14100d;
+    color: #fcfaf8;
+  }
+
+  /* dvh, not svh: sized to the small viewport the frame stops short of the
+     screen when Safari's toolbar collapses (RtsHero learned this on 11 Sep). */
+  .hero__frame {
+    position: sticky;
+    top: 0;
+    height: 100vh;
+    height: 100dvh;
+    overflow: hidden;
+    background: #14100d;
+  }
+
+  /* The camera. Scale about the alcove — plate x 44%, y 47% — so the push
+     goes into the room rather than into the middle of the screen. The same
+     point is the crop centre on a portrait phone, where cover trims the
+     doors and leaves the alcove. */
+  .hero__plate {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    max-width: none;
+    object-fit: cover;
+    object-position: 44% 50%;
+    transform-origin: 44% 47%;
+    transform: scale(calc(1 + var(--p) * 0.34));
+    will-change: transform;
+  }
+
+  /* Legibility for the nav at the top and the copy at the foot. */
+  .hero__scrim {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background:
+      linear-gradient(to bottom, oklch(11% 0.008 55 / 0.5) 0%, transparent 28%),
+      linear-gradient(to top, oklch(11% 0.008 55 / 0.82) 0%, oklch(11% 0.008 55 / 0.38) 30%, transparent 58%);
+  }
+
+  /* Dims with the push, so the room recedes as the page arrives over it. */
+  .hero__veil {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background: #14100d;
+    opacity: calc(var(--p) * 0.55);
+  }
+
+  .hero__copy {
+    position: absolute;
+    left: clamp(1.25rem, 5vw, 5.5rem);
+    right: clamp(1.25rem, 5vw, 5.5rem);
+    /* --consent-h is published by ConsentBar.astro while the notice is up,
+       so the buttons sit above it rather than under it. */
+    bottom: calc(clamp(2.6rem, 9vh, 6.5rem) + var(--consent-h, 0px));
+    max-width: 44rem;
+    display: grid;
+    gap: 1.1rem;
+    opacity: clamp(0, calc(1 - var(--p) * 2.6), 1);
+    transform: translateY(calc(var(--p) * -80px));
+    will-change: opacity, transform;
+  }
+
+  .hero__eyebrow {
+    font-family: var(--font-body);
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: #f2c275;
+    margin: 0;
+  }
+
+  .hero__title {
+    font-family: 'Avant', 'Century Gothic', 'Jost', sans-serif;
+    font-weight: 700;
+    font-size: clamp(2.4rem, 1.4rem + 5vw, 5.4rem);
+    line-height: 0.94;
+    letter-spacing: -0.03em;
+    text-transform: uppercase;
+    color: #fcfaf8;
+    margin: 0;
+    text-wrap: balance;
+    text-shadow: 0 2px 30px oklch(0% 0 0 / 0.35);
+  }
+  .hero__title mark {
+    background: linear-gradient(to bottom right, #f2c275 0%, #daa24f 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    color: #f2c275;
+  }
+
+  .hero__sub {
+    font-family: var(--font-display);
+    font-size: clamp(1.15rem, 1rem + 0.9vw, 1.65rem);
+    font-weight: 400;
+    line-height: 1.3;
+    color: oklch(96% 0.01 80 / 0.92);
+    margin: 0;
+    max-width: 34ch;
+  }
+
+  .hero__ctas {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.7rem;
+    margin-top: 0.4rem;
+  }
+
+  /* The sign that the frame moves. Goes with the first scroll. */
+  .hero__cue {
+    position: absolute;
+    right: clamp(1.25rem, 5vw, 5.5rem);
+    bottom: calc(clamp(2.6rem, 9vh, 6.5rem) + var(--consent-h, 0px));
+    display: grid;
+    justify-items: center;
+    gap: 0.55rem;
+    font-family: var(--font-body);
+    font-size: 0.62rem;
+    font-weight: 700;
+    letter-spacing: 0.26em;
+    text-transform: uppercase;
+    color: oklch(96% 0.01 80 / 0.7);
+    opacity: clamp(0, calc(1 - var(--p) * 12), 1);
+    transition: opacity 0.3s ease;
+  }
+  .hero__cue i {
+    display: block;
+    width: 1px;
+    height: 52px;
+    background: oklch(100% 0 0 / 0.18);
+    position: relative;
+    overflow: hidden;
+  }
+  .hero__cue i::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: -45%;
+    width: 100%;
+    height: 45%;
+    background: #daa24f;
+    animation: cue 2.2s cubic-bezier(0.6, 0, 0.4, 1) infinite;
+  }
+  @keyframes cue {
+    0% { top: -45%; }
+    60%, 100% { top: 100%; }
+  }
+
+  @media (max-width: 700px) {
+    .hero__copy {
+      right: clamp(1.25rem, 5vw, 5.5rem);
+      bottom: calc(clamp(3.2rem, 11vh, 6rem) + var(--consent-h, 0px));
+    }
+    .hero__cue { display: none; }
+    .hero__ctas .lp-btn { flex: 1 1 100%; }
+  }
+
+  /* No script, or no motion: the first screen only, and everything on it. */
+  :global(.no-js) .hero { height: 100svh; }
+  @media (prefers-reduced-motion: reduce) {
+    .hero { height: 100svh; }
+    .hero__plate { transform: none; }
+    .hero__veil { display: none; }
+    .hero__copy { opacity: 1; transform: none; }
+    .hero__cue { display: none; }
+  }
+</style>
+
+<script>
+  (function () {
+    var hero = document.querySelector<HTMLElement>('[data-straight-hero]');
+    if (!hero) return;
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+
+    var raf = 0;
+    function update() {
+      raf = 0;
+      var run = hero!.offsetHeight - window.innerHeight;
+      var p = run > 0 ? -hero!.getBoundingClientRect().top / run : 0;
+      p = p < 0 ? 0 : p > 1 ? 1 : p;
+      hero!.style.setProperty('--p', p.toFixed(4));
+    }
+    function schedule() {
+      if (!raf) raf = requestAnimationFrame(update);
+    }
+    /* Lenis (scripts/motion.ts) writes the scroll position on fine pointers
+       and the browser fires a native scroll event for each write, so one
+       listener serves both. */
+    window.addEventListener('scroll', schedule, { passive: true });
+    window.addEventListener('resize', schedule);
+    update();
+  })();
+</script>
