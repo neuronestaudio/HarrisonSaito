@@ -1,0 +1,53 @@
+---
+/**
+ * /workshops — the monthly breathwork workshop.
+ *
+ * Ported with the home page from the harrison-saito-morel template (its
+ * [slug].astro, the `workshops` entry), because the home page's "Ways in"
+ * card points here and this site had no page for it. Same copy, same inner-
+ * page design, inside the scoped `.mo` wrapper.
+ *
+ * PLACEHOLDER in the template and still here: dates, price and what to bring
+ * are to be confirmed with Harrison.
+ */
+import Base from '../layouts/Base.astro';
+import { WORKSHOPS_PAGE as page } from '../data/morel';
+import { graph, personSchema, localBusinessSchema } from '../lib/seo';
+import '../styles/morel.css';
+import '../styles/morel-overrides.css';
+
+const title = `${page.title} — Chatswood, Sydney | Harrison Saito`;
+const escape = (s: string) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+const schema = graph(personSchema(), localBusinessSchema());
+---
+
+<Base title={title} description={page.lede} path="/workshops" image={page.image} schema={schema}>
+  <div class="mo">
+    <section class="inner-hero on-dark" style={page.image ? `background-image:url(${page.image})` : undefined}>
+      <div class="wide">
+        <p class="eyebrow">{page.label}</p>
+        <h1><mark>{page.title}</mark></h1>
+        <p class="lede accent">{page.lede}</p>
+      </div>
+    </section>
+
+    <section class="section section--flush inner-body">
+      <div class="wide">
+        <div class="content">
+          {page.sections.map((s) => (
+            <>
+              {s.heading && <h2>{s.heading}</h2>}
+              {s.paragraphs.map((p) => <p set:html={escape(p)} />)}
+              {s.list && <ul class="inner-list">{s.list.map((li) => <li set:html={escape(li)} />)}</ul>}
+            </>
+          ))}
+        </div>
+        {page.cta && (
+          <p style="margin-top: var(--sp-60)">
+            <a class="btn btn--filled" href={page.cta.href} data-track="cta_click" data-track-label={`Workshops — ${page.cta.label}`}>{page.cta.label}</a>
+          </p>
+        )}
+      </div>
+    </section>
+  </div>
+</Base>

@@ -1,0 +1,33 @@
+/* ==========================================================================
+   Where the ported Morel page (morel.css, generated) meets this site.
+
+   1. This site's global.css styles five of the same class names. Morel's
+      scoped rules win where both set a property; these reset the properties
+      only this site sets, so the port renders as the template does.
+   2. "Who this is for" lives in the hero's beat; its section below is the
+      fallback for no script / reduced motion.
+   3. `.mo--bare`: Morel's tokens and type without its page frame, for Morel
+      markup placed outside the wrapper (the beat panel in FrameHero).
+   ========================================================================== */
+
+/* 1 — leaks from global.css */
+.mo .eyebrow { letter-spacing: normal; text-transform: none; color: inherit; }
+.mo .btn { display: inline-block; gap: 0; border: 0; cursor: pointer; }
+.mo .btn:hover { border-color: transparent; }
+.mo .btn:active { transform: none; }
+.mo .section { overflow: visible; }
+.mo .lede { line-height: inherit; color: inherit; }
+
+/* The page frame meets the hero above it and this site's footer below. */
+.mo { position: relative; }
+.mo .section:last-of-type { margin-bottom: 0; }
+
+/* 2 — the fallback for-you section */
+.mo .fy--fallback { display: none; }
+.no-js .mo .fy--fallback { display: block; }
+@media (prefers-reduced-motion: reduce) {
+  .mo .fy--fallback { display: block; }
+}
+
+/* 3 — Morel without the page */
+.mo.mo--bare { padding: 0; background: none; margin: 0; }

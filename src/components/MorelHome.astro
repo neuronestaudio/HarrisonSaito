@@ -1,0 +1,363 @@
+---
+/**
+ * The page under the hero — the harrison-saito-morel build, whole.
+ *
+ * Dion, 18 Sep 2026: after the walk, the home page is the Morel site
+ * (harrison-saito-morel.vercel.app). This is that template's Home.astro from
+ * the logo strip down, section for section and in its order, with its copy
+ * (src/data/morel.ts), its stylesheet scoped under `.mo`
+ * (scripts/morel/sync.mjs) and its behaviour (scripts/morel.ts). This site
+ * keeps its own nav, footer, consent bar and tracking around it.
+ *
+ * Changes from the template, all deliberate:
+ *  - "Who this is for" is the pause inside the hero now (FrameHero's beat),
+ *    so its section here only shows when the beat cannot run: no script, or
+ *    reduced motion. #for-you still resolves either way.
+ *  - data-cta → this site's data-track, and every section names itself with
+ *    data-section, so CTA clicks and section views report as the rest of the
+ *    site does.
+ *  - The newsletter posts to /api/lead (form_id "newsletter") instead of
+ *    nowhere, then hands over the practice as before.
+ */
+import '../styles/morel.css';
+import '../styles/morel-overrides.css';
+import {
+  LOGOS, INTRO, FOR_YOU_SECTION, FOR_YOU, STORY_SECTION, PATTERNS_SECTION, PATTERNS, CORE, PHASES,
+  FAQ_SECTION, FAQ, QUOTE, FAMILY, FILMS_SECTION, FILMS, CLOSE, NEWSLETTER, asset,
+} from '../data/morel';
+import { forYouIcon, PLAY_ICON } from '../lib/morel-icons';
+
+const book = (href: string) => href === '/book';
+---
+
+<div class="mo" data-morel>
+  <!-- ============ AS SEEN ON ============ -->
+  <div class="wide logos reveal reveal--fade" data-section="proof">
+    {LOGOS.map((l) => (
+      <a href={l.href} target="_blank" rel="noopener" aria-label={l.label}>
+        {l.img ? (
+          <>
+            <img src={l.img} alt={l.suffix ? '' : l.label} style={`width:${l.width}px`} loading="lazy" />
+            {l.suffix && <span class="logo-suffix">{l.suffix}</span>}
+          </>
+        ) : (
+          <span class={`logo-word logo-word--${l.style}`}>{l.label}</span>
+        )}
+      </a>
+    ))}
+  </div>
+
+  <!-- ============ THE CORE ============ -->
+  <section class="section section--bg4 core" id="the-core" data-section="core">
+    <div class="wide">
+      <header class="core__head">
+        <p class="eyebrow">{CORE.label}</p>
+        <h2 class="reveal">{CORE.title}</h2>
+        <p class="fs-md core__lede reveal">{CORE.lede}</p>
+      </header>
+
+      <div class="core__grid" data-stagger>
+        {PHASES.map((ph) => (
+          <article class="phase-card reveal">
+            <span class="phase-card__kanji" lang="ja" aria-hidden="true">{ph.kanji}</span>
+            <p class="phase-card__weeks">{ph.weeks}</p>
+            <h3>{ph.name}</h3>
+            <p class="fs-xs">{ph.body}</p>
+            <p class="phase-card__romaji" aria-hidden="true">{ph.kanji} {ph.romaji}</p>
+          </article>
+        ))}
+      </div>
+
+      <p class="fs-xs core__note reveal">{CORE.note}</p>
+
+      <div class="core__cta reveal">
+        {CORE.ctas.map((c) => (
+          <a class={`btn btn--${c.style} btn--wide`} href={c.href} data-track={book(c.href) ? 'cta_click' : undefined} data-track-label={book(c.href) ? `Core — ${c.label}` : undefined}>{c.label}</a>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ THE PATTERNS ============ -->
+  <section class="section section--dark on-dark patterns" id="patterns" data-section="patterns">
+    <div class="wide">
+      <div class="patterns__head">
+        <div>
+          <p class="eyebrow">{PATTERNS_SECTION.label}</p>
+          <h2 class="reveal" set:html={PATTERNS_SECTION.title} />
+        </div>
+        <div class="patterns__intro reveal reveal--left">
+          <p class="fs-sm">{PATTERNS_SECTION.lede}</p>
+          <p class="fs-xs patterns__why" set:html={PATTERNS_SECTION.why} />
+        </div>
+      </div>
+
+      <!-- Infinite horizontal carousel: the five patterns drift past on their
+           own, loop without a seam, and stop the moment a hand or a pointer
+           lands on them. Dragging, swiping, the arrows and the keyboard all
+           work; scripts/morel.ts clones the set once for the wrap-around. -->
+      <div class="pcar reveal reveal--fade" data-carousel data-speed="0.55" aria-roledescription="carousel" aria-label="The five patterns">
+        <div class="pcar__track" data-track-el tabindex="0">
+          {PATTERNS.map((p) => (
+            <article class="pattern pcar__item">
+              <span class="pattern__kanji" lang="ja" aria-hidden="true">{p.kanji}</span>
+              <p class="pattern__num">{p.number}</p>
+              <h3 class="pattern__name">{p.name}</h3>
+              <p class="pattern__romaji">{p.kanji} · {p.romaji} — {p.kanjiMeaning}</p>
+              <p class="pattern__body">{p.recognise}</p>
+              <dl class="pattern__meta">
+                <dt>What it costs</dt><dd>{p.cost}</dd>
+                <dt>The way through</dt><dd>{p.through}</dd>
+              </dl>
+            </article>
+          ))}
+        </div>
+        <div class="pcar__nav">
+          <button class="pcar__btn" type="button" aria-label="Previous pattern" data-prev><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12H3M10 5l-7 7 7 7"/></svg></button>
+          <button class="pcar__btn" type="button" aria-label="Next pattern" data-next><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12h18M14 5l7 7-7 7"/></svg></button>
+          <span class="pcar__hint fs-xs">Drag, or use the arrows</span>
+        </div>
+      </div>
+
+      <div class="patterns__foot reveal">
+        <p class="fs-xs">{PATTERNS_SECTION.foot}</p>
+        <a class="btn btn--filled" href={PATTERNS_SECTION.cta.href}>{PATTERNS_SECTION.cta.label}</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ WHO THIS IS FOR ============
+       The hero's beat carries this block. Rendered here too so it exists
+       without script or motion — morel-overrides.css hides it otherwise. -->
+  <section class="section section--flush fy fy--fallback" id="for-you" data-section="for-you">
+    <div class="wide">
+      <header class="fy__head">
+        <p class="eyebrow">{FOR_YOU_SECTION.label}</p>
+        <h2 class="reveal" set:html={FOR_YOU_SECTION.title} />
+        <p class="fs-sm fy__lede">{FOR_YOU_SECTION.lede}</p>
+      </header>
+
+      <div class="fy__grid" data-stagger>
+        {FOR_YOU.map((c) => (
+          <article class="fy__card reveal">
+            <Fragment set:html={forYouIcon(c.icon)} />
+            <p>{c.text} <strong>{c.emphasis}</strong></p>
+          </article>
+        ))}
+      </div>
+
+      <div class="fy__foot reveal">
+        <a class="btn btn--outline btn--wide" href={FOR_YOU_SECTION.cta.href} data-track="cta_click" data-track-label="Who this is for — book">{FOR_YOU_SECTION.cta.label}</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ THE STORY ============ -->
+  <section class="section section--white" id="story" data-section="story">
+    <div class="wide">
+      <p class="eyebrow">{STORY_SECTION.label}</p>
+      <h2 class="about__title reveal" set:html={STORY_SECTION.titleHtml} />
+      <p class="about__sub accent reveal">{STORY_SECTION.subtitle}</p>
+      <div class="cols about__cols">
+        <!-- Press proof, click to play. Nothing from YouTube loads until the visitor asks. -->
+        <a class="about__video js-video" href={`https://www.youtube.com/watch?v=${STORY_SECTION.videoId}`} data-video={STORY_SECTION.videoId} aria-label={`${STORY_SECTION.playLabel} — opens the video`}>
+          <div class="ratio">
+            <img src={STORY_SECTION.poster} alt={STORY_SECTION.posterAlt} width="1920" height="1080" loading="lazy" decoding="async" />
+          </div>
+          <span class="about__play">
+            <svg viewBox="0 0 28 28" aria-hidden="true"><circle cx="14" cy="14" r="14" fill="#fff"/><path d="M11 9.5v9l8-4.5z" fill="#14100D"/></svg>
+            {STORY_SECTION.playLabel}
+          </span>
+        </a>
+        <div class="about__text">
+          {STORY_SECTION.paragraphs.map((p) => <p set:html={p} />)}
+          <a class="btn btn--outline btn--wide" href={STORY_SECTION.cta.href}>{STORY_SECTION.cta.label}</a>
+        </div>
+      </div>
+      <div class="numbers" data-stagger>
+        {STORY_SECTION.numbers.map((n) => (
+          <div class="reveal"><p class="numbers__value"><mark><strong>{n.value}</strong></mark></p><p>{n.label}</p></div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ STRAIGHT ANSWERS ============ -->
+  <section class="section section--white faq" id="faq" data-section="faq">
+    <div class="wide faq__cols">
+      <header class="faq__head">
+        <p class="eyebrow">{FAQ_SECTION.label}</p>
+        <h2 class="reveal" set:html={FAQ_SECTION.title} />
+        <p class="fs-sm faq__lede reveal">{FAQ_SECTION.lede}</p>
+        <ol class="avenues reveal" data-stagger>
+          {FAQ_SECTION.avenues.map((a, i) => (
+            <li class="reveal">
+              <a class="avenue" href={a.href} data-track={book(a.href) ? 'cta_click' : undefined} data-track-label={book(a.href) ? `Straight answers — ${a.label}` : undefined}>
+                <span class="avenue__n">0{i + 1}</span>
+                <span class="avenue__body"><strong>{a.label}</strong><span>{a.sub}</span></span>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+              </a>
+            </li>
+          ))}
+        </ol>
+        <a class="btn btn--outline btn--wide reveal" href={FAQ_SECTION.cta.href} data-track="cta_click" data-track-label={`Straight answers — ${FAQ_SECTION.cta.label}`}>{FAQ_SECTION.cta.label}</a>
+      </header>
+      <div class="faq__list reveal reveal--fade">
+        <p class="faq__list-label eyebrow">{FAQ_SECTION.answersLabel}</p>
+        {FAQ.map((f, i) => (
+          <details class="faq__item" open={i === 0 ? true : undefined}>
+            <summary>
+              <span>{f.q}</span>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path class="faq__v" d="M12 5v14"/><path d="M5 12h14"/></svg>
+            </summary>
+            <p>{f.a}</p>
+          </details>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ QUOTE ============ -->
+  <section class="section section--dark on-dark quote-band" data-section="quote">
+    <div class="quote-band__wash" aria-hidden="true" style={`background-image:url(${QUOTE.image})`}></div>
+    <div class="content text-center reveal reveal--fade">
+      <p class="quote-band__text accent">{QUOTE.text}</p>
+    </div>
+  </section>
+
+  <!-- ============ WAYS IN ============ -->
+  <section class="section section--flush" id="ways-in" data-section="ways-in">
+    <div class="wide">
+      <div class="family__head">
+        <p class="eyebrow">{FAMILY.label}</p>
+        <h2 class="reveal" set:html={FAMILY.title} />
+        <p class="fs-sm">{FAMILY.body}</p>
+      </div>
+
+      <article class="event-card on-dark reveal" style={`--bg:url(${FAMILY.big.image})`}>
+        <div class="event-card__cols">
+          <div class="event-card__body">
+            <div>
+              <h3><a class="event-card__link" href={FAMILY.big.cta.href}>{FAMILY.big.title}</a></h3>
+              <p>{FAMILY.big.body}</p>
+            </div>
+            <a class="btn btn--filled" href={FAMILY.big.cta.href}>{FAMILY.big.cta.label}</a>
+          </div>
+          <div class="event-card__aside">
+            <div class="lockup lockup--big">{FAMILY.big.lockup.map((w) => <span>{w}</span>)}</div>
+          </div>
+        </div>
+      </article>
+
+      <div class="family__grid" data-stagger>
+        {FAMILY.cards.map((c) => (
+          <a class="program-card reveal" href={c.cta.href} style={`--bg:url(${c.image})`}>
+            {'tag' in c && c.tag && <span class="pill">{c.tag}</span>}
+            <div class="lockup lockup--md">{c.lockup.map((w) => <span>{w}</span>)}</div>
+            {'accent' in c && c.accent && <p class="program-card__accent">{c.accent}</p>}
+            <p>{c.body}</p>
+            <span class="btn btn--filled btn--wide">{c.cta.label}</span>
+          </a>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ FILMS ============ -->
+  <section class="section section--white films" id="films" data-section="films">
+    <div class="wide">
+      <div class="sec-head">
+        <div>
+          <p class="eyebrow">{FILMS_SECTION.label}</p>
+          <h2 class="reveal" set:html={FILMS_SECTION.title} />
+        </div>
+        <a class="btn btn--outline" href={FILMS_SECTION.cta.href}>{FILMS_SECTION.cta.label}</a>
+      </div>
+
+      {FILMS.filter((f) => f.featured).map((f) => (
+        <a class="film film--feature js-video reveal" href={`https://www.youtube.com/watch?v=${f.id}`} data-video={f.id} style={`background-image:url(${f.image})`}>
+          <div class="film__inner">
+            <div>
+              <span class="pill">{f.label}</span>
+              <h3>{f.title}</h3>
+              {f.description && <p class="fs-xs">{f.description}</p>}
+            </div>
+            <Fragment set:html={PLAY_ICON} />
+          </div>
+        </a>
+      ))}
+
+      <div class="films__pair" data-stagger>
+        {FILMS.filter((f) => !f.featured).map((f) => (
+          <a class="film js-video reveal" href={`https://www.youtube.com/watch?v=${f.id}`} data-video={f.id} style={`background-image:url(${f.image})`}>
+            <div class="film__inner">
+              <div>
+                <span class="pill">{f.label}</span>
+                <h3>{f.title}</h3>
+              </div>
+              <Fragment set:html={PLAY_ICON} />
+            </div>
+          </a>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ THE METHOD (a closing thought) ============ -->
+  <div class="intro" data-section="method">
+    <p class="intro__small reveal">{INTRO.small}</p>
+    <p class="text-load" set:html={INTRO.big} />
+    <div class="reveal reveal--fade"><a class="btn btn--outline" href={INTRO.cta.href}>{INTRO.cta.label}</a></div>
+    <img class="intro__sig" src={asset('/img/logo-dark-512.png')} alt="" width="64" height="64" loading="lazy" />
+  </div>
+
+  <!-- ============ CLOSE ============ -->
+  <section class="section section--dark on-dark close" data-section="close">
+    <div class="close__enso" aria-hidden="true"><img src={asset('/img/logo-light-512.png')} alt="" width="320" height="320" loading="lazy" /></div>
+    <div class="content text-center">
+      <h2 class="reveal" set:html={CLOSE.title} />
+      <p class="fs-md close__sub reveal">{CLOSE.body}</p>
+      <div class="close__ctas reveal">
+        {CLOSE.ctas.map((c) => (
+          <a class={`btn btn--${c.style} btn--wide`} href={c.href} data-track="cta_click" data-track-label={`Close — ${c.label}`}>{c.label}</a>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ NEWSLETTER ============ -->
+  <section class="section section--flush" data-section="newsletter">
+    <div class="wide">
+      <div class="newsletter grow-on-scroll">
+        <div class="cols newsletter__cols">
+          <div class="newsletter__left">
+            <img class="newsletter__mark reveal reveal--right" src={asset('/img/logo-dark-512.png')} alt="" width="80" height="80" loading="lazy" />
+            <h2 class="reveal">{NEWSLETTER.titleLines[0]}<br />{NEWSLETTER.titleLines[1]}<br /><mark>{NEWSLETTER.titleLines[2]}</mark></h2>
+          </div>
+          <div class="newsletter__right">
+            <p class="fs-sm">{NEWSLETTER.body}</p>
+            <form class="nl-form" action="/api/lead" method="post" data-fallback={NEWSLETTER.fallbackHref}>
+              <label class="sr-only" for="nl-email">Email address</label>
+              <input id="nl-email" name="email" type="email" required placeholder={NEWSLETTER.placeholder} autocomplete="email" />
+              <button type="submit">{NEWSLETTER.cta}</button>
+              <small>No spam. One practice, then the occasional note from Harrison.</small>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="vmodal" id="vmodal" aria-hidden="true">
+    <div class="vmodal__overlay" data-vmodal-close></div>
+    <div class="vmodal__inner">
+      <button class="vmodal__close" type="button" aria-label="Close video" data-vmodal-close>×</button>
+      <div class="vmodal__content"><div class="ratio" id="vmodal-slot"></div></div>
+    </div>
+  </div>
+</div>
+
+<script>
+  import { initMorel } from '../scripts/morel';
+  initMorel();
+</script>
