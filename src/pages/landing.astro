@@ -1,6 +1,10 @@
 ---
 /**
- * /landing — the landing page. The door.
+ * /landing — the landing page.
+ *
+ * 17 Sep 2026: the door is gone (see FrameHero.astro), so / and /landing now
+ * render the same hero and the same page. The notes below describe the door
+ * era and are kept for the record.
  *
  * Two URLs, one page. / is the portfolio: the link tree, the proof, the
  * approach. /landing is the same page dropped at the door: a man who clicked
@@ -21,7 +25,7 @@
  * points home so no duplicate-content signal is created.
  */
 import Base from '../layouts/Base.astro';
-import RtsHero from '../components/RtsHero.astro';
+import FrameHero from '../components/FrameHero.astro';
 import Calligraphy from '../components/Calligraphy.astro';
 import Picture from '../components/Picture.astro';
 import Testimonials from '../components/Testimonials.astro';
@@ -49,10 +53,10 @@ const schema = graph(
 ---
 
 <Base title={title} description={description} path="/" schema={schema} noindex>
-  {/* The intro film replaces the static hero (Hero.astro stays in the tree
-      for the record). Its landing carries the h1; the nav stays hidden until
-      the film marks itself done. */}
-  <RtsHero start="door" />
+  {/* 17 Sep: the walk through the house, then the alcove frame (FrameHero),
+      the same hero as /. There is no door to drop the visitor at any more;
+      the URL is kept for the ads that point here. */}
+  <FrameHero />
 
   {/* ------------------------------------------------------------- story */}
   <section class="section" id="story" data-section="story">

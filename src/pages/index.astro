@@ -8,7 +8,7 @@
  * on /mens-coaching and /hsc-tutoring where it can rank on its own terms.
  */
 import Base from '../layouts/Base.astro';
-import RtsHero from '../components/RtsHero.astro';
+import FrameHero from '../components/FrameHero.astro';
 import Calligraphy from '../components/Calligraphy.astro';
 import Picture from '../components/Picture.astro';
 import Testimonials from '../components/Testimonials.astro';
@@ -36,10 +36,10 @@ const schema = graph(
 ---
 
 <Base title={title} description={description} path="/" schema={schema}>
-  {/* The intro film replaces the static hero (Hero.astro stays in the tree
-      for the record). Its landing carries the h1; the nav stays hidden until
-      the film marks itself done. */}
-  <RtsHero />
+  {/* 17 Sep: the walk through the house, then the alcove frame (FrameHero).
+      It carries the h1. The intro film with the door (RtsHero) and the older
+      static hero (Hero.astro) stay in the tree for the record. */}
+  <FrameHero />
 
   {/* ------------------------------------------------------------- story */}
   <section class="section" id="story" data-section="story">

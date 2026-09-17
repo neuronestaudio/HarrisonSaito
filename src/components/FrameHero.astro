@@ -1,0 +1,416 @@
+---
+/**
+ * The hero — the walk, then the frame.
+ *
+ * Replaces RtsHero's three movements (the proof landing, the locked door, the
+ * roll to the title card). Dion, 17 Sep 2026: keep the scroll through the
+ * house, lose the door and the turn — "combine the parallax scroll with the
+ * second half". Built first on the harrison-saito-morel template
+ * (FrameHero.astro there); this is the same hero in this site's styles.
+ *
+ * Scroll scrubs the Return to Self film 0 → 15.0 s: the painted room, the
+ * doors opening, the four-door room, the dolly to the alcove. A straight line
+ * the whole way, no gate. It stops on the alcove frame, where the sharp still
+ * dissolves in and the page arrives underneath. If the film cannot load — or
+ * before it has — the still holds the screen and pushes in on scroll instead,
+ * so the page is never blank and never stuck.
+ *
+ * One custom property, --p (0 at the top, 1 at the alcove), drives the copy,
+ * the scrim and the rail; the film time is --p × 15.0. Seeks are eased with
+ * one in flight and three ways to settle, and the iOS unlock is a muted
+ * play() paused the moment it resolves (see RtsHero, kept in the tree).
+ *
+ * Assets (/video and /img ship with a one-year immutable cache, so a changed
+ * file needs a new name):
+ *   /video/rts-hero-v4.mp4, -m.mp4    — short-GOP H.264, 720p, 4.6 / 3.0 MB
+ *   /img/rts-hero-poster-v3.webp      — the first frame
+ *   /img/rts-still-v1-{768…2560}.webp — the 15.0 s frame, upscaled 2x
+ */
+import { srcset, src } from '../lib/images';
+import '../styles/avant.css';
+
+const STILL = 'rts-still-v1';
+---
+
+<section class="hero" id="hero" data-frame-hero data-section="hero" aria-label="Harrison Saito — Return to Self">
+  <div class="hero__frame">
+    <img class="hero__poster" src="/img/rts-hero-poster-v3.webp" alt="" aria-hidden="true" width="1280" height="720" fetchpriority="high" decoding="sync" />
+    <video class="hero__film" muted playsinline preload="metadata"
+           aria-label="A slow walk through a traditional Japanese house, arriving at an alcove with a hanging scroll."></video>
+    <img
+      class="hero__plate"
+      src={src(STILL)}
+      srcset={srcset(STILL) || undefined}
+      sizes="100vw"
+      alt="A traditional Japanese room, its sliding doors open onto an alcove with a hanging scroll"
+      width="1920"
+      height="1080"
+      loading="eager"
+      decoding="async"
+    />
+    <div class="hero__scrim" aria-hidden="true"></div>
+    <div class="hero__veil" aria-hidden="true"></div>
+
+    <div class="hero__copy">
+      <p class="hero__eyebrow">Harrison Saito · Men's coaching · Chatswood, Sydney</p>
+      <h1 class="hero__title">Son of a <mark>Karate Grand Master</mark></h1>
+      <p class="hero__sub">17+ Years Karate | Coach | Buddhist</p>
+      <p class="hero__ctas">
+        <a class="hero__btn" href="/book" data-track="cta_click" data-track-label="Hero — Book a discovery chat" data-track-section="hero">Book a discovery chat</a>
+        <a class="hero__more" href="#story">Not ready? Start here ↓</a>
+      </p>
+    </div>
+
+    <div class="hero__cue" aria-hidden="true"><span>Scroll to walk in</span><i></i></div>
+    <div class="hero__rail" aria-hidden="true"><i></i></div>
+  </div>
+</section>
+
+<style>
+  /* The runway is the walk: 15 s of film over three and a bit screens. */
+  .hero {
+    --p: 0;
+    --film: 0;                 /* 1 once the film is scrubbing; the poster yields to it */
+    --font-avant: 'Avant', 'ITC Avant Garde Gothic', 'Century Gothic', 'Jost', sans-serif;
+    position: relative;
+    height: 420vh;
+    background: #14100d;
+    color: #fcfaf8;
+  }
+
+  /* dvh, not svh — sized to the small viewport the frame stops short of the
+     screen when Safari's toolbar collapses (RtsHero learned this on 11 Sep). */
+  .hero__frame {
+    position: sticky;
+    top: 0;
+    height: 100vh;
+    height: 100dvh;
+    overflow: hidden;
+    background: #14100d;
+  }
+
+  /* Three plates on one axis. The doorway of room one and the alcove of room
+     two both sit at plate x ≈ 43–44%, so one crop centre carries the whole
+     walk on a portrait phone without any panning. */
+  .hero__poster,
+  .hero__film,
+  .hero__plate {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    max-width: none;
+    object-fit: cover;
+    object-position: 44% 50%;
+  }
+  .hero__poster { z-index: 1; opacity: calc(1 - var(--film)); transition: opacity 0.5s ease; }
+  .hero__film { z-index: 2; opacity: var(--film); transition: opacity 0.5s ease; }
+
+  /* The still: the frame the walk ends on. While the film runs it fades in
+     only over the last stretch (--hold), so the hand-over from the soft video
+     frame to the sharp still is a dissolve, not a cut. Without the film it is
+     the whole hero and pushes into the alcove on scroll. */
+  .hero__plate {
+    z-index: 3;
+    opacity: var(--hold, 1);
+    transform-origin: 44% 47%;
+    transform: scale(calc(1 + var(--push, 0) * 0.34));
+    will-change: transform, opacity;
+  }
+
+  /* For the nav and the copy; once they have gone the walk is lit by the
+     room, with a quarter of the grade kept for grounding. */
+  .hero__scrim {
+    position: absolute;
+    inset: 0;
+    z-index: 4;
+    pointer-events: none;
+    opacity: clamp(0.25, calc(1 - var(--p) * 2.2), 1);
+    background:
+      linear-gradient(to bottom, rgba(20, 16, 13, 0.55) 0%, rgba(20, 16, 13, 0) 30%),
+      linear-gradient(to top, rgba(20, 16, 13, 0.84) 0%, rgba(20, 16, 13, 0.4) 30%, rgba(20, 16, 13, 0) 58%);
+  }
+  /* Dims only at the very end, as the page arrives over the alcove. */
+  .hero__veil {
+    position: absolute;
+    inset: 0;
+    z-index: 4;
+    pointer-events: none;
+    background: #14100d;
+    opacity: calc(var(--veil, 0) * 0.5);
+  }
+
+  .hero__copy {
+    position: absolute;
+    z-index: 5;
+    left: clamp(1.25rem, 5vw, 5.5rem);
+    right: clamp(1.25rem, 5vw, 5.5rem);
+    /* --consent-h is published by ConsentBar.astro while the notice is up,
+       so the buttons sit above it rather than under it. */
+    bottom: calc(clamp(2.6rem, 9vh, 6.5rem) + var(--consent-h, 0px));
+    max-width: 46rem;
+    display: grid;
+    gap: clamp(0.75rem, 2vw, 1.5rem);
+    font-family: var(--font-avant);
+    opacity: clamp(0, calc(1 - var(--p) * 9), 1);
+    transform: translateY(calc(var(--p) * -300px));
+    will-change: opacity, transform;
+  }
+  .hero__eyebrow {
+    font-size: 0.74rem;
+    font-weight: 700;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: #f2c275;
+    margin: 0;
+  }
+  .hero__title {
+    font-family: var(--font-avant);
+    font-size: clamp(2.6rem, 1.4rem + 5.2vw, 5.9rem);
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    line-height: 0.92;
+    text-transform: uppercase;
+    color: #fcfaf8;
+    margin: 0;
+    text-wrap: balance;
+    text-shadow: 0 2px 30px rgba(0, 0, 0, 0.35);
+  }
+  .hero__title mark {
+    background: linear-gradient(to bottom right, #f2c275 0%, #daa24f 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    color: #f2c275;
+  }
+  .hero__sub {
+    font-family: var(--font-display);
+    font-size: clamp(1.6rem, 1.4rem + 0.85vw, 2.15rem);
+    font-weight: 500;
+    line-height: 1.2;
+    margin: 0;
+    color: rgba(252, 250, 248, 0.92);
+  }
+
+  .hero__ctas {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: clamp(0.75rem, 2vw, 1.5rem) clamp(1rem, 2.5vw, 2rem);
+    margin: clamp(0.5rem, 1.5vw, 1rem) 0 0;
+  }
+  /* The gold pill; the 2px ring shows on hover, drawn under a masked pseudo. */
+  .hero__btn {
+    position: relative;
+    z-index: 1;
+    display: inline-block;
+    border-radius: 100px;
+    padding: 0.65rem clamp(1.25rem, 4vw, 3rem) 0.5rem;
+    background: linear-gradient(to right, #f2c275 0%, #daa24f 100%);
+    color: #14100d;
+    font-size: clamp(1rem, 0.94rem + 0.3vw, 1.25rem);
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    line-height: 1.6;
+    text-transform: uppercase;
+    text-decoration: none;
+    text-align: center;
+    transition: all 0.3s ease-in-out;
+  }
+  .hero__btn::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    padding: 2px;
+    background: linear-gradient(to right, #f2c275 0%, #daa24f 100%);
+    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    mask-composite: exclude;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.3s ease-in-out;
+  }
+  .hero__btn:hover { background: #fff; color: #14100d; box-shadow: 0 5px 30px rgba(218, 162, 79, 0.4); }
+  .hero__btn:hover::before { opacity: 1; }
+  .hero__btn:focus-visible { outline: 2px solid #daa24f; outline-offset: 2px; }
+
+  .hero__more {
+    font-size: 1rem;
+    font-weight: 500;
+    color: rgba(255, 255, 255, 0.72);
+    text-decoration: underline;
+    text-decoration-color: rgba(218, 162, 79, 0.6);
+    text-underline-offset: 0.25em;
+    white-space: nowrap;
+  }
+  .hero__more:hover { color: #fcfaf8; text-decoration-color: #daa24f; }
+
+  /* The sign that the frame moves. Goes with the first scroll. */
+  .hero__cue {
+    position: absolute;
+    z-index: 5;
+    right: clamp(1.25rem, 5vw, 5.5rem);
+    bottom: calc(clamp(2.6rem, 9vh, 6.5rem) + var(--consent-h, 0px));
+    display: grid;
+    justify-items: center;
+    gap: 0.55rem;
+    font-family: var(--font-avant);
+    font-size: 0.62rem;
+    font-weight: 700;
+    letter-spacing: 0.26em;
+    text-transform: uppercase;
+    white-space: nowrap;
+    color: rgba(252, 250, 248, 0.7);
+    opacity: clamp(0, calc(1 - var(--p) * 30), 1);
+  }
+  .hero__cue i { display: block; width: 1px; height: 52px; background: rgba(255, 255, 255, 0.18); position: relative; overflow: hidden; }
+  .hero__cue i::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: -45%;
+    width: 100%;
+    height: 45%;
+    background: #daa24f;
+    animation: hero-cue 2.2s cubic-bezier(0.6, 0, 0.4, 1) infinite;
+  }
+  @keyframes hero-cue { 0% { top: -45%; } 60%, 100% { top: 100%; } }
+
+  /* How far along the walk is — a hairline at the foot of the frame. */
+  .hero__rail { position: absolute; z-index: 5; left: 0; right: 0; bottom: 0; height: 2px; background: rgba(255, 255, 255, 0.12); }
+  .hero__rail i { display: block; height: 100%; width: calc(var(--p) * 100%); background: #daa24f; }
+
+  @media (max-width: 700px) {
+    .hero { height: 360vh; }
+    .hero__copy { bottom: calc(clamp(3.2rem, 11vh, 6rem) + var(--consent-h, 0px)); }
+    .hero__cue { display: none; }
+    .hero__btn { width: 100%; }
+  }
+
+  /* No script, or no motion: the alcove frame only, everything on it. */
+  :global(.no-js) .hero { height: 100svh; }
+  :global(.no-js) .hero__film, :global(.no-js) .hero__poster { display: none; }
+  @media (prefers-reduced-motion: reduce) {
+    .hero { height: 100svh; }
+    .hero__film, .hero__poster, .hero__veil, .hero__rail { display: none; }
+    .hero__plate { transform: none; opacity: 1; }
+    .hero__copy { opacity: 1; transform: none; }
+    .hero__cue { display: none; }
+  }
+</style>
+
+<script>
+  (function () {
+    var hero = document.querySelector<HTMLElement>('[data-frame-hero]');
+    var video = hero && hero.querySelector<HTMLVideoElement>('.hero__film');
+    if (!hero || !video) return;
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+
+    /* The walk ends on the alcove: 15.0 s of a 19.33 s film. The still is that
+       frame, so it dissolves in by film time — over the last quarter second,
+       once the video shows the same picture — never by scroll alone, which
+       would lay it over a frame the camera has not reached. */
+    var T_END = 15.0, HOLD_FROM_T = 14.78;
+    var st = hero.style;
+    var filmOn = false, failed = false;
+
+    function clamp(v: number, a: number, b: number) { return v < a ? a : v > b ? b : v; }
+    function progress() {
+      var run = hero!.offsetHeight - window.innerHeight;
+      return run > 0 ? clamp(-hero!.getBoundingClientRect().top / run, 0, 1) : 0;
+    }
+
+    /* ---- paint: everything the page shows is a function of p ---- */
+    var target = 0, eased = 0;
+    function paint(p: number) {
+      st.setProperty('--p', p.toFixed(4));
+      if (filmOn) {
+        var hold = clamp((eased - HOLD_FROM_T) / (T_END - HOLD_FROM_T), 0, 1);
+        st.setProperty('--hold', hold.toFixed(3));
+        st.setProperty('--push', '0');
+        st.setProperty('--veil', (hold * hold).toFixed(3));
+      } else {
+        st.setProperty('--hold', '1');
+        st.setProperty('--push', p.toFixed(4));
+        st.setProperty('--veil', p.toFixed(4));
+      }
+    }
+
+    /* ---- the film: one seek in flight, three ways to settle ---- */
+    var pending = false, watchdog = 0, ready = false, looping = false;
+    function settle() { pending = false; clearTimeout(watchdog); }
+    video.addEventListener('seeked', settle);
+    function issueSeek(t: number) {
+      pending = true;
+      clearTimeout(watchdog);
+      watchdog = window.setTimeout(settle, 220);
+      if ('requestVideoFrameCallback' in video!) (video as any).requestVideoFrameCallback(settle);
+      try { video!.currentTime = t; } catch (e) { settle(); }
+    }
+    /* Runs while the film is catching up with the scroll, then rests. */
+    function tick() {
+      if (!ready || failed) { looping = false; return; }
+      eased += (target - eased) * 0.14;
+      if (Math.abs(target - eased) < 0.002) eased = target;
+      if (!pending && Math.abs(eased - video!.currentTime) > 1 / 48) issueSeek(eased);
+      paint(progress());
+      if (eased !== target || pending) requestAnimationFrame(tick);
+      else looping = false;
+    }
+    function wake() {
+      if (ready && !looping) { looping = true; requestAnimationFrame(tick); }
+    }
+
+    var raf = 0;
+    function onScroll() {
+      target = progress() * T_END;
+      /* Past the first screen the whole film is wanted. */
+      if (video!.preload !== 'auto' && target > 0.15) video!.preload = 'auto';
+      if (ready) wake();
+      else if (!raf) raf = requestAnimationFrame(function () { raf = 0; paint(progress()); });
+    }
+
+    function arm() {
+      if (ready || failed || !video!.duration) return;
+      ready = true; filmOn = true;
+      st.setProperty('--film', '1');
+      eased = target = progress() * T_END;
+      issueSeek(eased);
+      paint(progress());
+      wake();
+    }
+    /* Metadata first, THEN the iOS unlock (Safari refuses currentTime on an
+       element that has never played), THEN arm the scrub. */
+    function unlockThenArm() {
+      var kick = video!.play();
+      if (kick && kick.then) kick.then(function () { video!.pause(); arm(); }).catch(arm);
+      else arm();
+    }
+    /* Without the film the still carries the page: nothing to undo. */
+    video.addEventListener('error', function () {
+      failed = true; filmOn = false; ready = false;
+      st.setProperty('--film', '0');
+      paint(progress());
+    });
+
+    /* Two encodes of the same frames: a tighter one for phones. */
+    var source = document.createElement('source');
+    source.src = window.matchMedia('(max-width:600px)').matches ? '/video/rts-hero-v4-m.mp4' : '/video/rts-hero-v4.mp4';
+    source.type = 'video/mp4';
+    source.addEventListener('error', function () { video!.dispatchEvent(new Event('error')); });
+    video.appendChild(source);
+    video.load();
+    if (video.readyState >= 1) unlockThenArm();
+    else video.addEventListener('loadedmetadata', unlockThenArm, { once: true });
+
+    /* Lenis (scripts/motion.ts) writes the scroll position on fine pointers
+       and the browser fires a native scroll event for each write, so one
+       listener serves both. */
+    window.addEventListener('scroll', onScroll, { passive: true });
+    window.addEventListener('resize', onScroll);
+    paint(0);
+    onScroll();
+  })();
+</script>
