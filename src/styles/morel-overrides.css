@@ -179,3 +179,23 @@
   .mo .core__grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .mo .core__grid > :nth-child(3):last-child { grid-column: 1 / -1; }
 }
+
+/* ---- the badge-set icons (src/data/badges.ts, 18 Sep 2026) ----------------
+   Four more idle motions for the new marks, on the same clock as the six
+   above, and the draw-on extended to ellipses, which the new marks use. */
+.mo .fy__icon ellipse:not(.ico-ping) { stroke-dasharray: 1; stroke-dashoffset: 1; }
+.mo .fy__card.is-in .fy__icon ellipse:not(.ico-ping) {
+  animation: icoDraw 1.1s var(--ease-out-quart) both;
+  animation-delay: calc(var(--d, 0ms) + 180ms);
+}
+.mo .fy__card.is-in .ico-tug { animation: icoTug 4.4s ease-in-out infinite; animation-delay: calc(var(--d, 0ms) + 1600ms); }
+.mo .fy__card.is-in .ico-tilt { animation: icoTilt 5s ease-in-out infinite; animation-delay: calc(var(--d, 0ms) + 1600ms); }
+.mo .fy__card.is-in .ico-slide { animation: icoSlide 3.6s ease-in-out infinite; animation-delay: calc(var(--d, 0ms) + 1500ms); }
+.mo .fy__card.is-in .ico-rock { animation: icoRock 6s ease-in-out infinite; animation-delay: calc(var(--d, 0ms) + 1600ms); }
+@keyframes icoTug { 0%, 70%, 100% { transform: translateX(0); } 80% { transform: translateX(-2.2px); } 88% { transform: translateX(0.4px); } }
+@keyframes icoTilt { 0%, 100% { transform: rotate(0); } 50% { transform: rotate(-5deg); } }
+@keyframes icoSlide { 0%, 100% { transform: translateX(0); } 50% { transform: translateX(1.6px); } }
+@keyframes icoRock { 0%, 70%, 100% { transform: rotate(0); } 85% { transform: rotate(-24deg); } }
+@media (prefers-reduced-motion: reduce) {
+  .mo .fy__icon ellipse { stroke-dashoffset: 0; animation: none; }
+}

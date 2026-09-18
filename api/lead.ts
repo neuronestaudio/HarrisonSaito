@@ -107,7 +107,17 @@ async function sendToGHL(env: Env, body: Payload): Promise<boolean> {
     email: body.email,
     phone: typeof body.phone === 'string' ? e164(body.phone) : undefined,
     source: `Website - ${formId}`,
-    tags: ['website', `enquiry-${about}`, `form-${formId}`],
+    /* fy-<set> / fy-pick-<protector>: which "Who This Is For" badge set the
+       visitor saw, and which protector they tapped (src/data/badges.ts). */
+    tags: [
+      'website',
+      `enquiry-${about}`,
+      `form-${formId}`,
+      ...(typeof body.fy === 'string' && /^[a-z]{2,20}$/.test(body.fy) ? [`fy-${body.fy}`] : []),
+      ...(typeof body.fy_pick === 'string' && /^[a-z -]{2,24}$/i.test(body.fy_pick)
+        ? [`fy-pick-${body.fy_pick.toLowerCase().replace(/ /g, '-')}`]
+        : []),
+    ],
     customFields,
   };
 

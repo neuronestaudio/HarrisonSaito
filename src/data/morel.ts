@@ -19,6 +19,14 @@ const ROUTES: Record<string, string> = {
      /privacy, /terms and /#faq exist here under the same paths. */
 };
 
+/** Button words: sell without selling (Dion, 18 Sep) — "let me walk with
+    you", "break the cycle" — not "Book a discovery chat". */
+const LABELS: Record<string, string> = {
+  'Book a discovery chat': 'Let me walk with you',
+  'Start the training': 'Break the cycle',
+  'Book when you’re ready': 'Walk with me when you’re ready',
+};
+
 /** Template asset → the versioned copy in public/img (immutable cache). */
 const ASSETS: Record<string, string> = {
   '/img/logo-sbs-world-news.svg': '/img/mo/logo-sbs-world-news-v1.svg',
@@ -31,7 +39,7 @@ const ASSETS: Record<string, string> = {
 
 function local<T>(value: T): T {
   if (typeof value === 'string') {
-    return ((ROUTES[value] ?? ASSETS[value] ?? value) as unknown) as T;
+    return ((ROUTES[value] ?? ASSETS[value] ?? LABELS[value] ?? value) as unknown) as T;
   }
   if (Array.isArray(value)) return (value.map(local) as unknown) as T;
   if (value && typeof value === 'object') {

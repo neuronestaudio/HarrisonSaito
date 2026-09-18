@@ -81,10 +81,23 @@
  * the end of the pause to a built hero is one screen, not 2.3, and the hold
  * after it is about a third of a screen before the page moves on.
  *
- * The panel is Morel markup (src/data/morel.ts, morel.css) inside a bare `.mo`
- * wrapper, scaled to fit whatever height is left between the nav and the
- * consent bar. Without script or with reduced motion it never shows, and
- * MorelHome renders the same block as a section instead.
+ * The panel is Morel markup (morel.css) inside a bare `.mo` wrapper, scaled
+ * to fit whatever height is left between the nav and the consent bar. What it
+ * says is a badge set (src/data/badges.ts, Dion 18 Sep): the `set` prop picks
+ * one — the home page runs `core` ("our version"), each /lp/<id> landing page
+ * runs its own — and the set id goes into sessionStorage so the lead form can
+ * tag the enquiry with it. The protectors set's cards are buttons: the pick is
+ * tracked and carried to the form too. Without script or with reduced motion
+ * the panel never shows, and MorelHome renders the control block instead.
+ *
+ * The first screen (Dion, 18 Sep): the landing copy is centred, and nothing
+ * moves until the visitor does — the film is not played on load (it used to
+ * be, for the iOS unlock), the first frame holds as a still, and the unlock
+ * happens on the first scroll or touch. Before, a phone showed the alcove
+ * still until the film armed and then cut to the first room, which read as a
+ * video playing in the background.
+ *
+ * The call to action sells without selling: "Let me walk with you".
  *
  * Assets (/video and /img ship with a one-year immutable cache, so a changed
  * file needs a new name):
@@ -93,16 +106,24 @@
  *   /img/rts-still-v1-{768…2560}.webp — the 15.0 s frame, upscaled 2x
  */
 import { srcset, src } from '../lib/images';
-import { FOR_YOU_SECTION, FOR_YOU, HERO as ARRIVE } from '../data/morel';
+import { HERO as ARRIVE } from '../data/morel';
+import { setById } from '../data/badges';
 import { forYouIcon } from '../lib/morel-icons';
 import '../styles/avant.css';
 import '../styles/morel.css';
 import '../styles/morel-overrides.css';
 
 const STILL = 'rts-still-v1';
+
+interface Props {
+  /** Which "Who This Is For" badge set the pause shows (src/data/badges.ts). */
+  set?: string;
+}
+const SET = setById(Astro.props.set);
+const picks = SET.id === 'protectors';
 ---
 
-<section class="hero" id="hero" data-frame-hero data-section="hero" aria-label="Harrison Saito — Return to Self">
+<section class="hero" id="hero" data-frame-hero data-fy={SET.id} data-section="hero" aria-label="Harrison Saito — Return to Self">
   <div class="hero__frame">
     <img class="hero__poster" src="/img/rts-hero-poster-v3.webp" alt="" aria-hidden="true" width="1280" height="720" fetchpriority="high" decoding="sync" />
     <video class="hero__film" muted playsinline preload="metadata"
@@ -127,29 +148,36 @@ const STILL = 'rts-still-v1';
       <h1 class="hero__title">Son of a <mark>Karate Grand Master</mark></h1>
       <p class="hero__sub">17+ Years Karate | Coach | Buddhist</p>
       <p class="hero__ctas">
-        <a class="hero__btn" href="/book" data-track="cta_click" data-track-label="Hero — Book a discovery chat" data-track-section="hero">Book a discovery chat</a>
+        <a class="hero__btn" href="/book" data-track="cta_click" data-track-label="Hero — Book a discovery chat" data-track-section="hero">Let me walk with you</a>
         <a class="hero__more" href="#for-you" data-beat-go>Not ready? Start here ↓</a>
       </p>
     </div>
 
     {/* The beat: "Who this is for", over the four shut doors. */}
     <div class="beat mo mo--bare" data-beat aria-hidden="true">
-      <div class="beat__panel" role="region" aria-label={FOR_YOU_SECTION.label}>
+      <div class="beat__panel" role="region" aria-label="Who This Is For">
         <header class="beat__head">
-          <p class="eyebrow beat__eyebrow">{FOR_YOU_SECTION.label}</p>
-          <h2 class="beat__title" set:html={FOR_YOU_SECTION.title} />
-          <p class="beat__lede">{FOR_YOU_SECTION.lede}</p>
+          <p class="eyebrow beat__eyebrow">Who This Is For</p>
+          <h2 class="beat__title" set:html={SET.title} />
+          <p class="beat__lede">{SET.lede}</p>
         </header>
         <div class="fy__grid beat__grid" data-stagger>
-          {FOR_YOU.map((c) => (
-            <article class="fy__card reveal beat__card">
-              <Fragment set:html={forYouIcon(c.icon)} />
-              <p>{c.text} <strong>{c.emphasis}</strong></p>
-            </article>
-          ))}
+          {SET.badges.map((c) =>
+            picks ? (
+              <button type="button" class="fy__card reveal beat__card beat__card--pick" data-pick={c.tag} aria-pressed="false" data-track="fy_pick" data-track-label={c.tag} data-track-section="hero-beat">
+                <Fragment set:html={forYouIcon(c.icon)} />
+                <p><span class="beat__tag">{c.tag}</span>{c.text} <strong>{c.emphasis}</strong></p>
+              </button>
+            ) : (
+              <article class="fy__card reveal beat__card">
+                <Fragment set:html={forYouIcon(c.icon)} />
+                <p>{c.text} <strong>{c.emphasis}</strong></p>
+              </article>
+            )
+          )}
         </div>
         <p class="beat__foot">
-          <a class="btn btn--filled btn--wide" href={FOR_YOU_SECTION.cta.href} data-track="cta_click" data-track-label="Beat — Book a discovery chat" data-track-section="hero-beat">{FOR_YOU_SECTION.cta.label}</a>
+          <a class="btn btn--filled btn--wide" href={SET.cta.href} data-track="cta_click" data-track-label={`Beat (${SET.id}) — ${SET.cta.label}`} data-track-section="hero-beat">{SET.cta.label}</a>
           <button class="beat__on" type="button" data-beat-on>Keep walking ↓</button>
         </p>
       </div>
@@ -297,20 +325,24 @@ const STILL = 'rts-still-v1';
     opacity: var(--vig, 0);
   }
 
+  /* Centred on the screen, both ways (Dion, 18 Sep): the title the visitor
+     lands on sits in the middle of the room, not in a corner of it. */
   .hero__copy {
     position: absolute;
     z-index: 5;
-    left: clamp(1.25rem, 5vw, 5.5rem);
-    right: clamp(1.25rem, 5vw, 5.5rem);
-    /* --consent-h is published by ConsentBar.astro while the notice is up,
-       so the buttons sit above it rather than under it. */
-    bottom: calc(clamp(2.6rem, 9vh, 6.5rem) + var(--consent-h, 0px));
-    max-width: 46rem;
+    left: 0;
+    right: 0;
+    top: 50%;
+    margin-inline: auto;
+    padding-inline: clamp(1.25rem, 5vw, 5.5rem);
+    max-width: 58rem;
     display: grid;
+    justify-items: center;
+    text-align: center;
     gap: clamp(0.75rem, 2vw, 1.5rem);
     font-family: var(--font-avant);
     opacity: clamp(0, calc(1 - var(--p) * 9), 1);
-    transform: translateY(calc(var(--p) * -300px));
+    transform: translateY(calc(-50% + var(--p) * -300px));
     will-change: opacity, transform;
   }
   .hero__eyebrow {
@@ -352,6 +384,7 @@ const STILL = 'rts-still-v1';
   .hero__ctas {
     display: flex;
     align-items: center;
+    justify-content: center;
     flex-wrap: wrap;
     gap: clamp(0.75rem, 2vw, 1.5rem) clamp(1rem, 2.5vw, 2rem);
     margin: clamp(0.5rem, 1.5vw, 1rem) 0 0;
@@ -408,8 +441,9 @@ const STILL = 'rts-still-v1';
   .hero__cue {
     position: absolute;
     z-index: 5;
-    right: clamp(1.25rem, 5vw, 5.5rem);
-    bottom: calc(clamp(2.6rem, 9vh, 6.5rem) + var(--consent-h, 0px));
+    left: 50%;
+    transform: translateX(-50%);
+    bottom: calc(clamp(1.4rem, 5vh, 3.2rem) + var(--consent-h, 0px));
     display: grid;
     justify-items: center;
     gap: 0.55rem;
@@ -804,6 +838,27 @@ const STILL = 'rts-still-v1';
     gap: 10px 22px;
     margin: clamp(14px, 2.2vw, 24px) 0 0;
   }
+  /* The protectors set: each card is a button — tap the one that runs you. */
+  .beat .beat__card--pick {
+    font: inherit;
+    color: inherit;
+    text-align: left;
+    cursor: pointer;
+    width: 100%;
+  }
+  .beat .beat__card--pick:focus-visible { outline: 2px solid #daa24f; outline-offset: 2px; }
+  .beat .beat__card--pick[aria-pressed='true'] {
+    border-color: #daa24f;
+    box-shadow: 0 0 0 2px rgba(218, 162, 79, 0.45), 0 14px 30px rgba(20, 16, 13, 0.12);
+  }
+  .beat__tag {
+    display: block;
+    margin-bottom: 4px;
+    font-size: 0.62rem;
+    font-weight: 700;
+    letter-spacing: 0.2em;
+    color: #b07932;
+  }
   .beat__on {
     background: none;
     border: 0;
@@ -833,7 +888,7 @@ const STILL = 'rts-still-v1';
 
   @media (max-width: 700px) {
     .hero { --run-in: 146; --run-pause: 110; --run-out: 70; --run-meet: 50; }
-    .hero__copy { bottom: calc(clamp(3.2rem, 11vh, 6rem) + var(--consent-h, 0px)); }
+    .hero__copy { top: 48%; }
     .hero__cue { display: none; }
     .hero__btn { width: 100%; }
   }
@@ -851,7 +906,7 @@ const STILL = 'rts-still-v1';
     .arrive { display: none; }
     .hero__film, .hero__poster, .hero__veil, .hero__rail { display: none; }
     .hero__plate { transform: none; opacity: 1; }
-    .hero__copy { opacity: 1; transform: none; }
+    .hero__copy { opacity: 1; transform: translateY(-50%); }
     .hero__cue { display: none; }
   }
 </style>
@@ -864,6 +919,20 @@ const STILL = 'rts-still-v1';
     var figure = hero && hero.querySelector<HTMLImageElement>('.arrive__photo');
     var panel = beatEl && beatEl.querySelector<HTMLElement>('.beat__panel');
     if (!hero || !video || !beatEl || !panel) return;
+    /* The badge set this page shows: remembered for the lead form (it tags the
+       enquiry fy-<id>), and reported once so sets can be compared. A protector
+       tap is remembered too (fy-pick-<name>). */
+    var fy = hero.dataset.fy || '';
+    try { if (fy) sessionStorage.setItem('rts-fy', fy); } catch (e) {}
+    (window as any).dataLayer = (window as any).dataLayer || [];
+    (window as any).dataLayer.push({ event: 'fy_view', fy_set: fy, page_path: location.pathname });
+    hero.querySelectorAll<HTMLButtonElement>('[data-pick]').forEach(function (btn, _i, all) {
+      btn.addEventListener('click', function () {
+        all.forEach(function (b) { b.setAttribute('aria-pressed', b === btn ? 'true' : 'false'); });
+        try { sessionStorage.setItem('rts-fy-pick', btn.dataset.pick || ''); } catch (e) {}
+      });
+    });
+
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
 
     /* The walk ends on the alcove: 15.0 s of a 19.33 s film. The still is that
@@ -962,10 +1031,18 @@ const STILL = 'rts-still-v1';
         /* No end-of-film dim any more: --vig has been darkening the room since
            V_FROM, and a second, sudden one here was the step. */
         st.setProperty('--veil', '0');
-      } else {
+      } else if (failed) {
+        /* No film at all: the still is the hero and pushes in. */
         st.setProperty('--hold', '1');
         st.setProperty('--push', p.toFixed(4));
         st.setProperty('--veil', p.toFixed(4));
+      } else {
+        /* The film is not ready yet: the first frame holds, still. (It used
+           to show the alcove here and then cut to the first room when the
+           film armed — on a phone that read as a video playing.) */
+        st.setProperty('--hold', '0');
+        st.setProperty('--push', '0');
+        st.setProperty('--veil', '0');
       }
       var m = meetFor(p);
       st.setProperty('--meet', m.toFixed(3));
@@ -1137,22 +1214,66 @@ const STILL = 'rts-still-v1';
     function arm() {
       if (ready || failed || !video!.duration) return;
       ready = true; filmOn = true;
+      state('armed');
       st.setProperty('--film', '1');
       eased = target = timeFor(progress());
       issueSeek(eased);
       paint(progress());
       wake();
     }
-    /* Metadata first, THEN the iOS unlock (Safari refuses currentTime on an
-       element that has never played), THEN arm the scrub. */
-    function unlockThenArm() {
-      var kick = video!.play();
-      if (kick && kick.then) kick.then(function () { video!.pause(); arm(); }).catch(arm);
-      else arm();
+    /* Nothing plays on load. Where a seek works on a film that has never
+       played (desktop, Android), the first seek arms it and the scrub is ready
+       before the visitor moves. iOS refuses that seek; there the film arms on
+       the first scroll or touch — a muted play, paused the moment it
+       resolves, which is the unlock Safari needs — still under the first-frame
+       still, so nothing is seen to play. Refused outright (Low Power Mode):
+       the alcove still carries the hero instead. */
+    var primed = false, wantPrime = false;
+    var PRIME_ON = ['scroll', 'touchstart', 'pointerdown', 'keydown', 'wheel'];
+    function state(v: string) { hero!.dataset.film = v; }
+    function tryArm() {
+      if (ready || failed || !video!.duration) return;
+      var landed = function () { video!.removeEventListener('seeked', landed); if (!ready && !failed) arm(); };
+      video!.addEventListener('seeked', landed);
+      try { video!.currentTime = 0.001; } catch (e) {}
+      if (wantPrime) doPrime();
     }
+    /* The first scroll or touch asks for the unlock; it happens once the film
+       has its metadata (a play() before that can be refused for no lasting
+       reason), and a refusal is only final when the browser says it will not
+       play at all (NotAllowedError — iOS in Low Power Mode). Anything else, and
+       the next scroll tries again. */
+    function prime() {
+      if (ready || failed) { PRIME_ON.forEach(function (t) { window.removeEventListener(t, prime); }); return; }
+      wantPrime = true;
+      if (video!.readyState >= 1) doPrime();
+    }
+    function doPrime() {
+      if (primed || ready || failed) return;
+      primed = true;
+      var kick = video!.play();
+      if (kick && kick.then) {
+        kick.then(function () { video!.pause(); arm(); }).catch(function (err: any) {
+          if (ready) return;
+          if (err && err.name === 'NotAllowedError') {
+            failed = true; filmOn = false;
+            state('still:' + err.name);
+            st.setProperty('--film', '0');
+            paint(progress());
+          } else {
+            primed = false;
+          }
+        });
+      } else {
+        video!.pause();
+        arm();
+      }
+    }
+    PRIME_ON.forEach(function (t) { window.addEventListener(t, prime, { passive: true }); });
     /* Without the film the still carries the page: nothing to undo. */
     video.addEventListener('error', function () {
       failed = true; filmOn = false; ready = false;
+      state('still:error');
       st.setProperty('--film', '0');
       paint(progress());
     });
@@ -1164,8 +1285,8 @@ const STILL = 'rts-still-v1';
     source.addEventListener('error', function () { video!.dispatchEvent(new Event('error')); });
     video.appendChild(source);
     video.load();
-    if (video.readyState >= 1) unlockThenArm();
-    else video.addEventListener('loadedmetadata', unlockThenArm, { once: true });
+    if (video.readyState >= 1) tryArm();
+    else video.addEventListener('loadedmetadata', tryArm, { once: true });
 
     /* Lenis (scripts/motion.ts) writes the scroll position on fine pointers
        and the browser fires a native scroll event for each write, so one

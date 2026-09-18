@@ -84,7 +84,7 @@ export const OFFERS: Offer[] = [
     commitment: 'Session by session',
     description:
       'Using Karate and Buddhist philosophy for inner work, nervous system regulation, and breaking the people-pleasing pattern. Session-based, at your pace.',
-    cta: 'Book a Discovery Chat',
+    cta: 'Let me walk with you',
     href: '/book',
     audience: 'adults',
   },

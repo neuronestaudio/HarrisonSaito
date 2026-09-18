@@ -755,6 +755,13 @@ const presetLabel = preset ? ABOUT.find((c) => c.value === preset)?.label ?? '' 
       payload.page_path = location.pathname;
       payload.page_url = location.href;
       payload.referrer = document.referrer || undefined;
+      /* The "Who This Is For" set the visitor saw on the hero's pause, and the
+         protector card they tapped, if any — set by FrameHero, carried here
+         from whichever page they came through (src/data/badges.ts). */
+      try {
+        payload.fy = sessionStorage.getItem('rts-fy') || undefined;
+        payload.fy_pick = sessionStorage.getItem('rts-fy-pick') || undefined;
+      } catch {}
       payload.fbc = document.cookie.match(/_fbc=([^;]+)/)?.[1];
       payload.fbp = document.cookie.match(/_fbp=([^;]+)/)?.[1];
 

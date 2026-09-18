@@ -1,0 +1,55 @@
+---
+/**
+ * /lp/<set> — one landing page per "Who This Is For" badge set.
+ *
+ * Dion, 18 Sep 2026: different landing pages, built off the badge sets
+ * (src/data/badges.ts, from claude.ai/artifact/HFxJACikTMB2uWdyViBrxc). Each is
+ * the home page whole — the walk, the pause, the arrival, the page under it —
+ * with its own set on the pause, so every version reads as the same page
+ * speaking to a different man. One ad set per ICP links to its own page; the
+ * set id rides into the lead as a GHL tag (fy-<id>), so every enquiry says
+ * which page it came through.
+ *
+ *   /lp/core        our version (the home page's set)   /lp/control     the old six
+ *   /lp/burnout     the symptom door, cold ads          /lp/worth       the 12 Sep pillar
+ *   /lp/protectors  which one runs you? (tappable)      /lp/closest     the relationship door
+ *   /lp/performing  the 25–35 core                      /lp/held        the 40–55 end
+ *   /lp/home        the father origin — warm traffic and retargeting ONLY, never cold
+ *
+ * noindex, out of the sitemap and disallowed in robots.txt (as every /lp/ page
+ * is): these duplicate the home page by design, so the canonical is home.
+ * /lp/return-to-self is a different page (the bare campaign page) and keeps
+ * its own file.
+ */
+import Base from '../../layouts/Base.astro';
+import FrameHero from '../../components/FrameHero.astro';
+import MorelHome from '../../components/MorelHome.astro';
+import { BADGE_SETS } from '../../data/badges';
+import { VIDEO_IDS } from '../../data/site';
+import { graph, personSchema, localBusinessSchema, websiteSchema, videoSchema } from '../../lib/seo';
+
+export function getStaticPaths() {
+  return BADGE_SETS.map((set) => ({ params: { set: set.id }, props: { set } }));
+}
+const { set } = Astro.props;
+
+const plain = set.title.replace(/<[^>]+>/g, '');
+const title = `${plain} | Return to Self — Harrison Saito, Chatswood`;
+const description = `${set.lede} Return to Self: a 12-week, one-to-one programme for men, built on karate, Buddhism and honest inner work. Chatswood, Sydney and online.`;
+
+const schema = graph(
+  personSchema(),
+  localBusinessSchema(),
+  websiteSchema(),
+  videoSchema({
+    id: VIDEO_IDS.sbsWorldNews,
+    title: 'SBS World News',
+    description: 'SBS World News interview about youth and adult mental health.',
+  })
+);
+---
+
+<Base title={title} description={description} path="/" schema={schema} noindex>
+  <FrameHero set={set.id} />
+  <MorelHome />
+</Base>
