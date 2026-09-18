@@ -1,0 +1,42 @@
+---
+/**
+ * The design system as a page shell.
+ *
+ * Everything the harrison-saito-morel port needs on a page: its stylesheet
+ * (scoped under `.mo` — scripts/morel/sync.mjs), its behaviour (reveals, the
+ * letter-by-letter intro, grow-on-scroll, the video modal, the carousel, the
+ * newsletter) and the video modal's markup. Slot a page's sections in and they
+ * are in the system.
+ *
+ * `modal={false}` for a page with no .js-video on it.
+ */
+import '../styles/morel.css';
+import '../styles/morel-overrides.css';
+
+interface Props {
+  /** The YouTube lightbox. On by default; off for pages with no video. */
+  modal?: boolean;
+  /** Extra classes on the wrapper (e.g. a page-specific hook). */
+  class?: string;
+}
+const { modal = true, class: klass } = Astro.props;
+---
+
+<div class:list={['mo', klass]} data-morel>
+  <slot />
+
+  {modal && (
+    <div class="vmodal" id="vmodal" aria-hidden="true">
+      <div class="vmodal__overlay" data-vmodal-close></div>
+      <div class="vmodal__inner">
+        <button class="vmodal__close" type="button" aria-label="Close video" data-vmodal-close>×</button>
+        <div class="vmodal__content"><div class="ratio" id="vmodal-slot"></div></div>
+      </div>
+    </div>
+  )}
+</div>
+
+<script>
+  import { initMorel } from '../scripts/morel';
+  initMorel();
+</script>

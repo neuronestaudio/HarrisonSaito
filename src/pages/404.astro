@@ -6,10 +6,11 @@
  * including ones that had never existed, which wasted crawl budget and let
  * junk get indexed. This page is served with a real 404 status by the host
  * (see public/_redirects and vercel.json).
+ *
+ * 18 Sep 2026: rebuilt in the site's design system (MoShell).
  */
 import Base from '../layouts/Base.astro';
-import Calligraphy from '../components/Calligraphy.astro';
-import Enso from '../components/Enso.astro';
+import MoShell from '../components/MoShell.astro';
 import { NAV } from '../data/site';
 
 const title = 'Page not found | Harrison Saito';
@@ -17,76 +18,45 @@ const description = 'That page does not exist. Here is where to go instead.';
 ---
 
 <Base title={title} description={description} path="/404" noindex>
-  <section class="section nf section--deep">
-    <Calligraphy set="close" scale={1.5} seed={44} words={['SPACE']} />
-    <div class="nf__enso" aria-hidden="true"><Enso opacity={0.22} strokeWidth={4} /></div>
-
-    <div class="container container--narrow nf__inner">
-      <p class="eyebrow">404</p>
-      <h1 class="display-l nf__title">This page isn't here.</h1>
-      <p class="lede nf__lede">
-        The circle is deliberately left open in Zen. This gap is just a broken link. Try one of
-        these instead.
-      </p>
-
-      <nav class="nf__links" aria-label="Site sections">
-        <a href="/">Home</a>
-        {NAV.map((item) => <a href={item.href}>{item.label}</a>)}
-      </nav>
-
-      <div class="nf__ctas">
-        <a class="btn btn--lg" href="/book">Book a Conversation</a>
-        <a class="btn btn--lg btn--ghost" href="/">Back to Home</a>
+  <MoShell modal={false}>
+    <section class="inner-hero inner-hero--short on-dark" style="background-image:url(/img/ink-wash.webp)" data-section="hero">
+      <div class="wide">
+        <p class="eyebrow">404</p>
+        <h1>This page <mark>isn’t here.</mark></h1>
+        <p class="lede accent">
+          The circle is deliberately left open in Zen. This gap is just a broken link. Try one of
+          these instead.
+        </p>
       </div>
-    </div>
-  </section>
+    </section>
+
+    <section class="section section--white" data-section="elsewhere">
+      <div class="wide">
+        <p class="eyebrow">Everywhere else</p>
+        <ol class="avenues" data-stagger>
+          <li class="reveal">
+            <a class="avenue" href="/">
+              <span class="avenue__n">01</span>
+              <span class="avenue__body"><strong>Home</strong><span>The walk, and the whole picture</span></span>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+            </a>
+          </li>
+          {NAV.map((item, i) => (
+            <li class="reveal">
+              <a class="avenue" href={item.href}>
+                <span class="avenue__n">0{i + 2}</span>
+                <span class="avenue__body"><strong>{item.label}</strong><span>{item.href}</span></span>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+              </a>
+            </li>
+          ))}
+        </ol>
+
+        <div class="core__cta reveal">
+          <a class="btn btn--filled btn--wide" href="/book" data-track="cta_click" data-track-label="404 — Book">Book a conversation</a>
+          <a class="btn btn--outline btn--wide" href="/">Back to home</a>
+        </div>
+      </div>
+    </section>
+  </MoShell>
 </Base>
-
-<style>
-  .nf {
-    position: relative;
-    min-height: 78svh;
-    display: flex;
-    align-items: center;
-    padding-block: clamp(7rem, 15vh, 10rem);
-  }
-  .nf__enso {
-    position: absolute;
-    inset-block-start: 50%;
-    inset-inline-start: 50%;
-    transform: translate(-50%, -50%);
-    width: clamp(18rem, 40vw, 34rem);
-    pointer-events: none;
-    z-index: 0;
-  }
-  .nf__inner { position: relative; z-index: 1; text-align: center; }
-  .nf__title { margin-bottom: 1.5rem; }
-  .nf__lede { margin-inline: auto; max-width: 42ch; }
-
-  .nf__links {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
-    gap: 0.6rem 1.5rem;
-    margin-top: clamp(2rem, 4vw, 3rem);
-    padding-top: 1.75rem;
-    border-top: 1px solid var(--rule-on-ink);
-  }
-  .nf__links a {
-    font-size: var(--step--1);
-    font-weight: 600;
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
-    color: var(--text-on-ink-muted);
-    transition: color var(--dur-fast) ease;
-  }
-  .nf__links a:hover { color: var(--gold); }
-
-  .nf__ctas {
-    margin-top: clamp(2rem, 4vw, 3rem);
-    display: flex;
-    flex-wrap: wrap;
-    gap: 1rem;
-    justify-content: center;
-  }
-</style>

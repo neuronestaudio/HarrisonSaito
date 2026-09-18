@@ -2,21 +2,24 @@
 /**
  * Films & archive.
  *
- * Was a grid of eight thumbnails; now the full catalogue of twenty-one, in an
- * interactive carousel grouped by facet — The Son, The Teacher, The
- * Practitioner, The Poet, The Voice — so the archive answers "who is this
- * person" rather than just listing uploads.
+ * Was a grid of eight thumbnails; now the full catalogue of twenty-one grouped
+ * by facet — The Son, The Teacher, The Practitioner, The Poet, The Voice — so
+ * the archive answers "who is this person" rather than just listing uploads.
  *
  * Deliberately excluded: eight "AQWMV" anime music videos from fifteen years
  * ago. They are still public on the channel, but they are teenage-era uploads
  * and do not belong next to a $3,600 coaching programme.
+ *
+ * 18 Sep 2026: rebuilt in the site's design system (MoShell). The dragging
+ * carousel (FilmCarousel.astro, kept in the tree) is now a grid per thread —
+ * the same twenty-one films, all of them reachable without a gesture. A film
+ * with a clean still of its own gets a plate; the rest are plain cards, because
+ * his YouTube thumbnails carry burned-in caption text that cheapens the page.
  */
 import Base from '../layouts/Base.astro';
-import Calligraphy from '../components/Calligraphy.astro';
-import FilmCarousel from '../components/FilmCarousel.astro';
-import Picture from '../components/Picture.astro';
-import Enso from '../components/Enso.astro';
+import MoShell from '../components/MoShell.astro';
 import { FILMS, FACETS, SITE } from '../data/site';
+import { PLAY_ICON } from '../lib/morel-icons';
 import { graph, videoSchema, breadcrumbSchema, personSchema } from '../lib/seo';
 
 const title = 'Films & Archive — SBS World News, Teaching & Practice | Harrison Saito';
@@ -33,122 +36,94 @@ const schema = graph(
     { name: 'Films', url: '/media' },
   ])
 );
+
+const threads = FACETS.map((facet) => ({ facet, films: FILMS.filter((f) => f.facet === facet.id) })).filter((t) => t.films.length);
 ---
 
 <Base title={title} description={description} path="/media" schema={schema}>
-  <section class="section page-hero section--deep" data-section="hero">
-    <Calligraphy set="close" scale={1.2} seed={8} words={['VOICE']} />
-    <div class="page-hero__enso" aria-hidden="true"><Enso opacity={0.14} /></div>
-
-    <div class="container">
-      <div data-reveal>
+  <MoShell>
+    <!-- ============ HERO ============ -->
+    <section class="inner-hero on-dark" style="background-image:url(/img/sbs-group.webp)" data-section="hero">
+      <div class="wide">
         <p class="eyebrow">Films &amp; Archive</p>
-        <h1 class="display-xl page-hero__title">
-          <span class="split-line"><span>See the work.</span></span>
-        </h1>
-        <p class="lede page-hero__lede">
+        <h1>See the <mark>work.</mark></h1>
+        <p class="lede accent">
           {FILMS.length} films across {FACETS.length} threads — the son, the teacher, the
           practitioner, the poet and the voice. Nothing here is a showreel; most of it is the work
           itself, filmed as it happened.
         </p>
       </div>
-    </div>
-  </section>
+    </section>
 
-  {/* --------------------------------------------------------- carousel */}
-  <section class="section section--ink" data-section="archive">
-    <div class="container container--wide" data-reveal>
-      <FilmCarousel />
-    </div>
-  </section>
+    <!-- ============ THE THREADS ============ -->
+    {threads.map(({ facet, films }) => (
+      <section class="section section--white thread" id={facet.id} data-section={`films-${facet.id}`}>
+        <div class="wide">
+          <div class="sec-head">
+            <div>
+              <p class="eyebrow chapter__mark">
+                <span class="chapter__kanji" lang="ja">{facet.kanji}</span>
+                <span>{facet.romaji}</span>
+              </p>
+              <h2 class="reveal">{facet.label}</h2>
+              <p class="fs-sm thread__blurb">{facet.blurb}</p>
+            </div>
+            <p class="fs-xs thread__count">{films.length} {films.length === 1 ? 'film' : 'films'}</p>
+          </div>
 
-  {/* ------------------------------------------------------------- still */}
-  <section class="section" data-section="sbs">
-    <div class="container">
-      <div class="sbs">
-        <div class="sbs__text" data-reveal>
+          <div class="films__grid" data-stagger>
+            {films.map((f) => (
+              <a
+                class={`film js-video reveal${f.still ? '' : ' film--plain'}`}
+                href={`https://www.youtube.com/watch?v=${f.id}`}
+                data-video={f.id}
+                style={f.still ? `background-image:url(/img/${f.still}.webp)` : undefined}
+              >
+                <div class="film__inner">
+                  <div>
+                    <span class="pill">{f.duration ?? (f.external ? 'Elsewhere' : 'Film')}</span>
+                    <h3>{f.title}</h3>
+                    {f.note && <p class="fs-xs">{f.note}</p>}
+                  </div>
+                  <Fragment set:html={PLAY_ICON} />
+                </div>
+              </a>
+            ))}
+          </div>
+        </div>
+      </section>
+    ))}
+
+    <!-- ============ AS SEEN ON ============ -->
+    <section class="section section--bg4" data-section="sbs">
+      <div class="wide cols cols--center problem">
+        <div class="problem__text">
           <p class="eyebrow">As Seen On</p>
-          <h2 class="display-m">SBS World News.</h2>
-          <p class="lede sbs__lede">
+          <h2 class="reveal">SBS World <mark>News.</mark></h2>
+          <p class="fs-md">
             A national broadcast interview on youth and adult mental health, and on martial arts as a
             way into both.
           </p>
-          <p class="sbs__note">
-            Media enquiries and speaking:
-            <a class="link-underline" href={`mailto:${SITE.email}`}>{SITE.email}</a>
+          <p class="fs-xs">
+            Media enquiries and speaking: <a href={`mailto:${SITE.email}`}>{SITE.email}</a>
           </p>
         </div>
+        <div class="problem__plate reveal reveal--left" style="--bg:url(/img/sbs-group.webp)" role="img" aria-label="Harrison Saito with the group featured in the SBS World News segment"></div>
+      </div>
+    </section>
 
-        <div class="sbs__media" data-reveal data-ink-reveal>
-          <Picture
-            slug="sbs-group"
-            alt="Harrison Saito with the group featured in the SBS World News segment"
-            sizes="(max-width: 900px) 100vw, 48vw"
-            parallax={9}
-          />
+    <!-- ============ CLOSE ============ -->
+    <section class="section section--dark on-dark close" data-section="close">
+      <div class="content text-center">
+        <h2 class="reveal">The work is the <mark>whole case.</mark></h2>
+        <p class="fs-md close__sub reveal">
+          If something in the archive landed, the next step is a conversation — not a pitch.
+        </p>
+        <div class="close__ctas reveal">
+          <a class="btn btn--filled btn--wide" href="/book" data-track="cta_click" data-track-label="Films — Book" data-track-section="close">Book a discovery chat</a>
+          <a class="btn btn--outline btn--wide" href="/mens-coaching" data-track="cta_click" data-track-label="Films — Coaching" data-track-section="close">See the programme</a>
         </div>
       </div>
-    </div>
-  </section>
-
-  {/* --------------------------------------------------------------- CTA */}
-  <section class="section section--warm" data-section="close">
-    <div class="container container--narrow text-center" data-reveal>
-      <h2 class="display-l">Want to talk?</h2>
-      <p class="lede close__sub">
-        No pitch. No pressure. Just a conversation about where you are and what you're looking for.
-      </p>
-      <div class="close__ctas">
-        <a class="btn btn--lg" href="/book" data-track="cta_click" data-track-label="Films — Book"
-          >Start a Conversation</a
-        >
-        <a
-          class="btn btn--lg btn--ghost"
-          href={SITE.youtube}
-          target="_blank"
-          rel="noopener noreferrer"
-          data-track="cta_click"
-          data-track-label="Films — YouTube channel">Subscribe on YouTube</a
-        >
-      </div>
-    </div>
-  </section>
+    </section>
+  </MoShell>
 </Base>
-
-<style>
-  .page-hero {
-    position: relative;
-    padding-block: clamp(8rem, 18vh, 12rem) clamp(4rem, 9vw, 7rem);
-    min-height: 55svh;
-    display: flex;
-    align-items: flex-end;
-  }
-  .page-hero__enso {
-    position: absolute;
-    inset-block-start: 40%;
-    inset-inline-end: -5rem;
-    width: clamp(18rem, 34vw, 32rem);
-    pointer-events: none;
-    z-index: 0;
-  }
-  .page-hero__lede { margin-top: 1.5rem; max-width: 56ch; }
-
-  .sbs { display: grid; gap: clamp(2.5rem, 5vw, 4rem); align-items: center; }
-  .sbs__lede { margin-top: 1.25rem; max-width: 44ch; }
-  .sbs__note { margin-top: 1.75rem; font-size: var(--step--1); color: var(--text-on-paper-faint); }
-  .sbs__media { overflow: hidden; aspect-ratio: 4 / 3; }
-  .sbs__media :global(img) { width: 100%; height: 100%; object-fit: cover; }
-
-  .close__sub { margin: 1.5rem auto 0; max-width: 44ch; }
-  .close__ctas {
-    margin-top: 2.5rem;
-    display: flex;
-    flex-wrap: wrap;
-    gap: 1rem;
-    justify-content: center;
-  }
-
-  @media (min-width: 900px) {
-    .sbs { grid-template-columns: 1fr 1fr; }
-  }
-</style>

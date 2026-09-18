@@ -31,3 +31,128 @@
 
 /* 3 — Morel without the page */
 .mo.mo--bare { padding: 0; background: none; margin: 0; }
+
+/* ==========================================================================
+   Pieces the inner pages add to the system (18 Sep 2026). Same tokens, same
+   grammar as morel.css — kept here because sync.mjs regenerates that file.
+   ========================================================================== */
+
+/* the buttons under an inner hero */
+.mo .inner-hero__ctas { display: flex; flex-wrap: wrap; gap: var(--sp-30); margin: var(--sp-50) 0 0; }
+
+/* a three-up credential row (the four-up is morel.css's own) */
+.mo .numbers--three { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+@media (max-width: 960px) { .mo .numbers--three { grid-template-columns: 1fr; } }
+
+/* text beside a plate */
+.mo .problem { gap: var(--sp-60); padding-block: var(--sp-100) 0; }
+.mo .problem__text p { max-width: 54ch; }
+.mo .problem__plate {
+  border-radius: var(--radius);
+  min-height: min(520px, 62vh);
+  background: var(--bg) center / cover no-repeat;
+  box-shadow: 0 30px 60px -30px rgba(20, 16, 13, 0.5);
+}
+
+/* the classical frame, and the loop inside every phase */
+.mo .shuhari { gap: var(--sp-60); margin-top: var(--sp-60); padding-top: var(--sp-50); border-top: 1px solid rgba(20, 16, 13, 0.1); }
+.mo .shuhari__label { margin-bottom: var(--sp-20); }
+.mo .loop { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 8px; counter-reset: loop; }
+.mo .loop li {
+  counter-increment: loop;
+  background: var(--bg1);
+  border: 1px solid var(--bg4);
+  border-radius: 999px;
+  padding: 7px 16px 6px;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+.mo .loop li::before { content: counter(loop); color: var(--gold-deep); margin-right: 8px; }
+.mo .phase-card__aim { margin-top: var(--sp-30); color: var(--fg1); }
+
+/* testimony on a dark band */
+.mo .tlist--dark blockquote { background: rgba(255, 255, 255, 0.045); border: 1px solid rgba(218, 162, 79, 0.2); }
+.mo .tlist--dark blockquote p { color: rgba(252, 250, 248, 0.92); }
+.mo .tlist--dark cite { color: var(--bg1); }
+.mo .tlist--dark cite span { color: rgba(252, 250, 248, 0.6); }
+
+/* the story: seven chapters, alternating */
+.mo .inner-hero__meta { color: rgba(252, 250, 248, 0.7); margin-top: var(--sp-40); }
+.mo .chapters .chapter { gap: var(--sp-60); padding-block: var(--sp-80); border-top: 1px solid rgba(20, 16, 13, 0.08); }
+.mo .chapters .chapter:first-child { border-top: 0; }
+.mo .chapter--flip { flex-direction: row-reverse; }
+.mo .chapter__mark { display: flex; align-items: center; gap: 12px; margin-bottom: var(--sp-30); }
+.mo .chapter__kanji { font-family: var(--font-base); font-size: 1.5em; font-weight: 700; line-height: 1; color: var(--gold-deep); }
+.mo .chapter__text h2 { font-size: var(--fs-xl); margin-bottom: var(--sp-40); }
+.mo .chapter__text p { max-width: 54ch; }
+.mo .chapter__credential { background: var(--bg4); color: var(--fg3); margin-top: var(--sp-40); }
+.mo .chapter__plate {
+  position: relative;
+  display: flex;
+  align-items: flex-start;
+  justify-content: flex-end;
+  padding: var(--sp-40);
+  border-radius: var(--radius);
+  min-height: min(520px, 58vh);
+  background: var(--bg) center / cover no-repeat;
+  box-shadow: 0 30px 60px -30px rgba(20, 16, 13, 0.5);
+}
+.mo .chapter__number { font-size: clamp(2rem, 4vw, 3rem); font-weight: 700; line-height: 1; color: rgba(252, 250, 248, 0.75); text-shadow: 0 2px 20px rgba(0, 0, 0, 0.5); }
+.mo .creds__detail { gap: var(--sp-60); margin-top: var(--sp-80); }
+.mo .films__grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 20px; }
+@media (max-width: 900px) { .mo .films__grid { grid-template-columns: 1fr; } }
+
+/* the archive, thread by thread */
+.mo .thread__blurb { color: var(--fg4); max-width: 60ch; margin-top: var(--sp-30); }
+.mo .thread__count { color: var(--fg4); white-space: nowrap; margin: 0 0 6px; }
+/* a film with no clean still of its own: a card, not a plate */
+.mo .film--plain { background: var(--fg1); }
+.mo .film--plain::after { background: linear-gradient(200deg, rgba(218, 162, 79, 0.16) 0%, rgba(20, 16, 13, 0) 60%); }
+.mo .film--plain h3 { font-size: var(--fs-md); }
+.mo .films__grid .film { min-height: 300px; }
+
+/* the form pages: a short hero, then details beside the form on a dark band */
+.mo .inner-hero--short { padding-block: calc(var(--sp-80) + 90px) var(--sp-80); }
+.mo .formgrid { gap: var(--sp-60); }
+.mo .formgrid__aside { flex: 0 0 40%; }
+.mo .formgrid__form { flex: 0 0 calc(60% - var(--sp-60)); }
+.mo .deets { margin: 0; display: grid; gap: var(--sp-40); }
+.mo .deets dt { font-size: 12px; font-weight: 700; letter-spacing: 0.22em; text-transform: uppercase; color: var(--primary); margin-bottom: 6px; }
+.mo .deets dd { margin: 0; font-size: var(--fs-sm); }
+.mo .deets a, .mo .crisis a, .mo .facts a { color: var(--bg1); text-decoration-color: rgba(218, 162, 79, 0.6); text-underline-offset: 0.25em; }
+.mo .deets a:hover, .mo .crisis a:hover { color: var(--primary); }
+.mo .deets__row { display: flex; flex-wrap: wrap; gap: 8px 20px; }
+.mo .crisis { color: rgba(252, 250, 248, 0.6); margin-top: var(--sp-50); max-width: 46ch; }
+.mo .facts { list-style: none; margin: 0 0 var(--sp-50); padding: 0; display: grid; gap: var(--sp-30); }
+.mo .facts li { display: flex; align-items: baseline; gap: 14px; border-top: 1px solid rgba(255, 255, 255, 0.1); padding-top: var(--sp-30); }
+.mo .facts li strong { display: block; font-size: var(--fs-sm); }
+.mo .facts li span { color: rgba(252, 250, 248, 0.62); font-size: var(--fs-xs); }
+.mo .facts--phases .chapter__kanji { color: var(--primary); }
+.mo .facts__label { margin-bottom: var(--sp-30); color: var(--primary); }
+.mo .book__embed { border-radius: var(--radius); overflow: hidden; background: var(--fg2); }
+.mo .book__embed iframe { width: 100%; min-height: 640px; border: 0; display: block; }
+@media (max-width: 960px) { .mo .formgrid__aside, .mo .formgrid__form { flex-basis: 100% !important; } }
+
+/* one way in, not two */
+.mo .family__grid--one { grid-template-columns: 1fr; }
+.mo .quote-band__by { color: rgba(252, 250, 248, 0.6); margin-top: var(--sp-40); }
+
+/* the campaign page: hero and form share the first screen */
+.mo .lp-hero { padding-block: var(--sp-80); }
+.mo .lp-hero__copy { flex: 0 0 52%; }
+.mo .lp-hero .formgrid__form { flex: 0 0 calc(48% - var(--sp-60)); }
+.mo .lp-points li { border-top-color: rgba(255, 255, 255, 0.12); }
+.mo .lp-points li span { color: rgba(252, 250, 248, 0.82); font-size: var(--fs-xs); }
+.mo .lp-proofrow { margin: var(--sp-40) 0; }
+.mo .lp-proofrow .pill { background: rgba(218, 162, 79, 0.16); color: var(--gold-light); }
+.mo .lp-quotes { grid-template-columns: 1fr; gap: 12px; }
+.mo .lp-quotes blockquote { padding: var(--sp-40); }
+.mo .lp-quotes blockquote p { font-size: var(--fs-sm); }
+.mo .lp-formnote { margin-top: 0; color: rgba(252, 250, 248, 0.7); }
+.mo .included__card h3 { font-size: var(--fs-md); margin-bottom: var(--sp-30); }
+.mo .included__card p { font-size: var(--fs-xs); font-weight: 500; text-transform: none; letter-spacing: 0; line-height: 1.6; color: var(--fg4); }
+.mo .lp-foot { padding-block: var(--sp-50); display: flex; }
+.mo .lp-foot .wide { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: var(--sp-30); }
+.mo .lp-foot p { margin: 0; color: var(--fg4); }

@@ -8,16 +8,16 @@
  * mentoring, Chatswood and Sydney's North Shore — which is also a local-pack
  * query, so the schema carries LocalBusiness.
  *
- * Written to be read by a parent as much as a student.
+ * Written to be read by a parent as much as a student. Off the header nav
+ * since 6 Sep (Dion: the site sells men's coaching), but kept and indexed —
+ * it is the track that already ranks.
+ *
+ * 18 Sep 2026: rebuilt in the site's design system (MoShell), copy unchanged.
  */
 import Base from '../layouts/Base.astro';
-import Calligraphy from '../components/Calligraphy.astro';
-import Picture from '../components/Picture.astro';
-import Testimonials from '../components/Testimonials.astro';
-import OfferCard from '../components/OfferCard.astro';
-import YouTubeFacade from '../components/YouTubeFacade.astro';
-import Enso from '../components/Enso.astro';
-import { OFFERS, VIDEO_IDS } from '../data/site';
+import MoShell from '../components/MoShell.astro';
+import { OFFERS, VIDEO_IDS, TESTIMONIALS } from '../data/site';
+import { PLAY_ICON } from '../lib/morel-icons';
 import {
   graph,
   serviceSchema,
@@ -32,6 +32,25 @@ const description =
   'HSC English tutoring and youth mentoring in Chatswood, Sydney, from a practising high school teacher. Confidence, clarity and performance under pressure.';
 
 const offers = OFFERS.filter((o) => o.audience === 'youth');
+const voices = TESTIMONIALS.filter((t) => t.category === 'youth');
+
+const PILLARS = [
+  {
+    glyph: '声',
+    title: 'A voice of their own',
+    body: 'English stops being a subject to survive and becomes a way of thinking. Students learn to hold a position and argue it — which is a life skill wearing an exam costume.',
+  },
+  {
+    glyph: '静',
+    title: 'A settled nervous system',
+    body: 'Breath, attention and pressure are trainable. The same regulation work that makes a martial artist calm under contact makes a student calm in an exam room.',
+  },
+  {
+    glyph: '続',
+    title: 'Discipline that holds',
+    body: 'Consistency beats intensity. We build a way of working the student can actually sustain through Year 12 rather than a burst that collapses by trials.',
+  },
+];
 
 const faqs = [
   {
@@ -77,354 +96,183 @@ const schema = graph(
 ---
 
 <Base title={title} description={description} path="/hsc-tutoring" schema={schema}>
-  {/* ------------------------------------------------------------- intro */}
-  <section class="section page-hero section--deep" data-section="hero">
-    <Calligraphy set="youth" scale={1.3} seed={9} words={['VOICE', 'PRESSURE']} />
-
-    <div class="container">
-      <div data-reveal>
-        <p class="eyebrow">For Youth</p>
-        <h1 class="display-xl page-hero__title">
-          <span class="split-line"><span>Building</span></span>
-          <span class="split-line"><span class="page-hero__em">the person.</span></span>
-        </h1>
-        <p class="lede page-hero__lede">
+  <MoShell>
+    <!-- ============ HERO ============ -->
+    <section class="inner-hero on-dark" style="background-image:url(/img/karate-group.webp)" data-section="hero">
+      <div class="wide">
+        <p class="eyebrow">For Youth · Chatswood, Sydney</p>
+        <h1>Building <mark>the person.</mark></h1>
+        <p class="lede accent">
           HSC English tutoring and mentoring in Chatswood — from a practising high school teacher.
         </p>
-      </div>
-    </div>
-  </section>
-
-  {/* ----------------------------------------------------- the approach */}
-  <section class="section" data-section="approach">
-    <Calligraphy set="youth" seed={19} words={['CONFIDENCE']} scale={0.85} />
-
-    <div class="container approach">
-      <div class="approach__text prose" data-reveal>
-        <p class="approach__lead">
-          I've coached youth for over a decade. I know how they work. They don't need more pressure.
-          They don't need another adult telling them what to do. They need to feel safe, a regulated
-          nervous system, and they need to believe in themselves.
-        </p>
-        <p>
-          My approach goes beyond content. I help students build the confidence to think
-          independently, the discipline to show up consistently, and the self-awareness to manage the
-          anxiety that comes with high-stakes performance.
-        </p>
-        <p class="approach__turn">
-          The HSC is not just an exam. It's a pressure test for how your child handles stress,
-          organises their thinking, and finds their voice under pressure. I know the system from the
-          inside, as a high school teacher, and as someone who has walked beside hundreds of students
-          through it.
+        <p class="inner-hero__ctas">
+          <a class="btn btn--filled btn--wide" href="/book?service=hsc" data-track="cta_click" data-track-label="HSC hero — Book a session">Book a session</a>
+          <a class="btn btn--outline btn--wide is-white" href="#pricing">How it works</a>
         </p>
       </div>
+    </section>
 
-      <div class="approach__media" data-reveal data-ink-reveal>
-        <Picture
-          slug="karate-group"
-          alt="Harrison Saito teaching a group of young students in a dojo"
-          sizes="(max-width: 900px) 100vw, 42vw"
-          parallax={10}
-        />
-      </div>
-    </div>
-  </section>
-
-  {/* -------------------------------------------------- what parents get */}
-  <section class="section section--ink" data-section="pillars">
-    <div class="container">
-      <header class="pillars__head" data-reveal>
-        <p class="eyebrow">What Changes</p>
-        <h2 class="display-l">Marks are the by-product.</h2>
-      </header>
-
-      <div class="pillars" data-reveal-stagger="90">
-        <article class="pillar">
-          <span class="pillar__glyph" aria-hidden="true">声</span>
-          <h3>A voice of their own</h3>
-          <p>
-            English stops being a subject to survive and becomes a way of thinking. Students learn to
-            hold a position and argue it — which is a life skill wearing an exam costume.
+    <!-- ============ THE APPROACH ============ -->
+    <section class="section section--flush" data-section="approach">
+      <div class="wide cols cols--center problem">
+        <div class="problem__text">
+          <p class="fs-md">
+            I've coached youth for over a decade. I know how they work. They don't need more pressure.
+            They don't need another adult telling them what to do. They need to feel safe, a regulated
+            nervous system, and they need to believe in themselves.
           </p>
-        </article>
-        <article class="pillar">
-          <span class="pillar__glyph" aria-hidden="true">静</span>
-          <h3>A settled nervous system</h3>
-          <p>
-            Breath, attention and pressure are trainable. The same regulation work that makes a
-            martial artist calm under contact makes a student calm in an exam room.
+          <p class="fs-xs">
+            My approach goes beyond content. I help students build the confidence to think
+            independently, the discipline to show up consistently, and the self-awareness to manage the
+            anxiety that comes with high-stakes performance.
           </p>
-        </article>
-        <article class="pillar">
-          <span class="pillar__glyph" aria-hidden="true">続</span>
-          <h3>Discipline that holds</h3>
-          <p>
-            Consistency beats intensity. We build a way of working the student can actually sustain
-            through Year 12 rather than a burst that collapses by trials.
+          <p class="fs-xs">
+            The HSC is not just an exam. It's a pressure test for how your child handles stress,
+            organises their thinking, and finds their voice under pressure. I know the system from the
+            inside, as a high school teacher, and as someone who has walked beside hundreds of students
+            through it.
           </p>
-        </article>
+        </div>
+        <div class="problem__plate reveal reveal--left" style="--bg:url(/img/karate-group.webp)" role="img" aria-label="Harrison Saito teaching a group of young students in a dojo"></div>
       </div>
-    </div>
-  </section>
+    </section>
 
-  {/* ------------------------------------------------------------ offer */}
-  <section class="section section--warm" id="pricing" data-section="offers">
-    <div class="container container--narrow">
-      <header class="offers__head" data-reveal>
-        <p class="eyebrow">Mentoring</p>
-        <h2 class="display-l">How it works.</h2>
-        <p class="lede">
-          Sessions are one-to-one, with no lock-in packages. Tell me where your child is at and
-          we will work out what they actually need.
+    <!-- ============ WHAT CHANGES ============ -->
+    <section class="section section--bg4 core" data-section="pillars">
+      <div class="wide">
+        <header class="core__head">
+          <p class="eyebrow">What Changes</p>
+          <h2 class="reveal">Marks are the <mark>by-product.</mark></h2>
+        </header>
+
+        <div class="core__grid" data-stagger>
+          {PILLARS.map((p) => (
+            <article class="phase-card reveal">
+              <span class="phase-card__kanji" lang="ja" aria-hidden="true">{p.glyph}</span>
+              <h3>{p.title}</h3>
+              <p class="fs-xs">{p.body}</p>
+            </article>
+          ))}
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ HOW IT WORKS ============ -->
+    <section class="section section--flush" id="pricing" data-section="offers">
+      <div class="wide">
+        <div class="family__head">
+          <p class="eyebrow">Mentoring</p>
+          <h2 class="reveal">How it <mark>works.</mark></h2>
+          <p class="fs-sm">
+            Sessions are one-to-one, with no lock-in packages. Tell me where your child is at and we
+            will work out what they actually need.
+          </p>
+        </div>
+
+        <div class="family__grid family__grid--one" data-stagger>
+          {offers.map((offer) => (
+            <a class="program-card reveal" href={offer.href} style="--bg:url(/img/youth-tutoring.webp)" data-track="cta_click" data-track-label={`Offer — ${offer.name}`}>
+              <span class="pill">{offer.commitment}</span>
+              <div class="lockup lockup--md"><span>{offer.name}</span></div>
+              <p>{offer.description}</p>
+              <span class="btn btn--filled btn--wide">{offer.cta}</span>
+            </a>
+          ))}
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ THE STUDENTS ============ -->
+    <section class="section section--dark on-dark quote-band" data-section="voice">
+      <div class="quote-band__wash" aria-hidden="true" style="background-image:url(/img/ink-wash.webp)"></div>
+      <div class="content text-center reveal reveal--fade">
+        <p class="quote-band__text accent">
+          "You're like Oogway from Kung Fu Panda… Very wise. Very nonchalant. Lot of aura."
         </p>
-      </header>
-
-      <div data-reveal>
-        {offers.map((offer) => <OfferCard offer={offer} />)}
+        <p class="fs-xs quote-band__by">— Harrison's students</p>
       </div>
-    </div>
-  </section>
+    </section>
 
-  {/* ------------------------------------------------------- the student */}
-  <section class="section" data-section="voice">
-    <div class="container container--narrow text-center" data-reveal>
-      <blockquote class="pull">
-        "You're like Oogway from Kung Fu Panda… Very wise. Very nonchalant. Lot of aura."
-      </blockquote>
-      <p class="pull__by">— Harrison's students</p>
-    </div>
-  </section>
+    <!-- ============ FILM ============ -->
+    <section class="section section--white films" data-section="film">
+      <div class="wide">
+        <div class="sec-head">
+          <div>
+            <p class="eyebrow">My Vision for Youth</p>
+            <h2 class="reveal">What school <mark>could be.</mark></h2>
+          </div>
+          <a class="btn btn--outline" href="/media">All films</a>
+        </div>
 
-  {/* -------------------------------------------------------------- film */}
-  <section class="section section--ink" data-section="film">
-    <div class="container container--narrow">
-      <header data-reveal>
-        <p class="eyebrow">My Vision for Youth</p>
-        <h2 class="display-m film__head">What school could be.</h2>
-      </header>
-      <div data-reveal>
-        <YouTubeFacade
-          id={VIDEO_IDS.visionYouth}
-          title="My vision for the youth (made in 2024)"
-          label="Vision"
-        />
+        <a class="film film--feature js-video reveal" href={`https://www.youtube.com/watch?v=${VIDEO_IDS.visionYouth}`} data-video={VIDEO_IDS.visionYouth} style="background-image:url(/img/youth-tutoring.webp)">
+          <div class="film__inner">
+            <div>
+              <span class="pill">Vision</span>
+              <h3>My vision for the youth (made in 2024)</h3>
+            </div>
+            <Fragment set:html={PLAY_ICON} />
+          </div>
+        </a>
       </div>
-    </div>
-  </section>
+    </section>
 
-  {/* ------------------------------------------------------ testimonials */}
-  <section class="section section--warm" data-section="testimonials">
-    <div class="container container--wide">
-      <Testimonials
-        eyebrow="From students and parents"
-        heading="In their words."
-        filter="youth"
-        columns={3}
-      />
-    </div>
-  </section>
+    <!-- ============ IN THEIR WORDS ============ -->
+    <section class="section section--bg4" data-section="testimonials">
+      <div class="wide">
+        <div class="sec-head">
+          <div>
+            <p class="eyebrow">From students and parents</p>
+            <h2 class="reveal">In their <mark>words.</mark></h2>
+          </div>
+          <a class="btn btn--outline" href="/testimonials">Read them all</a>
+        </div>
 
-  {/* --------------------------------------------------------------- FAQ */}
-  <section class="section" data-section="faq">
-    <div class="container container--narrow">
-      <header data-reveal>
-        <p class="eyebrow">For Parents</p>
-        <h2 class="display-m faq__head">Straight answers.</h2>
-      </header>
+        <div class="tlist" data-stagger>
+          {voices.map((t) => (
+            <blockquote class="reveal">
+              <p>“{t.quote}”</p>
+              <cite>{t.name}<span>{t.context}</span></cite>
+            </blockquote>
+          ))}
+        </div>
+      </div>
+    </section>
 
-      <div class="faq" data-reveal-stagger="70">
-        {
-          faqs.map((f) => (
-            <details class="faq__item">
+    <!-- ============ STRAIGHT ANSWERS ============ -->
+    <section class="section section--white faq" id="faq" data-section="faq">
+      <div class="wide faq__cols">
+        <header class="faq__head">
+          <p class="eyebrow">For Parents</p>
+          <h2 class="reveal">Straight <mark>answers.</mark></h2>
+          <a class="btn btn--outline btn--wide reveal" href="/contact" data-track="cta_click" data-track-label="HSC FAQ — Ask">Ask a question first</a>
+        </header>
+        <div class="faq__list reveal reveal--fade">
+          {faqs.map((f, i) => (
+            <details class="faq__item" open={i === 0 ? true : undefined}>
               <summary>
                 <span>{f.q}</span>
-                <span class="faq__icon" aria-hidden="true" />
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path class="faq__v" d="M12 5v14"/><path d="M5 12h14"/></svg>
               </summary>
               <p>{f.a}</p>
             </details>
-          ))
-        }
+          ))}
+        </div>
       </div>
-    </div>
-  </section>
+    </section>
 
-  {/* --------------------------------------------------------------- CTA */}
-  <section class="section section--deep close" data-section="close">
-    <div class="close__enso" aria-hidden="true"><Enso opacity={0.3} strokeWidth={4} /></div>
-    <div class="container container--narrow text-center" data-reveal>
-      <h2 class="display-l">Book a first session.</h2>
-      <p class="lede close__sub">
-        Tell me where your child is at and what you're hoping changes. We'll go from there.
-      </p>
-      <div class="close__ctas">
-        <a
-          class="btn btn--lg"
-          href="/book?service=hsc"
-          data-track="cta_click"
-          data-track-label="HSC — Book session"
-          data-track-section="close">Book a Session</a>
-        <a
-          class="btn btn--lg btn--ghost"
-          href="/contact"
-          data-track="cta_click"
-          data-track-label="HSC — Ask a question"
-          data-track-section="close">Ask a Question First</a>
+    <!-- ============ CLOSE ============ -->
+    <section class="section section--dark on-dark close" data-section="close">
+      <div class="close__enso" aria-hidden="true"><img src="/img/logo-light-512.webp" alt="" width="320" height="320" loading="lazy" /></div>
+      <div class="content text-center">
+        <h2 class="reveal">Book a <mark>first session.</mark></h2>
+        <p class="fs-md close__sub reveal">
+          Tell me where your child is at and what you're hoping changes. We'll go from there.
+        </p>
+        <div class="close__ctas reveal">
+          <a class="btn btn--filled btn--wide" href="/book?service=hsc" data-track="cta_click" data-track-label="HSC — Book session" data-track-section="close">Book a Session</a>
+          <a class="btn btn--outline btn--wide" href="/contact" data-track="cta_click" data-track-label="HSC — Ask a question" data-track-section="close">Ask a Question First</a>
+        </div>
       </div>
-    </div>
-  </section>
+    </section>
+  </MoShell>
 </Base>
-
-<style>
-  .page-hero {
-    position: relative;
-    padding-block: clamp(8rem, 18vh, 12rem) clamp(4rem, 9vw, 7rem);
-    min-height: 62svh;
-    display: flex;
-    align-items: flex-end;
-  }
-  .page-hero__title { max-width: 12ch; margin-bottom: 1.75rem; }
-  .page-hero__em { font-style: italic; color: var(--gold-light); }
-  .page-hero__lede { max-width: 40ch; }
-
-  /* ---- approach ---- */
-  .approach { display: grid; gap: clamp(2.5rem, 5vw, 4.5rem); align-items: center; }
-  .approach__lead {
-    font-family: var(--font-display);
-    font-size: var(--step-2);
-    font-weight: 300;
-    line-height: 1.4;
-    color: var(--text-on-paper);
-  }
-  .approach__turn {
-    padding-left: 1.5rem;
-    border-left: 2px solid var(--gold);
-    color: var(--text-on-paper) !important;
-  }
-  .approach__media { position: relative; overflow: hidden; aspect-ratio: 4 / 5; }
-  .approach__media :global(img) { width: 100%; height: 100%; object-fit: cover; }
-
-  /* ---- pillars ---- */
-  .pillars__head { margin-bottom: clamp(2.5rem, 5vw, 4rem); }
-  .pillars { display: grid; gap: clamp(1.5rem, 3vw, 2.5rem); }
-
-  .pillar {
-    position: relative;
-    padding: clamp(1.75rem, 3.5vw, 2.5rem);
-    border: 1px solid oklch(100% 0 0 / 0.1);
-    border-top: 2px solid oklch(75% 0.12 75 / 0.5);
-    background: oklch(21% 0.01 55 / 0.45);
-    overflow: hidden;
-  }
-  .pillar__glyph {
-    position: absolute;
-    inset-block-start: -0.2em;
-    inset-inline-end: -0.04em;
-    font-family: var(--font-jp);
-    font-size: 9rem;
-    line-height: 1;
-    color: var(--gold);
-    opacity: 0.08;
-    pointer-events: none;
-  }
-  .pillar h3 {
-    position: relative;
-    font-size: var(--step-2);
-    color: var(--text-on-ink);
-    margin-bottom: 0.85rem;
-  }
-  .pillar p {
-    position: relative;
-    font-size: var(--step--1);
-    line-height: 1.75;
-    color: var(--text-on-ink-muted);
-  }
-
-  /* ---- offers ---- */
-  .offers__head { margin-bottom: clamp(2.5rem, 5vw, 3.5rem); }
-  .offers__head .lede { margin-top: 1.25rem; }
-
-  /* ---- pull quote ---- */
-  .pull {
-    font-family: var(--font-display);
-    font-size: var(--step-3);
-    font-style: italic;
-    font-weight: 300;
-    line-height: 1.4;
-    color: var(--text-on-paper);
-    margin: 0;
-  }
-  .pull__by {
-    margin-top: 1.5rem;
-    font-size: var(--step--1);
-    letter-spacing: 0.14em;
-    text-transform: uppercase;
-    color: var(--text-on-paper-faint);
-  }
-
-  /* ---- film ---- */
-  .film__head { margin-bottom: clamp(2rem, 4vw, 3rem); }
-
-  /* ---- faq ---- */
-  .faq__head { margin-bottom: clamp(2rem, 4vw, 3rem); }
-  .faq { display: grid; }
-  .faq__item { border-bottom: 1px solid var(--rule); }
-  .faq__item summary {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 1.5rem;
-    padding: 1.35rem 0;
-    cursor: pointer;
-    list-style: none;
-    font-family: var(--font-display);
-    font-size: var(--step-1);
-    transition: color var(--dur-fast) ease;
-  }
-  .faq__item summary::-webkit-details-marker { display: none; }
-  .faq__item summary:hover { color: var(--gold-deep); }
-  .faq__icon { position: relative; width: 14px; height: 14px; flex-shrink: 0; }
-  .faq__icon::before,
-  .faq__icon::after {
-    content: '';
-    position: absolute;
-    inset-block-start: 50%;
-    inset-inline-start: 0;
-    width: 100%;
-    height: 1.5px;
-    background: var(--gold-deep);
-    transition: transform var(--dur-fast) var(--ease-out-expo);
-  }
-  .faq__icon::after { transform: rotate(90deg); }
-  .faq__item[open] .faq__icon::after { transform: rotate(0deg); }
-  .faq__item p {
-    padding-bottom: 1.5rem;
-    max-width: 62ch;
-    color: var(--text-on-paper-muted);
-    line-height: 1.75;
-  }
-
-  /* ---- close ---- */
-  .close { position: relative; }
-  .close__enso {
-    position: absolute;
-    inset-block-start: 50%;
-    inset-inline-start: 50%;
-    transform: translate(-50%, -50%);
-    width: clamp(16rem, 34vw, 30rem);
-    pointer-events: none;
-    z-index: 0;
-  }
-  .close__sub { margin: 1.5rem auto 0; max-width: 44ch; }
-  .close__ctas {
-    margin-top: clamp(2rem, 4vw, 3rem);
-    display: flex;
-    flex-wrap: wrap;
-    gap: 1rem;
-    justify-content: center;
-  }
-
-  @media (min-width: 900px) {
-    .approach { grid-template-columns: 1.15fr 0.85fr; }
-    .pillars { grid-template-columns: repeat(3, 1fr); }
-  }
-</style>

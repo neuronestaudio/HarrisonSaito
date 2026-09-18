@@ -19,8 +19,7 @@
  *  - The newsletter posts to /api/lead (form_id "newsletter") instead of
  *    nowhere, then hands over the practice as before.
  */
-import '../styles/morel.css';
-import '../styles/morel-overrides.css';
+import MoShell from './MoShell.astro';
 import {
   LOGOS, INTRO, FOR_YOU_SECTION, FOR_YOU, STORY_SECTION, PATTERNS_SECTION, PATTERNS, CORE, PHASES,
   FAQ_SECTION, FAQ, QUOTE, FAMILY, FILMS_SECTION, FILMS, CLOSE, NEWSLETTER, asset,
@@ -30,7 +29,7 @@ import { forYouIcon, PLAY_ICON } from '../lib/morel-icons';
 const book = (href: string) => href === '/book';
 ---
 
-<div class="mo" data-morel>
+<MoShell>
   <!-- ============ AS SEEN ON ============ -->
   <div class="wide logos reveal reveal--fade" data-section="proof">
     {LOGOS.map((l) => (
@@ -347,17 +346,4 @@ const book = (href: string) => href === '/book';
       </div>
     </div>
   </section>
-
-  <div class="vmodal" id="vmodal" aria-hidden="true">
-    <div class="vmodal__overlay" data-vmodal-close></div>
-    <div class="vmodal__inner">
-      <button class="vmodal__close" type="button" aria-label="Close video" data-vmodal-close>×</button>
-      <div class="vmodal__content"><div class="ratio" id="vmodal-slot"></div></div>
-    </div>
-  </div>
-</div>
-
-<script>
-  import { initMorel } from '../scripts/morel';
-  initMorel();
-</script>
+</MoShell>

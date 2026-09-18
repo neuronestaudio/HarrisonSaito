@@ -1,31 +1,36 @@
 ---
 /**
- * The story — presented as a book.
+ * The story.
  *
  * On naming: the URL stays /about because that is what people type, what
  * Google expects, and what the audit's multi-page structure depends on; the
  * <title> stays keyword-bearing for the same reason. But nothing on the page
- * says "About" — the nav reads "The Story", and the page opens on a book cover
- * carrying his name. That gives the "the page should just be his name" instinct
- * its proper home without paying for it in search.
+ * says "About" — the nav reads "The Story", and the page opens on his name.
  *
  * "About Him" was never an option: every word on this site is first person
  * ("My father was a war-survivor…"). Third person would break the voice on the
  * one page where the voice is the product.
+ *
+ * 18 Sep 2026: rebuilt in the site's design system (MoShell). The seven
+ * chapters are the same seven, word for word (CHAPTERS in src/data/site.ts) —
+ * they were a 3D book that turned leaf by leaf (Book.astro, kept in the tree);
+ * they are now seven spreads down the page, which reads the same on a phone as
+ * on a desk and needs nothing to be dragged. The film hero, the film carousel
+ * and the calligraphy washes came off with it.
  */
 import Base from '../layouts/Base.astro';
-import Calligraphy from '../components/Calligraphy.astro';
-import Book from '../components/Book.astro';
-import FilmHero from '../components/FilmHero.astro';
-import BrandMark from '../components/BrandMark.astro';
-import FilmCarousel from '../components/FilmCarousel.astro';
-import Enso from '../components/Enso.astro';
-import { CREDENTIALS, SITE } from '../data/site';
+import MoShell from '../components/MoShell.astro';
+import { CHAPTERS, CREDENTIALS, FILMS, SITE } from '../data/site';
+import { PLAY_ICON } from '../lib/morel-icons';
 import { graph, personSchema, localBusinessSchema, breadcrumbSchema } from '../lib/seo';
 
 const title = 'About Harrison Saito | Teacher, 2nd Dan Karate, Coach — Sydney';
 const description =
   'Son of a Japanese war survivor, martial artist and Buddhist monk. High school teacher, 2nd Dan black belt and coach in Chatswood, Sydney. The story behind Return to Self, in seven chapters.';
+
+/* The ones that carry a clean still of their own; the rest of the archive is
+   on /media, where it belongs. */
+const films = FILMS.filter((f) => f.featured && f.still).slice(0, 3);
 
 const schema = graph(
   personSchema(),
@@ -38,255 +43,123 @@ const schema = graph(
 ---
 
 <Base title={title} description={description} path="/about" schema={schema}>
-  {/* ----------------------------------------------------------- the film */}
-  <FilmHero />
-
-  {/* ---------------------------------------------------------- the cover */}
-  <section class="cover section--deep" id="story" data-section="cover">
-    <Calligraphy set="story" scale={1.35} seed={6} words={['INHERITANCE', 'GRIEF']} />
-
-    <div class="container cover__inner">
-      <div class="cover__mark" data-reveal>
-        <BrandMark variant="light" size={92} />
+  <MoShell>
+    <!-- ============ COVER ============ -->
+    <section class="inner-hero on-dark" style="background-image:url(/img/portrait-shoji.webp)" data-section="cover">
+      <div class="wide">
+        <p class="eyebrow">The Story · In seven chapters</p>
+        <h1>Harrison <mark>Saito</mark></h1>
+        <p class="lede accent">
+          My father was a war-survivor from post-WW2 Japan, a martial artist, and a Buddhist monk. He
+          gave me discipline. He also gave me the wound. This is what I did with both.
+        </p>
+        <p class="fs-xs inner-hero__meta">Educator · Martial Artist · Coach — Chatswood, Sydney</p>
       </div>
+    </section>
 
-      <p class="cover__label" data-reveal>In Seven Chapters</p>
-
-      <p class="cover__name" data-reveal>
-        <span class="split-line"><span>Harrison</span></span>
-        <span class="split-line"><span class="cover__name-em">Saito</span></span>
-      </p>
-
-      <p class="cover__sub" data-reveal>
-        Educator · Martial Artist · Coach — Chatswood, Sydney
-      </p>
-
-      <div class="cover__rule" data-reveal aria-hidden="true"></div>
-
-      <p class="cover__standfirst" data-reveal>
-        My father was a war-survivor from post-WW2 Japan, a martial artist, and a Buddhist monk. He
-        gave me discipline. He also gave me the wound. This is what I did with both.
-      </p>
-
-      <p class="cover__prompt" data-reveal>
-        <span aria-hidden="true">↓</span> Scroll to open
-      </p>
-    </div>
-  </section>
-
-  {/* ----------------------------------------------------------- the book */}
-  <section class="section section--ink book-section" data-section="book">
-    <div class="container container--wide">
-      <Book />
-    </div>
-  </section>
-
-  {/* ------------------------------------------------------ credentials */}
-  <section class="section" data-section="credentials">
-    <div class="container">
-      <header class="creds__head" data-reveal>
-        <p class="eyebrow">The Short Version</p>
-        <h2 class="display-l">Trained, qualified, still practising.</h2>
-      </header>
-
-      <div class="creds" data-reveal-stagger="90">
-        {
-          CREDENTIALS.map((c) => (
-            <div class="cred">
-              <span class="cred__value">{c.value}</span>
-              <span class="cred__label">{c.label}</span>
+    <!-- ============ THE SEVEN CHAPTERS ============ -->
+    <section class="section section--flush chapters" data-section="chapters">
+      <div class="wide">
+        {CHAPTERS.map((c, i) => (
+          <article class={`cols cols--center chapter${i % 2 ? ' chapter--flip' : ''}`}>
+            <div class="chapter__text reveal">
+              <p class="eyebrow chapter__mark">
+                <span class="chapter__kanji" lang="ja">{c.kanji}</span>
+                <span>{c.romaji} — {c.caption}</span>
+              </p>
+              <h2>{c.title}</h2>
+              {c.body.map((p) => <p class="fs-xs">{p}</p>)}
+              {c.credential && <p class="pill chapter__credential">{c.credential}</p>}
             </div>
-          ))
-        }
+            <div
+              class="chapter__plate reveal reveal--left"
+              style={`--bg:url(/img/${c.image}.webp)`}
+              role="img"
+              aria-label={c.imageAlt}
+            >
+              <span class="chapter__number" lang="ja" aria-hidden="true">{c.number}</span>
+            </div>
+          </article>
+        ))}
       </div>
+    </section>
 
-      <div class="creds__detail prose" data-reveal>
-        <p>
-          I teach in a New South Wales high school, which means I am inside the HSC system rather
-          than commenting on it from outside. I hold a Master of Teaching (Secondary) and a Bachelor
-          of Commerce, and I have been coaching in one form or another for more than a decade.
-        </p>
-        <p>
-          In karate I am a 2nd Dan black belt. That matters here less as a credential than as a
-          method: the dojo is where I learned that discipline without honesty just builds a better
-          shell, and it is the same room where I eventually took mine apart.
-        </p>
+    <!-- ============ THE SHORT VERSION ============ -->
+    <section class="section section--bg4" data-section="credentials">
+      <div class="wide">
+        <header class="core__head">
+          <p class="eyebrow">The Short Version</p>
+          <h2 class="reveal">Trained, qualified, <mark>still practising.</mark></h2>
+        </header>
+
+        <div class="numbers" data-stagger>
+          {CREDENTIALS.map((c) => (
+            <div class="reveal">
+              <p class="numbers__value"><mark><strong>{c.value}</strong></mark></p>
+              <p>{c.label}</p>
+            </div>
+          ))}
+        </div>
+
+        <div class="cols cols--top creds__detail reveal">
+          <p class="fs-xs">
+            I teach in a New South Wales high school, which means I am inside the HSC system rather
+            than commenting on it from outside. I hold a Master of Teaching (Secondary) and a Bachelor
+            of Commerce, and I have been coaching in one form or another for more than a decade.
+          </p>
+          <p class="fs-xs">
+            In karate I am a 2nd Dan black belt. That matters here less as a credential than as a
+            method: the dojo is where I learned that discipline without honesty just builds a better
+            shell, and it is the same room where I eventually took mine apart.
+          </p>
+        </div>
       </div>
-    </div>
-  </section>
+    </section>
 
-  {/* ----------------------------------------------------------- archive */}
-  <section class="section section--ink" data-section="archive">
-    <div class="container">
-      <header class="arch__head" data-reveal>
-        <p class="eyebrow">The Archive</p>
-        <h2 class="display-l">Twenty-one films.</h2>
-        <p class="lede arch__lede">
-          Five threads — the son, the teacher, the practitioner, the poet and the voice. Most of it
-          is not a showreel; it is the work itself, filmed as it happened.
-        </p>
-      </header>
-    </div>
+    <!-- ============ THE ARCHIVE ============ -->
+    <section class="section section--white films" data-section="archive">
+      <div class="wide">
+        <div class="sec-head">
+          <div>
+            <p class="eyebrow">The Archive</p>
+            <h2 class="reveal">Twenty-one <mark>films.</mark></h2>
+            <p class="fs-sm">
+              Five threads — the son, the teacher, the practitioner, the poet and the voice. Most of
+              it is not a showreel; it is the work itself, filmed as it happened.
+            </p>
+          </div>
+          <a class="btn btn--outline" href="/media">Open the full archive</a>
+        </div>
 
-    <div class="container container--wide" data-reveal>
-      <FilmCarousel />
-    </div>
-
-    <div class="container arch__foot" data-reveal>
-      <a class="btn btn--ghost" href="/media">Open the full archive</a>
-    </div>
-  </section>
-
-  {/* -------------------------------------------------------------- CTA */}
-  <section class="section section--warm close" data-section="close">
-    <div class="close__enso" aria-hidden="true"><Enso opacity={0.2} variant="dark" /></div>
-    <div class="container container--narrow text-center" data-reveal>
-      <h2 class="display-l">If something here resonated, reach out.</h2>
-      <p class="lede close__sub">
-        No pitch. No pressure. Just a conversation about where you are and what you're looking for.
-      </p>
-      <div class="close__ctas">
-        <a class="btn btn--lg" href="/book" data-track="cta_click" data-track-label="About — Book"
-          >Start a Conversation</a
-        >
-        <a
-          class="btn btn--lg btn--ghost"
-          href={`mailto:${SITE.email}`}
-          data-track="cta_click"
-          data-track-label="About — Email">Email Instead</a
-        >
+        <div class="films__grid" data-stagger>
+          {films.map((f) => (
+            <a class="film js-video reveal" href={`https://www.youtube.com/watch?v=${f.id}`} data-video={f.id} style={`background-image:url(/img/${f.still}.webp)`}>
+              <div class="film__inner">
+                <div>
+                  <span class="pill">{f.duration ?? 'Film'}</span>
+                  <h3>{f.title}</h3>
+                </div>
+                <Fragment set:html={PLAY_ICON} />
+              </div>
+            </a>
+          ))}
+        </div>
       </div>
-    </div>
-  </section>
+    </section>
+
+    <!-- ============ CLOSE ============ -->
+    <section class="section section--dark on-dark close" data-section="close">
+      <div class="close__enso" aria-hidden="true"><img src="/img/logo-light-512.webp" alt="" width="320" height="320" loading="lazy" /></div>
+      <div class="content text-center">
+        <h2 class="reveal">If something here resonated, <mark>reach out.</mark></h2>
+        <p class="fs-md close__sub reveal">
+          No pitch. No pressure. Just a conversation about where you are and what you’re looking for.
+        </p>
+        <div class="close__ctas reveal">
+          <a class="btn btn--filled btn--wide" href="/book" data-track="cta_click" data-track-label="About — Book" data-track-section="close">Start a Conversation</a>
+          <a class="btn btn--outline btn--wide" href={`mailto:${SITE.email}`} data-track="cta_click" data-track-label="About — Email" data-track-section="close">Email Instead</a>
+        </div>
+      </div>
+    </section>
+  </MoShell>
 </Base>
-
-<style>
-  /* ---- cover ---- */
-  .cover {
-    position: relative;
-    min-height: auto;
-    display: flex;
-    align-items: center;
-    padding-block: clamp(7rem, 15vh, 10rem) clamp(4rem, 8vw, 6rem);
-    overflow: clip;
-  }
-
-  /* The cover is a flex container, so .container would otherwise shrink to its
-     content and be centred by its own auto margins — pulling the type off the
-     left edge every other page aligns to. */
-  .cover > .container { width: 100%; }
-
-  .cover__inner { position: relative; z-index: 1; max-width: 48rem; }
-
-  .cover__mark { width: 92px; margin-bottom: clamp(2rem, 4vw, 3rem); opacity: 0.95; }
-
-  .cover__label {
-    font-size: var(--step--1);
-    font-weight: 600;
-    letter-spacing: var(--tracking-eyebrow);
-    text-transform: uppercase;
-    color: var(--gold);
-    margin-bottom: 1.25rem;
-  }
-
-  .cover__name {
-    font-size: clamp(3.2rem, 13vw, 9rem);
-    font-weight: 300;
-    line-height: 0.98;
-    color: oklch(95% 0.005 60);
-  }
-  .cover__name-em { font-style: italic; color: var(--gold-light); }
-
-  .cover__sub {
-    margin-top: clamp(1.25rem, 3vw, 2rem);
-    font-size: var(--step-0);
-    letter-spacing: 0.14em;
-    text-transform: uppercase;
-    color: var(--text-on-ink-faint);
-  }
-
-  .cover__rule {
-    width: 4rem;
-    height: 2px;
-    background: var(--gold);
-    margin-block: clamp(1.75rem, 4vw, 2.75rem);
-  }
-
-  .cover__standfirst {
-    font-family: var(--font-display);
-    font-size: var(--step-2);
-    font-style: italic;
-    font-weight: 300;
-    line-height: 1.5;
-    color: var(--text-on-ink-muted);
-    max-width: 34ch;
-  }
-
-  .cover__prompt {
-    margin-top: clamp(2.5rem, 5vw, 4rem);
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-    font-size: 0.72rem;
-    letter-spacing: 0.24em;
-    text-transform: uppercase;
-    color: var(--text-on-ink-faint);
-  }
-  .cover__prompt span { color: var(--gold); }
-
-  /* ---- book ---- */
-  .book-section { padding-block: clamp(3rem, 7vw, 6rem); }
-
-  /* ---- credentials ---- */
-  .creds__head { margin-bottom: clamp(2.5rem, 5vw, 3.5rem); }
-  .creds {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: clamp(1.5rem, 3vw, 2.5rem);
-    padding-bottom: clamp(2rem, 4vw, 3rem);
-    border-bottom: 1px solid var(--rule);
-  }
-  .cred { display: grid; gap: 0.35rem; }
-  .cred__value {
-    font-family: var(--font-display);
-    font-size: var(--step-3);
-    font-weight: 300;
-    line-height: 1;
-    color: var(--gold-deep);
-  }
-  .cred__label {
-    font-size: var(--step--1);
-    letter-spacing: 0.1em;
-    color: var(--text-on-paper-faint);
-  }
-  .creds__detail { margin-top: clamp(2rem, 4vw, 3rem); max-width: 58ch; }
-
-  /* ---- archive ---- */
-  .arch__head { margin-bottom: clamp(2rem, 4vw, 3rem); max-width: 56rem; }
-  .arch__lede { margin-top: 1.25rem; }
-  .arch__foot { margin-top: clamp(2rem, 4vw, 3rem); text-align: center; }
-
-  /* ---- close ---- */
-  .close { position: relative; }
-  .close__enso {
-    position: absolute;
-    inset-block-start: 50%;
-    inset-inline-start: 50%;
-    transform: translate(-50%, -50%);
-    width: clamp(16rem, 34vw, 30rem);
-    pointer-events: none;
-    z-index: 0;
-  }
-  .close__sub { margin: 1.5rem auto 0; max-width: 44ch; }
-  .close__ctas {
-    margin-top: clamp(2rem, 4vw, 3rem);
-    display: flex;
-    flex-wrap: wrap;
-    gap: 1rem;
-    justify-content: center;
-  }
-
-  @media (min-width: 900px) {
-    .creds { grid-template-columns: repeat(4, 1fr); }
-  }
-</style>
