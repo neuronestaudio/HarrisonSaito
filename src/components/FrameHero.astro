@@ -61,6 +61,16 @@
  * (It replaced a seated cut-out of frame 47 the same day; that is in git at
  * 2fe1f93.)
  *
+ * The way in (Dion, 18 Sep, "the picture is too dark… start vignetting"). The
+ * film runs at a screen brightness of 110–125 to the alcove and the
+ * photograph sits near 58, and the arrival used to cover that in one step (a
+ * 29-point drop in the last quarter second of film, then a bump as the photo
+ * faded in). Now the room closes in from the moment the alcove comes into
+ * view (V_FROM, 11.0 s): a vignette from the edges and a dim over the whole,
+ * one value, --vig, which runs six tenths of its course over the rest of the
+ * walk and the rest over the first 40% of the arrival, and the photograph
+ * comes up into the dark as it finishes. One slope, no step.
+ *
  * The panel is Morel markup (src/data/morel.ts, morel.css) inside a bare `.mo`
  * wrapper, scaled to fit whatever height is left between the nav and the
  * consent bar. Without script or with reduced motion it never shows, and
@@ -100,6 +110,7 @@ const STILL = 'rts-still-v1';
     />
     <div class="hero__scrim" aria-hidden="true"></div>
     <div class="hero__veil" aria-hidden="true"></div>
+    <div class="hero__vignette" aria-hidden="true"></div>
 
     <div class="hero__copy">
       <p class="hero__eyebrow">Harrison Saito · Men's coaching · Chatswood, Sydney</p>
@@ -191,7 +202,7 @@ const STILL = 'rts-still-v1';
     --run-in: 180;
     --run-pause: 120;
     --run-out: 140;
-    --run-meet: 110;
+    --run-meet: 140;
     --font-avant: 'Avant', 'ITC Avant Garde Gothic', 'Century Gothic', 'Jost', sans-serif;
     position: relative;
     height: calc((100 + var(--run-in) + var(--run-pause) + var(--run-out) + var(--run-meet)) * 1vh);
@@ -251,18 +262,29 @@ const STILL = 'rts-still-v1';
       linear-gradient(to bottom, rgba(20, 16, 13, 0.55) 0%, rgba(20, 16, 13, 0) 30%),
       linear-gradient(to top, rgba(20, 16, 13, 0.84) 0%, rgba(20, 16, 13, 0.4) 30%, rgba(20, 16, 13, 0) 58%);
   }
-  /* Dims at the very end, as the page arrives over the alcove, and under the
-     beat's panel while it is up. */
+  /* Dims the room: under the beat's panel while it is up, and on the way into
+     the arrival — --vig (which starts in the walk) plus the arrival's own, as
+     one sum, so it only ever deepens. Without the film, --veil still carries
+     the still's push-in dim. */
   .hero__veil {
     position: absolute;
     inset: 0;
     z-index: 4;
     pointer-events: none;
     background: #14100d;
-    /* The film's own end-dim gives way to the meeting's, so the room does not
-       darken twice over. */
-    opacity: max(calc(var(--veil, 0) * 0.5 * (1 - var(--meet, 0))), calc(var(--beat, 0) * 0.62), calc(var(--meet, 0) * 0.86));
+    opacity: max(calc(var(--veil, 0) * 0.5 * (1 - var(--meet, 0))), calc(var(--beat, 0) * 0.62), calc(var(--vig, 0) * 0.46 + var(--meet, 0) * 0.28));
     transition: opacity 0.35s ease;
+  }
+  /* The vignette: the room closing in from its edges, centred on the alcove
+     (plate x 44%) so the last thing to go dark is where the photograph will
+     stand. */
+  .hero__vignette {
+    position: absolute;
+    inset: 0;
+    z-index: 4;
+    pointer-events: none;
+    background: radial-gradient(ellipse 72% 68% at 44% 46%, rgba(20, 16, 13, 0) 28%, rgba(20, 16, 13, 0.5) 60%, rgba(20, 16, 13, 0.94) 100%);
+    opacity: var(--vig, 0);
   }
 
   .hero__copy {
@@ -426,10 +448,12 @@ const STILL = 'rts-still-v1';
     position: absolute;
     inset: 0;
     z-index: 6;
-    --a-photo: clamp(0, calc(var(--meet, 0) / 0.45), 1);
-    --a-brand: clamp(0, calc((var(--meet, 0) - 0.2) / 0.3), 1);
-    --a-left: clamp(0, calc((var(--meet, 0) - 0.35) / 0.4), 1);
-    --a-right: clamp(0, calc((var(--meet, 0) - 0.5) / 0.4), 1);
+    /* The photograph comes up as the room finishes going dark (--vig is done
+       at .4), so the one takes over from the other. */
+    --a-photo: clamp(0, calc((var(--meet, 0) - 0.2) / 0.42), 1);
+    --a-brand: clamp(0, calc((var(--meet, 0) - 0.34) / 0.3), 1);
+    --a-left: clamp(0, calc((var(--meet, 0) - 0.48) / 0.34), 1);
+    --a-right: clamp(0, calc((var(--meet, 0) - 0.6) / 0.34), 1);
     --pad-x: clamp(1.25rem, 5vw, 5.5rem);
     --pad-b: calc(clamp(1.8rem, 6vh, 4.5rem) + var(--consent-h, 0px));
     --kanji: 'Kanji Brush', 'Yuji Syuku', 'Yu Mincho', 'Hiragino Mincho ProN', 'Noto Serif JP', serif;
@@ -798,7 +822,7 @@ const STILL = 'rts-still-v1';
   }
 
   @media (max-width: 700px) {
-    .hero { --run-in: 146; --run-pause: 110; --run-out: 114; --run-meet: 100; }
+    .hero { --run-in: 146; --run-pause: 110; --run-out: 114; --run-meet: 125; }
     .hero__copy { bottom: calc(clamp(3.2rem, 11vh, 6rem) + var(--consent-h, 0px)); }
     .hero__cue { display: none; }
     .hero__btn { width: 100%; }
@@ -842,7 +866,10 @@ const STILL = 'rts-still-v1';
     var T_GATE = (252 + 0.5) / 30;
     var BEAT_AT = 0.3;     /* of the pause: where a caught scroll lands, panel fully up */
     var EDGE = 0.16;       /* of the pause: the panel fades in and out over this much */
-    var MEET_EDGE = 0.62;  /* of the arrival: how much of it the hero takes to build */
+    var MEET_EDGE = 0.7;   /* of the arrival: how much of it the hero takes to build */
+    /* The way in: the room starts closing in as the alcove comes into view. */
+    var V_FROM = 11.0;
+    function smooth(x: number) { x = clamp(x, 0, 1); return x * x * (3 - 2 * x); }
     /* A caught scroll is held at least LOCK_MS, then until the input has been
        quiet for QUIET_MS — a trackpad's inertia keeps sending wheel events
        after the hand has gone — but never longer than MAX_LOCK_MS. */
@@ -917,7 +944,9 @@ const STILL = 'rts-still-v1';
         var still = clamp((eased - HOLD_FROM_T) / (T_END - HOLD_FROM_T), 0, 1);
         st.setProperty('--hold', still.toFixed(3));
         st.setProperty('--push', '0');
-        st.setProperty('--veil', (still * still).toFixed(3));
+        /* No end-of-film dim any more: --vig has been darkening the room since
+           V_FROM, and a second, sudden one here was the step. */
+        st.setProperty('--veil', '0');
       } else {
         st.setProperty('--hold', '1');
         st.setProperty('--push', p.toFixed(4));
@@ -925,6 +954,11 @@ const STILL = 'rts-still-v1';
       }
       var m = meetFor(p);
       st.setProperty('--meet', m.toFixed(3));
+      /* Six tenths of the vignette over the rest of the walk (by where the
+         scroll is, so it holds steady even while the film eases), four tenths
+         over the first 40% of the arrival. */
+      var vig = 0.6 * smooth((timeFor(p) - V_FROM) / (T_END - V_FROM)) + 0.4 * smooth(m / 0.4);
+      st.setProperty('--vig', vig.toFixed(3));
       st.setProperty('--mp', (p <= pC ? 0 : clamp((p - pC) / (1 - pC), 0, 1)).toFixed(4));
       var meeting = m > 0.02;
       if (meeting !== meetOn) {
