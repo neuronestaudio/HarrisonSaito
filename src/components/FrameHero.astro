@@ -71,6 +71,16 @@
  * walk and the rest over the first 40% of the arrival, and the photograph
  * comes up into the dark as it finishes. One slope, no step.
  *
+ * Sooner (Dion, 18 Sep: "they walk into the door and boom — there's a few
+ * scrolls missing in between that should be taken out"). The arrival no
+ * longer waits for the film to reach the alcove: it starts at the doorway,
+ * T_DOOR (10.8 s, once the doors have slid open and the camera passes
+ * through), the letters first — the 和 and the two columns — then the
+ * photograph, then the words, while the last of the walk plays on under them,
+ * dark. The walk out is 80vh (was 140) and the arrival 55vh (was 140): from
+ * the end of the pause to a built hero is one screen, not 2.3, and the hold
+ * after it is about a third of a screen before the page moves on.
+ *
  * The panel is Morel markup (src/data/morel.ts, morel.css) inside a bare `.mo`
  * wrapper, scaled to fit whatever height is left between the nav and the
  * consent bar. Without script or with reduced motion it never shows, and
@@ -201,8 +211,8 @@ const STILL = 'rts-still-v1';
     --film: 0;                 /* 1 once the film is scrubbing; the poster yields to it */
     --run-in: 180;
     --run-pause: 120;
-    --run-out: 140;
-    --run-meet: 140;
+    --run-out: 80;
+    --run-meet: 55;
     --font-avant: 'Avant', 'ITC Avant Garde Gothic', 'Century Gothic', 'Jost', sans-serif;
     position: relative;
     height: calc((100 + var(--run-in) + var(--run-pause) + var(--run-out) + var(--run-meet)) * 1vh);
@@ -448,12 +458,12 @@ const STILL = 'rts-still-v1';
     position: absolute;
     inset: 0;
     z-index: 6;
-    /* The photograph comes up as the room finishes going dark (--vig is done
-       at .4), so the one takes over from the other. */
-    --a-photo: clamp(0, calc((var(--meet, 0) - 0.2) / 0.42), 1);
-    --a-brand: clamp(0, calc((var(--meet, 0) - 0.34) / 0.3), 1);
-    --a-left: clamp(0, calc((var(--meet, 0) - 0.48) / 0.34), 1);
-    --a-right: clamp(0, calc((var(--meet, 0) - 0.6) / 0.34), 1);
+    /* The letters come up first, as the camera goes through the doorway;
+       the photograph rises into the room as it goes dark; then the words. */
+    --a-brand: clamp(0, calc(var(--meet, 0) / 0.26), 1);
+    --a-photo: clamp(0, calc((var(--meet, 0) - 0.14) / 0.36), 1);
+    --a-left: clamp(0, calc((var(--meet, 0) - 0.4) / 0.3), 1);
+    --a-right: clamp(0, calc((var(--meet, 0) - 0.5) / 0.3), 1);
     --pad-x: clamp(1.25rem, 5vw, 5.5rem);
     --pad-b: calc(clamp(1.8rem, 6vh, 4.5rem) + var(--consent-h, 0px));
     --kanji: 'Kanji Brush', 'Yuji Syuku', 'Yu Mincho', 'Hiragino Mincho ProN', 'Noto Serif JP', serif;
@@ -822,7 +832,7 @@ const STILL = 'rts-still-v1';
   }
 
   @media (max-width: 700px) {
-    .hero { --run-in: 146; --run-pause: 110; --run-out: 114; --run-meet: 125; }
+    .hero { --run-in: 146; --run-pause: 110; --run-out: 70; --run-meet: 50; }
     .hero__copy { bottom: calc(clamp(3.2rem, 11vh, 6rem) + var(--consent-h, 0px)); }
     .hero__cue { display: none; }
     .hero__btn { width: 100%; }
@@ -866,9 +876,13 @@ const STILL = 'rts-still-v1';
     var T_GATE = (252 + 0.5) / 30;
     var BEAT_AT = 0.3;     /* of the pause: where a caught scroll lands, panel fully up */
     var EDGE = 0.16;       /* of the pause: the panel fades in and out over this much */
-    var MEET_EDGE = 0.7;   /* of the arrival: how much of it the hero takes to build */
-    /* The way in: the room starts closing in as the alcove comes into view. */
-    var V_FROM = 11.0;
+    var MEET_EDGE = 0.8;   /* of the arrival: how much of it the hero takes to build —
+                              the rest (~35vh) is a short hold before the page moves on */
+    /* The doorway: the doors have slid open and the camera is passing
+       through. The arrival starts here, not at the alcove. */
+    var T_DOOR = 10.8;
+    /* The way in: the room starts closing in as the doors open. */
+    var V_FROM = 9.2;
     function smooth(x: number) { x = clamp(x, 0, 1); return x * x * (3 - 2 * x); }
     /* A caught scroll is held at least LOCK_MS, then until the input has been
        quiet for QUIET_MS — a trackpad's inertia keeps sending wheel events
@@ -894,7 +908,7 @@ const STILL = 'rts-still-v1';
     }
 
     /* ---- the runway: three lengths read back from the CSS ---- */
-    var pA = 0.34, pB = 0.57, pC = 0.79;
+    var pA = 0.34, pB = 0.57, pC = 0.79, pD = 0.66;
     function measure() {
       var cs = getComputedStyle(hero!);
       var a = parseFloat(cs.getPropertyValue('--run-in')) || 180;
@@ -905,6 +919,7 @@ const STILL = 'rts-still-v1';
       pA = a / total;
       pB = (a + h) / total;
       pC = (a + h + b) / total;
+      pD = pB + ((T_DOOR - T_GATE) / (T_END - T_GATE)) * (pC - pB);
       fit();
     }
     function timeFor(p: number) {
@@ -916,8 +931,8 @@ const STILL = 'rts-still-v1';
     /* The meeting: 0 until the walk has arrived, then Harrison comes in over
        the first stretch of it and stays for the rest. */
     function meetFor(p: number) {
-      if (p <= pC) return 0;
-      return clamp((p - pC) / ((1 - pC) * MEET_EDGE), 0, 1);
+      if (p <= pD) return 0;
+      return clamp((p - pD) / ((1 - pD) * MEET_EDGE), 0, 1);
     }
     function beatFor(p: number) {
       if (p <= pA || p >= pB) return 0;
@@ -954,12 +969,12 @@ const STILL = 'rts-still-v1';
       }
       var m = meetFor(p);
       st.setProperty('--meet', m.toFixed(3));
-      /* Six tenths of the vignette over the rest of the walk (by where the
-         scroll is, so it holds steady even while the film eases), four tenths
-         over the first 40% of the arrival. */
-      var vig = 0.6 * smooth((timeFor(p) - V_FROM) / (T_END - V_FROM)) + 0.4 * smooth(m / 0.4);
+      /* Half the vignette as the doors open (by where the scroll is, so it
+         holds steady while the film eases), the rest as the letters come up —
+         dark by the time the photograph rises. */
+      var vig = 0.5 * smooth((timeFor(p) - V_FROM) / (T_DOOR - V_FROM)) + 0.5 * smooth(m / 0.3);
       st.setProperty('--vig', vig.toFixed(3));
-      st.setProperty('--mp', (p <= pC ? 0 : clamp((p - pC) / (1 - pC), 0, 1)).toFixed(4));
+      st.setProperty('--mp', (p <= pD ? 0 : clamp((p - pD) / (1 - pD), 0, 1)).toFixed(4));
       var meeting = m > 0.02;
       if (meeting !== meetOn) {
         meetOn = meeting;
