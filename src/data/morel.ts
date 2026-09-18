@@ -44,6 +44,7 @@ function local<T>(value: T): T {
 
 export const asset = (path: string) => ASSETS[path] ?? path;
 
+export const HERO = local(S.HERO);
 export const FOR_YOU_SECTION = local(S.FOR_YOU_SECTION);
 export const FOR_YOU = local(S.FOR_YOU);
 export const LOGOS = local(S.LOGOS);
