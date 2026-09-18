@@ -36,6 +36,14 @@
  * flight and three ways to settle, and the iOS unlock is a muted play()
  * paused the moment it resolves (see RtsHero, kept in the tree).
  *
+ * The meeting (Dion, 18 Sep 2026). The walk ends on the alcove and holds there
+ * for one more stretch (--run-meet) while Harrison fades in, seated in seiza in
+ * the middle of the room, with "Return to Self" and the two ways on under him —
+ * so arriving reads as the top of a page rather than the end of a film. He is
+ * frame 47 of the 26 Aug shoot (shoji-seiza-backlit), cut out with
+ * scripts/cutout.py; the room is the film's own last frame, and both are lit
+ * warm from the left, which is why he sits in it.
+ *
  * The panel is Morel markup (src/data/morel.ts, morel.css) inside a bare `.mo`
  * wrapper, scaled to fit whatever height is left between the nav and the
  * consent bar. Without script or with reduced motion it never shows, and
@@ -73,6 +81,19 @@ const STILL = 'rts-still-v1';
       loading="eager"
       decoding="async"
     />
+    {/* The meeting: Harrison in the room the walk arrives at. */}
+    <img
+      class="hero__figure"
+      src="/img/harrison-seiza-v1.webp"
+      srcset="/img/harrison-seiza-v1-768.webp 768w, /img/harrison-seiza-v1-1200.webp 1200w, /img/harrison-seiza-v1-1600.webp 1600w"
+      sizes="(max-width: 700px) 100vw, 46vh"
+      alt="Harrison Saito seated in seiza, lit warm from one side"
+      width="1593"
+      height="1957"
+      loading="lazy"
+      decoding="async"
+    />
+
     <div class="hero__scrim" aria-hidden="true"></div>
     <div class="hero__veil" aria-hidden="true"></div>
 
@@ -109,6 +130,14 @@ const STILL = 'rts-still-v1';
       </div>
     </div>
 
+    <div class="meet" data-meet>
+      <p class="meet__mark">Return to Self</p>
+      <p class="meet__ctas">
+        <a class="hero__btn" href="/book" data-track="cta_click" data-track-label="Meeting — Book a discovery chat" data-track-section="hero-meet">Book a discovery chat</a>
+        <a class="hero__more" href="/mens-coaching" data-track="cta_click" data-track-label="Meeting — See the programme" data-track-section="hero-meet">See the programme →</a>
+      </p>
+    </div>
+
     <div class="hero__cue" aria-hidden="true"><span>Scroll to walk in</span><i></i></div>
     <div class="hero__rail" aria-hidden="true"><i></i></div>
   </div>
@@ -124,9 +153,10 @@ const STILL = 'rts-still-v1';
     --run-in: 180;
     --run-pause: 120;
     --run-out: 140;
+    --run-meet: 110;
     --font-avant: 'Avant', 'ITC Avant Garde Gothic', 'Century Gothic', 'Jost', sans-serif;
     position: relative;
-    height: calc((100 + var(--run-in) + var(--run-pause) + var(--run-out)) * 1vh);
+    height: calc((100 + var(--run-in) + var(--run-pause) + var(--run-out) + var(--run-meet)) * 1vh);
     background: #14100d;
     color: #fcfaf8;
   }
@@ -191,7 +221,9 @@ const STILL = 'rts-still-v1';
     z-index: 4;
     pointer-events: none;
     background: #14100d;
-    opacity: max(calc(var(--veil, 0) * 0.5), calc(var(--beat, 0) * 0.62));
+    /* The film's own end-dim gives way to the meeting's, so the room does not
+       darken twice over. */
+    opacity: max(calc(var(--veil, 0) * 0.5 * (1 - var(--meet, 0))), calc(var(--beat, 0) * 0.62), calc(var(--meet, 0) * 0.28));
     transition: opacity 0.35s ease;
   }
 
@@ -337,6 +369,61 @@ const STILL = 'rts-still-v1';
   .hero__rail { position: absolute; z-index: 5; left: 0; right: 0; bottom: 0; height: 2px; background: rgba(255, 255, 255, 0.12); }
   .hero__rail i { display: block; height: 100%; width: calc(var(--p) * 100%); background: #daa24f; }
 
+  /* ---- the meeting ----------------------------------------------------
+     Harrison, seated on the room's centre line (the alcove sits at plate
+     x 44%), rising a little as he fades in. He is a cut-out of a real frame,
+     so he keeps the film's own warm key from the left. */
+  .hero__figure {
+    position: absolute;
+    z-index: 3;
+    left: 44%;
+    bottom: -1%;
+    height: 62vh;
+    width: auto;
+    max-width: none;
+    transform: translate(-50%, calc((1 - var(--meet, 0)) * 26px));
+    opacity: var(--meet, 0);
+    pointer-events: none;
+    will-change: opacity, transform;
+    transition: opacity 0.4s ease;
+  }
+  .meet {
+    position: absolute;
+    z-index: 6;
+    left: 0;
+    right: 0;
+    bottom: calc(clamp(2.2rem, 7vh, 5rem) + var(--consent-h, 0px));
+    display: grid;
+    justify-items: center;
+    gap: 0.9rem;
+    padding-inline: clamp(1.25rem, 5vw, 5.5rem);
+    text-align: center;
+    opacity: var(--meet, 0);
+    transform: translateY(calc((1 - var(--meet, 0)) * 18px));
+    visibility: hidden;
+    pointer-events: none;
+    transition: opacity 0.4s ease;
+  }
+  .hero--meet .meet { visibility: visible; pointer-events: auto; }
+  .meet__mark {
+    margin: 0;
+    font-family: var(--font-display);
+    font-size: clamp(2.1rem, 1.4rem + 2.6vw, 4rem);
+    font-weight: 400;
+    font-style: italic;
+    line-height: 1;
+    color: #fcfaf8;
+    text-shadow: 0 2px 30px rgba(0, 0, 0, 0.45);
+  }
+  .meet__ctas {
+    margin: 0;
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0.7rem 1.6rem;
+  }
+
   /* ---- the beat -------------------------------------------------------
      Over the shut doors: Morel's "who this is for" cards on its page colour,
      in a panel the script scales (--beat-fit) to the height between the nav
@@ -424,7 +511,10 @@ const STILL = 'rts-still-v1';
   }
 
   @media (max-width: 700px) {
-    .hero { --run-in: 146; --run-pause: 110; --run-out: 114; }
+    .hero { --run-in: 146; --run-pause: 110; --run-out: 114; --run-meet: 100; }
+    .hero__figure { height: 52vh; bottom: 6%; }
+    .meet { bottom: calc(clamp(2.6rem, 9vh, 5rem) + var(--consent-h, 0px)); }
+    .meet__ctas .hero__btn { width: 100%; }
     .hero__copy { bottom: calc(clamp(3.2rem, 11vh, 6rem) + var(--consent-h, 0px)); }
     .hero__cue { display: none; }
     .hero__btn { width: 100%; }
@@ -434,9 +524,16 @@ const STILL = 'rts-still-v1';
      beat's block is a section of the page instead (MorelHome). */
   :global(.no-js) .hero { height: 100svh; }
   :global(.no-js) .hero__film, :global(.no-js) .hero__poster, :global(.no-js) .beat { display: none; }
+  /* No script, or no motion: the one screen is the room with him in it, and
+     the hero's own title and buttons carry it — the meeting's line would land
+     on top of them. */
+  :global(.no-js) .hero__figure { opacity: 1; transform: translate(-50%, 0); }
+  :global(.no-js) .meet { display: none; }
   @media (prefers-reduced-motion: reduce) {
     .hero { height: 100svh; }
     .hero .beat { display: none; }
+    .hero__figure { opacity: 1; transform: translate(-50%, 0); transition: none; }
+    .meet { display: none; }
     .hero__film, .hero__poster, .hero__veil, .hero__rail { display: none; }
     .hero__plate { transform: none; opacity: 1; }
     .hero__copy { opacity: 1; transform: none; }
@@ -449,6 +546,7 @@ const STILL = 'rts-still-v1';
     var hero = document.querySelector<HTMLElement>('[data-frame-hero]');
     var video = hero && hero.querySelector<HTMLVideoElement>('.hero__film');
     var beatEl = hero && hero.querySelector<HTMLElement>('[data-beat]');
+    var figure = hero && hero.querySelector<HTMLImageElement>('.hero__figure');
     var panel = beatEl && beatEl.querySelector<HTMLElement>('.beat__panel');
     if (!hero || !video || !beatEl || !panel) return;
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
@@ -463,6 +561,7 @@ const STILL = 'rts-still-v1';
     var T_GATE = (252 + 0.5) / 30;
     var BEAT_AT = 0.3;     /* of the pause: where a caught scroll lands, panel fully up */
     var EDGE = 0.16;       /* of the pause: the panel fades in and out over this much */
+    var MEET_EDGE = 0.45;  /* of the meeting: how much of it Harrison takes to arrive */
     /* A caught scroll is held at least LOCK_MS, then until the input has been
        quiet for QUIET_MS — a trackpad's inertia keeps sending wheel events
        after the hand has gone — but never longer than MAX_LOCK_MS. */
@@ -487,20 +586,30 @@ const STILL = 'rts-still-v1';
     }
 
     /* ---- the runway: three lengths read back from the CSS ---- */
-    var pA = 0.41, pB = 0.68;
+    var pA = 0.34, pB = 0.57, pC = 0.79;
     function measure() {
       var cs = getComputedStyle(hero!);
       var a = parseFloat(cs.getPropertyValue('--run-in')) || 180;
       var h = parseFloat(cs.getPropertyValue('--run-pause')) || 120;
       var b = parseFloat(cs.getPropertyValue('--run-out')) || 140;
-      pA = a / (a + h + b);
-      pB = (a + h) / (a + h + b);
+      var m = parseFloat(cs.getPropertyValue('--run-meet')) || 110;
+      var total = a + h + b + m;
+      pA = a / total;
+      pB = (a + h) / total;
+      pC = (a + h + b) / total;
       fit();
     }
     function timeFor(p: number) {
       if (p <= pA) return (p / pA) * T_GATE;
       if (p <= pB) return T_GATE;
-      return T_GATE + ((p - pB) / (1 - pB)) * (T_END - T_GATE);
+      if (p <= pC) return T_GATE + ((p - pB) / (pC - pB)) * (T_END - T_GATE);
+      return T_END;
+    }
+    /* The meeting: 0 until the walk has arrived, then Harrison comes in over
+       the first stretch of it and stays for the rest. */
+    function meetFor(p: number) {
+      if (p <= pC) return 0;
+      return clamp((p - pC) / ((1 - pC) * MEET_EDGE), 0, 1);
     }
     function beatFor(p: number) {
       if (p <= pA || p >= pB) return 0;
@@ -520,7 +629,7 @@ const STILL = 'rts-still-v1';
     }
 
     /* ---- paint: everything the page shows is a function of p ---- */
-    var target = 0, eased = 0, beatOn = false, cardsIn = false;
+    var target = 0, eased = 0, beatOn = false, cardsIn = false, meetOn = false;
     function paint(p: number) {
       st.setProperty('--p', p.toFixed(4));
       if (filmOn) {
@@ -532,6 +641,13 @@ const STILL = 'rts-still-v1';
         st.setProperty('--hold', '1');
         st.setProperty('--push', p.toFixed(4));
         st.setProperty('--veil', p.toFixed(4));
+      }
+      var m = meetFor(p);
+      st.setProperty('--meet', m.toFixed(3));
+      var meeting = m > 0.02;
+      if (meeting !== meetOn) {
+        meetOn = meeting;
+        hero!.classList.toggle('hero--meet', meeting);
       }
       var b = beatFor(p);
       st.setProperty('--beat', b.toFixed(3));
@@ -680,6 +796,8 @@ const STILL = 'rts-still-v1';
       target = timeFor(progress());
       /* Past the first screen the whole film is wanted. */
       if (video!.preload !== 'auto' && target > 0.15) video!.preload = 'auto';
+      /* He is lazy-loaded, so ask for him while the walk is still running. */
+      if (figure && p > pB && figure.loading === 'lazy') figure.loading = 'eager';
       if (ready) wake();
       else if (!raf) raf = requestAnimationFrame(function () { raf = 0; paint(progress()); });
     }
