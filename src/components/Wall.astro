@@ -1,0 +1,265 @@
+---
+/**
+ * The wall: between "Return to Self." and "Which one is running you?", a bento
+ * of the people Harrison has taught — what each of them took away, in their
+ * words, among photographs of him at work and of the clients filmed for their
+ * testimonies (Dion, 18 Sep 2026).
+ *
+ * What goes in it, and the rule that keeps a quote from being hung on the
+ * wrong face, is src/data/wall.ts. This file is only the grid.
+ *
+ * Six columns on a desk: a feature quote is 2×2, a line quote 2×1, a tall
+ * photograph 1×2 (the sources are 9:16, so a tall cell barely crops them), a
+ * square one 1×1, laid in five bands of twelve cells so the wall is a clean
+ * rectangle (wall.ts). Two columns at 820px and under, where the wall shows a
+ * shorter cut (`more` tiles are dropped) so it stays a wall and not a page.
+ * It lives inside MorelHome's `.mo` root, so the reveals, the tokens and the
+ * no-lone-word fit all apply.
+ */
+import { WALL, personOf } from '../data/wall';
+import { TESTIMONIALS } from '../data/site';
+import { src, srcset } from '../lib/images';
+---
+
+<section class="section section--white wall" id="voices" data-section="voices">
+  <div class="wide">
+    <header class="wall__head">
+      <div>
+        <p class="eyebrow">In Their Words</p>
+        <h2 class="reveal">What they <mark>took with them.</mark></h2>
+      </div>
+      <p class="fs-sm wall__lede reveal reveal--left">
+        Men in coaching. Karate students. HSC students, and their parents. Each came for something different. This is
+        the one thing each of them left with.
+      </p>
+    </header>
+
+    <div class="wall__grid">
+      {WALL.map((t, i) =>
+        t.type === 'quote' ? (
+          <figure class:list={['wall__tile', 'wall__q', `wall__q--${t.size}`, `wall__q--${t.tone}`, 'reveal', { 'wall__tile--more': t.more === true, 'wall__tile--more-sm': t.more === 'phone' }]} style={`--d:${(i % 6) * 70}ms;--len:${t.big.length + 3}`}>
+            <p class="wall__kicker">{t.kicker}</p>
+            <blockquote>
+              <p class="wall__big">“{t.big}.”</p>
+              {t.quote && <p class="wall__quote">“{t.quote}”</p>}
+            </blockquote>
+            <figcaption class="wall__cite">
+              {personOf(t.name).avatar && (
+                <img class="wall__face" src={src(personOf(t.name).avatar!)} srcset={srcset(personOf(t.name).avatar!) || undefined} sizes="40px" alt="" width="40" height="40" loading="lazy" decoding="async" />
+              )}
+              <span><strong>{t.name}</strong>{t.via && <em>{t.via}</em>}</span>
+            </figcaption>
+          </figure>
+        ) : (
+          <figure class:list={['wall__tile', 'wall__p', `wall__p--${t.shape}`, 'reveal', { 'wall__tile--more': t.more === true }]} style={`--d:${(i % 6) * 70}ms`}>
+            <img
+              src={`/img/wall/${t.img}-720.webp`}
+              srcset={`/img/wall/${t.img}-400.webp 400w, /img/wall/${t.img}-720.webp 720w`}
+              sizes="(max-width: 700px) 46vw, (max-width: 1100px) 24vw, 200px"
+              alt={t.alt}
+              width="720"
+              height="1280"
+              loading="lazy"
+              decoding="async"
+              style={t.pos ? `object-position:${t.pos}` : undefined}
+            />
+            <figcaption>{t.caption}</figcaption>
+          </figure>
+        )
+      )}
+      {/* the last cell of the last band: the way on to all eleven, whole */}
+      <a class="wall__tile wall__more reveal" href="/testimonials" data-track="cta_click" data-track-label="Wall — Read every word" data-track-section="voices">
+        <p class="wall__kicker">{TESTIMONIALS.length} people · every word</p>
+        <p class="wall__big">Read what they wrote, <mark>whole.</mark></p>
+        <span class="wall__arrow" aria-hidden="true">→</span>
+      </a>
+    </div>
+
+    <p class="wall__note">
+      The words are quoted as written, under the name of the person who wrote them. The photographs are Harrison’s
+      sessions, classes and filmed testimonies.
+    </p>
+  </div>
+</section>
+
+<style>
+  .wall { padding-block: var(--sp-100); }
+  .wall__head {
+    display: grid;
+    grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr);
+    gap: clamp(1rem, 4vw, 4rem);
+    align-items: end;
+    margin-bottom: clamp(1.5rem, 3vw, 3rem);
+  }
+  .wall__head h2 { margin: 0; }
+  .wall__lede { margin: 0; color: var(--fg4); max-width: 46ch; }
+
+  .wall__grid {
+    display: grid;
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+    grid-auto-rows: minmax(clamp(118px, 10.6vw, 156px), auto);
+    grid-auto-flow: dense;
+    gap: clamp(8px, 1vw, 14px);
+  }
+  .wall__tile {
+    position: relative;
+    margin: 0;
+    border-radius: 22px;
+    overflow: hidden;
+    min-width: 0;
+  }
+
+  /* ---- the words ---- */
+  .wall__q {
+    grid-column: span 2;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    gap: 0.75rem;
+    padding: clamp(16px, 1.7vw, 26px);
+    container-type: inline-size;
+  }
+  .wall__q--feature { grid-row: span 2; }
+  .wall__q blockquote { margin: 0; display: grid; gap: 0.7rem; }
+  .wall__kicker {
+    margin: 0;
+    font-family: var(--font-base);
+    font-size: 0.66rem;
+    font-weight: 700;
+    letter-spacing: 0.16em;
+    line-height: 1.4;
+    text-transform: uppercase;
+  }
+  .wall__big {
+    margin: 0;
+    font-family: var(--font-base);
+    /* never more than two lines: the second term is the size at which a
+       phrase of --len characters fills two lines of this tile */
+    font-size: min(clamp(1.1rem, 0.85rem + 0.9vw, 1.62rem), calc(100cqw / var(--len, 24) * 2.7));
+    font-weight: 700;
+    letter-spacing: -0.015em;
+    line-height: 1.04;
+    text-transform: uppercase;
+    text-wrap: balance;
+  }
+  .wall__q--feature .wall__big { font-size: min(clamp(1.5rem, 1rem + 1.7vw, 2.5rem), calc(100cqw / var(--len, 24) * 2.7)); }
+  .wall__quote {
+    margin: 0;
+    font-family: var(--font-display);
+    font-size: clamp(1.05rem, 0.98rem + 0.4vw, 1.3rem);
+    line-height: 1.3;
+  }
+  .wall__cite { display: flex; align-items: center; gap: 0.6rem; font-family: var(--font-base); font-size: 0.8rem; line-height: 1.25; }
+  .wall__cite strong { display: block; font-weight: 700; letter-spacing: 0.02em; }
+  .wall__cite em { display: block; font-style: normal; font-size: 0.7rem; opacity: 0.7; }
+  .wall__face { width: 40px; height: 40px; flex: none; border-radius: 50%; object-fit: cover; border: 1.5px solid rgba(218, 162, 79, 0.7); }
+
+  .wall__q--ink { background: #14100d; color: #fcfaf8; }
+  .wall__q--ink .wall__kicker { color: #f2c275; }
+  .wall__q--ink .wall__big {
+    background: linear-gradient(100deg, #f9e0a3 0%, #f2c275 35%, #daa24f 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    color: #f2c275;
+  }
+  .wall__q--ink .wall__quote { color: rgba(252, 250, 248, 0.86); }
+  .wall__q--paper { background: var(--bg3); color: var(--fg1); box-shadow: inset 0 0 0 1px var(--bg4); }
+  .wall__q--paper .wall__kicker { color: var(--gold-deep); }
+  .wall__q--paper .wall__quote { color: var(--fg4); }
+  .wall__q--gold { background: linear-gradient(135deg, #f6d48f 0%, #daa24f 100%); color: #14100d; }
+  .wall__q--gold .wall__kicker { color: #5f3f10; }
+  .wall__q--gold .wall__quote { color: #2a1d08; }
+
+  /* ---- the people ---- */
+  .wall__p { background: #14100d; }
+  .wall__p--tall { grid-row: span 2; }
+  .wall__p img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: 50% 28%;
+    transition: transform 0.9s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+  .wall__p:hover img { transform: scale(1.05); }
+  .wall__p figcaption {
+    position: absolute;
+    inset: auto 0 0 0;
+    padding: 2.2rem 0.85rem 0.7rem;
+    background: linear-gradient(to top, rgba(20, 16, 13, 0.88) 0%, rgba(20, 16, 13, 0) 100%);
+    color: rgba(252, 250, 248, 0.92);
+    font-family: var(--font-base);
+    font-size: 0.62rem;
+    font-weight: 700;
+    letter-spacing: 0.13em;
+    line-height: 1.35;
+    text-transform: uppercase;
+  }
+
+  /* ---- the way on ---- */
+  .wall__more {
+    grid-column: span 2;
+    grid-row: span 2;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    gap: 0.75rem;
+    padding: clamp(16px, 1.7vw, 26px);
+    background: #14100d;
+    box-shadow: inset 0 0 0 1px rgba(218, 162, 79, 0.55);
+    color: #fcfaf8;
+    text-decoration: none;
+    transition: box-shadow 0.35s ease, transform 0.35s ease;
+  }
+  .wall__more .wall__kicker { color: #f2c275; }
+  .wall__more .wall__big { font-size: clamp(1.5rem, 1rem + 1.7vw, 2.5rem); }
+  .wall__more mark { background: none; color: #f2c275; }
+  .wall__arrow {
+    align-self: flex-end;
+    display: grid;
+    place-items: center;
+    width: 46px;
+    height: 46px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #f6d48f 0%, #daa24f 100%);
+    color: #14100d;
+    font-size: 1.3rem;
+    transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+  .wall__more:hover { box-shadow: inset 0 0 0 2px #daa24f; }
+  .wall__more:hover .wall__arrow { transform: translateX(5px); }
+  .wall__more:focus-visible { outline: 2px solid #daa24f; outline-offset: 3px; }
+
+  .wall__note { margin: clamp(1rem, 2vw, 1.75rem) 0 0; max-width: 70ch; color: var(--fg4); font-size: 0.82rem; line-height: 1.5; }
+
+  @media (max-width: 1100px) {
+    .wall__head { grid-template-columns: 1fr; align-items: start; }
+    .wall__q, .wall__more { padding: 14px; }
+    .wall__quote { font-size: 1rem; }
+  }
+  /* A tablet: four columns and the shorter cut (`more` tiles dropped), which
+     tiles clean at four across with the way on as a full-width bar. Rows come
+     from the column's width so a tall photograph stays a portrait. */
+  @media (max-width: 1000px) {
+    .wall__grid { grid-template-columns: repeat(4, minmax(0, 1fr)); grid-auto-rows: minmax(calc((100vw - 3rem) * 0.165), auto); gap: 10px; }
+    .wall__tile--more { display: none; }
+    .wall__more { grid-column: 1 / -1; grid-row: auto; flex-direction: row; align-items: center; }
+    .wall__more .wall__kicker { display: none; }
+    .wall__arrow { align-self: center; flex: none; }
+  }
+  /* A phone: two columns, the words full width, the photographs in pairs. */
+  @media (max-width: 700px) {
+    .wall__grid { grid-template-columns: repeat(2, minmax(0, 1fr)); grid-auto-rows: minmax(calc((100vw - 3rem) * 0.31), auto); gap: 8px; }
+    .wall__tile { border-radius: 16px; }
+    .wall__tile--more-sm { display: none; }
+    .wall__q, .wall__more { padding: 16px; }
+    .wall__q--feature, .wall__q--line { grid-row: auto; }
+    .wall__quote { font-size: 1.08rem; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .wall__p img { transition: none; }
+    .wall__p:hover img { transform: none; }
+  }
+</style>
