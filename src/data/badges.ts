@@ -70,7 +70,8 @@ export const BADGE_SETS: BadgeSet[] = [
       { icon: "saidmeant", text: "You say yes when you mean no,", emphasis: "then call it keeping the peace.", kind: "site", source: "Live site" },
       { icon: "checklist", text: "You only feel worth something", emphasis: "when you’ve been useful.", kind: "new", source: "New, the diagnosis’s core line. Echoes his note: “a man gains self worth from this need”" },
       { icon: "homeguard", text: "You love them,", emphasis: "and can’t stand who you become around them.", kind: "team", source: "Board, paid round 1 (Static 5)" },
-      { icon: "battery", text: "You’re exhausted,", emphasis: "and you call it normal.", kind: "team", source: "Board question list: “How long have you been treating exhaustion as normal?”" },
+      /* Dion, 18 Sep: not "exhausted, and you call it normal" — the guilt of stopping. */
+      { icon: "pause", text: "You feel guilty", emphasis: "when you’re doing nothing.", kind: "new", source: "Dion, 18 Sep 2026. Echoes Harrison’s note: “can’t be present as noise in head trying to think of what to do next”" },
     ],
   },
   {
@@ -91,7 +92,7 @@ export const BADGE_SETS: BadgeSet[] = [
       { icon: "switch", text: "You can’t switch off,", emphasis: "even when there’s nothing left to do.", kind: "his", source: "Paraphrased from his note: “can’t be present as noise in head trying to think of what to do next”" },
       { icon: "braced", text: "Your jaw is tight", emphasis: "before you’ve said a word.", kind: "new", source: "New. Body words (jaw, chest, tension) reach widest on his account, 1.68×" },
       { icon: "bolt", text: "You snap at home,", emphasis: "then apologise later.", kind: "his", source: "Paraphrased from his note on being “frustrated and irritable” with family and partner" },
-      { icon: "moon", text: "You lie awake", emphasis: "replaying the conversation.", kind: "new", source: "New" },
+      { icon: "moon", text: "You lie awake", emphasis: "replaying what was said.", kind: "new", source: "New" },
     ],
   },
   {

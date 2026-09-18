@@ -99,6 +99,23 @@
  *
  * The call to action sells without selling: "Let me walk with you".
  *
+ * The gate (Dion, 18 Sep, later: "we can't allow the user to scroll past that
+ * door… lock until the user selects an option"). The pause is now a gate. The
+ * catch lands the scroll on the panel as before, but the hold no longer times
+ * out: every card is a button, and the walk goes on once one is tapped (any
+ * number; the protectors set takes one). The picks ride to the lead form
+ * (fy_pick, comma separated -> GHL tags fy-pick-<card>), the open gate is
+ * remembered for the session, and a scroll that meets it nudges the
+ * instruction. Up is always free; so is anything plainly deliberate — a link
+ * to a section further down, keyboard focus moving past the hero, a page that
+ * opens already below the doors. The panel itself went squarer the same day:
+ * centred head broken where the colour breaks, six near-square tiles.
+ *
+ * The title (same day): "Son of a" / "Karate Grand Master", broken at the
+ * colour, and the gold line is gold leaf with ink smoke drifting through it
+ * (/img/gold-smoke-v1.webp, a seamless alpha tile made by a script — spectral
+ * noise, warped, thresholded; two copies at different sizes and speeds).
+ *
  * Assets (/video and /img ship with a one-year immutable cache, so a changed
  * file needs a new name):
  *   /video/rts-hero-v4.mp4, -m.mp4    — short-GOP H.264, 720p, 4.6 / 3.0 MB
@@ -144,8 +161,8 @@ const picks = SET.id === 'protectors';
     <div class="hero__vignette" aria-hidden="true"></div>
 
     <div class="hero__copy">
-      <p class="hero__eyebrow">Harrison Saito · Men's coaching · Chatswood, Sydney</p>
-      <h1 class="hero__title">Son of a <mark>Karate Grand Master</mark></h1>
+      <p class="hero__eyebrow"><span>Harrison Saito · Men's coaching</span><i aria-hidden="true"> · </i><span>Chatswood, Sydney</span></p>
+      <h1 class="hero__title">Son of a<br /><mark>Karate Grand Master</mark></h1>
       <p class="hero__sub">17+ Years Karate | Coach | Buddhist</p>
       <p class="hero__ctas">
         <a class="hero__btn" href="/book" data-track="cta_click" data-track-label="Hero — Book a discovery chat" data-track-section="hero">Let me walk with you</a>
@@ -161,24 +178,20 @@ const picks = SET.id === 'protectors';
           <h2 class="beat__title" set:html={SET.title} />
           <p class="beat__lede">{SET.lede}</p>
         </header>
-        <div class="fy__grid beat__grid" data-stagger>
-          {SET.badges.map((c) =>
-            picks ? (
-              <button type="button" class="fy__card reveal beat__card beat__card--pick" data-pick={c.tag} aria-pressed="false" data-track="fy_pick" data-track-label={c.tag} data-track-section="hero-beat">
-                <Fragment set:html={forYouIcon(c.icon)} />
-                <p><span class="beat__tag">{c.tag}</span>{c.text} <strong>{c.emphasis}</strong></p>
-              </button>
-            ) : (
-              <article class="fy__card reveal beat__card">
-                <Fragment set:html={forYouIcon(c.icon)} />
-                <p>{c.text} <strong>{c.emphasis}</strong></p>
-              </article>
-            )
-          )}
+        {/* Every card is a button (Dion, 18 Sep): the walk does not go on
+            until one is tapped. Any number can be — except the protectors
+            set, which asks for the one. */}
+        <div class="fy__grid beat__grid" data-stagger data-picks={picks ? 'one' : 'many'} role="group" aria-label={picks ? 'Tap the one that runs you' : 'Tap what is true for you'}>
+          {SET.badges.map((c, i) => (
+            <button type="button" class="fy__card reveal beat__card" style={`--k:${i}`} data-pick={c.tag ?? c.icon} aria-pressed="false" data-track="fy_pick" data-track-label={c.tag ?? c.icon} data-track-section="hero-beat">
+              <Fragment set:html={forYouIcon(c.icon)} />
+              <p>{c.tag && <span class="beat__tag">{c.tag}</span>}{c.text} <strong>{c.emphasis}</strong></p>
+            </button>
+          ))}
         </div>
         <p class="beat__foot">
+          <button class="beat__on" type="button" data-beat-on aria-disabled="true" data-closed={picks ? 'Tap the one that runs you to keep walking' : 'Tap what’s true for you to keep walking'} data-open="Keep walking ↓">{picks ? 'Tap the one that runs you to keep walking' : 'Tap what’s true for you to keep walking'}</button>
           <a class="btn btn--filled btn--wide" href={SET.cta.href} data-track="cta_click" data-track-label={`Beat (${SET.id}) — ${SET.cta.label}`} data-track-section="hero-beat">{SET.cta.label}</a>
-          <button class="beat__on" type="button" data-beat-on>Keep walking ↓</button>
         </p>
       </div>
     </div>
@@ -335,7 +348,7 @@ const picks = SET.id === 'protectors';
     top: 50%;
     margin-inline: auto;
     padding-inline: clamp(1.25rem, 5vw, 5.5rem);
-    max-width: 58rem;
+    max-width: 80rem;
     display: grid;
     justify-items: center;
     text-align: center;
@@ -345,17 +358,34 @@ const picks = SET.id === 'protectors';
     transform: translateY(calc(-50% + var(--p) * -300px));
     will-change: opacity, transform;
   }
+  /* One line where it fits. Where it cannot, it is two lines broken on
+     purpose — name and work, then the place — never "Sydney" left alone under
+     the rest (Dion, 18 Sep). Each phrase is unbreakable; below 620px the
+     second separator goes and the place takes its own line, and the type
+     scales so the longer phrase always fits a 320px screen. */
   .hero__eyebrow {
-    font-size: 0.74rem;
+    font-size: clamp(0.66rem, 3.1vw, 0.8rem);
     font-weight: 700;
     letter-spacing: 0.22em;
+    line-height: 1.7;
     text-transform: uppercase;
     color: #f2c275;
     margin: 0;
   }
+  .hero__eyebrow span { white-space: nowrap; }
+  .hero__eyebrow i { font-style: normal; }
+  @media (max-width: 620px) {
+    .hero__eyebrow { letter-spacing: 0.18em; }
+    .hero__eyebrow i { display: none; }
+    .hero__eyebrow span { display: block; }
+  }
+  /* Two lines, broken where the colour breaks: "Son of a" in white, then
+     the gold line whole. The size follows the width (7.7vw) so that gold line
+     fits on one line from a 320px phone up, and fills most of the measure
+     while it does; fitHeadings is the net under it. */
   .hero__title {
     font-family: var(--font-avant);
-    font-size: clamp(2.6rem, 1.4rem + 5.2vw, 5.9rem);
+    font-size: clamp(1.5rem, 7.7vw, 5.9rem);
     font-weight: 700;
     letter-spacing: -0.02em;
     line-height: 0.92;
@@ -365,13 +395,27 @@ const picks = SET.id === 'protectors';
     text-wrap: balance;
     text-shadow: 0 2px 30px rgba(0, 0, 0, 0.35);
   }
+  /* Gold leaf with ink in it (Dion, 18 Sep): the gold stays, and a dark mist
+     drifts through the letters the way cloud bands cross a gold-leaf screen.
+     Two copies of one seamless smoke tile (alpha, the site's ink) over the
+     leaf, sized in em so the wisps stay letter-sized at every width, each
+     travelling exactly one tile per loop so the loop has no seam. */
   .hero__title mark {
-    background: linear-gradient(to bottom right, #f2c275 0%, #daa24f 100%);
+    background:
+      url('/img/gold-smoke-v1.webp') 0 0 / 11em 5.5em repeat,
+      url('/img/gold-smoke-v1.webp') 6em 3em / 17em 8.5em repeat,
+      linear-gradient(100deg, #f9e0a3 0%, #f2c275 20%, #c48c3a 46%, #f3ca80 64%, #daa24f 82%, #a5732a 100%);
     -webkit-background-clip: text;
     background-clip: text;
     -webkit-text-fill-color: transparent;
     color: #f2c275;
+    animation: goldSmoke 80s linear infinite;
   }
+  @keyframes goldSmoke {
+    to { background-position: 11em 0, -11em 3em, 0 0; }
+  }
+  /* Off screen it holds still: nothing repaints under the walk. */
+  .hero--away .hero__title mark { animation-play-state: paused; }
   .hero__sub {
     font-family: var(--font-display);
     font-size: clamp(1.6rem, 1.4rem + 0.85vw, 2.15rem);
@@ -801,8 +845,12 @@ const picks = SET.id === 'protectors';
     transition: opacity 0.35s ease;
   }
   .hero--beat .beat { visibility: visible; pointer-events: auto; }
+  /* Squarer (Dion, 18 Sep): the head is centred and runs the panel's width
+     instead of sitting in its left half, and the six cards are near-square
+     tiles — mark on top, words under it — so nothing in the panel is air. */
   .beat__panel {
-    width: min(1120px, 100%);
+    width: min(920px, 100%);
+    text-align: center;
     background: var(--bg3);
     color: var(--fg1);
     border-radius: 28px;
@@ -812,45 +860,71 @@ const picks = SET.id === 'protectors';
     transform-origin: 50% 50%;
     will-change: transform;
   }
-  .beat .beat__head { margin-bottom: clamp(14px, 2.2vw, 24px); }
+  .beat .beat__head { margin: 0 auto clamp(14px, 2vw, 22px); display: grid; justify-items: center; }
   .beat .beat__eyebrow { margin: 0 0 6px; font-size: calc(var(--fs-md) * 1.02); }
+  /* Two lines, broken where the colour breaks: the dark sentence, then the
+     gold one. */
   .beat__title {
-    font-size: clamp(1.5rem, 0.9rem + 2.3vw, 2.9rem);
-    line-height: 1;
-    max-width: 24ch;
+    font-size: clamp(1.3rem, 0.8rem + 2vw, 2.45rem);
+    line-height: 1.02;
+    max-width: none;
     margin: 0 0 10px;
     text-wrap: balance;
   }
-  .beat__lede { margin: 0; color: var(--fg4); font-size: var(--fs-xs); max-width: 60ch; }
+  .beat__title :global(mark) { display: block; }
+  .beat__lede { margin: 0; color: var(--fg4); font-size: var(--fs-xs); max-width: 60ch; text-wrap: balance; }
   .beat .beat__grid { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
   .beat .beat__card {
-    flex-direction: row;
+    position: relative;
+    flex-direction: column;
     align-items: center;
-    gap: 14px;
-    padding: 16px 18px;
-  }
-  .beat__card :global(.fy__icon) { width: 36px; height: 36px; }
-  .beat .beat__card p { font-size: clamp(0.88rem, 0.78rem + 0.36vw, 1.08rem); line-height: 1.22; }
-  .beat__foot {
-    display: flex;
-    align-items: center;
-    flex-wrap: wrap;
-    gap: 10px 22px;
-    margin: clamp(14px, 2.2vw, 24px) 0 0;
-  }
-  /* The protectors set: each card is a button — tap the one that runs you. */
-  .beat .beat__card--pick {
+    justify-content: center;
+    gap: 12px;
+    aspect-ratio: 3 / 2;
+    padding: 14px 14px;
+    width: 100%;
     font: inherit;
     color: inherit;
-    text-align: left;
+    text-align: center;
     cursor: pointer;
-    width: 100%;
+    -webkit-tap-highlight-color: transparent;
   }
-  .beat .beat__card--pick:focus-visible { outline: 2px solid #daa24f; outline-offset: 2px; }
-  .beat .beat__card--pick[aria-pressed='true'] {
+  .beat__card :global(.fy__icon) { width: 52px; height: 52px; }
+  /* A sheen crosses each tile as its mark acts — the same clock (--ico-t,
+     --ico-at; morel-overrides.css), so the eye is led round the six. */
+  .beat .beat__card { overflow: hidden; }
+  .beat .beat__card::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background: linear-gradient(105deg, rgba(242, 194, 117, 0) 36%, rgba(242, 194, 117, 0.3) 50%, rgba(242, 194, 117, 0) 64%);
+    transform: translateX(-120%);
+  }
+  .beat .beat__card:global(.is-in)::before { animation: beatSheen var(--ico-t, 5.4s) ease-in-out infinite; animation-delay: var(--ico-at, 1.5s); }
+  @keyframes beatSheen { 0% { transform: translateX(-120%); } 30%, 100% { transform: translateX(120%); } }
+  .beat .beat__card p { font-size: clamp(0.88rem, 0.78rem + 0.4vw, 1.08rem); line-height: 1.2; }
+  .beat .beat__card:focus-visible { outline: 2px solid #daa24f; outline-offset: 2px; }
+  /* Chosen: the tile takes the gold, and a small seal lands in its corner. */
+  .beat .beat__card::after {
+    content: '';
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: #daa24f url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' fill='none' stroke='%2314100d' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M5.6 10.4l2.9 2.9 5.9-6.4'/%3E%3C/svg%3E") center / 100% no-repeat;
+    opacity: 0;
+    transform: scale(0.4);
+    transition: opacity 0.25s ease, transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+  .beat .beat__card[aria-pressed='true'] {
     border-color: #daa24f;
-    box-shadow: 0 0 0 2px rgba(218, 162, 79, 0.45), 0 14px 30px rgba(20, 16, 13, 0.12);
+    background: linear-gradient(160deg, #fffaf0 0%, #f8e9cb 100%);
+    box-shadow: 0 0 0 2px rgba(218, 162, 79, 0.5), 0 14px 30px rgba(20, 16, 13, 0.12);
   }
+  .beat .beat__card[aria-pressed='true']::after { opacity: 1; transform: scale(1); }
   .beat__tag {
     display: block;
     margin-bottom: 4px;
@@ -859,31 +933,80 @@ const picks = SET.id === 'protectors';
     letter-spacing: 0.2em;
     color: #b07932;
   }
-  .beat__on {
-    background: none;
-    border: 0;
-    padding: 6px 0;
-    font: inherit;
-    font-size: 1rem;
-    font-weight: 500;
-    color: var(--fg3);
-    text-decoration: underline;
-    text-decoration-color: rgba(176, 121, 50, 0.55);
-    text-underline-offset: 0.25em;
-    cursor: pointer;
+  .beat__foot {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 10px 18px;
+    margin: clamp(14px, 2vw, 22px) 0 0;
   }
-  .beat__on:hover { color: var(--fg1); text-decoration-color: var(--primary); }
-  @media (max-width: 1000px) {
+  /* The way on. Shut, it is the instruction, in words; once a card is
+     chosen it becomes the button. A scroll that meets the gate nudges it. */
+  .beat__on {
+    font: inherit;
+    font-family: var(--font-base);
+    font-size: clamp(0.82rem, 0.78rem + 0.2vw, 0.95rem);
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    line-height: 1.6;
+    border-radius: 100px;
+    padding: 0.65rem clamp(1.1rem, 2.4vw, 1.9rem) 0.5rem;
+    border: 1.5px solid #b07932;
+    background: transparent;
+    color: var(--fg1);
+    cursor: pointer;
+    transition: background 0.3s ease, color 0.3s ease, border-color 0.3s ease, transform 0.3s ease;
+  }
+  .beat__on:hover { background: #14100d; border-color: #14100d; color: #fcfaf8; }
+  .beat__on[aria-disabled='true'] {
+    border-color: transparent;
+    border-style: dashed;
+    border-color: rgba(176, 121, 50, 0.6);
+    color: #8a5c20;
+    cursor: default;
+    letter-spacing: 0.08em;
+  }
+  .beat__on[aria-disabled='true']:hover { background: transparent; color: #8a5c20; border-color: rgba(176, 121, 50, 0.6); }
+  .beat__panel.is-open .beat__on { animation: beatOpen 0.7s cubic-bezier(0.34, 1.56, 0.64, 1) 1; }
+  .beat__panel.is-nudge .beat__on { animation: beatNudge 0.6s ease 1; }
+  .beat__panel.is-nudge .beat__card:not([aria-pressed='true']) { animation: beatAsk 0.6s ease 1; animation-delay: calc(var(--k, 0) * 40ms); }
+  @keyframes beatOpen { 0% { transform: scale(0.92); } 100% { transform: scale(1); } }
+  @keyframes beatNudge { 0%, 100% { transform: translateX(0); } 20% { transform: translateX(-5px); } 45% { transform: translateX(5px); } 70% { transform: translateX(-3px); } }
+  @keyframes beatAsk { 0%, 100% { border-color: var(--bg4); } 45% { border-color: #daa24f; box-shadow: 0 0 0 2px rgba(218, 162, 79, 0.35); } }
+  /* A short screen (a laptop with the consent bar up): the panel goes wide
+     and the tiles shallow, so it is read at close to full size rather than
+     scaled down to fit. */
+  @media (min-width: 761px) and (max-height: 800px) {
+    .beat__panel { width: min(1060px, 100%); padding-block: clamp(16px, 2vw, 26px); }
+    .beat .beat__card { aspect-ratio: 2 / 1; gap: 8px; padding: 10px 14px; }
+    .beat__card :global(.fy__icon) { width: 42px; height: 42px; }
+    .beat__lede { display: none; }
+    .beat__title { margin-bottom: 0; }
+  }
+  @media (max-width: 760px) {
     .beat .beat__grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .beat .beat__card { aspect-ratio: auto; min-height: 7.4rem; }
+    /* The two sentences run on: at this width each would wrap on its own and
+       the title would stand four lines tall. */
+    .beat__title :global(mark) { display: inline; }
   }
   @media (max-width: 600px) {
-    .beat__panel { border-radius: 20px; }
+    .beat__panel { border-radius: 20px; padding: 14px 10px 12px; }
+    .beat .beat__head { margin-bottom: 10px; }
+    .beat .beat__eyebrow { margin-bottom: 2px; }
+    .beat__title { margin-bottom: 0; }
     .beat__lede { display: none; }
-    .beat .beat__grid { gap: 8px; }
-    .beat .beat__card { flex-direction: column; align-items: flex-start; gap: 8px; padding: 12px; border-radius: 14px; }
-    .beat__card :global(.fy__icon) { width: 28px; height: 28px; }
-    .beat .beat__card p { font-size: 0.8rem; }
-    .beat__foot .btn { width: 100%; }
+    .beat .beat__grid { gap: 6px; }
+    .beat .beat__card { gap: 6px; padding: 10px 6px; border-radius: 14px; min-height: 6.1rem; }
+    .beat .beat__card::after { top: 7px; right: 7px; width: 16px; height: 16px; }
+    .beat__card :global(.fy__icon) { width: 30px; height: 30px; }
+    .beat .beat__card p { font-size: 0.78rem; line-height: 1.16; }
+    .beat__foot { gap: 6px; margin-top: 10px; }
+    .beat__foot .btn, .beat__on { width: 100%; }
+    .beat__foot .btn { padding-block: 0.5rem 0.38rem; }
+    .beat__on { font-size: 0.72rem; padding: 0.45rem 0.6rem 0.32rem; }
   }
 
   @media (max-width: 700px) {
@@ -908,6 +1031,7 @@ const picks = SET.id === 'protectors';
     .hero__plate { transform: none; opacity: 1; }
     .hero__copy { opacity: 1; transform: translateY(-50%); }
     .hero__cue { display: none; }
+    .hero__title mark { animation: none; }
   }
 </style>
 
@@ -923,15 +1047,27 @@ const picks = SET.id === 'protectors';
        enquiry fy-<id>), and reported once so sets can be compared. A protector
        tap is remembered too (fy-pick-<name>). */
     var fy = hero.dataset.fy || '';
-    try { if (fy) sessionStorage.setItem('rts-fy', fy); } catch (e) {}
     (window as any).dataLayer = (window as any).dataLayer || [];
     (window as any).dataLayer.push({ event: 'fy_view', fy_set: fy, page_path: location.pathname });
-    hero.querySelectorAll<HTMLButtonElement>('[data-pick]').forEach(function (btn, _i, all) {
+    /* The cards: tap what is true (any number; the protectors set takes one).
+       The picks ride to the lead form, and the first one opens the gate. */
+    var pickBtns = [].slice.call(hero.querySelectorAll('[data-pick]')) as HTMLButtonElement[];
+    var pickOne = !!hero.querySelector('[data-picks="one"]');
+    var onPick = function () {};
+    function picked() { return pickBtns.filter(function (b) { return b.getAttribute('aria-pressed') === 'true'; }); }
+    try {
+      var had = (sessionStorage.getItem('rts-fy') === fy && sessionStorage.getItem('rts-fy-pick')) || '';
+      if (had) had.split(',').forEach(function (k) { pickBtns.forEach(function (b) { if (b.dataset.pick === k) b.setAttribute('aria-pressed', 'true'); }); });
+    } catch (e) {}
+    pickBtns.forEach(function (btn) {
       btn.addEventListener('click', function () {
-        all.forEach(function (b) { b.setAttribute('aria-pressed', b === btn ? 'true' : 'false'); });
-        try { sessionStorage.setItem('rts-fy-pick', btn.dataset.pick || ''); } catch (e) {}
+        if (pickOne) pickBtns.forEach(function (b) { b.setAttribute('aria-pressed', b === btn ? 'true' : 'false'); });
+        else btn.setAttribute('aria-pressed', btn.getAttribute('aria-pressed') === 'true' ? 'false' : 'true');
+        try { sessionStorage.setItem('rts-fy-pick', picked().map(function (b) { return b.dataset.pick; }).join(',')); } catch (e) {}
+        if (picked().length) onPick();
       });
     });
+    try { if (fy) sessionStorage.setItem('rts-fy', fy); } catch (e) {}
 
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
 
@@ -1022,8 +1158,10 @@ const picks = SET.id === 'protectors';
 
     /* ---- paint: everything the page shows is a function of p ---- */
     var target = 0, eased = 0, beatOn = false, cardsIn = false, meetOn = false;
+    var away = false;
     function paint(p: number) {
       st.setProperty('--p', p.toFixed(4));
+      if ((p > 0.13) !== away) { away = !away; hero!.classList.toggle('hero--away', away); }
       if (filmOn) {
         var still = clamp((eased - HOLD_FROM_T) / (T_END - HOLD_FROM_T), 0, 1);
         st.setProperty('--hold', still.toFixed(3));
@@ -1073,6 +1211,49 @@ const picks = SET.id === 'protectors';
       }
     }
 
+    /* ---- the gate (Dion, 18 Sep): the walk does not pass the doors until a
+       card is tapped. The catch below lands the scroll on the panel as
+       before; what changes is that the hold no longer times out — it ends
+       when a card is chosen (remembered for the session, so coming back to
+       the page is not a second toll). Up is always free, and so is any way
+       on that is plainly deliberate: a link to a section further down, focus
+       moving past the hero by keyboard, or a page that opens already below
+       the doors. A scroll that meets the gate nudges the instruction. ---- */
+    var gateOpen = false, bootUntil = performance.now() + 900, nudgeAt = 0;
+    var onBtn = beatEl.querySelector<HTMLButtonElement>('[data-beat-on]')!;
+    try { gateOpen = sessionStorage.getItem('rts-gate') === '1'; } catch (e) {}
+    function showGate() {
+      onBtn.textContent = (gateOpen ? onBtn.dataset.open : onBtn.dataset.closed) || '';
+      if (gateOpen) onBtn.removeAttribute('aria-disabled'); else onBtn.setAttribute('aria-disabled', 'true');
+    }
+    function openGate(how: string) {
+      if (gateOpen) return;
+      gateOpen = true;
+      try { sessionStorage.setItem('rts-gate', '1'); } catch (e) {}
+      showGate();
+      panel!.classList.add('is-open');
+      (window as any).dataLayer.push({ event: 'fy_gate_open', fy_set: fy, fy_how: how, fy_picks: picked().length });
+      unlock();
+    }
+    function nudge() {
+      var now = performance.now();
+      if (now - nudgeAt < 900) return;
+      nudgeAt = now;
+      panel!.classList.remove('is-nudge');
+      void panel!.offsetWidth;
+      panel!.classList.add('is-nudge');
+    }
+    onPick = function () { openGate('pick'); };
+    showGate();
+    document.addEventListener('click', function (e) {
+      var a = (e.target as HTMLElement).closest && (e.target as HTMLElement).closest('a[href*="#"]');
+      if (a && !a.hasAttribute('data-beat-go')) openGate('anchor');
+    }, true);
+    document.addEventListener('focusin', function (e) {
+      var el = e.target as Node;
+      if (!hero!.contains(el) && (hero!.compareDocumentPosition(el) & Node.DOCUMENT_POSITION_FOLLOWING)) openGate('focus');
+    });
+
     /* ---- the catch: a scroll arriving from above stops on the panel ---- */
     var armed = true, prevP = 0, quietUntil = performance.now() + 700;
     var locked = false, lockTimer = 0, lockY = 0, touchY = -1, lockedAt = 0, lastInput = 0;
@@ -1091,6 +1272,7 @@ const picks = SET.id === 'protectors';
         if (t && touchY >= 0 && t.clientY > touchY + 8) { unlock(); return; }   /* finger down = page up */
       }
       lastInput = performance.now();
+      if (!gateOpen) nudge();
       /* A touch scroll already under way cannot be cancelled (the browser
          says so in the console); the pin in watch() holds the page instead. */
       if (e.cancelable) e.preventDefault();
@@ -1100,7 +1282,7 @@ const picks = SET.id === 'protectors';
     function onKey(e: KeyboardEvent) {
       var el = e.target as HTMLElement | null;
       if (e.key === ' ' && el && el.closest('a,button,input,textarea,select')) return;
-      if (DOWN_KEYS[e.key]) { lastInput = performance.now(); e.preventDefault(); }
+      if (DOWN_KEYS[e.key]) { lastInput = performance.now(); e.preventDefault(); if (!gateOpen) nudge(); }
     }
     function lock(y: number) {
       lockY = y;
@@ -1117,6 +1299,8 @@ const picks = SET.id === 'protectors';
     }
     function release() {
       var now = performance.now();
+      /* Shut, the gate does not time out: only a pick (or going back up) ends it. */
+      if (!gateOpen) { lockTimer = window.setTimeout(release, 200); return; }
       if (now - lockedAt >= MAX_LOCK_MS || now - lastInput >= QUIET_MS) unlock();
       else lockTimer = window.setTimeout(release, 60);
     }
@@ -1148,6 +1332,18 @@ const picks = SET.id === 'protectors';
         if (window.scrollY > lockY + 2) { lastInput = performance.now(); snapTo(lockY); }
         else if (window.scrollY < lockY - 24) unlock();
       }
+      /* The gate's backstop: whatever moved the page (a scrollbar drag, a
+         key, a fling that began above the catch), it does not rest below the
+         panel while the gate is shut. A page that OPENS below the doors — a
+         restored scroll, a hash — is let through instead. */
+      if (!gateOpen) {
+        var now = performance.now();
+        if (now < bootUntil) { if (p > pB) openGate('deep'); }
+        else if (now > quietUntil) {
+          var yL = yAt(pA + (pB - pA) * BEAT_AT);
+          if (window.scrollY > yL + 2) { snapTo(yL); lock(yL); armed = false; nudge(); }
+        }
+      }
       prevP = p;
     }
 
@@ -1162,7 +1358,8 @@ const picks = SET.id === 'protectors';
         window.scrollTo({ top: y, behavior: 'smooth' });
       }
     }
-    beatEl.querySelector('[data-beat-on]')!.addEventListener('click', function () {
+    onBtn.addEventListener('click', function () {
+      if (!gateOpen) { nudge(); return; }
       armed = false;
       glide(yAt(pB + (1 - pB) * 0.12), 1.4);
     });

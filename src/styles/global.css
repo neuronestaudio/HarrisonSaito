@@ -108,6 +108,9 @@ img, video { height: auto; }
 input, button, textarea, select { font: inherit; color: inherit; }
 
 p, h1, h2, h3, h4, h5, h6 { overflow-wrap: break-word; }
+/* No word left alone on a last line (Dion, 18 Sep). This is the first line of
+   defence; fitText in scripts/morel.ts is the net under it. */
+p, li, blockquote, figcaption, dd, dt, summary, label, cite { text-wrap: pretty; }
 
 h1, h2, h3, h4 {
   font-family: var(--font-display);
@@ -428,6 +431,7 @@ a { color: inherit; text-decoration: none; }
 }
 
 .skip-link {
+  white-space: nowrap;
   position: absolute;
   top: 0; left: 50%;
   transform: translate(-50%, -120%);

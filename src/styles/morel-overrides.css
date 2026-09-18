@@ -180,22 +180,146 @@
   .mo .core__grid > :nth-child(3):last-child { grid-column: 1 / -1; }
 }
 
-/* ---- the badge-set icons (src/data/badges.ts, 18 Sep 2026) ----------------
-   Four more idle motions for the new marks, on the same clock as the six
-   above, and the draw-on extended to ellipses, which the new marks use. */
+/* ---- the marks act (Dion, 18 Sep: "animate them… go hard") ----------------
+   After its draw-on, each mark acts out its sentence: the beam presses down
+   on the column, the comment jolts the bubble, the knob is dragged to off and
+   springs back on, the pause cannot hold still.
+
+   One clock. Every act lasts --ico-t and does its work in the first third of
+   it, then rests; each card starts 0.9 s after the one before (--k, its place
+   in the grid), so the motion travels round the panel one mark at a time
+   rather than six things twitching at once. Transforms are in the icon's own
+   32-unit grid (2px here is 2/32 of the mark). Flames and rings, which never
+   rest in life, run continuously.
+
+   A stroke that is REDRAWN rather than moved (a tick, a crack, a wave)
+   carries .ico-redraw itself, with --s for its turn within the act. */
+.mo .fy__grid > :nth-child(1) { --k: 0; }
+.mo .fy__grid > :nth-child(2) { --k: 1; }
+.mo .fy__grid > :nth-child(3) { --k: 2; }
+.mo .fy__grid > :nth-child(4) { --k: 3; }
+.mo .fy__grid > :nth-child(5) { --k: 4; }
+.mo .fy__grid > :nth-child(6) { --k: 5; }
+.mo .fy__card {
+  --ico-t: 5.4s;
+  --ico-at: calc(var(--d, 0ms) + 1500ms + var(--k, 0) * 900ms);
+}
+.mo .fy__icon { color: var(--gold-deep); overflow: visible; }
 .mo .fy__icon ellipse:not(.ico-ping) { stroke-dasharray: 1; stroke-dashoffset: 1; }
 .mo .fy__card.is-in .fy__icon ellipse:not(.ico-ping) {
   animation: icoDraw 1.1s var(--ease-out-quart) both;
   animation-delay: calc(var(--d, 0ms) + 180ms);
 }
-.mo .fy__card.is-in .ico-tug { animation: icoTug 4.4s ease-in-out infinite; animation-delay: calc(var(--d, 0ms) + 1600ms); }
-.mo .fy__card.is-in .ico-tilt { animation: icoTilt 5s ease-in-out infinite; animation-delay: calc(var(--d, 0ms) + 1600ms); }
-.mo .fy__card.is-in .ico-slide { animation: icoSlide 3.6s ease-in-out infinite; animation-delay: calc(var(--d, 0ms) + 1500ms); }
-.mo .fy__card.is-in .ico-rock { animation: icoRock 6s ease-in-out infinite; animation-delay: calc(var(--d, 0ms) + 1600ms); }
-@keyframes icoTug { 0%, 70%, 100% { transform: translateX(0); } 80% { transform: translateX(-2.2px); } 88% { transform: translateX(0.4px); } }
-@keyframes icoTilt { 0%, 100% { transform: rotate(0); } 50% { transform: rotate(-5deg); } }
-@keyframes icoSlide { 0%, 100% { transform: translateX(0); } 50% { transform: translateX(1.6px); } }
-@keyframes icoRock { 0%, 70%, 100% { transform: rotate(0); } 85% { transform: rotate(-24deg); } }
+
+/* every act: on the clock, from its own centre unless it says otherwise */
+.mo .fy__card.is-in .fy__icon [class^="ico-"]:not(.ico-ping):not(.ico-redraw):not(.ico-flicker):not(.ico-bar) {
+  animation-duration: var(--ico-t);
+  animation-delay: var(--ico-at);
+  animation-iteration-count: infinite;
+  animation-timing-function: cubic-bezier(0.45, 0, 0.25, 1);
+}
+.mo .fy__card.is-in .fy__icon .ico-late { animation-delay: calc(var(--ico-at) + 320ms) !important; }
+
+.mo .fy__card.is-in .ico-blink { animation-name: icoBlink2; }
+.mo .fy__card.is-in .ico-bob { animation-name: icoBob2; }
+.mo .fy__card.is-in .ico-nod { transform-origin: 0% 100%; animation-name: icoNod2; }
+.mo .fy__card.is-in .ico-link-l { animation-name: icoApartL; }
+.mo .fy__card.is-in .ico-link-r { animation-name: icoApartR; }
+.mo .fy__card.is-in .ico-tug { animation-name: icoTug2; }
+.mo .fy__card.is-in .ico-tilt { animation-name: icoTilt2; }
+.mo .fy__card.is-in .ico-sway { transform-origin: 50% 100%; animation-name: icoSway; }
+.mo .fy__card.is-in .ico-lean { transform-origin: 50% 100%; animation-name: icoLean; }
+.mo .fy__card.is-in .ico-pop { animation-name: icoPop; }
+.mo .fy__card.is-in .ico-press { animation-name: icoPress; }
+.mo .fy__card.is-in .ico-squash { transform-origin: 50% 100%; animation-name: icoSquash; }
+.mo .fy__card.is-in .ico-shake { animation-name: icoShake; }
+.mo .fy__card.is-in .ico-ring { transform-origin: 30% 70%; animation-name: icoRing; }
+.mo .fy__card.is-in .ico-zap { animation-name: icoZap; }
+.mo .fy__card.is-in .ico-sag { transform-origin: 0% 100%; animation-name: icoSag; }
+.mo .fy__card.is-in .ico-shrug { animation-name: icoShrug; }
+.mo .fy__card.is-in .ico-rise { animation-name: icoRise; }
+.mo .fy__card.is-in .ico-pulse { animation-name: icoPulse; }
+.mo .fy__card.is-in .ico-twinkle { animation-name: icoTwinkle; }
+.mo .fy__card.is-in .ico-sweep { transform-origin: 50% 0%; animation-name: icoSweep; }
+.mo .fy__card.is-in .ico-wander { animation-name: icoWander; }
+.mo .fy__card.is-in .ico-leave { animation-name: icoLeave; }
+.mo .fy__card.is-in .ico-dart { animation-name: icoDart; }
+.mo .fy__card.is-in .ico-spin { animation-name: icoSpin; }
+.mo .fy__card.is-in .ico-turn { animation-name: icoTurn; }
+.mo .fy__card.is-in .ico-lift { animation-name: icoLift; }
+.mo .fy__card.is-in .ico-climb { animation-name: icoClimb; }
+.mo .fy__card.is-in .ico-glint { animation-name: icoGlint; }
+.mo .fy__card.is-in .ico-wave { transform-origin: 0% 50%; animation-name: icoWave; }
+.mo .fy__card.is-in .ico-flip { animation-name: icoFlip; }
+.mo .fy__card.is-in .ico-step-a { animation-name: icoStepA; }
+.mo .fy__card.is-in .ico-step-b { animation-name: icoStepB; }
+
+/* never at rest: the flame, and the rings going out */
+.mo .fy__card.is-in .ico-flicker { transform-origin: 50% 100%; animation: icoFlicker2 1.3s ease-in-out infinite; animation-delay: calc(var(--d, 0ms) + 1300ms); }
+.mo .fy__card.is-in .ico-ping { animation: icoPing2 var(--ico-t) ease-out infinite; animation-delay: var(--ico-at); }
+/* a part that blinks out: drawn on first, then three blinks on the clock */
+.mo .fy__card.is-in .ico-bar {
+  animation: icoDraw 1.1s var(--ease-out-quart) both, icoBlinkOut var(--ico-t) ease-in-out infinite;
+  animation-delay: calc(var(--d, 0ms) + 180ms), var(--ico-at);
+}
+/* a stroke drawn again: wiped, then run from its start, in turn */
+.mo .fy__card.is-in .fy__icon .ico-redraw:is(path, circle, ellipse):not(.ico-ping) {
+  animation: icoDraw 1.1s var(--ease-out-quart) both, icoRedraw var(--ico-t) cubic-bezier(0.45, 0, 0.25, 1) infinite;
+  animation-delay: calc(var(--d, 0ms) + 180ms), calc(var(--ico-at) + var(--s, 0) * 170ms);
+}
+
+@keyframes icoBlink2 { 0%, 3%, 9%, 15%, 100% { transform: scaleY(1); } 6%, 12% { transform: scaleY(0.1); } }
+@keyframes icoBob2 { 0%, 30%, 100% { transform: translateY(0); } 10% { transform: translateY(-2.4px); } 20% { transform: translateY(0.5px); } }
+@keyframes icoNod2 { 0%, 32%, 100% { transform: rotate(0); } 7% { transform: rotate(-17deg); } 14% { transform: rotate(5deg); } 21% { transform: rotate(-9deg); } 27% { transform: rotate(2deg); } }
+@keyframes icoApartL { 0%, 30%, 100% { transform: translate(0, 0); } 12%, 20% { transform: translate(-2.8px, 2.8px); } 26% { transform: translate(0.5px, -0.5px); } }
+@keyframes icoApartR { 0%, 30%, 100% { transform: translate(0, 0); } 12%, 20% { transform: translate(2.8px, -2.8px); } 26% { transform: translate(-0.5px, 0.5px); } }
+@keyframes icoTug2 { 0%, 34%, 100% { transform: translateX(0); } 12%, 19% { transform: translateX(-9px); } 25% { transform: translateX(1.2px); } 29% { transform: translateX(-0.5px); } }
+@keyframes icoTilt2 { 0%, 34%, 100% { transform: rotate(0); } 8% { transform: rotate(-11deg); } 17% { transform: rotate(8deg); } 24% { transform: rotate(-4deg); } 30% { transform: rotate(1.5deg); } }
+@keyframes icoSway { 0%, 34%, 100% { transform: rotate(0); } 10% { transform: rotate(-7deg); } 22% { transform: rotate(5deg); } }
+@keyframes icoLean { 0%, 100% { transform: rotate(0) scaleY(1); } 12% { transform: rotate(-5deg) scaleY(1.05); } 24% { transform: rotate(4deg) scaleY(0.97); } 34% { transform: rotate(0) scaleY(1); } }
+@keyframes icoPop { 0%, 22%, 100% { transform: scale(1); } 8% { transform: scale(0.7); } 15% { transform: scale(1.25); } }
+@keyframes icoPress { 0%, 32%, 100% { transform: translateY(0); } 9% { transform: translateY(2.6px); } 16% { transform: translateY(2.2px); } 24% { transform: translateY(-0.7px); } }
+@keyframes icoSquash { 0%, 32%, 100% { transform: scaleY(1); } 9% { transform: scaleY(0.84); } 16% { transform: scaleY(0.87); } 24% { transform: scaleY(1.04); } }
+@keyframes icoShake { 0%, 28%, 100% { transform: translate(0, 0) rotate(0); } 4% { transform: translate(-1.8px, 0.4px) rotate(-3deg); } 8% { transform: translate(1.8px, -0.4px) rotate(3deg); } 12% { transform: translate(-1.4px, 0) rotate(-2deg); } 16% { transform: translate(1.2px, 0) rotate(2deg); } 20% { transform: translate(-0.7px, 0) rotate(-1deg); } 24% { transform: translate(0.4px, 0); } }
+@keyframes icoRing { 0%, 30%, 100% { transform: rotate(0); } 3%, 11%, 19% { transform: rotate(-13deg); } 7%, 15%, 23% { transform: rotate(11deg); } 27% { transform: rotate(-3deg); } }
+@keyframes icoZap { 0%, 26%, 100% { transform: scale(1); opacity: 1; } 3% { transform: scale(0.8); opacity: 0.2; } 7% { transform: scale(1.4); opacity: 1; } 11% { opacity: 0.35; } 14% { transform: scale(1.15); opacity: 1; } 20% { transform: scale(0.96); } }
+@keyframes icoSag { 0%, 34%, 100% { transform: rotate(0); } 12%, 22% { transform: rotate(5deg) translateY(1px); } }
+@keyframes icoShrug { 0%, 34%, 100% { transform: translateY(0); } 8%, 22% { transform: translateY(-2.2px); } 28% { transform: translateY(0.5px); } }
+@keyframes icoRise { 0% { transform: translate(0, 0); opacity: 1; } 22% { transform: translate(1.6px, -4px); opacity: 0; } 23% { transform: translate(-1px, 2.5px); opacity: 0; } 34%, 100% { transform: translate(0, 0); opacity: 1; } }
+@keyframes icoPulse { 0%, 30%, 100% { transform: scale(1); } 6% { transform: scale(1.2); } 12% { transform: scale(0.97); } 18% { transform: scale(1.13); } 24% { transform: scale(0.99); } }
+@keyframes icoTwinkle { 0%, 34%, 100% { transform: rotate(0) scale(1); } 10% { transform: rotate(40deg) scale(1.18); } 22% { transform: rotate(72deg) scale(0.94); } 28% { transform: rotate(72deg) scale(1.03); } 33.9% { transform: rotate(72deg) scale(1); } }
+@keyframes icoSweep { 0%, 36%, 100% { transform: rotate(0); } 10% { transform: rotate(-9deg); } 24% { transform: rotate(9deg); } }
+@keyframes icoWander { 0%, 100% { transform: translateX(0.8px); } 10% { transform: translateX(-2.8px); } 22% { transform: translateX(2.6px); } 34% { transform: translateX(-1.6px); } 50% { transform: translateX(1.9px); } 68% { transform: translateX(-2.2px); } 84% { transform: translateX(1.4px); } }
+@keyframes icoLeave { 0% { transform: translateX(0); opacity: 1; } 16% { transform: translateX(6px); opacity: 0; } 17% { transform: translateX(-6px); opacity: 0; } 30%, 100% { transform: translateX(0); opacity: 1; } }
+@keyframes icoDart { 0%, 34%, 100% { transform: translateX(0); } 5%, 13% { transform: translateX(-3.4px); } 18%, 27% { transform: translateX(3.4px); } }
+@keyframes icoSpin { 0% { transform: rotate(0); } 30%, 100% { transform: rotate(360deg); } }
+@keyframes icoTurn { 0% { transform: rotate(0); } 28%, 100% { transform: rotate(90deg); } }
+@keyframes icoLift { 0%, 34%, 100% { transform: translateY(0); } 10%, 20% { transform: translateY(-3px); } 25% { transform: translateY(0.8px); } 29% { transform: translateY(-0.3px); } }
+@keyframes icoClimb { 0%, 36%, 100% { transform: translate(0, 0); } 10% { transform: translate(1.6px, -3px); } 16%, 24% { transform: translate(3px, -2.4px); } 31% { transform: translate(-0.3px, 0.3px); } }
+@keyframes icoGlint { 0%, 30%, 100% { transform: translate(0, 0); opacity: 1; } 12% { transform: translate(5px, 6px); opacity: 0.15; } 13% { transform: translate(-2px, -2px); opacity: 0; } 24% { transform: translate(0, 0); opacity: 1; } }
+@keyframes icoWave { 0%, 34%, 100% { transform: skewY(0) scaleX(1); } 6% { transform: skewY(-14deg) scaleX(0.9); } 12% { transform: skewY(12deg) scaleX(1.06); } 18% { transform: skewY(-9deg) scaleX(0.94); } 24% { transform: skewY(6deg); } 29% { transform: skewY(-2deg); } }
+@keyframes icoFlip { 0% { transform: rotate(0); } 24%, 52% { transform: rotate(180deg); } 76%, 100% { transform: rotate(360deg); } }
+@keyframes icoStepA { 0%, 34%, 100% { opacity: 1; transform: translateY(0); } 6%, 14% { opacity: 0.2; transform: translateY(1.6px); } 20% { opacity: 1; transform: translateY(-1px); } }
+@keyframes icoStepB { 0%, 12%, 40%, 100% { opacity: 1; transform: translateY(0); } 18%, 26% { opacity: 0.2; transform: translateY(1.6px); } 32% { opacity: 1; transform: translateY(-1px); } }
+@keyframes icoFlicker2 {
+  0%, 100% { transform: scale(1, 1) skewX(0); }
+  25% { transform: scale(1.1, 0.9) skewX(-6deg); }
+  50% { transform: scale(0.92, 1.12) skewX(4deg); }
+  75% { transform: scale(1.05, 0.96) skewX(-2deg); }
+}
+@keyframes icoPing2 { 0% { transform: scale(0.6); opacity: 0; } 5% { opacity: 0.75; } 34% { transform: scale(1.55); opacity: 0; } 100% { transform: scale(1.55); opacity: 0; } }
+@keyframes icoBlinkOut { 0%, 6%, 12%, 18%, 30%, 100% { opacity: 1; } 3%, 9%, 15% { opacity: 0.12; } 24% { opacity: 0.12; } }
+@keyframes icoRedraw { 0% { stroke-dashoffset: 0; opacity: 1; } 3% { stroke-dashoffset: 0; opacity: 0; } 4% { stroke-dashoffset: 1; opacity: 1; } 22%, 100% { stroke-dashoffset: 0; opacity: 1; } }
+
+/* The card answers the hand: the mark lifts and warms on hover, and jumps
+   once when its card is chosen. (scale/translate, not transform — the acts
+   inside use transform.) */
+.mo .fy__card .fy__icon { transition: scale 0.45s var(--ease-out-quart), translate 0.45s var(--ease-out-quart), color 0.3s ease; }
+.mo .fy__card:hover .fy__icon { transform: none; scale: 1.12; translate: 0 -2px; color: var(--primary); }
+.mo .fy__card[aria-pressed='true'] .fy__icon { animation: icoChosen 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) 1; color: #9a6620; }
+@keyframes icoChosen { 0% { scale: 0.8; } 55% { scale: 1.22; } 100% { scale: 1; } }
+
 @media (prefers-reduced-motion: reduce) {
   .mo .fy__icon ellipse { stroke-dashoffset: 0; animation: none; }
+  .mo .fy__card .fy__icon, .mo .fy__card:hover .fy__icon { scale: none; translate: none; animation: none; }
 }

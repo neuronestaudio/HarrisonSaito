@@ -135,9 +135,11 @@ const ogImage = new URL(image, SITE.domain).href;
     <script>
       import { initMotion } from '../scripts/motion';
       import { initTracking } from '../scripts/tracking';
+      import { wireFit } from '../scripts/fit';
 
       initMotion();
       initTracking();
+      wireFit();
     </script>
 
     <style is:global>

@@ -35,6 +35,10 @@ const ASSETS: Record<string, string> = {
   '/img/mark-seizanji-dark.png': '/img/mo/mark-seizanji-dark-v1.webp',
   '/img/logo-dark-512.png': '/img/logo-dark-512.webp',
   '/img/logo-light-512.png': '/img/logo-light-512.webp',
+  /* Dion, 18 Sep: the SBS World News picture is Harrison in his gi, from the
+     broadcast itself (its lower third names him "Shinbukan karate teacher"),
+     not the group shot. */
+  '/img/sbs-group.webp': '/img/sbs-karate-v1.webp',
 };
 
 function local<T>(value: T): T {
@@ -57,7 +61,10 @@ export const FOR_YOU_SECTION = local(S.FOR_YOU_SECTION);
 export const FOR_YOU = local(S.FOR_YOU);
 export const LOGOS = local(S.LOGOS);
 export const INTRO = local(S.INTRO);
-export const STORY_SECTION = local(S.STORY_SECTION);
+export const STORY_SECTION = {
+  ...local(S.STORY_SECTION),
+  posterAlt: 'Harrison Saito in his gi at the Shinbukan dojo, in the SBS World News feature that names him as a karate teacher',
+};
 export const PATTERNS_SECTION = local(S.PATTERNS_SECTION);
 export const PATTERNS = local(S.PATTERNS);
 export const PHASES = local(S.PHASES);
@@ -66,7 +73,11 @@ export const FAQ_SECTION = local(S.FAQ_SECTION);
 export const FAQ = local(S.FAQ);
 export const QUOTE = local(S.QUOTE);
 export const FILMS_SECTION = local(S.FILMS_SECTION);
-export const FILMS = local(S.FILMS);
+/* The SBS film card takes the second still from the broadcast, so the story's
+   poster and the film wall do not show the same frame twice. */
+export const FILMS = local(S.FILMS).map((f) =>
+  f.image === '/img/sbs-karate-v1.webp' ? { ...f, image: '/img/sbs-karate-2-v1.webp' } : f
+);
 export const FAMILY = local(S.FAMILY);
 /* Dion, 18 Sep: the close is just "Reach out." — the template's "If something
    here resonated," lead-in is dropped, and the line stands on its own. */

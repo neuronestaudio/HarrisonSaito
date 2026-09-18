@@ -51,9 +51,9 @@ const {
 
 const ABOUT: Choice[] = [
   { value: 'coaching', label: "Men's coaching", hint: 'One to one, with Harrison' },
-  { value: 'programme', label: 'Return to Self', hint: 'The twelve-week programme' },
+  { value: 'programme', label: 'Return to Self', hint: 'The 12-week programme' },
   { value: 'martial', label: 'Martial arts', hint: 'Shinbukan, Chatswood' },
-  { value: 'media', label: 'Media or speaking', hint: 'Interviews, talks, collaborations' },
+  { value: 'media', label: 'Media or speaking', hint: 'Interviews, talks and collaborations' },
   { value: 'other', label: 'Something else', hint: 'A question, or just a conversation' },
 ];
 
@@ -65,7 +65,7 @@ const TOPICS: Record<string, Choice[]> = {
     { value: 'on-the-call', label: "I'd rather say it on the call" },
   ],
   programme: [
-    { value: 'the-twelve-weeks', label: 'How the twelve weeks work', hint: 'Separate, return, integrate' },
+    { value: 'the-twelve-weeks', label: 'How the twelve weeks work', hint: 'Separate, return, then integrate' },
     { value: 'is-this-for-me', label: 'Whether this is for me', hint: 'Where you are, and where it leads' },
     { value: 'next-intake', label: 'When the next intake starts', hint: 'Places and timing' },
     { value: 'on-the-call', label: "I'd rather say it on the call" },
@@ -364,7 +364,9 @@ const presetLabel = preset ? ABOUT.find((c) => c.value === preset)?.label ?? '' 
   /* ---- choices: glass tiles that answer on tap ---- */
   .lf__choices { display: grid; gap: 0.6rem; }
   .lf__choices[hidden] { display: none; }
-  @media (min-width: 560px) { .lf__choices--two { grid-template-columns: 1fr 1fr; } }
+  /* Two-up only where each tile has room for its words: in a narrow column
+     (the campaign page at tablet width) a 90px tile set one word a line. */
+  .lf__choices--two { grid-template-columns: repeat(auto-fit, minmax(min(100%, 11.5rem), 1fr)); }
 
   .lf__choice {
     position: relative;
