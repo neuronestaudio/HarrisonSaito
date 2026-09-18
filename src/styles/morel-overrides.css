@@ -102,7 +102,10 @@
 .mo .chapter__number { font-size: clamp(2rem, 4vw, 3rem); font-weight: 700; line-height: 1; color: rgba(252, 250, 248, 0.75); text-shadow: 0 2px 20px rgba(0, 0, 0, 0.5); }
 .mo .creds__detail { gap: var(--sp-60); margin-top: var(--sp-80); }
 .mo .films__grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 20px; }
-@media (max-width: 900px) { .mo .films__grid { grid-template-columns: 1fr; } }
+/* Three cards across only where a film's title has room to set in pairs of
+   words; two below that, one on a phone. */
+@media (max-width: 1200px) { .mo .films__grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 700px) { .mo .films__grid { grid-template-columns: 1fr; } }
 
 /* the archive, thread by thread */
 .mo .thread__blurb { color: var(--fg4); max-width: 60ch; margin-top: var(--sp-30); }
@@ -156,3 +159,23 @@
 .mo .lp-foot { padding-block: var(--sp-50); display: flex; }
 .mo .lp-foot .wide { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: var(--sp-30); }
 .mo .lp-foot p { margin: 0; color: var(--fg4); }
+
+/* Headings never leave one word alone on a line (Dion, 18 Sep): balance
+   evens the lines out, so a two-line heading splits in the middle rather
+   than stranding its last word. */
+.mo h1, .mo h2, .mo h3, .mo .numbers__value, .mo .lockup span, .mo .quote-band__text { text-wrap: balance; }
+
+/* A film card in a grid is narrow: its title takes the card's whole width and
+   the play mark sits under it, rather than beside it eating a fifth of the
+   line — long titles then set in pairs of words, not one a line. */
+.mo .films__grid .film__inner { flex-direction: column; align-items: flex-start; gap: var(--sp-30); }
+.mo .films__grid .film__inner > div { width: 100%; }
+
+/* Three cards across leaves each 220px of line between 900 and 1200px — too
+   narrow for a three-word title to set on one line ("Discipline that holds"),
+   and on two lines one word is always alone. Two across there, the third
+   card spanning the row. */
+@media (min-width: 901px) and (max-width: 1200px) {
+  .mo .core__grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .mo .core__grid > :nth-child(3):last-child { grid-column: 1 / -1; }
+}

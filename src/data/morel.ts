@@ -60,6 +60,8 @@ export const QUOTE = local(S.QUOTE);
 export const FILMS_SECTION = local(S.FILMS_SECTION);
 export const FILMS = local(S.FILMS);
 export const FAMILY = local(S.FAMILY);
-export const CLOSE = local(S.CLOSE);
+/* Dion, 18 Sep: the close is just "Reach out." — the template's "If something
+   here resonated," lead-in is dropped, and the line stands on its own. */
+export const CLOSE = { ...local(S.CLOSE), title: '<mark>Reach out.</mark>' };
 export const NEWSLETTER = local(S.NEWSLETTER);
 export const WORKSHOPS_PAGE = local(S.PAGES.find((p) => p.slug === 'workshops')!);
