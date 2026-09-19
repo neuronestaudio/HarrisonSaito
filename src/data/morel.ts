@@ -19,12 +19,14 @@ const ROUTES: Record<string, string> = {
      /privacy, /terms and /#faq exist here under the same paths. */
 };
 
-/** Button words: sell without selling (Dion, 18 Sep) — "let me walk with
-    you", "break the cycle" — not "Book a discovery chat". */
+/** Button words. Not "Book a discovery chat" (Dion, 18 Sep: sell without
+    selling), and not "Let me walk with you" either (19 Sep: too close to the
+    reference, too spiritual). Firm, plain, and it leaves him room: the ask is
+    a conversation. */
 const LABELS: Record<string, string> = {
-  'Book a discovery chat': 'Let me walk with you',
+  'Book a discovery chat': 'Start the conversation',
   'Start the training': 'Break the cycle',
-  'Book when you’re ready': 'Walk with me when you’re ready',
+  'Book when you’re ready': 'Start when you’re ready',
 };
 
 /** Template asset → the versioned copy in public/img (immutable cache). */
@@ -56,7 +58,14 @@ function local<T>(value: T): T {
 
 export const asset = (path: string) => ASSETS[path] ?? path;
 
-export const HERO = local(S.HERO);
+/* 19 Sep: the landing title became "Break the habits you never chose." — the
+   template's arrival title — so the arrival takes the line the landing gave
+   up. It reads better here anyway: it is who he is, beside his photograph. */
+export const HERO = {
+  ...local(S.HERO),
+  titleLines: ['The Son Of', 'A Karate', '<mark>Grand Master.</mark>'],
+  mobileTitle: 'The Son Of A Karate Grand Master. <mark>Rebuild Self-Worth.</mark>',
+};
 export const FOR_YOU_SECTION = local(S.FOR_YOU_SECTION);
 export const FOR_YOU = local(S.FOR_YOU);
 export const LOGOS = local(S.LOGOS);

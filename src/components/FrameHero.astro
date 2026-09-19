@@ -97,7 +97,12 @@
  * still until the film armed and then cut to the first room, which read as a
  * video playing in the background.
  *
- * The call to action sells without selling: "Let me walk with you".
+ * The call to action sells without selling. (It read "Let me walk with you"
+ * for a day; Dion, 19 Sep: too close to the reference. Now "Start the
+ * conversation", and only once he has arrived — the first screen and the
+ * panel carry no booking button, because it broke the sequence: land, walk
+ * in, choose, "Learn more". That button is the only way past the doors; a
+ * pick enables it, and walking back up shuts the gate again.)
  *
  * The gate (Dion, 18 Sep, later: "we can't allow the user to scroll past that
  * door… lock until the user selects an option"). The pause is now a gate. The
@@ -162,11 +167,13 @@ const picks = SET.id === 'protectors';
 
     <div class="hero__copy">
       <p class="hero__eyebrow"><span>Harrison Saito · Men's coaching</span><i aria-hidden="true"> · </i><span>Chatswood, Sydney</span></p>
-      <h1 class="hero__title">Son of a<br /><mark>Karate Grand Master</mark></h1>
+      <h1 class="hero__title">Break the habits<br /><mark>you never chose.</mark></h1>
       <p class="hero__sub">17+ Years Karate | Coach | Buddhist</p>
+      {/* One way on (Dion, 19 Sep): no booking button up here — it broke the
+          sequence (land, walk in, choose, learn more). The booking asks come
+          once he has arrived. */}
       <p class="hero__ctas">
-        <a class="hero__btn" href="/book" data-track="cta_click" data-track-label="Hero — Book a discovery chat" data-track-section="hero">Let me walk with you</a>
-        <a class="hero__more" href="#for-you" data-beat-go>Not ready? Start here ↓</a>
+        <a class="hero__more" href="#for-you" data-beat-go data-track="cta_click" data-track-label="Hero — Start here" data-track-section="hero">Start here ↓</a>
       </p>
     </div>
 
@@ -190,8 +197,7 @@ const picks = SET.id === 'protectors';
           ))}
         </div>
         <p class="beat__foot">
-          <button class="beat__on" type="button" data-beat-on aria-disabled="true" data-closed={picks ? 'Tap the one that runs you to keep walking' : 'Tap what’s true for you to keep walking'} data-open="Keep walking ↓">{picks ? 'Tap the one that runs you to keep walking' : 'Tap what’s true for you to keep walking'}</button>
-          <a class="btn btn--filled btn--wide" href={SET.cta.href} data-track="cta_click" data-track-label={`Beat (${SET.id}) — ${SET.cta.label}`} data-track-section="hero-beat">{SET.cta.label}</a>
+          <button class="beat__on" type="button" data-beat-on aria-disabled="true" data-track="cta_click" data-track-label={`Beat (${SET.id}) — Learn more`} data-track-section="hero-beat" data-closed={picks ? 'Tap the one that runs you' : 'Tap what’s true for you'} data-open="Learn more ↓">{picks ? 'Tap the one that runs you' : 'Tap what’s true for you'}</button>
         </p>
       </div>
     </div>
@@ -227,7 +233,7 @@ const picks = SET.id === 'protectors';
           <p class="arrive__accent" set:html={ARRIVE.accent} />
         </div>
         <p class="arrive__ctas">
-          <a class="hero__btn" href={ARRIVE.cta.href} data-track="cta_click" data-track-label="Arrival — Book a discovery chat" data-track-section="hero-arrival">{ARRIVE.cta.label}</a>
+          <a class="hero__btn" href={ARRIVE.cta.href} data-track="cta_click" data-track-label="Arrival — Book a discovery chat" data-track-section="hero-arrival"><span class="cta-long">{ARRIVE.cta.label}</span><span class="cta-short">Talk with me</span></a>
           <a class="hero__more" href="/mens-coaching" data-track="cta_click" data-track-label="Arrival — See the programme" data-track-section="hero-arrival">See the programme →</a>
         </p>
       </div>
@@ -379,13 +385,15 @@ const picks = SET.id === 'protectors';
     .hero__eyebrow i { display: none; }
     .hero__eyebrow span { display: block; }
   }
-  /* Two lines, broken where the colour breaks: "Son of a" in white, then
-     the gold line whole. The size follows the width (7.7vw) so that gold line
-     fits on one line from a 320px phone up, and fills most of the measure
-     while it does; fitHeadings is the net under it. */
+  /* Two lines, broken where the colour breaks: "Break the habits" in white,
+     then "you never chose." in the smoked gold. The size follows the width
+     (8.8vw) so the longer line fits on one line from a 320px phone up, and
+     fills most of the measure while it does; fitHeadings is the net under it.
+     (Until 19 Sep this was "Son of a / Karate Grand Master"; that line now
+     stands beside his photograph in the arrival.) */
   .hero__title {
     font-family: var(--font-avant);
-    font-size: clamp(1.5rem, 7.7vw, 5.9rem);
+    font-size: clamp(1.6rem, 8.8vw, 5.9rem);
     font-weight: 700;
     letter-spacing: -0.02em;
     line-height: 0.92;
@@ -469,6 +477,10 @@ const picks = SET.id === 'protectors';
   .hero__btn:hover { background: #fff; color: #14100d; box-shadow: 0 5px 30px rgba(218, 162, 79, 0.4); }
   .hero__btn:hover::before { opacity: 1; }
   .hero__btn:focus-visible { outline: 2px solid #daa24f; outline-offset: 2px; }
+  /* The arrival's button says it in full where there is room, and in the
+     nav's three words where the full line would wrap and strand a word. */
+  .cta-short { display: none; }
+  @media (max-width: 900px) { .cta-long { display: none; } .cta-short { display: inline; } }
 
   .hero__more {
     font-size: 1rem;
@@ -953,22 +965,23 @@ const picks = SET.id === 'protectors';
     line-height: 1.6;
     border-radius: 100px;
     padding: 0.65rem clamp(1.1rem, 2.4vw, 1.9rem) 0.5rem;
-    border: 1.5px solid #b07932;
-    background: transparent;
-    color: var(--fg1);
+    border: 1.5px solid transparent;
+    background: linear-gradient(to right, #f2c275 0%, #daa24f 100%);
+    color: #14100d;
+    min-width: min(100%, 16rem);
     cursor: pointer;
-    transition: background 0.3s ease, color 0.3s ease, border-color 0.3s ease, transform 0.3s ease;
+    transition: background 0.3s ease, color 0.3s ease, border-color 0.3s ease, transform 0.3s ease, box-shadow 0.3s ease;
   }
-  .beat__on:hover { background: #14100d; border-color: #14100d; color: #fcfaf8; }
+  .beat__on:hover { background: #14100d; color: #fcfaf8; box-shadow: 0 8px 26px rgba(20, 16, 13, 0.18); }
   .beat__on[aria-disabled='true'] {
-    border-color: transparent;
+    background: transparent;
     border-style: dashed;
     border-color: rgba(176, 121, 50, 0.6);
     color: #8a5c20;
     cursor: default;
     letter-spacing: 0.08em;
   }
-  .beat__on[aria-disabled='true']:hover { background: transparent; color: #8a5c20; border-color: rgba(176, 121, 50, 0.6); }
+  .beat__on[aria-disabled='true']:hover { background: transparent; color: #8a5c20; border-color: rgba(176, 121, 50, 0.6); box-shadow: none; }
   .beat__panel.is-open .beat__on { animation: beatOpen 0.7s cubic-bezier(0.34, 1.56, 0.64, 1) 1; }
   .beat__panel.is-nudge .beat__on { animation: beatNudge 0.6s ease 1; }
   .beat__panel.is-nudge .beat__card:not([aria-pressed='true']) { animation: beatAsk 0.6s ease 1; animation-delay: calc(var(--k, 0) * 40ms); }
@@ -1004,9 +1017,7 @@ const picks = SET.id === 'protectors';
     .beat__card :global(.fy__icon) { width: 30px; height: 30px; }
     .beat .beat__card p { font-size: 0.78rem; line-height: 1.16; }
     .beat__foot { gap: 6px; margin-top: 10px; }
-    .beat__foot .btn, .beat__on { width: 100%; }
-    .beat__foot .btn { padding-block: 0.5rem 0.38rem; }
-    .beat__on { font-size: 0.72rem; padding: 0.45rem 0.6rem 0.32rem; }
+    .beat__on { width: 100%; font-size: 0.8rem; padding: 0.6rem 0.6rem 0.46rem; }
   }
 
   @media (max-width: 700px) {
@@ -1064,7 +1075,7 @@ const picks = SET.id === 'protectors';
         if (pickOne) pickBtns.forEach(function (b) { b.setAttribute('aria-pressed', b === btn ? 'true' : 'false'); });
         else btn.setAttribute('aria-pressed', btn.getAttribute('aria-pressed') === 'true' ? 'false' : 'true');
         try { sessionStorage.setItem('rts-fy-pick', picked().map(function (b) { return b.dataset.pick; }).join(',')); } catch (e) {}
-        if (picked().length) onPick();
+        onPick();
       });
     });
     try { if (fy) sessionStorage.setItem('rts-fy', fy); } catch (e) {}
@@ -1219,20 +1230,31 @@ const picks = SET.id === 'protectors';
        on that is plainly deliberate: a link to a section further down, focus
        moving past the hero by keyboard, or a page that opens already below
        the doors. A scroll that meets the gate nudges the instruction. ---- */
-    var gateOpen = false, bootUntil = performance.now() + 900, nudgeAt = 0;
+    /* 19 Sep, stricter (Dion: "they can't proceed unless they click a button…
+       scrolls back and forth"): a pick no longer frees the scroll. It turns
+       the instruction into the button — "Learn more" — and the button is the
+       only way on. `gateOpen` is one pass through the doors: it is set by the
+       button (or by one of the deliberate ways round listed above) and is
+       taken back the moment the page is above the panel again, so walking
+       back up and down meets the gate every time. The picks are remembered,
+       so the button is ready when he returns. `rts-gate=1` in sessionStorage
+       holds the gate open for the whole visit — nothing on the site sets it;
+       it is there for tests that need to scroll straight through. */
+    var gateOpen = false, gateFree = false, canGo = false, reported = false, bootUntil = performance.now() + 900, nudgeAt = 0;
     var onBtn = beatEl.querySelector<HTMLButtonElement>('[data-beat-on]')!;
-    try { gateOpen = sessionStorage.getItem('rts-gate') === '1'; } catch (e) {}
+    try { gateFree = gateOpen = sessionStorage.getItem('rts-gate') === '1'; } catch (e) {}
     function showGate() {
-      onBtn.textContent = (gateOpen ? onBtn.dataset.open : onBtn.dataset.closed) || '';
-      if (gateOpen) onBtn.removeAttribute('aria-disabled'); else onBtn.setAttribute('aria-disabled', 'true');
+      canGo = picked().length > 0;
+      onBtn.textContent = (canGo ? onBtn.dataset.open : onBtn.dataset.closed) || '';
+      if (canGo) onBtn.removeAttribute('aria-disabled'); else onBtn.setAttribute('aria-disabled', 'true');
     }
     function openGate(how: string) {
       if (gateOpen) return;
       gateOpen = true;
-      try { sessionStorage.setItem('rts-gate', '1'); } catch (e) {}
-      showGate();
-      panel!.classList.add('is-open');
-      (window as any).dataLayer.push({ event: 'fy_gate_open', fy_set: fy, fy_how: how, fy_picks: picked().length });
+      if (!reported) {
+        reported = true;
+        (window as any).dataLayer.push({ event: 'fy_gate_open', fy_set: fy, fy_how: how, fy_picks: picked().length });
+      }
       unlock();
     }
     function nudge() {
@@ -1243,7 +1265,11 @@ const picks = SET.id === 'protectors';
       void panel!.offsetWidth;
       panel!.classList.add('is-nudge');
     }
-    onPick = function () { openGate('pick'); };
+    onPick = function () {
+      var was = canGo;
+      showGate();
+      if (canGo && !was) { panel!.classList.remove('is-open'); void panel!.offsetWidth; panel!.classList.add('is-open'); }
+    };
     showGate();
     document.addEventListener('click', function (e) {
       var a = (e.target as HTMLElement).closest && (e.target as HTMLElement).closest('a[href*="#"]');
@@ -1336,6 +1362,8 @@ const picks = SET.id === 'protectors';
          key, a fling that began above the catch), it does not rest below the
          panel while the gate is shut. A page that OPENS below the doors — a
          restored scroll, a hash — is let through instead. */
+      /* One pass only: above the panel again, the gate is shut again. */
+      if (gateOpen && !gateFree && p < pA + (pB - pA) * BEAT_AT - 0.002 && performance.now() > quietUntil) { gateOpen = false; armed = armed || p < pA; }
       if (!gateOpen) {
         var now = performance.now();
         if (now < bootUntil) { if (p > pB) openGate('deep'); }
@@ -1359,7 +1387,8 @@ const picks = SET.id === 'protectors';
       }
     }
     onBtn.addEventListener('click', function () {
-      if (!gateOpen) { nudge(); return; }
+      if (!canGo) { nudge(); return; }
+      openGate('button');
       armed = false;
       glide(yAt(pB + (1 - pB) * 0.12), 1.4);
     });

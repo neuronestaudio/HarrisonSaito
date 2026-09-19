@@ -28,7 +28,7 @@ export type BadgeSet = {
 };
 
 /* Sells without selling (Dion, 18 Sep): not "Book a discovery chat". */
-const CTA = { label: 'Let me walk with you', href: '/book' };
+const CTA = { label: 'Start the conversation', href: '/book' };
 
 export const BADGE_SETS: BadgeSet[] = [
   {
