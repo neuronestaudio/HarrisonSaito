@@ -129,7 +129,7 @@
  */
 import { srcset, src } from '../lib/images';
 import { HERO as ARRIVE } from '../data/morel';
-import { setById } from '../data/badges';
+import { setById, BADGE_SETS } from '../data/badges';
 import { forYouIcon } from '../lib/morel-icons';
 import '../styles/avant.css';
 import '../styles/morel.css';
@@ -143,6 +143,35 @@ interface Props {
 }
 const SET = setById(Astro.props.set);
 const picks = SET.id === 'protectors';
+
+/* The hallway (Dion, 20 Sep): on the walk from the first screen to the doors,
+   badges come up left and right of the corridor and pass him, so that by the
+   time the panel asks "who is this for" he has already walked through the
+   answers. They are lines from the OTHER badge sets — never the six the panel
+   is about to show — one from each set in turn, and never a line marked `new`
+   (those are ours, not yet Harrison's, and live in one place only). */
+const HALL_N = 8;
+/* Lines Dion has pulled from the page (19 Sep) do not come back through the hall. */
+const HALL_SKIP = new Set(['and you call it normal.']);
+const own = new Set(SET.badges.map((b) => b.text + b.emphasis));
+const seen = new Set<string>();
+const HALL: { icon: string; text: string; emphasis: string }[] = [];
+for (let round = 0; round < 6 && HALL.length < HALL_N; round++) {
+  for (const set of BADGE_SETS) {
+    if (set.id === SET.id || HALL.length >= HALL_N) continue;
+    const b = set.badges[round];
+    if (!b || b.kind === 'new' || HALL_SKIP.has(b.emphasis)) continue;
+    const key = b.text + b.emphasis;
+    if (own.has(key) || seen.has(key) || seen.has(b.icon)) continue;
+    seen.add(key); seen.add(b.icon);
+    HALL.push({ icon: b.icon, text: b.text, emphasis: b.emphasis });
+  }
+}
+/* Where each one stands: its height in the frame, and when it is level with
+   him, as a fraction of the walk to the doors (0.34 = the title has just
+   gone, 0.80 = clear before the panel comes up). */
+const HALL_Y = [22, 42, 58, 20, 30, 60, 62, 34];   /* same-side neighbours alternate high and low */
+const hallAt = (i: number) => (0.34 + (i * 0.46) / (HALL_N - 1)).toFixed(3);
 ---
 
 <section class="hero" id="hero" data-frame-hero data-fy={SET.id} data-section="hero" aria-label="Harrison Saito — Return to Self">
@@ -164,6 +193,17 @@ const picks = SET.id === 'protectors';
     <div class="hero__scrim" aria-hidden="true"></div>
     <div class="hero__veil" aria-hidden="true"></div>
     <div class="hero__vignette" aria-hidden="true"></div>
+
+    {/* The hallway's badges: decoration for the walk, read out nowhere — the
+        panel that follows is where the lines are said. */}
+    <div class="hall" aria-hidden="true">
+      {HALL.map((c, i) => (
+        <p class={`hall__chip hall__chip--${i % 2 ? 'r' : 'l'}`} style={`--f:${hallAt(i)};--y:${HALL_Y[i % HALL_Y.length]}%`}>
+          <Fragment set:html={forYouIcon(c.icon)} />
+          <span>{c.text} <strong>{c.emphasis}</strong></span>
+        </p>
+      ))}
+    </div>
 
     <div class="hero__copy">
       <p class="hero__eyebrow"><span>Harrison Saito · Men's coaching</span><i aria-hidden="true"> · </i><span>Chatswood, Sydney</span></p>
@@ -335,6 +375,67 @@ const picks = SET.id === 'protectors';
   /* The vignette: the room closing in from its edges, centred on the alcove
      (plate x 44%) so the last thing to go dark is where the photograph will
      stand. */
+  /* The hallway. Each chip is a function of --p alone: --t runs -1 -> 1 as he
+     walks past it (0 = level with him). It comes up small and close to the
+     middle of the corridor, as if from further down it, grows and slides out
+     towards its wall as he reaches it, and is gone past his shoulder. --pa is
+     the scroll fraction at which the doors arrive (set by the script from the
+     runway lengths), so the timing holds whatever the runway is. No script
+     per frame, nothing to clean up: before the walk and after it every chip
+     sits at opacity 0. */
+  .hall {
+    position: absolute;
+    inset: 0;
+    z-index: 4;
+    overflow: hidden;
+    pointer-events: none;
+  }
+  .hall__chip {
+    --span: calc(var(--pa, 0.41) * 0.135);
+    --t: calc((var(--p, 0) - var(--pa, 0.41) * var(--f)) / var(--span));
+    --a: max(var(--t), calc(var(--t) * -1));
+    position: absolute;
+    top: var(--y);
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    max-width: min(24rem, 29vw);
+    padding: 12px 18px 11px 14px;
+    border-radius: 16px;
+    border: 1px solid rgba(242, 194, 117, 0.38);
+    background: rgba(20, 16, 13, 0.74);
+    box-shadow: 0 18px 50px rgba(0, 0, 0, 0.45);
+    color: #fcfaf8;
+    font-family: var(--font-avant);
+    font-size: clamp(0.74rem, 0.62rem + 0.42vw, 1.02rem);
+    font-weight: 700;
+    line-height: 1.18;
+    letter-spacing: -0.005em;
+    text-transform: uppercase;
+    text-wrap: balance;
+    opacity: clamp(0, calc(1.75 - var(--a) * 1.75), 1);
+    will-change: transform, opacity;
+  }
+  .hall__chip strong { display: block; color: #f2c275; font-weight: 700; }
+  .hall__chip :global(.fy__icon) { flex: none; width: 34px; height: 34px; color: #f2c275; }
+  .hall__chip--l {
+    left: clamp(12px, 5.5vw, 104px);
+    transform-origin: 0 50%;
+    transform: translate3d(calc(var(--t) * -8vw), calc(var(--t) * -2.5vh), 0) scale(calc(1 + var(--t) * 0.2));
+  }
+  .hall__chip--r {
+    right: clamp(12px, 5.5vw, 104px);
+    transform-origin: 100% 50%;
+    transform: translate3d(calc(var(--t) * 8vw), calc(var(--t) * -2.5vh), 0) scale(calc(1 + var(--t) * 0.2));
+  }
+  @media (max-width: 700px) {
+    .hall__chip { max-width: 45vw; gap: 8px; padding: 9px 11px 8px 9px; border-radius: 13px; font-size: 0.66rem; }
+    .hall__chip :global(.fy__icon) { width: 24px; height: 24px; }
+    .hall__chip--l { left: 8px; }
+    .hall__chip--r { right: 8px; }
+  }
+
   .hero__vignette {
     position: absolute;
     inset: 0;
@@ -1030,7 +1131,7 @@ const picks = SET.id === 'protectors';
   /* No script, or no motion: the alcove frame only, everything on it. The
      beat's block is a section of the page instead (MorelHome). */
   :global(.no-js) .hero { height: 100svh; }
-  :global(.no-js) .hero__film, :global(.no-js) .hero__poster, :global(.no-js) .beat { display: none; }
+  :global(.no-js) .hero__film, :global(.no-js) .hero__poster, :global(.no-js) .beat, :global(.no-js) .hall { display: none; }
   /* No script, or no motion: the one screen is the room, and the hero's own
      title and buttons carry it — the arrival would land on top of them. */
   :global(.no-js) .arrive { display: none; }
@@ -1038,7 +1139,7 @@ const picks = SET.id === 'protectors';
     .hero { height: 100svh; }
     .hero .beat { display: none; }
     .arrive { display: none; }
-    .hero__film, .hero__poster, .hero__veil, .hero__rail { display: none; }
+    .hero__film, .hero__poster, .hero__veil, .hero__rail, .hall { display: none; }
     .hero__plate { transform: none; opacity: 1; }
     .hero__copy { opacity: 1; transform: translateY(-50%); }
     .hero__cue { display: none; }
@@ -1136,6 +1237,7 @@ const picks = SET.id === 'protectors';
       pB = (a + h) / total;
       pC = (a + h + b) / total;
       pD = pB + ((T_DOOR - T_GATE) / (T_END - T_GATE)) * (pC - pB);
+      st.setProperty('--pa', pA.toFixed(4));   /* the hallway's chips time themselves off it */
       fit();
     }
     function timeFor(p: number) {
