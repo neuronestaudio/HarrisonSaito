@@ -131,6 +131,7 @@ import { srcset, src } from '../lib/images';
 import { HERO as ARRIVE } from '../data/morel';
 import { setById, BADGE_SETS } from '../data/badges';
 import { forYouIcon } from '../lib/morel-icons';
+import InterviewRow from './InterviewRow.astro';
 import '../styles/avant.css';
 import '../styles/morel.css';
 import '../styles/morel-overrides.css';
@@ -209,6 +210,8 @@ const hallAt = (i: number) => (0.34 + (i * 0.46) / (HALL_N - 1)).toFixed(3);
       <p class="hero__eyebrow"><span>Harrison Saito · Men's coaching</span><i aria-hidden="true"> · </i><span>Chatswood, Sydney</span></p>
       <h1 class="hero__title">Break the habits<br /><mark>you never chose.</mark></h1>
       <p class="hero__sub">17+ Years Karate | Coach | Buddhist</p>
+      {/* The men he works with, talking — before anything is asked of the visitor. */}
+      <InterviewRow />
       {/* One way on (Dion, 19 Sep): no booking button up here — it broke the
           sequence (land, walk in, choose, learn more). The booking asks come
           once he has arrived. */}
@@ -452,7 +455,11 @@ const hallAt = (i: number) => (0.34 + (i * 0.46) / (HALL_N - 1)).toFixed(3);
     z-index: 5;
     left: 0;
     right: 0;
-    top: 50%;
+    /* The middle of what is FREE: between the nav and the consent bar while it
+       is up (it is a fifth of a laptop screen), so the row of interviews and
+       the way on are never under it. */
+    top: calc(50% + 40px - var(--consent-h, 0px) / 2);
+    transition: top 0.45s ease;
     margin-inline: auto;
     padding-inline: clamp(1.25rem, 5vw, 5.5rem);
     max-width: 80rem;
@@ -494,7 +501,7 @@ const hallAt = (i: number) => (0.34 + (i * 0.46) / (HALL_N - 1)).toFixed(3);
      stands beside his photograph in the arrival.) */
   .hero__title {
     font-family: var(--font-avant);
-    font-size: clamp(1.6rem, 8.8vw, 5.9rem);
+    font-size: clamp(1.6rem, min(8.8vw, 11vh), 5.9rem);
     font-weight: 700;
     letter-spacing: -0.02em;
     line-height: 0.92;
@@ -1121,9 +1128,19 @@ const hallAt = (i: number) => (0.34 + (i * 0.46) / (HALL_N - 1)).toFixed(3);
     .beat__on { width: 100%; font-size: 0.8rem; padding: 0.6rem 0.6rem 0.46rem; }
   }
 
+  /* A short screen: the first screen still has to hold the title, the row of
+     interviews and the way on. */
+  @media (max-height: 760px) {
+    .hero__copy { gap: 0.6rem; }
+  }
+  /* The scroll cue needs a clear 120px under the copy; with the interview row
+     in, only a tall screen has it. Below that "Start here" carries it alone. */
+  @media (max-height: 1040px) {
+    .hero__cue { display: none; }
+  }
   @media (max-width: 700px) {
     .hero { --run-in: 146; --run-pause: 110; --run-out: 70; --run-meet: 50; }
-    .hero__copy { top: 48%; }
+    .hero__copy { top: calc(50% + 34px - var(--consent-h, 0px) / 2); }
     .hero__cue { display: none; }
     .hero__btn { width: 100%; }
   }

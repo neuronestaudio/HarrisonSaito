@@ -1,0 +1,227 @@
+---
+/**
+ * The interview row — under the first screen's sub line.
+ *
+ * Dion, 20 Sep 2026: "just below the 17 years karate… I want to have the
+ * interview… a couple of interviews happening at the same time… 20, 30 second
+ * extract from each, side by side… testimony and human reception straight
+ * away." So: four men from the 9 Sep testimonial shoot, one extract each, all
+ * playing at once, silent, in a row. Tapping one gives it the sound (and takes
+ * it from the others); it plays through once and hands the row back.
+ *
+ * What is on each tile is what he said: `quote` is a fragment of the extract,
+ * word for word, and the line under it is how he introduces himself on camera
+ * (src/data/interviews.ts — the extracts, their timecodes and where the
+ * transcripts are). First names only, which is the shoot's own rule.
+ *
+ * Cost. Nothing is fetched until the page has loaded (preload="none", the
+ * source is attached by script), so the first paint and the walk's film are
+ * not competing with four videos; with Save-Data on, or reduced motion, the
+ * tiles stay as posters until tapped. While the visitor is walking
+ * (hero--away) they are paused: the scrubbed film needs the decoder.
+ *
+ * Files (/video and /img are cached a year, immutable — a changed file needs
+ * a new name): /video/iv-<id>-v1.mp4 (480x640, ~25 s), /img/iv-<id>-v1.webp.
+ */
+import { INTERVIEWS } from '../data/interviews';
+---
+
+{INTERVIEWS.length > 0 && (
+  <div class="ivrow" data-ivrow>
+    <p class="ivrow__label"><span>In their words</span><i aria-hidden="true"> · </i><span>tap one for sound</span></p>
+    <div class="ivrow__rail" role="group" aria-label="Clients of Harrison’s, in their own words">
+      {INTERVIEWS.map((v) => (
+        <button type="button" class="iv" data-iv aria-pressed="false" aria-label={`${v.name}, ${v.role.toLowerCase()}: “${v.quote}” — play with sound`} data-track="iv_sound" data-track-label={v.id} data-track-section="hero">
+          <video class="iv__v" muted loop playsinline preload="none" poster={`/img/${v.id}.webp`} data-src={`/video/${v.id}.mp4`} width="480" height="640" tabindex="-1" aria-hidden="true"></video>
+          <span class="iv__shade" aria-hidden="true"></span>
+          <span class="iv__snd" aria-hidden="true">
+            <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9.5v5h3.5L12 18.5v-13L7.5 9.5z" /><path class="iv__wave" d="M15.5 9a4.2 4.2 0 0 1 0 6" /><path class="iv__wave" d="M18.3 6.5a8 8 0 0 1 0 11" /><path class="iv__x" d="M16 9.5l5 5M21 9.5l-5 5" /></svg>
+          </span>
+          <span class="iv__text">
+            <span class="iv__quote">“{v.quote}”</span>
+            <span class="iv__who"><b>{v.name}</b><span>{v.role}</span></span>
+          </span>
+        </button>
+      ))}
+    </div>
+  </div>
+)}
+
+<style>
+  .ivrow {
+    width: 100%;
+    display: grid;
+    justify-items: center;
+    gap: 10px;
+    margin-top: clamp(0.25rem, 1vw, 0.75rem);
+  }
+  .ivrow__label {
+    margin: 0;
+    font-family: var(--font-avant);
+    font-size: 0.62rem;
+    font-weight: 700;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: rgba(252, 250, 248, 0.62);
+  }
+  .ivrow__label span { white-space: nowrap; }
+  .ivrow__label i { font-style: normal; }
+  .ivrow__rail {
+    display: flex;
+    justify-content: center;
+    gap: clamp(6px, 0.8vw, 12px);
+    width: 100%;
+  }
+  /* Portrait tiles, sized by the HEIGHT of the screen as much as its width:
+     the first screen has to hold the title, this row and the way on. */
+  .iv {
+    position: relative;
+    flex: 0 1 auto;
+    width: min(calc((100% - 4 * clamp(6px, 0.8vw, 12px)) / 5), calc(clamp(132px, 25vh, 250px) * 0.75));
+    aspect-ratio: 3 / 4;
+    padding: 0;
+    border: 1px solid rgba(242, 194, 117, 0.28);
+    border-radius: 14px;
+    overflow: hidden;
+    background: #14100d;
+    color: #fcfaf8;
+    font: inherit;
+    text-align: left;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+    transition: border-color 0.3s ease, box-shadow 0.3s ease, transform 0.35s cubic-bezier(0.2, 0.8, 0.2, 1);
+  }
+  @media (max-height: 760px) and (min-width: 701px) {
+    .iv { width: min(calc((100% - 4 * clamp(6px, 0.8vw, 12px)) / 5), calc(clamp(108px, 20vh, 250px) * 0.75)); }
+    .ivrow { gap: 7px; }
+  }
+  .iv:hover { transform: translateY(-3px); border-color: rgba(242, 194, 117, 0.7); }
+  .iv:focus-visible { outline: 2px solid #daa24f; outline-offset: 2px; }
+  .iv[aria-pressed='true'] { border-color: #daa24f; box-shadow: 0 0 0 2px rgba(218, 162, 79, 0.55), 0 16px 40px rgba(0, 0, 0, 0.5); }
+  .iv__v { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; display: block; }
+  .iv__shade {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to top, rgba(20, 16, 13, 0.92) 0%, rgba(20, 16, 13, 0.55) 32%, rgba(20, 16, 13, 0) 58%);
+  }
+  .iv__text { position: absolute; left: 0; right: 0; bottom: 0; display: grid; gap: 4px; padding: 0 9px 9px; }
+  .iv__quote {
+    font-family: var(--font-display);
+    font-size: clamp(0.72rem, 0.6rem + 0.36vw, 0.98rem);
+    font-style: italic;
+    line-height: 1.16;
+    text-wrap: balance;
+  }
+  .iv__who {
+    display: grid;
+    gap: 1px;
+    white-space: nowrap;
+    font-family: var(--font-avant);
+    font-size: 0.5rem;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: #f2c275;
+  }
+  .iv__who b { font-weight: 700; color: #fcfaf8; }
+  .iv__snd {
+    position: absolute;
+    top: 7px;
+    right: 7px;
+    width: 24px;
+    height: 24px;
+    display: grid;
+    place-items: center;
+    border-radius: 50%;
+    background: rgba(20, 16, 13, 0.62);
+    color: #fcfaf8;
+    transition: background 0.3s ease, color 0.3s ease;
+  }
+  .iv__wave { display: none; }
+  .iv[aria-pressed='true'] .iv__snd { background: #daa24f; color: #14100d; }
+  .iv[aria-pressed='true'] .iv__wave { display: inline; }
+  .iv[aria-pressed='true'] .iv__x { display: none; }
+
+  /* A phone: the row runs off the right edge and is swiped, so each face is
+     big enough to read. */
+  @media (max-width: 700px) {
+    .ivrow { justify-items: stretch; }
+    .ivrow__label { text-align: center; }
+    .ivrow__rail {
+      justify-content: flex-start;
+      gap: 8px;
+      width: auto;
+      margin-inline: calc(clamp(1.25rem, 5vw, 5.5rem) * -1);
+      padding-inline: clamp(1.25rem, 5vw, 5.5rem);
+      overflow-x: auto;
+      scroll-snap-type: x proximity;
+      scrollbar-width: none;
+      -webkit-overflow-scrolling: touch;
+    }
+    .ivrow__rail::-webkit-scrollbar { display: none; }
+    .iv { flex: 0 0 auto; width: clamp(104px, 29vw, 132px); scroll-snap-align: start; border-radius: 12px; }
+    .iv:hover { transform: none; }
+    .iv__quote { font-size: 0.72rem; }
+  }
+</style>
+
+<script>
+  (function () {
+    var row = document.querySelector<HTMLElement>('[data-ivrow]');
+    if (!row) return;
+    var tiles = [].slice.call(row.querySelectorAll('[data-iv]')) as HTMLButtonElement[];
+    var vids = tiles.map(function (t) { return t.querySelector('video') as HTMLVideoElement; });
+    var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    var save = !!((navigator as any).connection && (navigator as any).connection.saveData);
+    var started = false, away = false;
+
+    function attach(v: HTMLVideoElement) { if (!v.getAttribute('src') && v.dataset.src) v.src = v.dataset.src; }
+    function quiet(i: number) {
+      var v = vids[i];
+      v.muted = true; v.loop = true;
+      tiles[i].setAttribute('aria-pressed', 'false');
+    }
+    function roll(v: HTMLVideoElement) { var p = v.play(); if (p && p.catch) p.catch(function () {}); }
+    function start() {
+      if (started) return;
+      started = true;
+      vids.forEach(function (v) { attach(v); v.muted = true; v.defaultMuted = true; if (!away) roll(v); });
+    }
+    /* All five, silent, once the page itself is in. */
+    if (!reduce && !save) {
+      if (document.readyState === 'complete') window.setTimeout(start, 500);
+      else window.addEventListener('load', function () { window.setTimeout(start, 500); }, { once: true });
+    }
+
+    /* Tap: this one speaks, from the top, once; the others stay silent. */
+    tiles.forEach(function (t, i) {
+      t.addEventListener('click', function () {
+        var v = vids[i];
+        var wasOn = t.getAttribute('aria-pressed') === 'true';
+        tiles.forEach(function (_o, j) { quiet(j); });
+        if (wasOn) return;
+        attach(v);
+        t.setAttribute('aria-pressed', 'true');
+        v.loop = false; v.muted = false;
+        try { v.currentTime = 0; } catch (e) {}
+        roll(v);
+      });
+      vids[i].addEventListener('ended', function () { quiet(i); if (!away) roll(vids[i]); });
+    });
+
+    /* While he walks, the row rests (and falls silent): the film needs the
+       decoder. Back at the top, it picks up again. */
+    var hero = document.querySelector<HTMLElement>('[data-frame-hero]');
+    if (hero) {
+      new MutationObserver(function () {
+        var a = hero!.classList.contains('hero--away');
+        if (a === away) return;
+        away = a;
+        vids.forEach(function (v, i) {
+          if (a) { v.pause(); quiet(i); }
+          else if (started) roll(v);
+        });
+      }).observe(hero, { attributes: true, attributeFilter: ['class'] });
+    }
+  })();
+</script>
