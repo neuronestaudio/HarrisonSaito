@@ -296,11 +296,18 @@ const hallAt = (i: number) => (0.34 + (i * 0.46) / (HALL_N - 1)).toFixed(3);
     </div>
 
     <div class="hero__cue" aria-hidden="true"><span>Scroll to walk in</span><i></i></div>
-    {/* After "Learn more": the doors are shut and nothing on screen says what to
-        do. This does, loudly, until the arrival starts to build. */}
-    <div class="hero__go" aria-hidden="true">
-      <span>Keep scrolling</span>
-      <svg viewBox="0 0 28 40" width="28" height="40" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 6l9 9 9-9" /><path d="M5 17l9 9 9-9" /><path d="M5 28l9 9 9-9" /></svg>
+    {/* The doorway, as a title card (Dion, 22 Sep). After "Learn more" the room
+        is empty and nothing says what to do, so: the name on the right, the
+        instruction across the foot, and behind both a class of his ghosted
+        into the room — other people, before he has met one. All of it is a
+        function of --go (1 from the end of the pause to the doorway). */}
+    <div class="hero__enter" aria-hidden="true">
+      <div class="enter__class"></div>
+      <p class="enter__mark"><span>Return</span><span>to Self</span></p>
+      <p class="enter__go">
+        <span>Scroll to enter</span>
+        <svg viewBox="0 0 28 40" width="28" height="40" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 6l9 9 9-9" /><path d="M5 17l9 9 9-9" /><path d="M5 28l9 9 9-9" /></svg>
+      </p>
     </div>
     <div class="hero__rail" aria-hidden="true"><i></i></div>
   </div>
@@ -392,42 +399,98 @@ const hallAt = (i: number) => (0.34 + (i * 0.46) / (HALL_N - 1)).toFixed(3);
   /* The vignette: the room closing in from its edges, centred on the alcove
      (plate x 44%) so the last thing to go dark is where the photograph will
      stand. */
-  /* "Keep scrolling" — after Learn more (Dion, 22 Sep: "very obviously"). --go
-     is 1 from the end of the pause to the doorway, where the arrival takes
-     over. Big, gold, centred low, three chevrons running down in turn. */
-  .hero__go {
+  /* The doorway title card. --go is 1 from the end of the pause to the
+     doorway, where the arrival takes over; everything here rides it. */
+  .hero__enter {
     position: absolute;
-    left: 50%;
-    bottom: calc(clamp(1.6rem, 7vh, 4.5rem) + var(--consent-h, 0px));
+    inset: 0;
     z-index: 6;
-    display: grid;
-    justify-items: center;
-    gap: 8px;
-    padding: 18px 34px 12px;
-    border-radius: 26px;
-    background: rgba(20, 16, 13, 0.78);
-    border: 1.5px solid rgba(242, 194, 117, 0.8);
-    box-shadow: 0 0 0 6px rgba(242, 194, 117, 0.1), 0 18px 60px rgba(0, 0, 0, 0.55);
-    color: #f2c275;
-    font-family: var(--font-avant);
-    font-size: clamp(1rem, 0.86rem + 0.5vw, 1.35rem);
-    font-weight: 700;
-    letter-spacing: 0.22em;
-    text-transform: uppercase;
-    white-space: nowrap;
     pointer-events: none;
     opacity: var(--go, 0);
-    transform: translate(-50%, calc((1 - var(--go, 0)) * 18px));
-    transition: opacity 0.3s ease, transform 0.3s ease;
+    transition: opacity 0.3s ease;
   }
-  .hero__go span { animation: goNudge 1.5s ease-in-out infinite; }
-  .hero__go svg { display: block; width: 40px; height: 58px; overflow: visible; }
-  @keyframes goNudge { 0%, 100% { transform: translateY(0); } 40% { transform: translateY(3px); } }
-  .hero__go svg path { animation: goDown 1.5s ease-in-out infinite; opacity: 0.2; }
-  .hero__go svg path:nth-child(2) { animation-delay: 0.18s; }
-  .hero__go svg path:nth-child(3) { animation-delay: 0.36s; }
+  /* His class, ghosted into the room: a dojo class at half strength, screened
+     so it lights the room rather than covering it, with a scrim under the
+     type. (Dion asked for a classroom of faces; this is the nearest thing the
+     archive holds — see the note to him. Swapping the file is one line.) */
+  .enter__class {
+    position: absolute;
+    inset: 0;
+    background: url('/img/enter-class-w-v1-1440.webp') 50% 45% / cover no-repeat;
+    /* Dion asked for 50%. At 50% the class swallowed the room — the doors
+       vanished and it read as a photo, not a presence — so it sits at 0.4
+       with the scrim below doing the rest. One number if he wants it up. */
+    opacity: 0.4;
+  }
+  .hero__enter::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background:
+      radial-gradient(ellipse 38% 26% at 82% 50%, rgba(20, 16, 13, 0.82) 0%, rgba(20, 16, 13, 0.45) 55%, rgba(20, 16, 13, 0) 100%),
+      radial-gradient(ellipse 66% 52% at 46% 44%, rgba(20, 16, 13, 0) 0%, rgba(20, 16, 13, 0.4) 62%, rgba(20, 16, 13, 0.72) 100%),
+      linear-gradient(to top, rgba(20, 16, 13, 0.94) 0%, rgba(20, 16, 13, 0.7) 18%, rgba(20, 16, 13, 0.2) 38%, rgba(20, 16, 13, 0) 56%),
+      linear-gradient(to left, rgba(20, 16, 13, 0.72) 0%, rgba(20, 16, 13, 0) 46%);
+  }
+  /* The name, down the right-hand side. */
+  .enter__mark {
+    position: absolute;
+    z-index: 1;
+    right: clamp(1.2rem, 4vw, 4.5rem);
+    top: 50%;
+    margin: 0;
+    display: grid;
+    justify-items: end;
+    gap: 0.02em;
+    font-family: var(--font-avant);
+    font-size: clamp(2rem, 5.2vw, 5rem);
+    font-weight: 700;
+    line-height: 0.92;
+    letter-spacing: -0.02em;
+    text-transform: uppercase;
+    text-align: right;
+    color: #fff;
+    text-shadow: 0 2px 12px rgba(20, 16, 13, 0.95), 0 6px 48px rgba(20, 16, 13, 0.85);
+    transform: translateY(calc(-50% + (1 - var(--go, 0)) * 26px));
+    transition: transform 0.4s ease;
+  }
+  .enter__mark span:last-child { color: #f9d79a; }
+  /* The instruction, across the foot. */
+  .enter__go {
+    position: absolute;
+    z-index: 1;
+    left: 50%;
+    bottom: calc(clamp(1.4rem, 6vh, 4rem) + var(--consent-h, 0px));
+    margin: 0;
+    display: grid;
+    justify-items: center;
+    gap: clamp(6px, 1.4vh, 16px);
+    color: #ffe7bb;
+    font-family: var(--font-avant);
+    font-size: clamp(1.5rem, 4.2vw, 3.4rem);
+    font-weight: 700;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    white-space: nowrap;
+    text-shadow: 0 2px 10px rgba(20, 16, 13, 0.95), 0 4px 40px rgba(20, 16, 13, 0.8);
+    transform: translate(-50%, calc((1 - var(--go, 0)) * 18px));
+    transition: transform 0.3s ease;
+  }
+  .enter__go span { animation: goNudge 1.5s ease-in-out infinite; }
+  .enter__go svg { display: block; width: clamp(34px, 3.4vw, 56px); height: auto; overflow: visible; }
+  @keyframes goNudge { 0%, 100% { transform: translateY(0); } 40% { transform: translateY(4px); } }
+  .enter__go svg path { animation: goDown 1.5s ease-in-out infinite; opacity: 0.2; }
+  .enter__go svg path:nth-child(2) { animation-delay: 0.18s; }
+  .enter__go svg path:nth-child(3) { animation-delay: 0.36s; }
   @keyframes goDown { 0%, 100% { opacity: 0.2; transform: translateY(-3px); } 40% { opacity: 1; transform: translateY(3px); } }
-  @media (max-width: 700px) { .hero__go { padding: 14px 24px 10px; } .hero__go svg { width: 32px; height: 46px; } }
+  /* A phone: the name sits above the instruction, both hard right and low. */
+  @media (max-width: 700px) {
+    /* a phone holds one thing at a time: the class is a whisper, the name and
+       the instruction stack with air between them */
+    .enter__class { background-image: url('/img/enter-class-t-v1-720.webp'); background-position: 50% 38%; opacity: 0.3; }
+    .enter__mark { right: 0; left: 0; top: auto; bottom: calc(clamp(1.4rem, 6vh, 4rem) + var(--consent-h, 0px) + 6.4rem); justify-items: center; text-align: center; font-size: clamp(2rem, 13vw, 3.2rem); transform: translateY(calc((1 - var(--go, 0)) * 26px)); }
+    .enter__go { font-size: clamp(1.15rem, 6vw, 1.8rem); letter-spacing: 0.16em; }
+  }
 
   /* The hallway. Each chip is a function of --p alone: --t runs -1 -> 1 as he
      walks past it (0 = level with him). It comes up small and close to the
@@ -1303,7 +1366,7 @@ const hallAt = (i: number) => (0.34 + (i * 0.46) / (HALL_N - 1)).toFixed(3);
   /* No script, or no motion: the alcove frame only, everything on it. The
      beat's block is a section of the page instead (MorelHome). */
   :global(.no-js) .hero { height: 100svh; }
-  :global(.no-js) .hero__film, :global(.no-js) .hero__poster, :global(.no-js) .beat, :global(.no-js) .hall, :global(.no-js) .hero__go { display: none; }
+  :global(.no-js) .hero__film, :global(.no-js) .hero__poster, :global(.no-js) .beat, :global(.no-js) .hall, :global(.no-js) .hero__enter { display: none; }
   /* No script, or no motion: the one screen is the room, and the hero's own
      title and buttons carry it — the arrival would land on top of them. */
   :global(.no-js) .arrive { display: none; }
@@ -1311,7 +1374,7 @@ const hallAt = (i: number) => (0.34 + (i * 0.46) / (HALL_N - 1)).toFixed(3);
     .hero { height: 100svh; }
     .hero .beat { display: none; }
     .arrive { display: none; }
-    .hero__film, .hero__poster, .hero__veil, .hero__rail, .hall, .hero__go { display: none; }
+    .hero__film, .hero__poster, .hero__veil, .hero__rail, .hall, .hero__enter { display: none; }
     .hero__plate { transform: none; opacity: 1; }
     .hero__copy { opacity: 1; transform: translateY(-50%); }
     .hero__cue { display: none; }
@@ -1498,7 +1561,7 @@ const hallAt = (i: number) => (0.34 + (i * 0.46) / (HALL_N - 1)).toFixed(3);
       }
       var m = meetFor(p);
       st.setProperty('--meet', m.toFixed(3));
-      /* "Keep scrolling": up as soon as the pause is behind him, gone as the
+      /* The title card: up as soon as the pause is behind him, gone as the
          arrival starts to build. */
       st.setProperty('--go', (smooth((p - pB) / 0.012) * (1 - smooth((p - (pD - 0.012)) / 0.03))).toFixed(3));
       /* The flame, keyed to the scroll (not the clock): three sines of the
