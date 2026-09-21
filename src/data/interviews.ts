@@ -13,7 +13,9 @@
  *   iv-andrew-v1   C1665    418.6 -> 447.7     what training gave him day to day
  *   iv-john-v1     C1662    441.3 -> 463.7     21 kilos, and the part he did not expect
  *   iv-jake-v1     C1670    481.4 -> 507.5     letting tension go with a soft exhale
- *   iv-james-v1    C1687    215.9 -> 241.4     why he is staying
+ *   iv-james-v2    C1687    385.0 -> 410.0     what he does now when emotions rise
+ *                  (v1, 215.9 -> 241.4, "fully committed… to keep going", was the first cut: only
+ *                   six minutes of his sitting had been transcribed when it was chosen)
  *
  * A fifth man sat that day — a friend of Harrison's, not a student; his
  * sitting is a conversation, not a testimony, so he is not in the row.
@@ -25,6 +27,6 @@ export type Interview = { id: string; name: string; role: string; quote: string 
 export const INTERVIEWS: Interview[] = [
   { id: 'iv-john-v1', name: 'John, 55', role: 'Consultant', quote: 'He’s 29, I’m 55, and I find that we vibe very well.' },
   { id: 'iv-andrew-v1', name: 'Andrew', role: 'Drummer', quote: 'Makes me happier, makes me calmer.' },
-  { id: 'iv-james-v1', name: 'James', role: 'Construction', quote: 'I’m just fully committed and determined to keep going.' },
+  { id: 'iv-james-v2', name: 'James', role: 'Construction', quote: 'You can pause… and just not let it disrupt you.' },
   { id: 'iv-jake-v1', name: 'Jake', role: 'Musician', quote: 'I can just do a soft exhale and heaps of that’s gone.' },
 ];
