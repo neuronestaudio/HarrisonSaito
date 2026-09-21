@@ -8,6 +8,7 @@
  * audience, particularly parents (M9).
  */
 import { SITE, NAV } from '../data/site';
+import { LINKS } from '../data/morel-source';
 import BrandMark from './BrandMark.astro';
 import { srcset, src } from '../lib/images';
 
@@ -108,14 +109,16 @@ const year = new Date().getFullYear();
         here beyond the names themselves. */}
     <ul class="footer__crests">
       <li>
-        <a href="https://www.shinbukan.com.au/" target="_blank" rel="noopener">
+        <a href={LINKS.shinbukan} target="_blank" rel="noopener">
           <img src="/img/mark-shinbukan.webp" alt="" width="200" height="200" loading="lazy" decoding="async" />
           <span>Shinbukan Martial Arts</span>
         </a>
       </li>
       <li>
-        <img src="/img/mark-seizanji.webp" alt="" width="364" height="200" loading="lazy" decoding="async" />
-        <span>Koyasan Seizanji Temple</span>
+        <a href={LINKS.seizanji} target="_blank" rel="noopener">
+          <img src="/img/mark-seizanji.webp" alt="" width="364" height="200" loading="lazy" decoding="async" />
+          <span>Koyasan Seizanji Temple</span>
+        </a>
       </li>
     </ul>
   </div>

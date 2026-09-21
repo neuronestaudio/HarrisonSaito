@@ -323,3 +323,17 @@
   .mo .fy__icon ellipse { stroke-dashoffset: 0; animation: none; }
   .mo .fy__card .fy__icon, .mo .fy__card:hover .fy__icon { scale: none; translate: none; animation: none; }
 }
+
+/* ---- 22 Sep, Dion ------------------------------------------------------ */
+
+/* The chakra film: the statue filled the card and the two people at its feet
+   were cropped out. The card is 16:9 over a portrait photo, so the crop is
+   pulled right down to them. */
+.mo .film[data-video="XJ5Xjqmdvo8"] { background-position: 50% 80%; }
+
+/* "Which one is running you?" goes to the very bottom of the home page. It is
+   a section reorder, done here rather than in the markup: the home page's
+   component is being worked on in another session, and this cannot collide
+   with it. :has() scopes it to the page that actually holds the block. */
+.mo:has(> #patterns) { display: flex; flex-direction: column; }
+.mo:has(> #patterns) > #patterns { order: 9; }

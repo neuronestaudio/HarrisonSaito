@@ -77,7 +77,13 @@ export const HERO = {
 export const FOR_YOU_SECTION = local(S.FOR_YOU_SECTION);
 export const FOR_YOU = local(S.FOR_YOU);
 export const LOGOS = local(S.LOGOS);
-export const INTRO = local(S.INTRO);
+/* Dion, 22 Sep, in Harrison's voice: not "the tools that caused my trauma" —
+   the same discipline that made him succeed is what kept him in a life that
+   was not his. DRAFT until Harrison signs it off. */
+export const INTRO = {
+  ...local(S.INTRO),
+  big: 'The same tools that made me succeed — in my career, in my life — were the ones keeping me in a life that was not mine. Turning them around is the <em>method</em>, and it is why I do not teach anything I have not been through.',
+};
 export const STORY_SECTION = {
   ...local(S.STORY_SECTION),
   posterAlt: 'Harrison Saito in his gi at the Shinbukan dojo, in the SBS World News feature that names him as a karate teacher',
@@ -106,12 +112,20 @@ export const FILMS = local(S.FILMS).map((f) =>
   f.image === '/img/sbs-karate-v1.webp' ? { ...f, image: '/img/sbs-karate-2-v1.webp' } : f
 );
 const FAMILY_BASE = local(S.FAMILY);
+/* The three doors show who is behind them (Dion, 22 Sep): the Core is a wall
+   of his students — six of them, from the mats, the deck and the lawn — 1:1 is
+   him, and the breathwork room keeps the temple Buddha. */
 export const FAMILY = {
   ...FAMILY_BASE,
   body: 'One to one, a monthly breathwork room, or the twelve-week core. Each one hands you tools you can use the same day: to regulate, to rebuild self-worth, and to live by your own values.',
+  big: { ...FAMILY_BASE.big, image: '/img/ways-core-v1-1600.webp' },
+  cards: FAMILY_BASE.cards.map((c: any) =>
+    c.title === '1:1 Coaching' ? { ...c, image: '/img/about-bed.webp' } : c
+  ),
 };
 /* Dion, 18 Sep: the close is just "Reach out." — the template's "If something
    here resonated," lead-in is dropped, and the line stands on its own. */
 export const CLOSE = { ...local(S.CLOSE), title: '<mark>Reach out.</mark>' };
-export const NEWSLETTER = local(S.NEWSLETTER);
+/* "Send it to me" was the ask; the ask is really an introduction. */
+export const NEWSLETTER = { ...local(S.NEWSLETTER), cta: 'Let’s connect' };
 export const WORKSHOPS_PAGE = local(S.PAGES.find((p) => p.slug === 'workshops')!);
