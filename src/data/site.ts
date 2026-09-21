@@ -707,18 +707,23 @@ export type Chapter = {
   bg: string;
   /** Colour cast for that room, so the mood shifts chapter to chapter. */
   tone: string;
+  /** What the plate shows: 01-07. (It was 一-七 until 22 Sep — Dion: no
+      Japanese on the About page. `kanji`/`romaji` are still here because
+      Book.astro types against them; no page renders it.) */
+  index: string;
 };
 
 export const CHAPTERS: Chapter[] = [
   {
     number: '一',
+    index: '01',
     kanji: '間',
     romaji: 'ma',
     caption: 'the space between',
     title: 'Between two countries.',
     body: [
       'Japanese father. Australian upbringing. For most of my life I was fluent in both and at home in neither.',
-      '間 is the Japanese idea that the gap between two things is not empty — it is where the meaning lives. I did not choose that as a metaphor. I lived in it first and found the word for it later.',
+      'There is an idea that the gap between two things is not empty — that it is where the meaning lives. I did not choose that as a metaphor. I lived in it first and found the words for it later.',
     ],
     image: 'portrait-shoji',
     imageAlt: 'Harrison Saito seated against a shoji screen',
@@ -727,6 +732,7 @@ export const CHAPTERS: Chapter[] = [
   },
   {
     number: '二',
+    index: '02',
     kanji: '父',
     romaji: 'chichi',
     caption: 'the father',
@@ -745,6 +751,7 @@ export const CHAPTERS: Chapter[] = [
   },
   {
     number: '三',
+    index: '03',
     kanji: '傷',
     romaji: 'kizu',
     caption: 'the wound',
@@ -760,6 +767,7 @@ export const CHAPTERS: Chapter[] = [
   },
   {
     number: '四',
+    index: '04',
     kanji: '道',
     romaji: 'dō',
     caption: 'the way',
@@ -776,6 +784,7 @@ export const CHAPTERS: Chapter[] = [
   },
   {
     number: '五',
+    index: '05',
     kanji: '教',
     romaji: 'kyō',
     caption: 'to teach',
@@ -792,6 +801,7 @@ export const CHAPTERS: Chapter[] = [
   },
   {
     number: '六',
+    index: '06',
     kanji: '声',
     romaji: 'koe',
     caption: 'the voice',
@@ -808,6 +818,7 @@ export const CHAPTERS: Chapter[] = [
   },
   {
     number: '七',
+    index: '07',
     kanji: '円',
     romaji: 'en',
     caption: 'the circle',

@@ -63,10 +63,12 @@ const schema = graph(
         {CHAPTERS.map((c, i) => (
           <article class={`cols cols--center chapter${i % 2 ? ' chapter--flip' : ''}`}>
             <div class="chapter__text reveal">
-              <p class="eyebrow chapter__mark">
-                <span class="chapter__kanji" lang="ja">{c.kanji}</span>
-                <span>{c.romaji} — {c.caption}</span>
-              </p>
+              {/* Dion, 22 Sep: no Japanese on this page — the kanji and the romaji
+                  are gone from the chapter marks and the plates. The story is in
+                  English; the words it is about are named in the prose where they
+                  matter. (CHAPTERS still carries kanji/romaji for Book.astro, which
+                  no page renders.) */}
+              <p class="eyebrow chapter__mark"><span>{c.caption}</span></p>
               <h2>{c.title}</h2>
               {c.body.map((p) => <p class="fs-xs">{p}</p>)}
               {c.credential && <p class="pill chapter__credential">{c.credential}</p>}
@@ -77,7 +79,7 @@ const schema = graph(
               role="img"
               aria-label={c.imageAlt}
             >
-              <span class="chapter__number" lang="ja" aria-hidden="true">{c.number}</span>
+              <span class="chapter__number" aria-hidden="true">{c.index}</span>
             </div>
           </article>
         ))}

@@ -8,6 +8,7 @@
  * words are untouched.
  */
 import * as S from './morel-source';
+import { LINKS } from './morel-source';
 
 /** Template route → this site's page for the same thing. */
 const ROUTES: Record<string, string> = {
@@ -117,15 +118,46 @@ const FAMILY_BASE = local(S.FAMILY);
    him, and the breathwork room keeps the temple Buddha. */
 export const FAMILY = {
   ...FAMILY_BASE,
-  body: 'One to one, a monthly breathwork room, or the twelve-week core. Each one hands you tools you can use the same day: to regulate, to rebuild self-worth, and to live by your own values.',
+  body: 'One to one, a monthly breathwork room, or the twelve-week core — each one hands you tools you can use the same day: to regulate, to rebuild self-worth, and to live by your own values. Underneath them are the two rooms they came from.',
   big: { ...FAMILY_BASE.big, image: '/img/ways-core-v1-1600.webp' },
-  cards: FAMILY_BASE.cards.map((c: any) =>
-    c.title === '1:1 Coaching' ? { ...c, image: '/img/about-bed.webp' } : c
-  ),
+  /* Four doors now (Dion, 22 Sep: "below 1:1, below breathwork, have the
+     temple, have the dojo"), so the grid runs two by two. The last two lead
+     off the site — the dojo he teaches at and the temple the testimonies were
+     filmed in — and say only what can be stood behind: their names, and where
+     they are. What each relationship IS (trained, ordained, affiliated) is
+     Harrison's to word, the same rule the footer's crests follow.
+     They open in the same tab: the card markup is MorelHome.astro, which is
+     open in another session. Worth a target="_blank" when it is free. */
+  cards: [
+    ...FAMILY_BASE.cards.map((c: any) =>
+      c.title === '1:1 Coaching'
+        ? { ...c, image: '/img/about-bed.webp' }
+        : c.title === 'Breathwork Workshop'
+          ? { ...c, image: '/img/ways-breath-v1-900.webp' }
+          : c
+    ),
+    {
+      title: 'The Dojo',
+      lockup: ['The', 'Dojo'],
+      accent: 'Shinbukan Martial Arts, Lane Cove',
+      body: 'Where he trains, and where he teaches. The mats this all came off.',
+      cta: { label: 'Visit the dojo', href: LINKS.shinbukan },
+      image: '/img/dark-dojo.webp',
+    },
+    {
+      title: 'The Temple',
+      lockup: ['The', 'Temple'],
+      accent: 'Koyasan Seizanji',
+      body: 'Shingon Buddhism — the other half of what he teaches, and the mark at the foot of this page.',
+      cta: { label: 'Visit the temple', href: LINKS.seizanji },
+      image: '/img/buddha.webp',
+    },
+  ],
 };
-/* Dion, 18 Sep: the close is just "Reach out." — the template's "If something
-   here resonated," lead-in is dropped, and the line stands on its own. */
-export const CLOSE = { ...local(S.CLOSE), title: '<mark>Reach out.</mark>' };
+/* The close is one line (Dion, 18 Sep: drop the template's "If something here
+   resonated," lead-in). 22 Sep: "Let's connect." — the same words as the ask
+   under the newsletter, so the page closes the way it invites. */
+export const CLOSE = { ...local(S.CLOSE), title: '<mark>Let’s connect.</mark>' };
 /* "Send it to me" was the ask; the ask is really an introduction. */
 export const NEWSLETTER = { ...local(S.NEWSLETTER), cta: 'Let’s connect' };
 export const WORKSHOPS_PAGE = local(S.PAGES.find((p) => p.slug === 'workshops')!);
