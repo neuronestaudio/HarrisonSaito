@@ -65,7 +65,7 @@ export const BADGE_SETS: BadgeSet[] = [
     judge: "Clicks from the beat against the control, on the same traffic split.",
     watch: "This set is the whole diagnosis in one panel, so it borrows lines from the test sets. If it beats the control, it becomes the new default.",
     badges: [
-      { icon: "pillar", text: "Everyone leans on you.", emphasis: "No one asks how you are.", kind: "new", source: "New, from ‘the capable one’ (programme table, Week 1)" },
+      { icon: "pillar", text: "Everyone leans on you.", emphasis: "No one asks how you are.", kind: "new", source: "New, from ‘the capable one’ (program table, Week 1)" },
       { icon: "comment", text: "One comment", emphasis: "takes your whole day.", kind: "his", source: "Harrison, consultation cut 03: “Why can one comment ruin your day”" },
       { icon: "saidmeant", text: "You say yes when you mean no,", emphasis: "then call it keeping the peace.", kind: "site", source: "Live site" },
       { icon: "checklist", text: "You only feel worth something", emphasis: "when you’ve been useful.", kind: "new", source: "New, the diagnosis’s core line. Echoes his note: “a man gains self worth from this need”" },
@@ -153,7 +153,7 @@ export const BADGE_SETS: BadgeSet[] = [
       { icon: "homeguard", text: "You love them,", emphasis: "and can’t stand who you become around them.", kind: "team", source: "Board, paid round 1 (Static 5)" },
       { icon: "eye", text: "One look from your partner", emphasis: "and you’re already defending yourself.", kind: "new", source: "New" },
       { icon: "cycle", text: "Same argument,", emphasis: "different week.", kind: "new", source: "New" },
-      { icon: "saidmeant", text: "You fold the moment", emphasis: "someone you love is disappointed.", kind: "team", source: "Programme table, Week 10" },
+      { icon: "saidmeant", text: "You fold the moment", emphasis: "someone you love is disappointed.", kind: "team", source: "Program table, Week 10" },
       { icon: "distance", text: "You want to be close,", emphasis: "and keep everyone at arm’s length.", kind: "site", source: "Live site" },
       { icon: "family", text: "You swore your kids", emphasis: "would never feel what you felt.", kind: "team", source: "Board question: “What are you determined not to pass on to your children?”" },
     ],
@@ -173,10 +173,10 @@ export const BADGE_SETS: BadgeSet[] = [
     badges: [
       { icon: "mask", text: "They call you solid,", emphasis: "you feel like a fraud.", kind: "site", source: "Live site" },
       { icon: "trophy", text: "You hit the goal", emphasis: "and felt nothing.", kind: "team", source: "Board, men 25–40 table: “buying a house/car and feeling no different”" },
-      { icon: "spotlight", text: "If nobody was impressed,", emphasis: "would you still want this life?", kind: "team", source: "Programme table, Week 4 hook" },
+      { icon: "spotlight", text: "If nobody was impressed,", emphasis: "would you still want this life?", kind: "team", source: "Program table, Week 4 hook" },
       { icon: "lock", text: "Discipline has become", emphasis: "the place you hide.", kind: "team", source: "Board hook list: “If discipline has become your hiding place”" },
-      { icon: "stairs", text: "You avoid anything", emphasis: "you’re not already good at.", kind: "team", source: "Programme table, Week 11" },
-      { icon: "mirror", text: "You talk to yourself", emphasis: "like you’d never talk to a friend.", kind: "team", source: "Programme table, Week 7" },
+      { icon: "stairs", text: "You avoid anything", emphasis: "you’re not already good at.", kind: "team", source: "Program table, Week 11" },
+      { icon: "mirror", text: "You talk to yourself", emphasis: "like you’d never talk to a friend.", kind: "team", source: "Program table, Week 7" },
     ],
   },
   {
@@ -213,12 +213,12 @@ export const BADGE_SETS: BadgeSet[] = [
     judge: "Applications started and finished, not clicks. Most of it arrives unattributed.",
     watch: "Band 04 has no ask. The button here is a door, not a pitch, and it never runs in front of cold traffic.",
     badges: [
-      { icon: "chair", text: "You’re still proving something", emphasis: "to someone who isn’t in the room.", kind: "team", source: "Programme table, Week 6 hook" },
+      { icon: "chair", text: "You’re still proving something", emphasis: "to someone who isn’t in the room.", kind: "team", source: "Program table, Week 6 hook" },
       { icon: "echo", text: "His voice still makes", emphasis: "some of your decisions.", kind: "team", source: "Board hook list: “If your father’s voice still makes decisions for you”" },
       { icon: "eye", text: "You learned to read the room", emphasis: "before you learned to read.", kind: "his", source: "Paraphrased from his note: “I learnt how, when, what, why, who makes [him] angry”" },
       { icon: "hourglass", text: "He may never change.", emphasis: "You’re tired of waiting.", kind: "his", source: "Paraphrased from Harrison, cut 09: “Your dad may never be the father you wanted”" },
       { icon: "footsteps", text: "You swore you’d be different,", emphasis: "then caught yourself doing what he did.", kind: "new", source: "New" },
-      { icon: "heartcrack", text: "You love him,", emphasis: "and something still hurt.", kind: "team", source: "Programme table, Week 6: “You don’t have to hate your father to admit something hurt”" },
+      { icon: "heartcrack", text: "You love him,", emphasis: "and something still hurt.", kind: "team", source: "Program table, Week 6: “You don’t have to hate your father to admit something hurt”" },
     ],
   },
 ];

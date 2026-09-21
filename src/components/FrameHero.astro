@@ -260,6 +260,13 @@ const hallAt = (i: number) => (0.34 + (i * 0.46) / (HALL_N - 1)).toFixed(3);
         decoding="async"
       />
       <div class="arrive__shade" aria-hidden="true"></div>
+      {/* The match he is holding, alive: light laid over the photograph's own
+          flame (script places it; see "the flame" in the styles). */}
+      <div class="arrive__flame" data-flame aria-hidden="true">
+        <i class="flame__face"></i>
+        <i class="flame__halo"></i>
+        <i class="flame__core"><b></b></i>
+      </div>
 
       {/* The Japanese: set once, each on its own parallax rate. */}
       <p class="arrive__kanji" lang="ja" aria-hidden="true">和</p>
@@ -278,7 +285,7 @@ const hallAt = (i: number) => (0.34 + (i * 0.46) / (HALL_N - 1)).toFixed(3);
         </div>
         <p class="arrive__ctas">
           <a class="hero__btn" href={ARRIVE.cta.href} data-track="cta_click" data-track-label="Arrival — Book a discovery chat" data-track-section="hero-arrival"><span class="cta-long">{ARRIVE.cta.label}</span><span class="cta-short">Talk with me</span></a>
-          <a class="hero__more" href="/mens-coaching" data-track="cta_click" data-track-label="Arrival — See the programme" data-track-section="hero-arrival">See the programme →</a>
+          <a class="hero__more" href="/mens-coaching" data-track="cta_click" data-track-label="Arrival — See the programme" data-track-section="hero-arrival">See the program →</a>
         </p>
       </div>
 
@@ -289,6 +296,12 @@ const hallAt = (i: number) => (0.34 + (i * 0.46) / (HALL_N - 1)).toFixed(3);
     </div>
 
     <div class="hero__cue" aria-hidden="true"><span>Scroll to walk in</span><i></i></div>
+    {/* After "Learn more": the doors are shut and nothing on screen says what to
+        do. This does, loudly, until the arrival starts to build. */}
+    <div class="hero__go" aria-hidden="true">
+      <span>Keep scrolling</span>
+      <svg viewBox="0 0 28 40" width="28" height="40" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 6l9 9 9-9" /><path d="M5 17l9 9 9-9" /><path d="M5 28l9 9 9-9" /></svg>
+    </div>
     <div class="hero__rail" aria-hidden="true"><i></i></div>
   </div>
 </section>
@@ -379,6 +392,43 @@ const hallAt = (i: number) => (0.34 + (i * 0.46) / (HALL_N - 1)).toFixed(3);
   /* The vignette: the room closing in from its edges, centred on the alcove
      (plate x 44%) so the last thing to go dark is where the photograph will
      stand. */
+  /* "Keep scrolling" — after Learn more (Dion, 22 Sep: "very obviously"). --go
+     is 1 from the end of the pause to the doorway, where the arrival takes
+     over. Big, gold, centred low, three chevrons running down in turn. */
+  .hero__go {
+    position: absolute;
+    left: 50%;
+    bottom: calc(clamp(1.6rem, 7vh, 4.5rem) + var(--consent-h, 0px));
+    z-index: 6;
+    display: grid;
+    justify-items: center;
+    gap: 8px;
+    padding: 18px 34px 12px;
+    border-radius: 26px;
+    background: rgba(20, 16, 13, 0.78);
+    border: 1.5px solid rgba(242, 194, 117, 0.8);
+    box-shadow: 0 0 0 6px rgba(242, 194, 117, 0.1), 0 18px 60px rgba(0, 0, 0, 0.55);
+    color: #f2c275;
+    font-family: var(--font-avant);
+    font-size: clamp(1rem, 0.86rem + 0.5vw, 1.35rem);
+    font-weight: 700;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    white-space: nowrap;
+    pointer-events: none;
+    opacity: var(--go, 0);
+    transform: translate(-50%, calc((1 - var(--go, 0)) * 18px));
+    transition: opacity 0.3s ease, transform 0.3s ease;
+  }
+  .hero__go span { animation: goNudge 1.5s ease-in-out infinite; }
+  .hero__go svg { display: block; width: 40px; height: 58px; overflow: visible; }
+  @keyframes goNudge { 0%, 100% { transform: translateY(0); } 40% { transform: translateY(3px); } }
+  .hero__go svg path { animation: goDown 1.5s ease-in-out infinite; opacity: 0.2; }
+  .hero__go svg path:nth-child(2) { animation-delay: 0.18s; }
+  .hero__go svg path:nth-child(3) { animation-delay: 0.36s; }
+  @keyframes goDown { 0%, 100% { opacity: 0.2; transform: translateY(-3px); } 40% { opacity: 1; transform: translateY(3px); } }
+  @media (max-width: 700px) { .hero__go { padding: 14px 24px 10px; } .hero__go svg { width: 32px; height: 46px; } }
+
   /* The hallway. Each chip is a function of --p alone: --t runs -1 -> 1 as he
      walks past it (0 = level with him). It comes up small and close to the
      middle of the corridor, as if from further down it, grows and slides out
@@ -693,6 +743,65 @@ const hallAt = (i: number) => (0.34 + (i * 0.46) / (HALL_N - 1)).toFixed(3);
   }
   .arrive__shade { display: none; }
 
+  /* The flame. In the photograph (1152 x 2048) the match is a blown-out flare
+     47.4% across and 56.7% down, ~110px wide, streaked to the right by the
+     exposure, with smoke lifting up-right to his jaw. It cannot move — it is
+     a still — so light is laid over it and THAT moves: a hot core on the
+     flare, a halo round it, and a wash on the cheek it lights. The script
+     lays this box exactly over the photograph's own box (it is cropped
+     differently on a phone) and drives five numbers from the SCROLL, not the
+     clock — brightness, sway x/y, stretch x/y, summed sines of the scroll
+     position at unrelated periods — so the flame gutters as he moves and is
+     steady when he stops; a breath of idle flicker keeps it alive at rest.
+     Screen-blended, so it can only add light. */
+  .arrive__flame {
+    position: absolute;
+    left: var(--fb-x, 0);
+    top: var(--fb-y, 0);
+    width: var(--fb-w, 0);
+    height: var(--fb-h, 0);
+    pointer-events: none;
+    mix-blend-mode: screen;
+    opacity: var(--a-photo);
+    transform: scale(calc(1.06 - var(--a-photo) * 0.06));
+    transform-origin: 50% 40%;
+  }
+  .arrive__flame i { position: absolute; left: var(--fl-cx, 47.4%); top: var(--fl-cy, 56.7%); display: block; border-radius: 50%; }
+  .flame__core {
+    width: calc(var(--fl-size, 60px) * 1.5);
+    height: calc(var(--fl-size, 60px) * 0.95);
+    margin: calc(var(--fl-size, 60px) * -0.5) 0 0 calc(var(--fl-size, 60px) * -0.55);
+    transform: translate(calc(var(--fl-x, 0) * 1px), calc(var(--fl-y, 0) * 1px)) scale(var(--fl-kx, 1), var(--fl-ky, 1));
+    transform-origin: 35% 60%;
+    opacity: var(--fl-i, 0.9);
+  }
+  .flame__core b {
+    position: absolute;
+    inset: 0;
+    border-radius: 50%;
+    /* closest-side: every light here must reach nothing AT its own edge, or the
+       edge shows as a disc on the photograph */
+    background: radial-gradient(ellipse closest-side at 50% 50%, rgba(255, 247, 224, 0.95) 0%, rgba(255, 214, 140, 0.75) 30%, rgba(255, 160, 60, 0.38) 60%, rgba(255, 120, 30, 0) 100%);
+    animation: flameIdle 2.3s ease-in-out infinite;
+  }
+  .flame__halo {
+    width: calc(var(--fl-size, 60px) * 7);
+    height: calc(var(--fl-size, 60px) * 6);
+    margin: calc(var(--fl-size, 60px) * -3) 0 0 calc(var(--fl-size, 60px) * -3.4);
+    background: radial-gradient(ellipse closest-side at 50% 50%, rgba(255, 170, 70, 0.34) 0%, rgba(255, 140, 50, 0.14) 45%, rgba(255, 120, 40, 0.04) 78%, rgba(255, 120, 40, 0) 100%);
+    opacity: calc(var(--fl-i, 0.9) * 0.95);
+    transform: translate(calc(var(--fl-x, 0) * 0.5px), calc(var(--fl-y, 0) * 0.5px));
+  }
+  /* his jaw and cheek, up and to the right of the match */
+  .flame__face {
+    width: calc(var(--fl-size, 60px) * 6);
+    height: calc(var(--fl-size, 60px) * 5.4);
+    margin: calc(var(--fl-size, 60px) * -5.2) 0 0 calc(var(--fl-size, 60px) * -0.6);
+    background: radial-gradient(ellipse closest-side at 50% 50%, rgba(255, 176, 96, 0.2) 0%, rgba(255, 150, 70, 0.08) 50%, rgba(255, 140, 60, 0.02) 80%, rgba(255, 140, 60, 0) 100%);
+    opacity: calc(0.35 + var(--fl-i, 0.9) * 0.75);
+  }
+  @keyframes flameIdle { 0%, 100% { opacity: 1; transform: scale(1); } 37% { opacity: 0.9; transform: scale(0.97, 1.03); } 68% { opacity: 0.96; transform: scale(1.02, 0.98); } }
+
   /* 和 — wa, harmony — behind his mark: gold, screened onto the dark so it
      glows rather than sits, rising slower than the page (18vh over the whole
      arrival) and settling from a little larger. */
@@ -969,11 +1078,23 @@ const hallAt = (i: number) => (0.34 + (i * 0.46) / (HALL_N - 1)).toFixed(3);
   /* Squarer (Dion, 18 Sep): the head is centred and runs the panel's width
      instead of sitting in its left half, and the six cards are near-square
      tiles — mark on top, words under it — so nothing in the panel is air. */
+  /* Over his photograph (Dion, 22 Sep: "a fill background"): frame 45 of the
+     26 Aug shoot — seated before the shoji, arms raised, one lamp. The picture
+     is portrait and the panel is not, so it shows the band from his hands to
+     his chest. It runs to 93% of full brightness (the lamp, the lit panes), so
+     the scrim is sized from the numbers: 0.74 over the title strip brings its
+     brightest pane to a relative luminance of ~0.05, which is 10:1 under
+     white and 6:1 under the gold; the tiles are dark glass with their own
+     blur, so the six lines never sit on the raw picture either. */
   .beat__panel {
     width: min(920px, 100%);
     text-align: center;
-    background: var(--bg3);
-    color: var(--fg1);
+    position: relative;
+    isolation: isolate;
+    overflow: hidden;
+    background: #14100d;
+    color: #fcfaf8;
+    border: 1px solid rgba(242, 194, 117, 0.22);
     border-radius: 28px;
     padding: clamp(18px, 3vw, 40px);
     box-shadow: 0 30px 90px rgba(0, 0, 0, 0.5);
@@ -981,6 +1102,31 @@ const hallAt = (i: number) => (0.34 + (i * 0.46) / (HALL_N - 1)).toFixed(3);
     transform-origin: 50% 50%;
     will-change: transform;
   }
+  .beat__panel::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: -2;
+    background: url('/img/beat-seiza-v1-1400.webp') 50% 43% / cover no-repeat;
+  }
+  .beat__panel::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    background:
+      linear-gradient(to bottom, rgba(20, 16, 13, 0.78) 0%, rgba(20, 16, 13, 0.74) 30%, rgba(20, 16, 13, 0.56) 52%, rgba(20, 16, 13, 0.7) 78%, rgba(20, 16, 13, 0.86) 100%);
+  }
+  .beat .beat__eyebrow { color: rgba(252, 250, 248, 0.86); }
+  .beat .beat__title { color: #fcfaf8; text-shadow: 0 2px 24px rgba(0, 0, 0, 0.55); }
+  .beat .beat__title :global(mark) {
+    background: linear-gradient(100deg, #f9e0a3 0%, #f2c275 45%, #daa24f 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    color: #f2c275;
+  }
+  .beat .beat__lede { color: rgba(252, 250, 248, 0.88); text-shadow: 0 1px 14px rgba(0, 0, 0, 0.6); }
   .beat .beat__head { margin: 0 auto clamp(14px, 2vw, 22px); display: grid; justify-items: center; }
   .beat .beat__eyebrow { margin: 0 0 6px; font-size: calc(var(--fs-md) * 1.02); }
   /* Two lines, broken where the colour breaks: the dark sentence, then the
@@ -1005,11 +1151,20 @@ const hallAt = (i: number) => (0.34 + (i * 0.46) / (HALL_N - 1)).toFixed(3);
     padding: 14px 14px;
     width: 100%;
     font: inherit;
-    color: inherit;
+    color: #fcfaf8;
     text-align: center;
     cursor: pointer;
     -webkit-tap-highlight-color: transparent;
+    /* dark glass: the photograph reads through, the words do not fight it */
+    background: rgba(20, 16, 13, 0.62);
+    border: 1px solid rgba(242, 194, 117, 0.26);
+    -webkit-backdrop-filter: blur(10px) saturate(1.1);
+    backdrop-filter: blur(10px) saturate(1.1);
   }
+  .beat .beat__card:hover { border-color: rgba(242, 194, 117, 0.7); box-shadow: 0 18px 40px rgba(0, 0, 0, 0.35); }
+  .beat .beat__card p { color: #fcfaf8; }
+  .beat .beat__card :global(strong) { color: #f2c275; }
+  .beat .beat__card :global(.fy__icon) { color: #f2c275; }
   .beat__card :global(.fy__icon) { width: 52px; height: 52px; }
   /* A sheen crosses each tile as its mark acts — the same clock (--ico-t,
      --ico-at; morel-overrides.css), so the eye is led round the six. */
@@ -1041,10 +1196,11 @@ const hallAt = (i: number) => (0.34 + (i * 0.46) / (HALL_N - 1)).toFixed(3);
     transition: opacity 0.25s ease, transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
   }
   .beat .beat__card[aria-pressed='true'] {
-    border-color: #daa24f;
-    background: linear-gradient(160deg, #fffaf0 0%, #f8e9cb 100%);
-    box-shadow: 0 0 0 2px rgba(218, 162, 79, 0.5), 0 14px 30px rgba(20, 16, 13, 0.12);
+    border-color: #f2c275;
+    background: linear-gradient(160deg, rgba(218, 162, 79, 0.42) 0%, rgba(120, 78, 24, 0.5) 100%);
+    box-shadow: 0 0 0 2px rgba(242, 194, 117, 0.6), 0 14px 34px rgba(0, 0, 0, 0.4);
   }
+  .beat .beat__card[aria-pressed='true'] :global(.fy__icon) { color: #fcfaf8; }
   .beat .beat__card[aria-pressed='true']::after { opacity: 1; transform: scale(1); }
   .beat__tag {
     display: block;
@@ -1052,7 +1208,7 @@ const hallAt = (i: number) => (0.34 + (i * 0.46) / (HALL_N - 1)).toFixed(3);
     font-size: 0.62rem;
     font-weight: 700;
     letter-spacing: 0.2em;
-    color: #b07932;
+    color: #f2c275;
   }
   .beat__foot {
     display: flex;
@@ -1081,22 +1237,22 @@ const hallAt = (i: number) => (0.34 + (i * 0.46) / (HALL_N - 1)).toFixed(3);
     cursor: pointer;
     transition: background 0.3s ease, color 0.3s ease, border-color 0.3s ease, transform 0.3s ease, box-shadow 0.3s ease;
   }
-  .beat__on:hover { background: #14100d; color: #fcfaf8; box-shadow: 0 8px 26px rgba(20, 16, 13, 0.18); }
+  .beat__on:hover { background: #fcfaf8; color: #14100d; box-shadow: 0 8px 26px rgba(0, 0, 0, 0.35); }
   .beat__on[aria-disabled='true'] {
-    background: transparent;
+    background: rgba(20, 16, 13, 0.5);
     border-style: dashed;
-    border-color: rgba(176, 121, 50, 0.6);
-    color: #8a5c20;
+    border-color: rgba(242, 194, 117, 0.7);
+    color: #f2c275;
     cursor: default;
     letter-spacing: 0.08em;
   }
-  .beat__on[aria-disabled='true']:hover { background: transparent; color: #8a5c20; border-color: rgba(176, 121, 50, 0.6); box-shadow: none; }
+  .beat__on[aria-disabled='true']:hover { background: rgba(20, 16, 13, 0.5); color: #f2c275; border-color: rgba(242, 194, 117, 0.7); box-shadow: none; }
   .beat__panel.is-open .beat__on { animation: beatOpen 0.7s cubic-bezier(0.34, 1.56, 0.64, 1) 1; }
   .beat__panel.is-nudge .beat__on { animation: beatNudge 0.6s ease 1; }
   .beat__panel.is-nudge .beat__card:not([aria-pressed='true']) { animation: beatAsk 0.6s ease 1; animation-delay: calc(var(--k, 0) * 40ms); }
   @keyframes beatOpen { 0% { transform: scale(0.92); } 100% { transform: scale(1); } }
   @keyframes beatNudge { 0%, 100% { transform: translateX(0); } 20% { transform: translateX(-5px); } 45% { transform: translateX(5px); } 70% { transform: translateX(-3px); } }
-  @keyframes beatAsk { 0%, 100% { border-color: var(--bg4); } 45% { border-color: #daa24f; box-shadow: 0 0 0 2px rgba(218, 162, 79, 0.35); } }
+  @keyframes beatAsk { 0%, 100% { border-color: rgba(242, 194, 117, 0.26); } 45% { border-color: #f2c275; box-shadow: 0 0 0 2px rgba(242, 194, 117, 0.45); } }
   /* A short screen (a laptop with the consent bar up): the panel goes wide
      and the tiles shallow, so it is read at close to full size rather than
      scaled down to fit. */
@@ -1113,6 +1269,9 @@ const hallAt = (i: number) => (0.34 + (i * 0.46) / (HALL_N - 1)).toFixed(3);
     /* The two sentences run on: at this width each would wrap on its own and
        the title would stand four lines tall. */
     .beat__title :global(mark) { display: inline; }
+  }
+  @media (max-width: 760px) {
+    .beat__panel::before { background-image: url('/img/beat-seiza-v1-800.webp'); background-position: 50% 40%; }
   }
   @media (max-width: 600px) {
     .beat__panel { border-radius: 20px; padding: 14px 10px 12px; }
@@ -1144,7 +1303,7 @@ const hallAt = (i: number) => (0.34 + (i * 0.46) / (HALL_N - 1)).toFixed(3);
   /* No script, or no motion: the alcove frame only, everything on it. The
      beat's block is a section of the page instead (MorelHome). */
   :global(.no-js) .hero { height: 100svh; }
-  :global(.no-js) .hero__film, :global(.no-js) .hero__poster, :global(.no-js) .beat, :global(.no-js) .hall { display: none; }
+  :global(.no-js) .hero__film, :global(.no-js) .hero__poster, :global(.no-js) .beat, :global(.no-js) .hall, :global(.no-js) .hero__go { display: none; }
   /* No script, or no motion: the one screen is the room, and the hero's own
      title and buttons carry it — the arrival would land on top of them. */
   :global(.no-js) .arrive { display: none; }
@@ -1152,7 +1311,7 @@ const hallAt = (i: number) => (0.34 + (i * 0.46) / (HALL_N - 1)).toFixed(3);
     .hero { height: 100svh; }
     .hero .beat { display: none; }
     .arrive { display: none; }
-    .hero__film, .hero__poster, .hero__veil, .hero__rail, .hall { display: none; }
+    .hero__film, .hero__poster, .hero__veil, .hero__rail, .hall, .hero__go { display: none; }
     .hero__plate { transform: none; opacity: 1; }
     .hero__copy { opacity: 1; transform: translateY(-50%); }
     .hero__cue { display: none; }
@@ -1252,6 +1411,7 @@ const hallAt = (i: number) => (0.34 + (i * 0.46) / (HALL_N - 1)).toFixed(3);
       pD = pB + ((T_DOOR - T_GATE) / (T_END - T_GATE)) * (pC - pB);
       st.setProperty('--pa', pA.toFixed(4));   /* the hallway's chips time themselves off it */
       fit();
+      placeFlame();
     }
     function timeFor(p: number) {
       if (p <= pA) return (p / pA) * T_GATE;
@@ -1269,6 +1429,34 @@ const hallAt = (i: number) => (0.34 + (i * 0.46) / (HALL_N - 1)).toFixed(3);
       if (p <= pA || p >= pB) return 0;
       var e = (pB - pA) * EDGE;
       return Math.min(clamp((p - pA) / e, 0, 1), clamp((pB - p) / e, 0, 1));
+    }
+
+    /* ---- the flame's box: exactly over the photograph's own picture ----
+       The <img> is laid out one way on a desktop (natural ratio, 118% tall)
+       and another on a phone (the whole frame, object-fit: cover, 50% 30%),
+       so the picture's rectangle inside the element is worked out the way the
+       browser works it out, from the layout box and object-position. Layout
+       numbers only (offset*), never the transformed rect: the flame box
+       carries the same scale as the photograph in CSS. */
+    var flameSize = 60;
+    function placeFlame() {
+      if (!figure) return;
+      var W = figure.offsetWidth, H = figure.offsetHeight;
+      if (!W || !H) return;
+      var cs = getComputedStyle(figure);
+      var pos = (cs.objectPosition || '50% 50%').split(' ');
+      var px = parseFloat(pos[0]) / 100, py = parseFloat(pos[1] || pos[0]) / 100;
+      if (isNaN(px)) px = 0.5; if (isNaN(py)) py = 0.5;
+      var k = Math.max(W / 1152, H / 2048);
+      var w = 1152 * k, h = 2048 * k;
+      /* on a desktop the element is shifted by translateX(-50%); offsetLeft is before that */
+      var shift = cs.transform && cs.transform !== 'none' && window.matchMedia('(min-width: 761px) and (min-aspect-ratio: 4/5)').matches ? -W / 2 : 0;
+      st.setProperty('--fb-x', (figure.offsetLeft + shift + (W - w) * px).toFixed(1) + 'px');
+      st.setProperty('--fb-y', (figure.offsetTop + (H - h) * py).toFixed(1) + 'px');
+      st.setProperty('--fb-w', w.toFixed(1) + 'px');
+      st.setProperty('--fb-h', h.toFixed(1) + 'px');
+      flameSize = 112 * k;                       /* the flare is ~112px wide in the 1152px picture */
+      st.setProperty('--fl-size', flameSize.toFixed(1) + 'px');
     }
 
     /* ---- the panel: fitted between the nav and the consent bar ---- */
@@ -1310,6 +1498,20 @@ const hallAt = (i: number) => (0.34 + (i * 0.46) / (HALL_N - 1)).toFixed(3);
       }
       var m = meetFor(p);
       st.setProperty('--meet', m.toFixed(3));
+      /* "Keep scrolling": up as soon as the pause is behind him, gone as the
+         arrival starts to build. */
+      st.setProperty('--go', (smooth((p - pB) / 0.012) * (1 - smooth((p - (pD - 0.012)) / 0.03))).toFixed(3));
+      /* The flame, keyed to the scroll (not the clock): three sines of the
+         scroll position at unrelated periods, so it never repeats on screen. */
+      if (m > 0.01) {
+        var sy = window.scrollY;
+        var f1 = Math.sin(sy * 0.021), f2 = Math.sin(sy * 0.047 + 1.3), f3 = Math.sin(sy * 0.113 + 0.7);
+        st.setProperty('--fl-i', (0.84 + 0.1 * f1 + 0.08 * f2 * f3).toFixed(3));
+        st.setProperty('--fl-x', ((f2 * 0.6 + f3 * 0.4) * flameSize * 0.09).toFixed(2));
+        st.setProperty('--fl-y', (-Math.abs(f1) * flameSize * 0.07).toFixed(2));
+        st.setProperty('--fl-kx', (1 + 0.1 * f3).toFixed(3));
+        st.setProperty('--fl-ky', (1 + 0.16 * f2).toFixed(3));
+      }
       /* Half the vignette as the doors open (by where the scroll is, so it
          holds steady while the film eases), the rest as the letters come up —
          dark by the time the photograph rises. */
@@ -1635,6 +1837,8 @@ const hallAt = (i: number) => (0.34 + (i * 0.46) / (HALL_N - 1)).toFixed(3);
        changes, which refits the panel. */
     window.addEventListener('scroll', onScroll, { passive: true });
     window.addEventListener('resize', onResize);
+    /* the photograph's box is only final once it has its picture */
+    if (figure) figure.addEventListener('load', placeFlame);
     measure();
     prevP = progress();
     paint(prevP);

@@ -45,7 +45,12 @@ const ASSETS: Record<string, string> = {
 
 function local<T>(value: T): T {
   if (typeof value === 'string') {
-    return ((ROUTES[value] ?? ASSETS[value] ?? LABELS[value] ?? value) as unknown) as T;
+    const mapped = ROUTES[value] ?? ASSETS[value] ?? LABELS[value];
+    if (mapped !== undefined) return (mapped as unknown) as T;
+    /* "program", not "programme" (Dion, 22 Sep) — in the words only: a path or a
+       file name never contains it. */
+    const worded = /^[/#]|^https?:|^mailto:/.test(value) ? value : value.replace(/rogrammes\b/g, 'rograms').replace(/rogramme\b/g, 'rogram');
+    return (worded as unknown) as T;
   }
   if (Array.isArray(value)) return (value.map(local) as unknown) as T;
   if (value && typeof value === 'object') {
@@ -63,6 +68,9 @@ export const asset = (path: string) => ASSETS[path] ?? path;
    up. It reads better here anyway: it is who he is, beside his photograph. */
 export const HERO = {
   ...local(S.HERO),
+  /* Dion, 22 Sep: not "It is not therapy. It is a dojo." — what he teaches was
+     built there; that is the claim. */
+  quoteLines: ['Principles built', 'in a dojo.'],
   titleLines: ['The Son Of', 'A Karate', '<mark>Grand Master.</mark>'],
   mobileTitle: 'The Son Of A Karate Grand Master. <mark>Rebuild Self-Worth.</mark>',
 };
@@ -77,7 +85,17 @@ export const STORY_SECTION = {
 export const PATTERNS_SECTION = local(S.PATTERNS_SECTION);
 export const PATTERNS = local(S.PATTERNS);
 export const PHASES = local(S.PHASES);
-export const CORE = local(S.CORE);
+/* The positioning (Dion's brief, 22 Sep 2026), in Harrison's first person: an
+   integrated teacher; principles made in the dojo and seventeen years of
+   karate; for men who have achieved a great deal and still feel disconnected;
+   the tools to regulate, to rebuild self-worth, and to live by their own
+   values in a fast, overstimulated world. DRAFT until Harrison signs the words
+   off — they are ours, written to his brief, not quoted from him. */
+export const CORE = {
+  ...local(S.CORE),
+  lede: 'Twelve weeks, one to one, for men who have achieved a great deal and still feel disconnected from it. What I teach was built in a dojo, over seventeen years of karate. Here it goes to work on what actually runs your day: how you regulate under pressure, where your self-worth comes from, and whether the life you have built is in line with what you value.',
+  note: 'This is not therapy. It is training: a foundation and a framework for a fast, overstimulated world, handed over in three stages (Separate, Return, Integrate) until the tools are yours. In person around Chatswood and Sydney’s North Shore, or online Australia-wide.',
+};
 export const FAQ_SECTION = local(S.FAQ_SECTION);
 export const FAQ = local(S.FAQ);
 export const QUOTE = local(S.QUOTE);
@@ -87,7 +105,11 @@ export const FILMS_SECTION = local(S.FILMS_SECTION);
 export const FILMS = local(S.FILMS).map((f) =>
   f.image === '/img/sbs-karate-v1.webp' ? { ...f, image: '/img/sbs-karate-2-v1.webp' } : f
 );
-export const FAMILY = local(S.FAMILY);
+const FAMILY_BASE = local(S.FAMILY);
+export const FAMILY = {
+  ...FAMILY_BASE,
+  body: 'One to one, a monthly breathwork room, or the twelve-week core. Each one hands you tools you can use the same day: to regulate, to rebuild self-worth, and to live by your own values.',
+};
 /* Dion, 18 Sep: the close is just "Reach out." — the template's "If something
    here resonated," lead-in is dropped, and the line stands on its own. */
 export const CLOSE = { ...local(S.CLOSE), title: '<mark>Reach out.</mark>' };

@@ -95,7 +95,7 @@ export const OFFERS: Offer[] = [
     priceValue: 3600,
     commitment: '12 weeks · three phases',
     description:
-      '12 weeks. Three phases: Separate, Return, Integrate. A structured programme using martial arts, Buddhism, and honest inner work.',
+      '12 weeks. Three phases: Separate, Return, Integrate. A structured program using martial arts, Buddhism, and honest inner work.',
     cta: 'Apply',
     href: '/apply',
     audience: 'adults',
@@ -145,7 +145,7 @@ export const PHASES: Phase[] = [
     grade: 'oklch(28% 0.03 262)',
     kanjiMeaning: 'to keep, to hold the form',
     blurb:
-      'See the pattern for what it is. Identify the inherited programmes running your life: the people-pleasing, the performing, the suppressed anger. Begin to separate your authentic self from the survival strategies you built as a child.',
+      'See the pattern for what it is. Identify the inherited programs running your life: the people-pleasing, the performing, the suppressed anger. Begin to separate your authentic self from the survival strategies you built as a child.',
     aim: 'See the patterns without rejecting yourself.',
     selfTrust:
       'Self-trust begins when you can tell the difference between an inherited reaction and what you genuinely think, feel and value.',
@@ -168,7 +168,7 @@ export const PHASES: Phase[] = [
     selfTrust:
       'Self-trust deepens when you can stay present with grief, anger, vulnerability and compassion without abandoning or overruling yourself.',
     image: 'phase-return',
-    imageAlt: 'A quiet, contemplative moment during the Return phase of the programme',
+    imageAlt: 'A quiet, contemplative moment during the Return phase of the program',
   },
   {
     number: '03',

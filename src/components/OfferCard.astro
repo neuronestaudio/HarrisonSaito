@@ -20,7 +20,7 @@ const { offer, featured = false } = Astro.props;
 <article class:list={['offer', { 'offer--featured': featured }]}>
   <div class="offer__top">
     <span class="offer__number">{offer.number}</span>
-    {featured && <span class="offer__flag">Flagship Programme</span>}
+    {featured && <span class="offer__flag">Flagship Program</span>}
   </div>
 
   <h3 class="offer__name">{offer.name}</h3>

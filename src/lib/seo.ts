@@ -26,7 +26,7 @@ export function personSchema() {
     image: `${SITE.domain}/og-image.jpg`,
     jobTitle: ['Life Coach', 'High School Teacher', 'Karate Instructor'],
     description:
-      "Sydney-based men's life coach, high school English teacher and 2nd Dan black belt in Karate. Runs the Return to Self 12-week men's coaching programme and 1:1 HSC mentoring from Chatswood, NSW.",
+      "Sydney-based men's life coach, high school English teacher and 2nd Dan black belt in Karate. Runs the Return to Self 12-week men's coaching program and 1:1 HSC mentoring from Chatswood, NSW.",
     knowsAbout: [
       "Men's life coaching",
       'Karate',
@@ -159,7 +159,7 @@ export function courseSchema() {
     '@type': 'Course',
     name: 'Return to Self',
     description:
-      'A 12-week structured coaching programme for men, in three phases — Separate, Return, Integrate — built on martial arts, Buddhism and honest self-inquiry.',
+      'A 12-week structured coaching program for men, in three phases — Separate, Return, Integrate — built on martial arts, Buddhism and honest self-inquiry.',
     url: `${SITE.domain}/mens-coaching`,
     provider: { '@id': ID.business },
     inLanguage: 'en-AU',
