@@ -740,6 +740,9 @@ export const CHAPTERS: Chapter[] = [
     body: [
       'My father survived post-WW2 Japan. He was a martial artist and a Buddhist monk.',
       'He gave me discipline. He gave me martial arts. He gave me Buddhism. He also gave me people-pleasing, suppressed rage, and a five-year-old frozen inside a grown man’s body.',
+      /* His own words, 26 Aug tape (N_C1611/N_C1612 and the "I used to think"
+         takes). The last sentence is ours and needs his sign-off. */
+      'He grew up in post-war Tokyo and lost his own father at five. No one taught him how to feel his own emotions, so naturally that got passed down to me. He is 81 now, and I only really started talking to him three years ago — not because he changed, but because I stopped waiting for him to.',
     ],
     credential: 'Lineage — Japanese Buddhist and martial tradition, first-hand',
     // The 4:3 crop, not the wide band — a book page is a tall slot and the

@@ -111,9 +111,19 @@ export const INTRO = {
   ...local(S.INTRO),
   big: 'The same tools that made me succeed — in my career, in my life — were the ones keeping me in a life that was not mine. Turning them around is the <em>method</em>, and it is why I do not teach anything I have not been through.',
 };
+/* The story has to carry his own proof (Dion, 25 Sep): the conversation with
+   his father is one HE had — three years ago, without waiting to be met
+   halfway — and that is what earns him the right to ask anyone else to have
+   theirs. His words, off the 26 Aug tape (N_C1611 / N_C1612 and the "I used to
+   think" takes; transcripts in _index-week2-26aug). The last sentence of the
+   third paragraph is ours, written to his line — it needs his sign-off. */
 export const STORY_SECTION = {
   ...local(S.STORY_SECTION),
   posterAlt: 'Harrison Saito in his gi at the Shinbukan dojo, in the SBS World News feature that names him as a karate teacher',
+  paragraphs: [
+    ...local(S.STORY_SECTION).paragraphs,
+    'My dad is 81. I only really started talking to him three years ago. I used to think healing that meant getting him to change — I was wrong. He might never apologise, he might never change, and I might still be the one who looks after him. <strong>I had the conversation anyway.</strong> That is the work, and I did it before I asked it of anyone else.',
+  ],
 };
 export const PATTERNS_SECTION = local(S.PATTERNS_SECTION);
 export const PATTERNS = local(S.PATTERNS);
