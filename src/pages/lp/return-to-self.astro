@@ -18,7 +18,7 @@ import MoShell from '../../components/MoShell.astro';
 import LeadForm from '../../components/LeadForm.astro';
 import { PHASES, TESTIMONIALS, PROOF, SITE } from '../../data/site';
 
-const title = 'Return to Self — 12-Week Coaching for Men | Harrison Saito';
+const title = 'Return to Self — 12-Week Coaching | Harrison Saito';
 const description =
   'For anyone who built the life that looks right but feels hollow. A 12-week program built on karate, Buddhism and honest inner work. Chatswood, Sydney and online.';
 
@@ -48,11 +48,13 @@ const INCLUDED = [
       <div class="wide cols cols--top formgrid">
         <div class="formgrid__aside lp-hero__copy">
           <p class="eyebrow">Harrison Saito · Chatswood, Sydney</p>
-          <h1>You built the life that looks right. <mark>It still feels hollow.</mark></h1>
+          {/* The voice guide's identity hero (docs/VOICE.md §3, Dion, 25 Sep). */}
+          <h1>Who are you when there’s <mark>nothing left to prove?</mark></h1>
           <p class="lede accent">
-            Return to Self is a 12-week program for men who are exhausted from performing a version
-            of themselves that isn't even them. Karate, Buddhism, and honest inner work — with someone
-            who built the shell, lived in it for decades, and then took it apart.
+            When achievement, responsibility and expectation become part of who you are, it gets hard
+            to know where the performance ends and you begin. Return to Self is twelve weeks of slowing
+            down enough to notice what is driving you, and to reconnect with the values you actually
+            want to live by — with someone who built the shell, lived in it for years, and then took it apart.
           </p>
 
           <ul class="facts lp-points">
@@ -152,7 +154,7 @@ const INCLUDED = [
     <!-- ============ THE ASK ============ -->
     <section class="section section--dark on-dark close" data-section="lp-close">
       <div class="content text-center">
-        <h2 class="reveal">If this is <mark>your year.</mark></h2>
+        <h2 class="reveal">Take the <mark>first step.</mark></h2>
         <div class="close__ctas reveal">
           <a class="btn btn--filled btn--wide" href="#apply" data-track="cta_click" data-track-label="LP — closing CTA">Start the Application</a>
         </div>

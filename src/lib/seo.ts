@@ -159,7 +159,7 @@ export function courseSchema() {
     '@type': 'Course',
     name: 'Return to Self',
     description:
-      'A 12-week structured coaching program for men, in three phases — Separate, Return, Integrate — built on martial arts, Buddhism and honest self-inquiry.',
+      'A 12-week structured coaching program in three phases — Separate, Return, Integrate — built on martial arts, Buddhism and honest self-inquiry.',
     url: `${SITE.domain}/mens-coaching`,
     provider: { '@id': ID.business },
     inLanguage: 'en-AU',
