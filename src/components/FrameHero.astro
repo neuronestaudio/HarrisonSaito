@@ -207,7 +207,7 @@ const hallAt = (i: number) => (0.34 + (i * 0.46) / (HALL_N - 1)).toFixed(3);
 
     <div class="hero__copy">
       <p class="hero__eyebrow"><span>Harrison Saito · Coaching</span><i aria-hidden="true"> · </i><span>Chatswood, Sydney</span></p>
-      <h1 class="hero__title">Break the habits<br /><mark>you never chose.</mark></h1>
+      <h1 class="hero__title">You don’t have to react<br /><mark>to everything you feel.</mark></h1>
       <p class="hero__sub">17+ Years Karate | Coach | Buddhist</p>
       {/* A row of four client interviews stood here for a day (20-21 Sep). Dion took
           it off: too much too soon, and four men in front of the same curtain read as
@@ -630,15 +630,17 @@ const hallAt = (i: number) => (0.34 + (i * 0.46) / (HALL_N - 1)).toFixed(3);
     .hero__eyebrow i { display: none; }
     .hero__eyebrow span { display: block; }
   }
-  /* Two lines, broken where the colour breaks: "Break the habits" in white,
-     then "you never chose." in the smoked gold. The size follows the width
-     (8.8vw) so the longer line fits on one line from a 320px phone up, and
+  /* Two lines, broken where the colour breaks: "You don't have to react" in
+     white, then "to everything you feel." in the smoked gold — the voice
+     guide's primary hero line (docs/VOICE.md §3, Dion, 25 Sep). The size
+     follows the width (6.2vw: the longer line is 23 characters where "Break
+     the habits" was 16) so it fits on one line from a 320px phone up, and
      fills most of the measure while it does; fitHeadings is the net under it.
-     (Until 19 Sep this was "Son of a / Karate Grand Master"; that line now
-     stands beside his photograph in the arrival.) */
+     (19–25 Sep this was "Break the habits / you never chose."; until 19 Sep
+     "Son of a / Karate Grand Master", which now stands in the arrival.) */
   .hero__title {
     font-family: var(--font-avant);
-    font-size: clamp(1.6rem, min(8.8vw, 11vh), 5.9rem);
+    font-size: clamp(1.35rem, min(6.2vw, 11vh), 4.2rem);
     font-weight: 700;
     letter-spacing: -0.02em;
     line-height: 0.92;
@@ -669,9 +671,11 @@ const hallAt = (i: number) => (0.34 + (i * 0.46) / (HALL_N - 1)).toFixed(3);
   }
   /* Off screen it holds still: nothing repaints under the walk. */
   .hero--away .hero__title mark { animation-play-state: paused; }
+  /* Under the title, never larger than it: the title now runs at 6.2vw, so
+     on a phone the old 1.6rem floor sat above it. Same size on a desk. */
   .hero__sub {
     font-family: var(--font-display);
-    font-size: clamp(1.6rem, 1.4rem + 0.85vw, 2.15rem);
+    font-size: clamp(1.05rem, 0.9rem + 1.6vw, 2.15rem);
     font-weight: 500;
     line-height: 1.2;
     margin: 0;

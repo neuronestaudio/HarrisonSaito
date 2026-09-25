@@ -12,13 +12,13 @@
  *
  * It is NOT the hero's beat. That panel is the diagnosis (badges.ts: what is
  * running you, one comment ruining a day, guilt at doing nothing) and it gates
- * the walk. This one is recognition: what you have built, what it costs, and
- * what you want instead. Nothing here repeats a line from the beat set.
+ * the walk. This one is recognition: the guide's "you may recognise yourself
+ * here" list (docs/VOICE.md §12), one line to a card — nobody is told what is
+ * wrong with them; they are shown something they already know.
  *
  * Provenance, the same rule the badges follow: `kind` says where a line came
- * from, and every line written for this panel is `new` — OURS, written to
- * Dion's brief and to the positioning, not quoted from Harrison. They need his
- * OK before they are treated as his words.
+ * from. `guide` is Dion's voice guide of 25 Sep; `new` is ours. Neither is
+ * Harrison's until he says so.
  */
 export type Key = 'Separate' | 'Return' | 'Integrate';
 
@@ -34,7 +34,7 @@ export type AudienceCard = {
   weeks: string;
   /** what else on the page this card threads to, for whoever edits it next */
   thread: string;
-  kind: 'new' | 'his' | 'site';
+  kind: 'guide' | 'new' | 'his' | 'site';
   source: string;
 };
 
@@ -42,72 +42,78 @@ export const AUDIENCE_SECTION = {
   label: 'The Fit',
   title: 'Who <mark>Return to Self</mark> is for.',
   lede:
-    'For the person who has already done it the hard way. You do not need more push — push is how you got here, and lately it is what it costs. If two or three of these land, these are your twelve weeks, and each one is picked up by one of the three keys above.',
-  foot:
-    'None of it asks you to be broken. It asks you to stop for long enough to feel what you have been pushing past.',
+    'For people who know how to keep going. You may recognise yourself here — and each one is picked up by one of the three keys above.',
+  /* the guide's central idea, §2 */
+  foot: 'The goal is not perfection. The goal is having more choice.',
   cta: { label: 'Start the conversation', href: '/book' },
 };
+
+const GUIDE = 'Voice guide, Dion, 25 Sep 2026 — §12 "Who it is for".';
 
 export const AUDIENCE: AudienceCard[] = [
   {
     icon: 'trophy',
-    text: 'You have done everything you said you would.',
-    emphasis: 'It still does not feel like yours.',
+    text: 'You have achieved a lot,',
+    emphasis: 'and struggle to feel satisfied by it.',
     key: 'Separate',
     weeks: 'Weeks 1–4',
     thread: 'The hero — "Break the habits you never chose" — and his own line in the intro: the tools that made him succeed were the ones that kept him in a life that was not his.',
-    kind: 'new',
-    source: 'Dion, 25 Sep 2026, written to the reference layout ("achieved traditional success, but want to feel deeply fulfilled and alive") in the site\'s voice.',
+    kind: 'guide',
+    source: GUIDE,
   },
   {
     icon: 'mask',
-    text: 'You keep saying you have got it handled,',
-    emphasis: 'and the same pattern comes back anyway.',
+    text: 'You know how to perform, handle pressure and keep moving,',
+    emphasis: 'and less about what happens inside you when it gets hard.',
     key: 'Separate',
     weeks: 'Weeks 1–4',
-    thread: 'The patterns carousel at the foot of the page — "Which one is running you?" — and the first pill on the wall, "Took the mask off".',
-    kind: 'new',
-    source: 'Dion, 25 Sep 2026, written to the reference layout ("tired of pretending you\'ve got it handled while repeating the same old patterns").',
+    thread: 'The first key — see the pattern for what it is — and the first pill on the wall, "Took the mask off".',
+    kind: 'guide',
+    source: GUIDE + ' §4, "You learn how to perform… but very few of us are taught how to understand what happens inside us."',
   },
   {
-    icon: 'echo',
-    text: 'Something wants your attention all day,',
-    emphasis: 'and you cannot hear yourself over it.',
+    icon: 'bolt',
+    text: 'You react strongly in certain relationships',
+    emphasis: 'and cannot always explain why.',
     key: 'Return',
     weeks: 'Weeks 5–8',
-    thread: 'The lede of the twelve weeks: the world has never been louder, and the more of your attention you hand over the harder it is to hear what is actually yours.',
-    kind: 'new',
-    source: 'Dion\'s voice brief, 25 Sep 2026: the overstimulating world, the distraction hijacking the dopamine system, and Return to Self as the pause that regulates it.',
+    thread: 'The second key — where it started, your father, your family, your culture — and the patterns carousel at the foot of the page.',
+    kind: 'guide',
+    source: GUIDE,
   },
   {
     icon: 'hands',
-    text: 'You want to be closer to the people you love,',
-    emphasis: 'and steadier in your own body.',
+    text: 'You want stronger relationships',
+    emphasis: 'without losing yourself inside them.',
     key: 'Return',
     weeks: 'Weeks 5–8',
-    thread: 'The second key — where it started, trained in the body, not in theory — and the wall, where people say the ones around them felt the difference.',
-    kind: 'new',
-    source: 'Dion, 25 Sep 2026, written to the reference layout ("deeper intimacy, greater health, emotional resilience").',
+    thread: 'The wall, where people say the ones around them felt the difference.',
+    kind: 'guide',
+    source: GUIDE,
   },
   {
-    icon: 'scale',
-    text: 'You lead, build, or create for a living.',
-    emphasis: 'Now you want it to line up with you.',
+    icon: 'shield',
+    text: 'You are disciplined in work, training or responsibility,',
+    emphasis: 'and less sure what to do with what you feel.',
     key: 'Integrate',
     weeks: 'Weeks 9–12',
-    thread: 'The positioning: achieved a great deal and still disconnected from it. The third key is where the discipline and the strength stay, and start answering to you.',
-    kind: 'new',
-    source: 'Dion, 25 Sep 2026, written to the reference layout ("a leader, entrepreneur or creator who feels out of alignment internally").',
+    thread: 'The third key — the discipline stays, the strength stays, and now they answer to you — and the story: the endurance to push past feelings, and what it cost.',
+    kind: 'guide',
+    source: GUIDE,
   },
   {
     icon: 'mirror',
-    text: 'You are ready to be seen as all of it,',
-    emphasis: 'not only the part that performs.',
+    /* "You feel disconnected…" set "disconnected" alone on a line in a
+       375px card, and so did "Disconnected from…" — a 12-letter word has no
+       partner that fits beside it at that width. The same thought, in words
+       that pair. */
+    text: 'A long way from the person you became,',
+    emphasis: 'and wanting to know what actually matters to you.',
     key: 'Integrate',
     weeks: 'Weeks 9–12',
     thread: 'The close, and the pills above the wall — present, less reactive, the mask off, the courage for a hard conversation.',
-    kind: 'new',
-    source: 'Dion, 25 Sep 2026, written to the reference layout ("ready to lead from peace, not pressure, and to be seen in all of who you are").',
+    kind: 'guide',
+    source: GUIDE + ' §13, "Return to what actually matters."',
   },
 ];
 
@@ -121,4 +127,4 @@ for (const c of AUDIENCE) {
 }
 
 /** Lines written for this panel, not quoted — they need Harrison's OK. */
-export const newLines = () => AUDIENCE.filter((c) => c.kind === 'new');
+export const newLines = () => AUDIENCE.filter((c) => c.kind === 'new' || c.kind === 'guide');

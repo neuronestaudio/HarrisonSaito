@@ -132,16 +132,16 @@ export const STORY_SECTION = {
 export const PATTERNS_SECTION = local(S.PATTERNS_SECTION);
 export const PATTERNS = local(S.PATTERNS);
 export const PHASES = local(S.PHASES);
-/* The positioning (Dion's brief, 22 Sep 2026), in Harrison's first person: an
-   integrated teacher; principles made in the dojo and seventeen years of
-   karate; for men who have achieved a great deal and still feel disconnected;
-   the tools to regulate, to rebuild self-worth, and to live by their own
-   values in a fast, overstimulated world. DRAFT until Harrison signs the words
+/* The positioning, in the voice guide's words (docs/VOICE.md, Dion, 25 Sep
+   2026): recognition first, then what sits beneath the behaviour, then the
+   central idea — you may not control what you feel first, but you can learn
+   to understand it before it chooses what you do next. Nobody is told they
+   are broken and nothing is promised. DRAFT until Harrison signs the words
    off — they are ours, written to his brief, not quoted from him. */
 export const CORE = {
   ...local(S.CORE),
-  lede: 'The world has never been louder. Every hour of the day something is built to hold your attention, and the more of it you hand over, the harder it gets to hear what is actually yours — what you want, what you value, what your body has been telling you the whole time. Return to Self is twelve weeks of learning to stop, and to hear it again.',
-  note: 'Not therapy. Not spirituality for its own sake. Training — physical, mental and spiritual, taught the way a dojo teaches: practised until it holds under pressure, inside your ordinary week. Handed over in three stages (Separate, Return, Integrate) until the tools are yours. In person around Chatswood and Sydney’s North Shore, or online Australia-wide.',
+  lede: 'Very few of us are taught what happens inside us when things become difficult. So we react — we withdraw, we overwork, we get defensive, we reach for the next achievement. Sometimes that has worked for years. Return to Self is twelve weeks of learning to notice what you feel before it decides what you do next: the pattern, where it came from, what actually matters to you, and how you want to respond.',
+  note: 'Not therapy, and not about becoming endlessly calm. It is not about suppressing anger, removing ambition or pretending difficult emotions do not exist. It is practice — conversation, reflection, awareness, and principles built over seventeen years in the dojo — handed over in three keys (Separate, Return, Integrate) until they are yours. In person around Chatswood and Sydney’s North Shore, or online Australia-wide.',
 };
 export const FAQ_SECTION = local(S.FAQ_SECTION);
 export const FAQ = local(S.FAQ);

@@ -1,6 +1,6 @@
 ---
 /**
- * /workshop — the three-seat room. Where the ads land.
+ * /workshop — the three-seat room. Where the ads land, and the lead magnet.
  *
  * Dion, 25 Sep 2026: the twelve weeks are the thing we sell and the thing
  * nobody cold will buy off a page. So the ads go here instead — an in-person
@@ -9,11 +9,16 @@
  * and only a seat. The twelve weeks are mentioned as what the room is a
  * taste of, and never pitched.
  *
+ * Second cut, same day. "Way too easy": the seat is applied for now, with one
+ * optional line in their words, and a call before it is confirmed. "Land them
+ * from the six squares onwards": the page opens on the ink — his gi portrait,
+ * the title, and the same "who this is for" panel as the home page with the
+ * workshop's own six (WhoFor.astro) — then the pills, then the room itself,
+ * then who is holding it, the words, the answers, and the application last.
+ *
  * Bare (no nav, no footer): one way in, one way through, one thing to do.
- * The form is in the fold and asks for a name, a phone and an email — nothing
- * to answer first (SeatForm.astro). Every word is src/data/workshop.ts,
- * where what is not yet known (date, length, price) is null and renders as
- * "to be confirmed" rather than as a guess.
+ * Every word is src/data/workshop.ts, where what is not yet known (date,
+ * length, price) is null and renders as "to be confirmed" rather than a guess.
  *
  * Indexable, unlike /lp/: it duplicates nothing, and someone who saw the ad
  * and searched for it should find it.
@@ -21,76 +26,69 @@
 import Base from '../layouts/Base.astro';
 import MoShell from '../components/MoShell.astro';
 import SeatForm from '../components/SeatForm.astro';
+import WhoFor from '../components/WhoFor.astro';
+import GainPills from '../components/GainPills.astro';
 import { src, srcset } from '../lib/images';
 import { PROOF, SITE } from '../data/site';
 import { graph, personSchema, localBusinessSchema } from '../lib/seo';
-import { DETAILS, WHEN_LINE, HERO, WHY, ROOM, WHO, WORDS, ANSWERS, CLOSE, FORM } from '../data/workshop';
+import { DETAILS, WHEN_LINE, HERO, FIT, GAINS_INTRO, ROOM, WHO, WORDS, ANSWERS, APPLY, FORM } from '../data/workshop';
 
 const title = 'The Workshop — Three Seats with Harrison Saito | Chatswood, Sydney';
 const description =
-  'A small in-person session with Harrison Saito — three people, one room. The first tool of Return to Self in your hands, and a straight read on whether the twelve weeks are yours, before you commit to any of them. Chatswood, Sydney.';
+  'An in-person session with Harrison Saito — three people, one room. You talk, then breathe, then sit. The first tools of Return to Self in your hands, and a straight read on whether the twelve weeks are yours. Chatswood, Sydney. Apply for a seat.';
 const schema = graph(personSchema(), localBusinessSchema());
 ---
 
-<Base title={title} description={description} path="/workshop" image="/img/rts-still-v1-1280.webp" schema={schema} bare>
+<Base title={title} description={description} path="/workshop" image="/img/workshop-og-v1.webp" schema={schema} bare>
   <MoShell modal={false}>
-    <!-- ============ THE FOLD: the room, and the seat ============ -->
-    <section class="inner-hero on-dark lp-hero ws-hero" style="background-image:url(/img/rts-still-v1-1920.webp)" data-section="ws-hero">
-      <div class="wide cols cols--top formgrid">
-        <div class="formgrid__aside lp-hero__copy">
-          <p class="eyebrow">{HERO.eyebrow}</p>
+    <!-- ============ THE FOLD: him, the room, the way in ============ -->
+    <section class="section section--dark on-dark ws-hero" data-section="ws-hero">
+      <div class="wide ws-hero__grid">
+        <div class="ws-hero__copy">
+          <p class="eyebrow ws-hero__eyebrow">{HERO.eyebrow}</p>
           <h1 set:html={HERO.title} />
-          <p class="lede accent">{HERO.lede}</p>
-        </div>
-
-        <!-- The seat is in the fold. -->
-        <div class="formgrid__form" id="seat">
-          <p class="eyebrow facts__label">{HERO.formLabel}</p>
-          <p class="fs-xs crisis lp-formnote">{HERO.formNote}</p>
-          <SeatForm
-            formId={FORM.id}
-            about="workshop"
-            aboutLabel={`Workshop · ${DETAILS.seats} seats`}
-            submitLabel={FORM.submit}
-            successHeading={FORM.successHeading}
-            successBody={FORM.successBody}
-            whatsapp={FORM.whatsapp}
-            eventName="lead"
-          />
-        </div>
-
-        <!-- The facts. On a desk they sit under the lede; on a phone they come
-             after the seat, so the form is the second thing on the screen. -->
-        <div class="ws-hero__facts">
-          <ul class="facts lp-points">
-            {HERO.points.map((p) => <li><span>{p}</span></li>)}
-          </ul>
+          <p class="lede ws-hero__lede">{HERO.lede}</p>
+          <div class="ws-hero__ctas">
+            <a class="btn btn--filled btn--wide" href={HERO.cta.href} data-track="cta_click" data-track-label={`Workshop — ${HERO.cta.label} (hero)`}>{HERO.cta.label}</a>
+            <a class="ws-hero__more" href={HERO.more.href}>{HERO.more.label}<span aria-hidden="true">↓</span></a>
+          </div>
           <p class="ws-when"><span class="ws-when__dot" aria-hidden="true"></span>{WHEN_LINE}</p>
         </div>
+        <figure class="ws-hero__portrait reveal reveal--fade">
+          <img
+            src={src(HERO.portrait)}
+            srcset={srcset(HERO.portrait) || undefined}
+            sizes="(max-width: 900px) 84vw, 38vw"
+            alt={HERO.portraitAlt}
+            width="700"
+            height="1050"
+            loading="eager"
+            fetchpriority="high"
+            decoding="async"
+          />
+        </figure>
       </div>
     </section>
 
-    <!-- ============ WHY THREE ============ -->
-    <section class="section section--bg4 ws-why" data-section="ws-why">
+    <!-- ============ WHO THE WORKSHOP IS FOR: the six squares ============ -->
+    <WhoFor bare button id="who-benefits" trackSection="ws-fit" section={FIT.section} cards={FIT.cards} />
+
+    <!-- ============ THE PILLS: what people walk away with ============ -->
+    <section class="section section--bg4 ws-gains" data-section="ws-gains">
       <div class="wide">
-        <header class="ws-head">
-          <p class="eyebrow">{WHY.eyebrow}</p>
-          <h2 class="reveal" set:html={WHY.title} />
+        <header class="ws-head ws-head--split">
+          <div>
+            <p class="eyebrow">{GAINS_INTRO.eyebrow}</p>
+            <h2 class="reveal" set:html={GAINS_INTRO.title} />
+          </div>
+          <p class="fs-sm ws-lede reveal reveal--left">{GAINS_INTRO.lede}</p>
         </header>
-        <div class="ws-three" data-stagger>
-          {WHY.cards.map((c) => (
-            <article class="ws-card reveal">
-              <p class="ws-card__n">{c.n}</p>
-              <h3>{c.title}</h3>
-              <p>{c.body}</p>
-            </article>
-          ))}
-        </div>
+        <GainPills />
       </div>
     </section>
 
     <!-- ============ WHAT HAPPENS IN THE ROOM ============ -->
-    <section class="section section--white ws-room" data-section="ws-room">
+    <section class="section section--white ws-room" id="room" data-section="ws-room">
       <div class="wide">
         <header class="ws-head ws-head--split">
           <div>
@@ -100,25 +98,29 @@ const schema = graph(personSchema(), localBusinessSchema());
           <p class="fs-sm ws-lede reveal reveal--left">{ROOM.lede}</p>
         </header>
 
-        <ol class="ws-steps" data-stagger>
-          {ROOM.steps.map((s, i) => (
-            <li class="ws-step reveal">
-              <p class="ws-step__key"><span>0{i + 1}</span> {s.key}</p>
-              <h3>{s.title}</h3>
-              <p>{s.body}</p>
-              {s.his && (
+        <ol class="ws-moves" data-stagger>
+          {ROOM.movements.map((m) => (
+            <li class="ws-move reveal">
+              <p class="ws-move__key"><span>{m.n}</span> {m.key}</p>
+              <h3>{m.title}</h3>
+              <p>{m.body}</p>
+              {m.his && (
                 <blockquote class="ws-his">
-                  <p>“{s.his.quote}”</p>
-                  <cite>{s.his.source}</cite>
+                  <p>“{m.his.quote}”</p>
+                  <cite>{m.his.source}</cite>
                 </blockquote>
               )}
             </li>
           ))}
         </ol>
 
+        <ul class="ws-facts reveal">
+          {ROOM.facts.map((f) => <li>{f}</li>)}
+        </ul>
+
         <div class="ws-room__foot reveal">
           <p class="fs-xs ws-note">{ROOM.note}</p>
-          <a class="btn btn--filled btn--wide" href="#seat" data-track="cta_click" data-track-label="Workshop — Ask for a seat (room)">{CLOSE.cta}</a>
+          <a class="btn btn--filled btn--wide" href="#apply" data-track="cta_click" data-track-label="Workshop — Apply for a seat (room)">{HERO.cta.label}</a>
         </div>
       </div>
     </section>
@@ -140,7 +142,7 @@ const schema = graph(personSchema(), localBusinessSchema());
         </figure>
         <div class="ws-who__text">
           <p class="eyebrow">{WHO.eyebrow}</p>
-          <h2 class="reveal">{WHO.title}</h2>
+          <h2 class="reveal" set:html={WHO.title} />
           <ul class="ws-creds reveal">
             {WHO.lines.map((l) => <li>{l}</li>)}
           </ul>
@@ -180,7 +182,7 @@ const schema = graph(personSchema(), localBusinessSchema());
       <div class="wide ws-faq__grid">
         <header class="ws-head">
           <p class="eyebrow">Straight answers</p>
-          <h2 class="reveal">Before you <mark>put your name down.</mark></h2>
+          <h2 class="reveal">Before you <mark>apply.</mark></h2>
         </header>
         <div class="faq__list reveal reveal--fade">
           {ANSWERS.map((f, i) => (
@@ -196,13 +198,28 @@ const schema = graph(personSchema(), localBusinessSchema());
       </div>
     </section>
 
-    <!-- ============ THE ASK ============ -->
-    <section class="section section--dark on-dark close ws-close" data-section="ws-close">
-      <div class="content text-center">
-        <h2 class="reveal" set:html={CLOSE.title} />
-        <p class="fs-md close__sub reveal">{CLOSE.body}</p>
-        <div class="close__ctas reveal">
-          <a class="btn btn--filled btn--wide" href="#seat" data-track="cta_click" data-track-label="Workshop — Ask for a seat (close)">{CLOSE.cta}</a>
+    <!-- ============ THE APPLICATION ============ -->
+    <section class="section section--dark on-dark ws-apply" id="apply" data-section="ws-apply">
+      <div class="wide ws-apply__grid">
+        <div class="ws-apply__copy">
+          <p class="eyebrow">{APPLY.eyebrow}</p>
+          <h2 class="reveal" set:html={APPLY.title} />
+          <p class="fs-sm ws-apply__body reveal">{APPLY.body}</p>
+          <p class="ws-when reveal"><span class="ws-when__dot" aria-hidden="true"></span>{WHEN_LINE}</p>
+        </div>
+        <div class="ws-apply__form">
+          <p class="eyebrow facts__label">{APPLY.formLabel}</p>
+          <SeatForm
+            formId={FORM.id}
+            about="workshop"
+            aboutLabel={`Workshop · ${DETAILS.seats} seats`}
+            submitLabel={FORM.submit}
+            successHeading={FORM.successHeading}
+            successBody={FORM.successBody}
+            whatsapp={FORM.whatsapp}
+            ask={FORM.ask}
+            eventName="lead"
+          />
         </div>
       </div>
     </section>
@@ -222,30 +239,58 @@ const schema = graph(personSchema(), localBusinessSchema());
 
 <style>
   /* ---- the fold ---------------------------------------------------------
-     The room from the first screen of the home page, under the site's own
-     dark-and-gold wash, with the seat beside the words. */
-  .ws-hero { padding-block: clamp(3.2rem, 7vw, 6.5rem); }
-  /* Three blocks on a two-column grid: the words and the facts stack on the
-     left, the seat holds the right. Under 960px it is one column, and the
-     seat comes second (the template's .cols/.formgrid is a flex row; this
-     hero is a grid instead). */
-  .ws-hero :global(.formgrid) {
+     Ink, him in the gi to the right, the words and the way in to the left.
+     The six squares continue the same ground directly underneath. */
+  .ws-hero {
+    position: relative;
+    isolation: isolate;
+    overflow: hidden;
+    padding-block: clamp(3rem, 6vw, 5.5rem) clamp(2rem, 4vw, 3.5rem);
+    border-bottom-left-radius: 0;
+    border-bottom-right-radius: 0;
+  }
+  .ws-hero::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    background: radial-gradient(70% 60% at 78% 20%, rgba(218, 162, 79, 0.2) 0%, rgba(218, 162, 79, 0.06) 45%, rgba(218, 162, 79, 0) 78%);
+  }
+  .ws-hero__grid {
     display: grid;
-    grid-template-columns: minmax(0, 52fr) minmax(0, 48fr);
-    grid-template-areas: 'copy form' 'facts form';
-    column-gap: var(--sp-60);
-    row-gap: clamp(1.2rem, 2.4vw, 2rem);
-    align-items: start;
+    grid-template-columns: minmax(0, 58fr) minmax(0, 42fr);
+    gap: clamp(1.6rem, 4vw, 4.5rem);
+    align-items: center;
   }
-  .ws-hero :global(.lp-hero__copy) { grid-area: copy; flex: none; }
-  .ws-hero :global(.formgrid__form) { grid-area: form; flex: none; }
-  .ws-hero__facts { grid-area: facts; }
-  .ws-hero__facts :global(.facts) { margin-bottom: var(--sp-40); }
-  @media (max-width: 960px) {
-    .ws-hero :global(.formgrid) { grid-template-columns: 1fr; grid-template-areas: 'copy' 'form' 'facts'; }
+  .ws-hero__eyebrow { color: rgba(252, 250, 248, 0.82); }
+  .ws-hero :global(h1) { font-size: clamp(2.3rem, 1.4rem + 3.8vw, 4.6rem); line-height: 1.02; max-width: 15ch; margin: 0 0 var(--sp-40); }
+  .ws-hero :global(h1 mark) { background: var(--grad-text-dark); background-clip: text; -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+  .ws-hero__lede { max-width: 52ch; margin: 0 0 var(--sp-50); color: rgba(252, 250, 248, 0.86); }
+  .ws-hero__ctas { display: flex; flex-wrap: wrap; align-items: center; gap: 1rem 1.6rem; margin-bottom: var(--sp-40); }
+  .ws-hero__more {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45em;
+    color: #f2c275;
+    font-weight: 700;
+    text-decoration: none;
+    border-bottom: 1px solid rgba(242, 194, 117, 0.42);
+    padding-bottom: 2px;
   }
-  .ws-hero :global(h1) { font-size: clamp(2.2rem, 1.4rem + 3.6vw, 4.4rem); line-height: 1.02; max-width: 16ch; }
-  .ws-hero :global(.lede) { max-width: 54ch; }
+  .ws-hero__more:hover { color: #fcfaf8; border-color: #fcfaf8; }
+  .ws-hero__portrait {
+    margin: 0;
+    justify-self: end;
+    width: min(100%, 460px);
+    aspect-ratio: 2 / 3;
+    border-radius: 26px;
+    overflow: hidden;
+    border: 1px solid rgba(242, 194, 117, 0.3);
+    box-shadow: 0 40px 90px rgba(0, 0, 0, 0.55);
+    background: #1c1714;
+  }
+  .ws-hero__portrait img { width: 100%; height: 100%; object-fit: cover; object-position: 50% 18%; display: block; }
+
   .ws-when {
     display: inline-flex;
     align-items: center;
@@ -273,27 +318,13 @@ const schema = graph(personSchema(), localBusinessSchema());
   }
   .ws-lede { margin: 0; color: var(--fg4); max-width: 50ch; }
 
-  /* ---- why three: three cards, numbered ---- */
-  .ws-three { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: clamp(12px, 1.4vw, 20px); }
-  .ws-card {
-    background: var(--bg1);
-    border: 1px solid rgba(20, 16, 13, 0.08);
-    border-radius: 22px;
-    padding: clamp(20px, 2.4vw, 34px);
-    transition: transform 0.4s var(--ease-out-quart), box-shadow 0.4s ease, border-color 0.4s ease;
-  }
-  .ws-card:hover { transform: translateY(-4px); border-color: rgba(218, 162, 79, 0.55); box-shadow: 0 18px 40px rgba(20, 16, 13, 0.07); }
-  .ws-card__n { margin: 0 0 1rem; font-size: 12px; font-weight: 700; letter-spacing: 0.22em; color: var(--gold-deep); }
-  .ws-card :global(h3) { margin: 0 0 0.6rem; font-size: var(--fs-md); line-height: 1.15; }
-  .ws-card p:last-child { margin: 0; color: var(--fg3); font-size: var(--fs-xs); }
-
-  /* ---- the room: three steps, one per key ---- */
-  .ws-steps { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: clamp(14px, 2vw, 32px); }
-  .ws-step { border-top: 2px solid var(--fg1); padding-top: clamp(14px, 1.6vw, 22px); min-width: 0; }
-  .ws-step__key { margin: 0 0 0.7rem; font-size: 12px; font-weight: 700; letter-spacing: 0.2em; text-transform: uppercase; color: var(--gold-deep); }
-  .ws-step__key span { color: var(--fg4); margin-right: 0.4em; }
-  .ws-step :global(h3) { margin: 0 0 0.6rem; font-size: var(--fs-md); line-height: 1.15; }
-  .ws-step > p:not(.ws-step__key) { margin: 0; color: var(--fg3); font-size: var(--fs-xs); }
+  /* ---- the room: four movements ---- */
+  .ws-moves { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: clamp(14px, 2vw, 30px); }
+  .ws-move { border-top: 2px solid var(--fg1); padding-top: clamp(14px, 1.6vw, 22px); min-width: 0; }
+  .ws-move__key { margin: 0 0 0.7rem; font-size: 12px; font-weight: 700; letter-spacing: 0.2em; text-transform: uppercase; color: var(--gold-deep); }
+  .ws-move__key span { color: var(--fg4); margin-right: 0.4em; }
+  .ws-move :global(h3) { margin: 0 0 0.6rem; font-size: calc(var(--fs-md) * 0.92); line-height: 1.15; }
+  .ws-move > p:not(.ws-move__key) { margin: 0; color: var(--fg3); font-size: var(--fs-xs); }
 
   .ws-his {
     margin: 1.1rem 0 0;
@@ -308,8 +339,27 @@ const schema = graph(personSchema(), localBusinessSchema());
   .ws-his--dark p { color: #fcfaf8; }
   .ws-his--dark cite { color: rgba(252, 250, 248, 0.6); }
 
+  .ws-facts {
+    list-style: none;
+    margin: clamp(1.6rem, 3vw, 2.6rem) 0 0;
+    padding: 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+  .ws-facts li {
+    padding: 9px 16px;
+    border: 1px solid rgba(176, 121, 50, 0.32);
+    border-radius: 100px;
+    background: var(--bg2);
+    font-family: var(--font-base);
+    font-size: clamp(0.78rem, 0.72rem + 0.22vw, 0.95rem);
+    font-weight: 700;
+    color: var(--fg1);
+  }
+
   .ws-room__foot {
-    margin-top: clamp(1.8rem, 3.4vw, 3.2rem);
+    margin-top: clamp(1.6rem, 3vw, 2.8rem);
     display: flex;
     flex-wrap: wrap;
     align-items: center;
@@ -344,19 +394,39 @@ const schema = graph(personSchema(), localBusinessSchema());
   .ws-faq__grid { display: grid; grid-template-columns: minmax(0, 2fr) minmax(0, 3fr); gap: clamp(1.4rem, 4vw, 4.5rem); align-items: start; }
   .ws-faq__grid .ws-head { margin-bottom: 0; }
 
-  .ws-close :global(h2) { max-width: 16ch; }
+  /* ---- the application: the words beside the form ---- */
+  .ws-apply { position: relative; isolation: isolate; overflow: hidden; }
+  .ws-apply::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    background: radial-gradient(60% 55% at 22% 0%, rgba(218, 162, 79, 0.18) 0%, rgba(218, 162, 79, 0.05) 45%, rgba(218, 162, 79, 0) 78%);
+  }
+  .ws-apply__grid {
+    display: grid;
+    grid-template-columns: minmax(0, 46fr) minmax(0, 54fr);
+    gap: clamp(1.6rem, 4vw, 4.5rem);
+    align-items: center;
+  }
+  .ws-apply__copy :global(h2) { margin: 0 0 var(--sp-40); max-width: 14ch; }
+  .ws-apply__body { margin: 0 0 var(--sp-40); color: rgba(252, 250, 248, 0.8) !important; max-width: 46ch; }
 
   @media (max-width: 1080px) {
-    .ws-three, .ws-steps, .ws-tlist { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-    .ws-tlist { grid-template-columns: 1fr 1fr; }
+    .ws-moves { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .ws-tlist { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   }
   @media (max-width: 900px) {
-    .ws-head--split, .ws-who__grid, .ws-faq__grid { grid-template-columns: 1fr; }
+    .ws-hero__grid { grid-template-columns: 1fr; }
+    .ws-hero__portrait { justify-self: center; width: min(100%, 420px); aspect-ratio: 4 / 5; }
+    .ws-hero__portrait img { object-position: 50% 12%; }
+    .ws-head--split, .ws-who__grid, .ws-faq__grid, .ws-apply__grid { grid-template-columns: 1fr; }
     .ws-who__portrait { max-width: 420px; }
   }
   @media (max-width: 680px) {
-    .ws-three, .ws-steps, .ws-tlist { grid-template-columns: 1fr; }
+    .ws-moves, .ws-tlist { grid-template-columns: 1fr; }
     .ws-room__foot { flex-direction: column; align-items: stretch; }
     .ws-room__foot :global(.btn) { text-align: center; }
+    .ws-hero__ctas :global(.btn) { width: 100%; text-align: center; }
   }
 </style>

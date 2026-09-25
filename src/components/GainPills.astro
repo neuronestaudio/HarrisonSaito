@@ -1,0 +1,93 @@
+---
+/**
+ * The pills: what people walked away with, at a glance.
+ *
+ * Dion, 25 Sep 2026: "all those emotional states you can gain… put simply as
+ * pills and icons, like badges." They sat inside the wall's head until the
+ * workshop page wanted them too (Dion, later the same day: "on this page
+ * there should be the pills"), so they are their own piece now. Labels, not
+ * quotations — each one is drawn from a line somebody actually wrote or said,
+ * and data/gains.ts fails the build if it is not.
+ *
+ * `dark` sets them on ink (cream type, gold marks); the default is the wall's
+ * light glass.
+ */
+import { GAINS } from '../data/gains';
+import { forYouIcon } from '../lib/morel-icons';
+
+interface Props {
+  dark?: boolean;
+  class?: string;
+}
+const { dark = false, class: klass } = Astro.props;
+---
+
+<ul class:list={['gains', { 'gains--dark': dark }, klass]} data-stagger>
+  {GAINS.map((g) => (
+    <li class="gain reveal reveal--fade" title={`“${g.said}” — ${g.from}`}>
+      <Fragment set:html={forYouIcon(g.icon)} />
+      <span>{g.label}</span>
+    </li>
+  ))}
+</ul>
+
+<style>
+  /* One row of small badges, wrapping as they need to. Mark, then the thing
+     itself — nothing else. */
+  .gains {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: clamp(7px, 0.8vw, 11px);
+  }
+  .gain {
+    display: inline-flex;
+    align-items: center;
+    gap: 9px;
+    padding: 8px 15px 8px 11px;
+    border: 1px solid rgba(176, 121, 50, 0.32);
+    border-radius: 100px;
+    background: rgba(255, 255, 255, 0.55);
+    color: var(--fg1);
+    font-family: var(--font-base);
+    font-size: clamp(0.78rem, 0.72rem + 0.22vw, 0.95rem);
+    font-weight: 700;
+    line-height: 1.1;
+    letter-spacing: -0.005em;
+    white-space: nowrap;
+    transition: border-color 0.3s ease, background 0.3s ease, transform 0.3s ease;
+  }
+  .gain:hover { border-color: rgba(176, 121, 50, 0.7); background: #fff; transform: translateY(-1px); }
+  .gain :global(.fy__icon) { width: 22px; height: 22px; flex: none; color: var(--gold-deep); }
+  /* The marks are drawn on when a "who this is for" card reveals (morel.css
+     holds them at stroke-dashoffset 1 until then). A pill is not a card, so
+     they would sit here undrawn — invisible. Draw them. */
+  .gain :global(.fy__icon :is(path, circle, ellipse)) { stroke-dasharray: none; stroke-dashoffset: 0; animation: none; }
+  .gain :global(.fy__icon .ico-ping) { display: none; }
+
+  /* on ink */
+  .gains--dark .gain {
+    border-color: rgba(242, 194, 117, 0.34);
+    background: rgba(255, 255, 255, 0.055);
+    color: #fcfaf8;
+  }
+  .gains--dark .gain:hover { border-color: rgba(242, 194, 117, 0.75); background: rgba(255, 255, 255, 0.1); }
+  .gains--dark .gain :global(.fy__icon) { color: #f2c275; }
+
+  @media (max-width: 700px) {
+    /* a phone reads them in a swipeable line rather than a stack of chips */
+    .gains {
+      flex-wrap: nowrap;
+      overflow-x: auto;
+      scrollbar-width: none;
+      margin-inline: calc(var(--pad, 0px) * -1);
+      padding-inline: var(--pad, 0px);
+      scroll-snap-type: x proximity;
+    }
+    .gains::-webkit-scrollbar { display: none; }
+    .gain { flex: 0 0 auto; scroll-snap-align: start; padding: 7px 13px 7px 9px; }
+    .gain :global(.fy__icon) { width: 19px; height: 19px; }
+  }
+</style>

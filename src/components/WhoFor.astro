@@ -1,52 +1,86 @@
 ---
 /**
- * Who Return to Self is for — the panel directly under the twelve weeks.
+ * Six squares, a mark on each, one line, centred — the "who this is for" panel.
  *
  * Dion, 25 Sep 2026, with a reference board: six squares, a mark on each, one
  * line, centred, "on brand to our colour palette… adopt the rationale with the
- * Return to Self voice (a lot of through lines)".
+ * Return to Self voice (a lot of through lines)". Built for the home page,
+ * under the twelve weeks (src/data/audience.ts), and then asked for again as
+ * the opening of /workshop ("the landing page should land them from this
+ * panel onwards… who can benefit from the workshop") — so the words come in
+ * as props and the panel is the same panel on both pages.
  *
- * The ground flips to ink here. The twelve weeks above it are cream and the
- * wall below it is white, so a dark panel keeps three card grids from running
- * into one another, and it is where the gold marks look like they cost
- * something. The words are src/data/audience.ts; this file is the panel.
+ * The ground is ink: where the gold marks look like they cost something, and
+ * what keeps three card grids apart on the home page. `bare` drops the top
+ * padding and the glow so it can continue a dark hero above it.
  *
- * Each card ends with the key that picks it up — Separate, Return, Integrate,
- * two cards each, in order — so the panel answers the section above it instead
- * of being a second list. The marks are the site's own (lib/morel-icons.ts);
- * the cards keep the `fy__card` class so the icon system draws them on reveal.
+ * Each card ends with a through line — the key of the twelve weeks that picks
+ * it up, or the movement of the workshop that answers it — so the panel
+ * answers what is around it instead of being a list. The marks are the site's
+ * own (lib/morel-icons.ts); the cards keep the `fy__card` class so the icon
+ * system draws them on reveal.
  */
 import { AUDIENCE, AUDIENCE_SECTION } from '../data/audience';
 import { forYouIcon } from '../lib/morel-icons';
+
+export type WhoCard = { icon: string; text: string; emphasis: string; key: string; sub: string };
+export type WhoSection = { label: string; title: string; lede: string; foot: string; cta: { label: string; href: string } };
+
+interface Props {
+  section?: WhoSection;
+  cards?: WhoCard[];
+  id?: string;
+  trackSection?: string;
+  /** continues a dark section above: no top padding, no glow */
+  bare?: boolean;
+  /** the way on is a button rather than a text link */
+  button?: boolean;
+}
+
+const {
+  section = AUDIENCE_SECTION,
+  cards = AUDIENCE.map((c) => ({ icon: c.icon, text: c.text, emphasis: c.emphasis, key: c.key, sub: c.weeks })),
+  id = 'who-for',
+  trackSection = 'who-for',
+  bare = false,
+  button = false,
+} = Astro.props;
+
+/* "Weeks 1–4" and "Movement 02" keep their number on a phone and lose the
+   word (see the phone rule below); anything else renders as it is. */
+const subParts = (sub: string) => {
+  const m = sub.match(/^([A-Za-z]+ )(\d.*)$/);
+  return m ? { em: m[1], rest: m[2] } : { em: '', rest: sub };
+};
 ---
 
-<section class="section section--dark on-dark wf" id="who-for" data-section="who-for">
+<section class:list={['section', 'section--dark', 'on-dark', 'wf', { 'wf--bare': bare }]} id={id} data-section={trackSection}>
   <div class="wide">
     <header class="wf__head">
-      <p class="eyebrow wf__eyebrow">{AUDIENCE_SECTION.label}</p>
-      <h2 class="reveal" set:html={AUDIENCE_SECTION.title} />
-      <p class="fs-sm wf__lede reveal">{AUDIENCE_SECTION.lede}</p>
+      <p class="eyebrow wf__eyebrow">{section.label}</p>
+      <h2 class="reveal" set:html={section.title} />
+      <p class="fs-sm wf__lede reveal">{section.lede}</p>
     </header>
 
     <div class="wf__grid" data-stagger>
-      {AUDIENCE.map((c, i) => (
+      {cards.map((c, i) => (
         <article class="fy__card wf__card reveal" style={`--k:${i}`}>
           <Fragment set:html={forYouIcon(c.icon)} />
           <p class="wf__line">{c.text} <strong>{c.emphasis}</strong></p>
-          <p class="wf__thread"><span>{c.key}</span><i aria-hidden="true"> · </i><em>Weeks </em>{c.weeks.replace(/^Weeks\s*/, '')}</p>
+          <p class="wf__thread"><span>{c.key}</span><i aria-hidden="true"> · </i>{subParts(c.sub).em && <em>{subParts(c.sub).em}</em>}{subParts(c.sub).rest}</p>
         </article>
       ))}
     </div>
 
     <div class="wf__foot reveal">
-      <p class="wf__note">{AUDIENCE_SECTION.foot}</p>
+      <p class="wf__note">{section.foot}</p>
       <a
-        class="wf__cta"
-        href={AUDIENCE_SECTION.cta.href}
+        class:list={[button ? 'btn btn--filled btn--wide' : 'wf__cta']}
+        href={section.cta.href}
         data-track="cta_click"
-        data-track-label={`Who it is for — ${AUDIENCE_SECTION.cta.label}`}
-        data-track-section="who-for"
-      >{AUDIENCE_SECTION.cta.label}<span aria-hidden="true">→</span></a>
+        data-track-label={`${section.label} — ${section.cta.label}`}
+        data-track-section={trackSection}
+      >{section.cta.label}{!button && <span aria-hidden="true">→</span>}</a>
     </div>
   </div>
 </section>
@@ -63,6 +97,8 @@ import { forYouIcon } from '../lib/morel-icons';
     z-index: -1;
     background: radial-gradient(62% 58% at 50% -6%, rgba(218, 162, 79, 0.16) 0%, rgba(218, 162, 79, 0.05) 45%, rgba(218, 162, 79, 0) 78%);
   }
+  .wf--bare { padding-top: 0; border-top-left-radius: 0; border-top-right-radius: 0; }
+  .wf--bare::before { display: none; }
 
   /* ---- the head ---------------------------------------------------------
      Centred, like the board he sent, and narrow enough that the title breaks
@@ -118,7 +154,7 @@ import { forYouIcon } from '../lib/morel-icons';
   }
   .wf__card .wf__line :global(strong) { display: block; margin-top: 0.28em; color: #f2c275; }
 
-  /* The through line: the key that picks this card up, and when. */
+  /* The through line: what picks this card up, and where. */
   .wf__card .wf__thread {
     margin: auto 0 0;
     padding-top: clamp(10px, 1.1vw, 15px);
@@ -169,7 +205,7 @@ import { forYouIcon } from '../lib/morel-icons';
     .wf__card .wf__line { font-size: 0.94rem; }
     /* At two cards to a phone row the whole label will not hold one line, and
        a key left alone on a line of its own is exactly what fit.ts forbids. The
-       weeks are still there, the word "Weeks" is not: "INTEGRATE · 9–12". */
+       number is still there, the word is not: "INTEGRATE · 9–12", "BREATHE · 02". */
     .wf__card .wf__thread { letter-spacing: 0.05em; font-size: 0.68rem; }
     .wf__card .wf__thread em { display: none; }
     .wf__foot { flex-direction: column; align-items: center; }

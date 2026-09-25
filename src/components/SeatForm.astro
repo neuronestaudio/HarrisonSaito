@@ -28,9 +28,12 @@ interface Props {
   whatsapp: string;
   /** GA4 / Meta event fired on success */
   eventName?: string;
+  /** one optional line in their words — the application's only question.
+      Lands in the lead as `note` (the email and the log carry it). */
+  ask?: { label: string; placeholder: string };
 }
 
-const { formId, about, aboutLabel, submitLabel, successHeading, successBody, whatsapp, eventName = 'lead' } = Astro.props;
+const { formId, about, aboutLabel, submitLabel, successHeading, successBody, whatsapp, eventName = 'lead', ask } = Astro.props;
 ---
 
 <div class="sf" data-seat-form={formId} data-event={eventName}>
@@ -52,6 +55,13 @@ const { formId, about, aboutLabel, submitLabel, successHeading, successBody, wha
         <p class="sf__error" data-error-for="email" hidden></p>
       </div>
     </div>
+
+    {ask && (
+      <div class="sf__field sf__field--wide sf__field--ask">
+        <label class="sf__label" for={`${formId}-note`}>{ask.label} <span class="sf__optional">optional</span></label>
+        <textarea class="sf__input sf__textarea" id={`${formId}-note`} name="note" rows="3" maxlength="400" placeholder={ask.placeholder}></textarea>
+      </div>
+    )}
 
     <label class="sf__consent">
       <input type="checkbox" name="consent" required />
@@ -145,6 +155,9 @@ const { formId, about, aboutLabel, submitLabel, successHeading, successBody, wha
   }
   .sf__input::placeholder { color: var(--text-on-ink-faint); }
   .sf__input:focus { outline: none; border-color: var(--gold); box-shadow: 0 0 0 3px oklch(75% 0.12 75 / 0.28), inset 0 1px 0 oklch(100% 0 0 / 0.08); }
+  .sf__field--ask { margin-top: 0.9rem; }
+  .sf__optional { font-weight: 500; letter-spacing: 0.04em; text-transform: none; color: var(--text-on-ink-faint); margin-left: 0.4em; }
+  .sf__textarea { resize: vertical; min-height: 4.6rem; line-height: 1.5; font-size: 0.98rem; }
   .sf__error { margin: 0; font-size: 0.8rem; color: oklch(80% 0.12 40); }
   .sf__error[hidden] { display: none; }
 
