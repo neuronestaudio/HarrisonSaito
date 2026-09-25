@@ -22,6 +22,21 @@
 import { TESTIMONIALS } from './site';
 import { INTERVIEWS } from './interviews';
 
+/* The third source: Harrison. One pill is his rather than a client's — the
+   hard conversation is the one HE had, three years ago, and Dion's point (25
+   Sep) is that this is the credibility he gives himself. His words, off the
+   26 Aug tape (_index-week2-26aug / ALL_TRANSCRIPTS.md, N_C1611 · N_C1612 and
+   the "I used to think" takes); the same lines the story on the home page and
+   the father chapter on /about carry. */
+const HIS = {
+  name: 'Harrison',
+  said: [
+    'My dad’s 81. I only really started talking to him three years ago.',
+    'I used to think healing my relationship with my dad meant getting him to change. I was wrong.',
+    'He might never apologise, he might never change, and you still might be the one who has to look after him.',
+  ],
+};
+
 export type Gain = { icon: string; label: string; from: string; said: string };
 
 export const GAINS: Gain[] = [
@@ -35,6 +50,7 @@ export const GAINS: Gain[] = [
   { icon: 'ember', label: 'Happier, day to day', from: 'Andrew', said: 'makes me happier, makes me calmer' },
   { icon: 'stairs', label: 'Able to live it fully', from: 'Shoaland Griffiths', said: 'you have taught me to experience life fully' },
   { icon: 'summit', label: 'Steady when it does not go my way', from: 'James', said: 'not let it disrupt you or upset you' },
+  { icon: 'comment', label: 'Courage for hard conversations', from: 'Harrison', said: 'I only really started talking to him three years ago' },
 ];
 
 /* ---- every pill traces back to something somebody actually said ---- */
@@ -42,7 +58,8 @@ const flat = (s: string) => s.toLowerCase().replace(/[’‘]/g, "'").replace(/[
 for (const g of GAINS) {
   const written = TESTIMONIALS.find((x) => x.name === g.from);
   const filmed = INTERVIEWS.find((x) => x.name === g.from);
-  if (!written && !filmed) throw new Error(`gains.ts: nothing on record from "${g.from}"`);
-  const body = flat(written ? written.quote : filmed!.said.join(' … '));
+  const his = g.from === HIS.name ? HIS : undefined;
+  if (!written && !filmed && !his) throw new Error(`gains.ts: nothing on record from "${g.from}"`);
+  const body = flat(written ? written.quote : (filmed ?? his)!.said.join(' … '));
   if (!body.includes(flat(g.said))) throw new Error(`gains.ts: "${g.said}" is not in what ${g.from} wrote or said`);
 }
