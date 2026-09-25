@@ -62,6 +62,14 @@ const ogImage = new URL(image, SITE.domain).href;
     {noindex && <meta name="robots" content="noindex, nofollow" />}
     {!noindex && <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1" />}
 
+    {/* Meta domain verification (Business Manager → Brand safety → Domains,
+        25 Sep 2026). It has to be in the static <head> — Meta's own note says
+        verification fails if the tag is injected by JavaScript, so it cannot
+        go through GTM. It does not touch, and is not touched by, GTM, the
+        Pixel or the Conversions API: this only proves the domain is ours, so
+        the ad account can claim it and control who may run ads to it. */}
+    <meta name="facebook-domain-verification" content="2zdybweg9rdxmfmhjd2vdfihukgtdj" />
+
     {/* Fonts are self-hosted; preload only the two faces that paint above the fold. */}
     <link
       rel="preload"
