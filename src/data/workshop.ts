@@ -73,8 +73,10 @@ export const HERO = {
     'Your first reaction may be automatic. What you do next doesn’t have to be. The workshop is one room, three people and one session with Harrison — learning to notice the moment in between: what you are feeling, what set it off, and what you would rather do next. The first practice of Return to Self, before you commit to any of it.',
   cta: { label: 'Apply for a seat', href: '#apply' },
   more: { label: 'What happens in the room', href: '#room' },
-  portrait: 'workshop-gi-v1',
-  portraitAlt: 'Harrison Saito standing in his gi in front of a shoji screen, hands at his sides',
+  /* Dion, 25 Sep (late): the seiza frame — kneeling on the mats in his gi,
+     eyes closed, hands folded — from the 23 Sep dojo stills. */
+  portrait: 'workshop-seiza-v1',
+  portraitAlt: 'Harrison Saito kneeling in seiza on the dojo mats in his gi, eyes closed, hands folded in his lap',
 };
 
 /* ---- who the workshop is for: the six squares -----------------------------
@@ -136,12 +138,22 @@ export const FIT: { section: WhoSection; cards: WhoCard[] } = {
   ],
 };
 
-/* ---- the pills: what people noticed afterwards ---------------------------- */
+/* ---- the pills: what people noticed afterwards ----------------------------
+   With the faces of the people who said it (Dion, 25 Sep: "photos with
+   people here, so they feel like the users saying I want that"). The four
+   filmed on 9 Sep, from the same posters the interview row used. */
 export const GAINS_INTRO = {
   eyebrow: 'What people noticed afterwards',
   title: 'Awareness <mark>creates choice.</mark>',
   lede:
     'These are the changes people who trained with Harrison say they noticed — as written to him, or said on camera. The workshop hands you the first practice behind them.',
+  faces: [
+    { img: 'face-john-v1', name: 'John', role: 'Consultant, 55' },
+    { img: 'face-andrew-v1', name: 'Andrew', role: 'Drummer' },
+    { img: 'face-james-v1', name: 'James', role: 'Construction' },
+    { img: 'face-jake-v1', name: 'Jake', role: 'Musician' },
+  ],
+  facesNote: 'Filmed giving their testimonies, September 2026',
 };
 
 /* ---- what happens in the room ------------------------------------------ */
@@ -201,8 +213,9 @@ export const ROOM = {
 export const WHO = {
   eyebrow: 'Who is holding the room',
   title: 'Discipline taught me how to push. <mark>Presence taught me when not to.</mark>',
-  portrait: 'about-bed',
-  portraitAlt: 'Harrison Saito, seated, in a plain black T-shirt',
+  /* the standing gi portrait that was the hero until the seiza frame took it */
+  portrait: 'workshop-gi-v1',
+  portraitAlt: 'Harrison Saito standing in his gi and black belt in front of a shoji screen',
   lines: [
     'Harrison Saito. 2nd Dan black belt and Shido-In at Shinbukan Karate — the school his father, Kazuo Saito, 10th Dan, founded in 1978. More than seventeen years of discipline, repetition, patience and practice.',
     'Ordained in 2014 at Koyasan Seizanji. Buddhism here is attention training, not belief — there is nothing you will be asked to sign up to.',
@@ -219,11 +232,11 @@ export const WHO = {
 /* ---- in their words ------------------------------------------------------
    Verbatim, and checked at build: each `said` must be inside what the named
    person wrote (TESTIMONIALS) or said on camera on 9 Sep (INTERVIEWS). */
-export type Word = { from: string; said: string; context: string };
+export type Word = { from: string; said: string; context: string; face: string };
 export const WORDS: Word[] = [
-  { from: 'Matt Halpin', context: 'Coaching · Return to Self', said: 'Harrison helped me remove the mask, calm the mind, and move with intention rather than just speed, power, and grit.' },
-  { from: 'John', context: 'Consultant, 55 · filmed', said: 'people outside of my karate environment have noticed that difference of me being a lot more calmer as a person' },
-  { from: 'Andrew', context: 'Drummer · filmed', said: 'how I use that in my day to day, makes me happier, makes me calmer, I think it makes me a better person' },
+  { from: 'John', context: 'Consultant, 55 · filmed', face: 'face-john-v1', said: 'people outside of my karate environment have noticed that difference of me being a lot more calmer as a person' },
+  { from: 'Andrew', context: 'Drummer · filmed', face: 'face-andrew-v1', said: 'how I use that in my day to day, makes me happier, makes me calmer, I think it makes me a better person' },
+  { from: 'Matt Halpin', context: 'Coaching · Return to Self', face: 'avatar-matt-halpin', said: 'Harrison helped me remove the mask, calm the mind, and move with intention rather than just speed, power, and grit.' },
 ];
 
 /* ---- straight answers ---------------------------------------------------- */

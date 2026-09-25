@@ -83,6 +83,16 @@ const schema = graph(personSchema(), localBusinessSchema());
           </div>
           <p class="fs-sm ws-lede reveal reveal--left">{GAINS_INTRO.lede}</p>
         </header>
+        {/* The people who said it — four filmed on 9 Sep, named, with what they do. */}
+        <ul class="ws-faces reveal" aria-label={GAINS_INTRO.facesNote}>
+          {GAINS_INTRO.faces.map((f) => (
+            <li class="ws-face">
+              <img src={src(f.img)} srcset={srcset(f.img) || undefined} sizes="(max-width: 700px) 42vw, 180px" alt={`${f.name}, filmed giving his testimony`} width="480" height="640" loading="lazy" decoding="async" />
+              <p><strong>{f.name}</strong><span>{f.role}</span></p>
+            </li>
+          ))}
+        </ul>
+        <p class="ws-note fs-xs ws-faces__note">{GAINS_INTRO.facesNote}</p>
         <GainPills />
       </div>
     </section>
@@ -167,7 +177,8 @@ const schema = graph(personSchema(), localBusinessSchema());
         </header>
         <div class="tlist ws-tlist" data-stagger>
           {WORDS.map((w) => (
-            <blockquote class="reveal">
+            <blockquote class="reveal ws-word">
+              <img class="ws-word__face" src={src(w.face)} srcset={srcset(w.face) || undefined} sizes="72px" alt="" width="72" height="72" loading="lazy" decoding="async" />
               <p>“{w.said}”</p>
               <cite>{w.from}<span>{w.context}</span></cite>
             </blockquote>
@@ -379,16 +390,52 @@ const schema = graph(personSchema(), localBusinessSchema());
     align-items: center;
   }
   .ws-who__portrait { margin: 0; border-radius: 24px; overflow: hidden; aspect-ratio: 4 / 5; }
-  .ws-who__portrait img { width: 100%; height: 100%; object-fit: cover; object-position: 50% 30%; display: block; }
+  .ws-who__portrait img { width: 100%; height: 100%; object-fit: cover; object-position: 50% 12%; display: block; }
   .ws-who__text :global(h2) { margin: 0 0 1rem; }
   .ws-creds { list-style: none; margin: 0 0 1.2rem; padding: 0; display: grid; gap: 0.8rem; }
   .ws-creds li { padding-left: 1.2rem; position: relative; color: rgba(252, 250, 248, 0.86); font-size: var(--fs-xs); line-height: 1.55; }
   .ws-creds li::before { content: ''; position: absolute; left: 0; top: 0.62em; width: 7px; height: 7px; border-radius: 50%; background: #daa24f; }
   .ws-who__after { margin: 1rem 0 0; color: rgba(252, 250, 248, 0.78) !important; max-width: 48ch; }
 
-  /* ---- in their words ---- */
+  /* ---- the faces: four people, named, under the head ---- */
+  .ws-faces {
+    list-style: none;
+    margin: 0 0 clamp(14px, 1.8vw, 24px);
+    padding: 0;
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: clamp(10px, 1.4vw, 18px);
+    max-width: 880px;
+  }
+  .ws-face { min-width: 0; }
+  .ws-face img {
+    display: block;
+    width: 100%;
+    aspect-ratio: 4 / 5;
+    object-fit: cover;
+    object-position: 50% 20%;
+    border-radius: 18px;
+    border: 1px solid rgba(20, 16, 13, 0.08);
+  }
+  .ws-face p { margin: 0.55rem 0 0; display: grid; gap: 1px; font-family: var(--font-base); font-size: 0.86rem; line-height: 1.25; }
+  .ws-face p span { color: var(--fg4); font-size: 0.78rem; }
+  .ws-faces__note { margin: 0 0 clamp(16px, 2vw, 26px); }
+
+  /* ---- in their words: a face on each card ---- */
   .ws-tlist { grid-template-columns: repeat(3, minmax(0, 1fr)); }
   .ws-tlist :global(blockquote) { background: var(--bg2); border: 1px solid rgba(20, 16, 13, 0.06); }
+  .ws-word { position: relative; }
+  .ws-word__face {
+    display: block;
+    width: 72px;
+    height: 72px;
+    object-fit: cover;
+    object-position: 50% 22%;
+    border-radius: 50%;
+    border: 2px solid #fff;
+    box-shadow: 0 6px 18px rgba(20, 16, 13, 0.14);
+    margin-bottom: 1rem;
+  }
 
   /* ---- answers ---- */
   .ws-faq__grid { display: grid; grid-template-columns: minmax(0, 2fr) minmax(0, 3fr); gap: clamp(1.4rem, 4vw, 4.5rem); align-items: start; }
@@ -425,6 +472,7 @@ const schema = graph(personSchema(), localBusinessSchema());
   }
   @media (max-width: 680px) {
     .ws-moves, .ws-tlist { grid-template-columns: 1fr; }
+    .ws-faces { grid-template-columns: repeat(2, minmax(0, 1fr)); }
     .ws-room__foot { flex-direction: column; align-items: stretch; }
     .ws-room__foot :global(.btn) { text-align: center; }
     .ws-hero__ctas :global(.btn) { width: 100%; text-align: center; }
