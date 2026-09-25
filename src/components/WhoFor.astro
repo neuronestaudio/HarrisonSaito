@@ -1,0 +1,177 @@
+---
+/**
+ * Who Return to Self is for — the panel directly under the twelve weeks.
+ *
+ * Dion, 25 Sep 2026, with a reference board: six squares, a mark on each, one
+ * line, centred, "on brand to our colour palette… adopt the rationale with the
+ * Return to Self voice (a lot of through lines)".
+ *
+ * The ground flips to ink here. The twelve weeks above it are cream and the
+ * wall below it is white, so a dark panel keeps three card grids from running
+ * into one another, and it is where the gold marks look like they cost
+ * something. The words are src/data/audience.ts; this file is the panel.
+ *
+ * Each card ends with the key that picks it up — Separate, Return, Integrate,
+ * two cards each, in order — so the panel answers the section above it instead
+ * of being a second list. The marks are the site's own (lib/morel-icons.ts);
+ * the cards keep the `fy__card` class so the icon system draws them on reveal.
+ */
+import { AUDIENCE, AUDIENCE_SECTION } from '../data/audience';
+import { forYouIcon } from '../lib/morel-icons';
+---
+
+<section class="section section--dark on-dark wf" id="who-for" data-section="who-for">
+  <div class="wide">
+    <header class="wf__head">
+      <p class="eyebrow wf__eyebrow">{AUDIENCE_SECTION.label}</p>
+      <h2 class="reveal" set:html={AUDIENCE_SECTION.title} />
+      <p class="fs-sm wf__lede reveal">{AUDIENCE_SECTION.lede}</p>
+    </header>
+
+    <div class="wf__grid" data-stagger>
+      {AUDIENCE.map((c, i) => (
+        <article class="fy__card wf__card reveal" style={`--k:${i}`}>
+          <Fragment set:html={forYouIcon(c.icon)} />
+          <p class="wf__line">{c.text} <strong>{c.emphasis}</strong></p>
+          <p class="wf__thread"><span>{c.key}</span><i aria-hidden="true"> · </i><em>Weeks </em>{c.weeks.replace(/^Weeks\s*/, '')}</p>
+        </article>
+      ))}
+    </div>
+
+    <div class="wf__foot reveal">
+      <p class="wf__note">{AUDIENCE_SECTION.foot}</p>
+      <a
+        class="wf__cta"
+        href={AUDIENCE_SECTION.cta.href}
+        data-track="cta_click"
+        data-track-label={`Who it is for — ${AUDIENCE_SECTION.cta.label}`}
+        data-track-section="who-for"
+      >{AUDIENCE_SECTION.cta.label}<span aria-hidden="true">→</span></a>
+    </div>
+  </div>
+</section>
+
+<style>
+  /* ---- the ground -------------------------------------------------------
+     Ink, with one soft fall of gold from the top edge so the panel has a
+     centre to it. Sized explicitly — an unsized radial shows its disc. */
+  .wf { position: relative; isolation: isolate; overflow: hidden; padding-block: var(--sp-100); }
+  .wf::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    background: radial-gradient(62% 58% at 50% -6%, rgba(218, 162, 79, 0.16) 0%, rgba(218, 162, 79, 0.05) 45%, rgba(218, 162, 79, 0) 78%);
+  }
+
+  /* ---- the head ---------------------------------------------------------
+     Centred, like the board he sent, and narrow enough that the title breaks
+     where it should rather than where the container ends. */
+  .wf__head {
+    max-width: 880px;
+    margin: 0 auto clamp(26px, 3.4vw, 52px);
+    text-align: center;
+  }
+  .wf__eyebrow { color: rgba(252, 250, 248, 0.82); }
+  .wf__head h2 { margin: 0 0 var(--sp-40); max-width: 22ch; margin-inline: auto; }
+  .wf__lede { margin: 0 auto; max-width: 62ch; color: rgba(252, 250, 248, 0.8); }
+
+  /* ---- the six ----------------------------------------------------------
+     Squares (Dion, 18 Sep: "so the 6 boxes can be like squares"), held to a
+     narrower column than the section so they stay square and the row does not
+     stretch into letterboxes on a wide screen. */
+  .wf__grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: clamp(12px, 1.3vw, 18px);
+    max-width: 1080px;
+    margin-inline: auto;
+  }
+  .wf__card {
+    aspect-ratio: 1 / 1;
+    align-items: center;
+    justify-content: center;
+    gap: clamp(14px, 1.6vw, 22px);
+    padding: clamp(18px, 2vw, 30px);
+    text-align: center;
+    /* dark glass, the same grammar as the dark quote lists */
+    background: rgba(255, 255, 255, 0.045);
+    border: 1px solid rgba(218, 162, 79, 0.22);
+    border-radius: 22px;
+  }
+  .wf__card:hover {
+    background: rgba(255, 255, 255, 0.07);
+    border-color: rgba(242, 194, 117, 0.6);
+    box-shadow: 0 18px 44px rgba(0, 0, 0, 0.4);
+  }
+  .wf__card :global(.fy__icon) { width: clamp(46px, 4.6vw, 68px); height: clamp(46px, 4.6vw, 68px); color: #f2c275; }
+
+  /* The line. Sentence case here, unlike the badge fragments on the hero:
+     these are whole sentences, and set in caps at this length they shout. */
+  .wf__card .wf__line {
+    margin: 0;
+    text-transform: none;
+    font-size: clamp(1rem, 0.92rem + 0.5vw, 1.32rem);
+    line-height: 1.28;
+    color: #fcfaf8;
+    text-wrap: balance;
+  }
+  .wf__card .wf__line :global(strong) { display: block; margin-top: 0.28em; color: #f2c275; }
+
+  /* The through line: the key that picks this card up, and when. */
+  .wf__card .wf__thread {
+    margin: auto 0 0;
+    padding-top: clamp(10px, 1.1vw, 15px);
+    width: 100%;
+    border-top: 1px solid rgba(252, 250, 248, 0.14);
+    font-family: var(--font-base);
+    font-size: clamp(0.66rem, 0.6rem + 0.2vw, 0.78rem);
+    font-weight: 500;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: rgba(252, 250, 248, 0.62);
+  }
+  .wf__card .wf__thread span { color: #daa24f; font-weight: 700; }
+  .wf__card .wf__thread em { font-style: normal; }
+
+  /* ---- the foot ---------------------------------------------------------- */
+  .wf__foot {
+    max-width: 680px;
+    margin: clamp(22px, 2.6vw, 38px) auto 0;
+    display: grid;
+    justify-items: center;
+    gap: clamp(12px, 1.4vw, 20px);
+    text-align: center;
+  }
+  .wf__note { margin: 0; max-width: 56ch; font-size: var(--fs-xs); color: rgba(252, 250, 248, 0.72); }
+  .wf__cta {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5em;
+    color: #f2c275;
+    font-weight: 700;
+    text-decoration: none;
+    border-bottom: 1px solid rgba(242, 194, 117, 0.42);
+    padding-bottom: 2px;
+    transition: color 0.3s ease, border-color 0.3s ease;
+  }
+  .wf__cta span { transition: transform 0.3s var(--ease-out-quart); }
+  .wf__cta:hover { color: #fcfaf8; border-color: #fcfaf8; }
+  .wf__cta:hover span { transform: translateX(4px); }
+
+  @media (max-width: 900px) {
+    .wf__grid { grid-template-columns: repeat(2, minmax(0, 1fr)); max-width: 640px; }
+  }
+  @media (max-width: 560px) {
+    /* Two up still on a phone — six stacked squares is a page of scrolling
+       for one idea. They drop their square and take the height they need. */
+    .wf__card { aspect-ratio: auto; min-height: 15rem; gap: 12px; padding: 16px 13px 14px; }
+    .wf__card .wf__line { font-size: 0.94rem; }
+    /* At two cards to a phone row the whole label will not hold one line, and
+       a key left alone on a line of its own is exactly what fit.ts forbids. The
+       weeks are still there, the word "Weeks" is not: "INTEGRATE · 9–12". */
+    .wf__card .wf__thread { letter-spacing: 0.05em; font-size: 0.68rem; }
+    .wf__card .wf__thread em { display: none; }
+    .wf__foot { flex-direction: column; align-items: center; }
+  }
+</style>

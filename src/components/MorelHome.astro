@@ -26,6 +26,7 @@ import {
 } from '../data/morel';
 import { forYouIcon, PLAY_ICON } from '../lib/morel-icons';
 import Wall from './Wall.astro';
+import WhoFor from './WhoFor.astro';
 
 const book = (href: string) => href === '/book';
 ---
@@ -77,6 +78,11 @@ const book = (href: string) => href === '/book';
       </div>
     </div>
   </section>
+
+  <!-- ============ WHO IT IS FOR: the six, under the twelve weeks ============
+       Dion, 25 Sep. Recognition, not diagnosis — the hero's beat does that —
+       and every card names the key that picks it up. Words: data/audience.ts -->
+  <WhoFor />
 
   <!-- ============ THE WALL: what they took with them (data/wall.ts) ============ -->
   <Wall />
