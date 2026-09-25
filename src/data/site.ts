@@ -47,7 +47,7 @@ export const WHATSAPP = {
  * form field, and matches how the page actually presents itself — as a book.
  */
 export const NAV = [
-  { label: "Men's Coaching", href: '/mens-coaching' },
+  { label: 'Coaching', href: '/mens-coaching' },
   { label: 'The Story', href: '/about' },
   { label: 'Resources', href: '/media' },
   { label: 'Testimonials', href: '/testimonials' },
@@ -180,7 +180,7 @@ export const PHASES: Phase[] = [
     grade: 'oklch(32% 0.045 78)',
     kanjiMeaning: 'to leave, to transcend the form',
     blurb:
-      "The shell and the self become one. Build a daily practice that sustains the work. Set boundaries without guilt. Speak your truth without performing. The discipline stays. The strength stays. But now there's a man behind it. Not just a performance.",
+      "The shell and the self become one. Build a daily practice that sustains the work. Set boundaries without guilt. Speak your truth without performing. The discipline stays. The strength stays. But now there's a person behind it. Not just a performance.",
     aim: 'Turn insight into choices you can stand behind.',
     selfTrust:
       'Self-trust becomes behavioural through decisions, boundaries, kept commitments, chosen responses under pressure and honest repair.',
@@ -205,7 +205,7 @@ export type Testimonial = {
 export const TESTIMONIALS: Testimonial[] = [
   {
     name: 'Matt Halpin',
-    context: "Return to Self — Men's Coaching",
+    context: 'Return to Self — Coaching',
     category: 'adults',
     avatar: 'avatar-matt-halpin',
     quote:
@@ -213,7 +213,7 @@ export const TESTIMONIALS: Testimonial[] = [
   },
   {
     name: 'James Bolton',
-    context: "Return to Self — Men's Coaching",
+    context: 'Return to Self — Coaching',
     category: 'adults',
     avatar: 'avatar-james-bolton',
     quote:
@@ -824,7 +824,7 @@ export const CHAPTERS: Chapter[] = [
     caption: 'the circle',
     title: 'Where the work happens now.',
     body: [
-      'Today I help young people find their voice through HSC mentoring, and I help men stop performing and start living through martial arts, Buddhism, and structured inner work.',
+      'Today I help young people find their voice through HSC mentoring, and I help people stop performing and start living through martial arts, Buddhism, and structured inner work.',
       'The circle in the mark on this site is left open on purpose. So is this.',
     ],
     credential: '10+ years coaching · Chatswood, NSW',

@@ -58,7 +58,7 @@ export const BADGE_SETS: BadgeSet[] = [
     kicker: "Recommended default · the diagnosis in six badges",
     band: "01–02",
     title: "You hold it all together. <mark>Nobody sees what it costs.</mark>",
-    lede: "Most men who end up here recognise three or more. They tend to travel together.",
+    lede: "Most people who end up here recognise three or more. They tend to travel together.",
     cta: CTA,
     tests: "The composite man from the diagnosis: the man everyone leans on, who only feels worth something when he’s useful. One symptom, one pattern, the core, one relationship, one cost.",
     where: "Home page beat, and the main landing page for ads",

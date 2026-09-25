@@ -26,9 +26,9 @@ import {
   faqSchema,
 } from '../lib/seo';
 
-const title = "Men's Life Coach Sydney | Return to Self — Harrison Saito";
+const title = 'Life Coach Sydney | Return to Self — Harrison Saito';
 const description =
-  "Men's life coaching in Chatswood, Sydney. Return to Self is a 12-week program using karate, Buddhism and structured inner work for men who are done performing.";
+  'Life coaching in Chatswood, Sydney. Return to Self is a 12-week program using karate, Buddhism and structured inner work for anyone done performing.';
 
 const offers = OFFERS.filter((o) => o.audience === 'adults');
 /* Two of the eleven, whole — they are long, and a trimmed testimony is not
@@ -48,7 +48,7 @@ const faqs = [
   },
   {
     q: 'Do I need martial arts experience?',
-    a: 'No. Karate is used as a method for working with the nervous system, attention and pressure. Plenty of men arrive having never trained. The physical practice is adapted to the person in front of me.',
+    a: 'No. Karate is used as a method for working with the nervous system, attention and pressure. Plenty of people arrive having never trained. The physical practice is adapted to the person in front of me.',
   },
   {
     q: 'How much does it cost?',
@@ -67,7 +67,7 @@ const faqs = [
 const schema = graph(
   localBusinessSchema(),
   serviceSchema({
-    name: "Men's Life Coaching",
+    name: 'Life Coaching',
     serviceType: 'Life coaching',
     description,
     url: '/mens-coaching',
@@ -76,7 +76,7 @@ const schema = graph(
   faqSchema(faqs),
   breadcrumbSchema([
     { name: 'Home', url: '/' },
-    { name: "Men's Coaching", url: '/mens-coaching' },
+    { name: 'Coaching', url: '/mens-coaching' },
   ])
 );
 ---
@@ -86,7 +86,7 @@ const schema = graph(
     <!-- ============ HERO ============ -->
     <section class="inner-hero on-dark" style="background-image:url(/img/dark-dojo.webp)" data-section="hero">
       <div class="wide">
-        <p class="eyebrow">Men’s coaching · Chatswood, Sydney</p>
+        <p class="eyebrow">Coaching · Chatswood, Sydney</p>
         <h1>You look like you’ve <mark>got it all together.</mark></h1>
         <p class="lede accent">
           But when you’re alone, really alone, you feel like something fundamental is missing.
@@ -144,7 +144,7 @@ const schema = graph(
           <p class="eyebrow">The Program</p>
           <h2 class="reveal">Return to Self.</h2>
           <p class="fs-md core__lede reveal">
-            For men who built the life that looks right, but feels hollow. Who sense the weight of
+            For anyone who built the life that looks right, but feels hollow. Who sense the weight of
             something inherited, unspoken, unresolved. This is where that work begins.
           </p>
           <p class="fs-xs core__lede reveal">
@@ -248,7 +248,7 @@ const schema = graph(
       <div class="wide">
         <div class="sec-head">
           <div>
-            <p class="eyebrow">From the men I’ve worked with</p>
+            <p class="eyebrow">From the people I’ve worked with</p>
             <h2 class="reveal">In their <mark>words.</mark></h2>
           </div>
           <a class="btn btn--outline" href="/testimonials">Read all eleven</a>
@@ -272,7 +272,7 @@ const schema = graph(
           <p class="eyebrow">Before You Apply</p>
           <h2 class="reveal">Straight <mark>answers.</mark></h2>
           <p class="fs-sm faq__lede reveal">
-            The questions men actually arrive with, answered before you have to ask.
+            The questions people actually arrive with, answered before you have to ask.
           </p>
           <a class="btn btn--outline btn--wide reveal" href="/book" data-track="cta_click" data-track-label="Mens FAQ — Book">Start when you’re ready</a>
         </header>

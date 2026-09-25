@@ -44,10 +44,36 @@ const ASSETS: Record<string, string> = {
   '/img/sbs-group.webp': '/img/sbs-karate-v1.webp',
 };
 
+/* Open to all (Dion, 25 Sep): the template's copy was written to men, and the
+   site is not. These run over every string that comes through `local()`, so a
+   re-sync of the template cannot quietly put the old framing back. Longest
+   first — the short ones would otherwise land inside them. His own words are
+   not in here: a quote stays as it was said. */
+const OPEN: [string, string][] = [
+  ['It is one man, a dojo, and twelve weeks', 'It is one teacher, a dojo, and twelve weeks'],
+  ['a five-year-old still frozen inside a grown man.', 'a five-year-old still frozen inside you.'],
+  ['Men who want someone else to do the work, men who book the call', 'Anyone who wants someone else to do the work, anyone who books the call'],
+  ['A structured programme for men who are done performing.', 'A structured programme for anyone done performing.'],
+  ['One-to-one training for men who built the life', 'One-to-one training for anyone who built the life'],
+  ['Twelve weeks, one to one, for a small number of men at a time.', 'Twelve weeks, one to one, for a small number of people at a time.'],
+  ['How is this different from a men’s group or a retreat?', 'How is this different from a group programme or a retreat?'],
+  ['Some men book this call to be talked out of it.', 'Some people book this call to be talked out of it.'],
+  ['The men I work with', 'The people I work with'],
+  ['Most men who come to me', 'Most people who come to me'],
+  ['Most men who come are functioning well', 'Most people who come are functioning well'],
+  ['Plenty of men arrive having never trained.', 'Plenty of people arrive having never trained.'],
+  ['Some men want the foundations first', 'Some people want the foundations first'],
+  ['help men stop performing', 'help people stop performing'],
+  ['Years coaching men in Chatswood', 'Years coaching in Chatswood'],
+  ['Men’s coaching with Harrison Saito', 'Coaching with Harrison Saito'],
+  ['Harrison Saito · Men’s coaching', 'Harrison Saito · Coaching'],
+];
+
 function local<T>(value: T): T {
   if (typeof value === 'string') {
     const mapped = ROUTES[value] ?? ASSETS[value] ?? LABELS[value];
     if (mapped !== undefined) return (mapped as unknown) as T;
+    for (const [from, to] of OPEN) if (value.includes(from)) value = value.split(from).join(to) as unknown as typeof value;
     /* "program", not "programme" (Dion, 22 Sep) — in the words only: a path or a
        file name never contains it. */
     const worded = /^[/#]|^https?:|^mailto:/.test(value) ? value : value.replace(/rogrammes\b/g, 'rograms').replace(/rogramme\b/g, 'rogram');
@@ -100,8 +126,8 @@ export const PHASES = local(S.PHASES);
    off — they are ours, written to his brief, not quoted from him. */
 export const CORE = {
   ...local(S.CORE),
-  lede: 'Twelve weeks, one to one, for men who have achieved a great deal and still feel disconnected from it. What I teach was built in a dojo, over seventeen years of karate. Here it goes to work on what actually runs your day: how you regulate under pressure, where your self-worth comes from, and whether the life you have built is in line with what you value.',
-  note: 'This is not therapy. It is training: a foundation and a framework for a fast, overstimulated world, handed over in three stages (Separate, Return, Integrate) until the tools are yours. In person around Chatswood and Sydney’s North Shore, or online Australia-wide.',
+  lede: 'The world has never been louder. Every hour of the day something is built to hold your attention, and the more of it you hand over, the harder it gets to hear what is actually yours — what you want, what you value, what your body has been telling you the whole time. Return to Self is twelve weeks of learning to stop, and to hear it again.',
+  note: 'Not therapy. Not spirituality for its own sake. Training — physical, mental and spiritual, taught the way a dojo teaches: practised until it holds under pressure, inside your ordinary week. Handed over in three stages (Separate, Return, Integrate) until the tools are yours. In person around Chatswood and Sydney’s North Shore, or online Australia-wide.',
 };
 export const FAQ_SECTION = local(S.FAQ_SECTION);
 export const FAQ = local(S.FAQ);

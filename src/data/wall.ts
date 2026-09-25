@@ -5,9 +5,11 @@
  *
  * Two kinds of tile, and they are kept honest about which is which:
  *
- *   quote  — the WORDS. Every one is lifted from the eleven written
- *            testimonials in site.ts (TESTIMONIALS), under the name of the
- *            person who wrote it. `big` is the one thing they learned (two words, or
+ *   quote  — the WORDS. Every one is lifted either from the eleven written
+ *            testimonials in site.ts (TESTIMONIALS) or from what a client said
+ *            on camera on 9 Sep (interviews.ts, `said` — word for word off the
+ *            transcript), under the name of the person it came from. They lead
+ *            with what the person GOT (Dion, 25 Sep: benefits, not features). `big` is the one thing they learned (two words, or
  *            four and more — three cannot wrap without stranding one), `quote`
  *            a fuller line; both must be found verbatim in that person's
  *            testimonial, and the check at the foot of this file fails the
@@ -29,6 +31,7 @@
  * burned-in caption in frame, and no minors.
  */
 import { TESTIMONIALS } from './site';
+import { INTERVIEWS } from './interviews';
 
 export type Tone = 'ink' | 'paper' | 'gold';
 
@@ -46,6 +49,8 @@ export type QuoteTile = {
   name: string;
   /** shown after the name when the words are someone else's that they chose */
   via?: string;
+  /** 'filmed' = said on camera (interviews.ts) rather than written to him */
+  voice?: 'filmed';
   /** kept off the shorter cut: true = tablet and phone, 'phone' = phone only */
   more?: boolean | 'phone';
 };
@@ -77,7 +82,7 @@ export const WALL: WallTile[] = [
 
   /* band 1 — feature · tall · tall · line/line */
   {
-    type: 'quote', size: 'feature', tone: 'ink', kicker: 'Men’s coaching · Return to Self', name: 'Matt Halpin',
+    type: 'quote', size: 'feature', tone: 'ink', kicker: 'Coaching · Return to Self', name: 'Matt Halpin',
     big: 'Helped me remove the mask',
     quote: 'Harrison helped me remove the mask, calm the mind, and move with intention rather than just speed, power, and grit.',
   },
@@ -85,8 +90,8 @@ export const WALL: WallTile[] = [
   { type: 'photo', shape: 'tall', img: 'wall-p11-v1', ...FILMED },
   { type: 'quote', size: 'line', tone: 'paper', kicker: 'Karate · three years in', name: 'Alex Wei', big: 'Forge their own path' },
   {
-    type: 'quote', size: 'line', tone: 'gold', kicker: 'Men’s coaching · Return to Self', name: 'James Bolton', via: 'quoting Albert Schweitzer',
-    big: 'Rekindle the inner spirit',
+    type: 'quote', size: 'line', tone: 'gold', kicker: 'Coaching · a year in', name: 'James', voice: 'filmed',
+    big: 'Just not letting it affect you',
   },
 
   /* band 2 — tall · feature · tall · square square / line */
@@ -110,7 +115,7 @@ export const WALL: WallTile[] = [
     quote: 'I was able to achieve the ATAR I was aiming for, but also gained a better understanding of myself.',
   },
   { type: 'photo', shape: 'tall', img: 'wall-p23-v1', ...FILMED },
-  { type: 'quote', size: 'line', tone: 'ink', kicker: 'HSC student · Cammeraygal', name: 'Kai Bennetts', big: 'Look deeper within myself', more: true },
+  { type: 'quote', size: 'line', tone: 'ink', kicker: 'Coaching · consultant, 55', name: 'John', voice: 'filmed', big: 'A lot more calmer as a person', more: true },
 
   /* band 4 — tall · tall · feature · line / square square */
   { type: 'photo', shape: 'tall', img: 'wall-k11-v1', alt: 'Harrison standing with a client on the mats before a session', caption: 'With a client on the mats' },
@@ -120,7 +125,7 @@ export const WALL: WallTile[] = [
     big: 'Influencing our parenting in positive ways',
     quote: 'Harrison’s lessons are a safe place for the children to connect, learn about themselves, their lives and the world around them.',
   },
-  { type: 'quote', size: 'line', tone: 'gold', kicker: 'HSC student · St Pius X', name: 'Shoaland Griffiths', big: 'Taught me to experience life fully', more: true },
+  { type: 'quote', size: 'line', tone: 'gold', kicker: 'Coaching · drummer', name: 'Andrew', voice: 'filmed', big: 'Makes me happier, makes me calmer', more: true },
   { type: 'photo', shape: 'square', img: 'wall-p55-v1', alt: 'Harrison and a client sitting cross-legged in meditation on the mats', caption: 'Meditation', pos: '50% 42%', more: true },
   { type: 'photo', shape: 'square', img: 'wall-k02-v1', alt: 'Harrison in his gi and black belt, teaching technique in the dojo', caption: 'In the dojo', pos: '50% 22%', more: true },
 
@@ -138,13 +143,17 @@ export const WALL: WallTile[] = [
 const flat = (s: string) => s.toLowerCase().replace(/[’‘]/g, "'").replace(/[“”]/g, '"').replace(/\s+/g, ' ').trim();
 for (const t of WALL) {
   if (t.type !== 'quote') continue;
-  const src = TESTIMONIALS.find((x) => x.name === t.name);
-  if (!src) throw new Error(`wall.ts: no testimonial from "${t.name}"`);
-  const body = flat(src.quote);
+  const written = TESTIMONIALS.find((x) => x.name === t.name);
+  const filmed = INTERVIEWS.find((x) => x.name === t.name);
+  if (!written && !filmed) throw new Error(`wall.ts: nothing on record from "${t.name}"`);
+  const body = flat(written ? written.quote : filmed!.said.join(' … '));
   for (const line of [t.big, ...(t.quote ? t.quote.split('…') : [])]) {
     const piece = flat(line).replace(/[.,;:]+$/, '');
     if (piece && !body.includes(piece)) throw new Error(`wall.ts: "${line}" is not in ${t.name}'s testimonial`);
   }
 }
 
-export const personOf = (name: string) => TESTIMONIALS.find((x) => x.name === name)!;
+/* The four filmed clients have no written testimonial and no portrait — the
+   wall asks for one by name, so answer for them too. */
+export const personOf = (name: string) =>
+  TESTIMONIALS.find((x) => x.name === name) ?? { name, context: '', category: 'adults' as const, avatar: null, quote: '' };
