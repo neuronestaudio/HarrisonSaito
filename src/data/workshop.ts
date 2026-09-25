@@ -49,17 +49,21 @@ export const DETAILS = {
   seats: 3,
   /** Where. His base; the venue itself is Harrison's to name. */
   where: 'Chatswood, Sydney',
-  /** e.g. 'Thursday 9 October · 7 pm'. null until Harrison sets a date. */
-  when: null as string | null,
-  /** e.g. 'Two hours'. null until Harrison sets it. */
-  length: null as string | null,
+  /* Dion, 26 Sep: two rooms, 1–2 pm on the third and the fourth (October
+     2026 — a Saturday and a Sunday). The application picks one. */
+  sessions: [
+    { id: 'sat-3-oct', label: 'Saturday 3 October', time: '1–2 pm' },
+    { id: 'sun-4-oct', label: 'Sunday 4 October', time: '1–2 pm' },
+  ],
+  when: 'Saturday 3 or Sunday 4 October · 1–2 pm' as string | null,
+  length: 'One hour' as string | null,
   /** Never published until Harrison sets it — two numbers are in circulation
       and neither is his. The page asks for an application; it does not sell. */
   price: null as string | null,
 };
 
 /** How the missing facts read on the page. */
-export const WHEN_LINE = DETAILS.when ?? 'Next room: date to be confirmed — applicants hear first';
+export const WHEN_LINE = DETAILS.when ? `Two rooms: ${DETAILS.when}` : 'Next room: date to be confirmed — applicants hear first';
 export const LENGTH_LINE = DETAILS.length ?? 'One session';
 
 /* ---- the fold ------------------------------------------------------------
@@ -70,7 +74,7 @@ export const HERO = {
   eyebrow: `The Workshop · ${DETAILS.seats} seats · ${DETAILS.where}`,
   title: 'There is a moment <mark>before the reaction.</mark>',
   lede:
-    'Your first reaction may be automatic. What you do next doesn’t have to be. The workshop is one room, three people and one session with Harrison — learning to notice the moment in between: what you are feeling, what set it off, and what you would rather do next. The first practice of Return to Self, before you commit to any of it.',
+    'Your first reaction may be automatic. What you do next doesn’t have to be. The workshop is one room, three people and one hour with Harrison — learning to notice the moment in between: what you are feeling, what set it off, and what you would rather do next. The first practice of Return to Self, before you commit to any of it.',
   cta: { label: 'Apply for a seat', href: '#apply' },
   more: { label: 'What happens in the room', href: '#room' },
   /* Dion, 25 Sep (late): the seiza frame — kneeling on the mats in his gi,
@@ -193,9 +197,9 @@ export const ROOM = {
     },
   ],
   facts: [
-    `${DETAILS.seats} seats`,
+    `${DETAILS.seats} seats a room`,
+    DETAILS.when ?? LENGTH_LINE,
     `In person · ${DETAILS.where}`,
-    LENGTH_LINE,
     'Bring comfortable clothing, water and an open mind',
   ],
   note: 'Not therapy, and not about becoming endlessly calm. Practice — so that what you feel does not automatically make your decisions for you.',
@@ -281,16 +285,28 @@ export const APPLY = {
   eyebrow: 'Three seats',
   title: 'Take the <mark>first step.</mark>',
   body:
-    'Not first come, first served. A short application, then a call with Harrison, so the room is right for the three people in it. If this room is full, you are first for the next.',
+    'Pick a session and leave your details, and your spot is under review. Harrison reaches out directly — you choose the window for his call. Three seats a room; if yours is full, you are first for the next.',
   formLabel: 'Apply — under a minute',
 };
 
 /* ---- the form ------------------------------------------------------------ */
 export const FORM = {
   id: 'workshop',
+  sessionLabel: 'Which session?',
   submit: 'Apply for a seat',
-  successHeading: 'Application received.',
-  successBody: 'Harrison reads every one himself and replies personally, usually with a call, usually within a day. Three seats a room — if this one is full, you are first for the next.',
+  /* Dion, 26 Sep, as said: thank you, your spot is under review, Harrison will
+     reach out directly, select a window for him to call you. */
+  successHeading: 'Thank you.',
+  successBody: 'Your spot is under review, and Harrison will reach out directly. Pick a window for him to call you.',
+  callLabel: 'When can he call?',
+  callOptions: [
+    { value: 'weekday-mornings', label: 'Weekday mornings' },
+    { value: 'weekday-evenings', label: 'Weekday evenings' },
+    { value: 'weekends', label: 'Weekends' },
+    { value: 'flexible', label: 'I’m flexible' },
+  ],
+  doneHeading: 'Done.',
+  doneBody: 'Harrison will call you — {window}. Three seats a room; if yours is taken, you are first for the next.',
   whatsapp: 'Hi Harrison, I’d like to apply for one of the three seats at the workshop.',
   ask: { label: 'In a sentence, what would you like to understand better?', placeholder: 'As much or as little as you like' },
 };

@@ -47,6 +47,9 @@ const GHL_FIELDS: Record<string, string> = {
   about_label: 'contact.enquiry__about',
   topic_label: 'contact.enquiry__topic',
   timing_label: 'contact.enquiry__when_suits',
+  /* /workshop: which room they applied for. The field may not exist yet in
+     GHL — it is skipped if not — so the form also mirrors it into topic. */
+  session_label: 'contact.enquiry__session',
   form_id: 'contact.enquiry__form',
   page_url: 'contact.enquiry__page',
   referrer: 'contact.enquiry__referrer',
@@ -114,6 +117,8 @@ async function sendToGHL(env: Env, body: Payload): Promise<boolean> {
       'website',
       `enquiry-${about}`,
       `form-${formId}`,
+      /* session-sat-3-oct / session-sun-4-oct: the room a workshop applicant chose */
+      ...(typeof body.session === 'string' && /^[a-z0-9-]{2,24}$/.test(body.session) ? [`session-${body.session}`] : []),
       ...(typeof body.fy === 'string' && /^[a-z]{2,20}$/.test(body.fy) ? [`fy-${body.fy}`] : []),
       ...(typeof body.fy_pick === 'string'
         ? body.fy_pick

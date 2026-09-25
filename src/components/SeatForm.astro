@@ -1,43 +1,84 @@
 ---
 /**
- * A seat, asked for in one step.
+ * A seat, applied for in one step — then a window for the call.
  *
  * The site's lead form (LeadForm.astro) walks three questions before it asks
  * for a name, because a coaching enquiry earns that. A seat at a three-person
  * room does not: Dion's brief for /workshop (25 Sep 2026) is "very minimal
- * friction", so this is the contact step of that form on its own — a name, a
- * phone, an email, the consent line — nothing else to answer.
+ * friction", so this is the contact step of that form on its own — which
+ * session, a name, a phone, an email, one optional line, the consent line.
+ *
+ * Dion, 26 Sep: "two dates, 1–2 pm on the third and the fourth. Then they
+ * see: thank you, your spot is under review and Harrison will reach out
+ * directly — please select a window for him to call you. When they apply,
+ * they get into the workshop." So the session is chosen up front, and the
+ * thank-you screen asks one more thing: when he can call. That answer goes
+ * up as a second post against the same email, so the contact in GHL gains
+ * the window without a second lead being counted (it fires as Schedule).
  *
  * It posts the same shape to /api/lead as the big form does (form_id, about,
  * event_id, page_url, the badge-set tags from sessionStorage, fbc/fbp), so
- * the lead lands in GHL tagged form-<id> and enquiry-<about>, the Pixel and
- * the Conversions API see one deduplicated Lead, and nothing downstream has
+ * the lead lands in GHL tagged form-<id>, enquiry-<about> and
+ * session-<id>, with the session in the "topic" field and the call window in
+ * "when suits" — the fields that already exist — and nothing downstream has
  * to learn a new payload.
  */
 import { whatsappLink } from '../data/site';
+
+export type Session = { id: string; label: string; time: string };
+export type CallOption = { value: string; label: string };
 
 interface Props {
   formId: string;
   /** rides into GHL as enquiry-<about> and the "about" custom field */
   about: string;
   aboutLabel: string;
+  /** the rooms on offer — one must be picked */
+  sessions: Session[];
+  sessionLabel: string;
   submitLabel: string;
+  /** the thank-you: the spot is under review, pick a window for the call */
   successHeading: string;
   successBody: string;
+  callLabel: string;
+  callOptions: CallOption[];
+  /** after the window is picked; `{window}` is replaced with their pick */
+  doneHeading: string;
+  doneBody: string;
   /** the pre-written WhatsApp message, for the direct route */
   whatsapp: string;
-  /** GA4 / Meta event fired on success */
+  /** GA4 / Meta event fired on the application */
   eventName?: string;
-  /** one optional line in their words — the application's only question.
-      Lands in the lead as `note` (the email and the log carry it). */
+  /** one optional line in their words. Lands in the lead as `note`. */
   ask?: { label: string; placeholder: string };
 }
 
-const { formId, about, aboutLabel, submitLabel, successHeading, successBody, whatsapp, eventName = 'lead', ask } = Astro.props;
+const {
+  formId, about, aboutLabel, sessions, sessionLabel, submitLabel,
+  successHeading, successBody, callLabel, callOptions, doneHeading, doneBody,
+  whatsapp, eventName = 'lead', ask,
+} = Astro.props;
 ---
 
-<div class="sf" data-seat-form={formId} data-event={eventName}>
+<div class="sf" data-seat-form={formId} data-event={eventName} data-done-body={doneBody}>
   <form class="sf__form" novalidate>
+    {/* ---- which room ---- */}
+    <fieldset class="sf__sessions">
+      <legend class="sf__label">{sessionLabel}</legend>
+      <div class="sf__tiles" role="radiogroup" aria-label={sessionLabel}>
+        {sessions.map((s) => (
+          <button type="button" class="sf__tile" role="radio" aria-checked="false" data-session={s.id} data-label={`${s.label} · ${s.time}`}>
+            <span class="sf__tile-label">{s.label}</span>
+            <span class="sf__tile-hint">{s.time}</span>
+            <span class="sf__tile-mark" aria-hidden="true"></span>
+          </button>
+        ))}
+      </div>
+      <input type="hidden" name="session" value="" />
+      <input type="hidden" name="session_label" value="" />
+      <p class="sf__error" data-error-for="session" hidden></p>
+    </fieldset>
+
     <div class="sf__fields">
       <div class="sf__field sf__field--wide">
         <label class="sf__label" for={`${formId}-name`}>Your name</label>
@@ -88,10 +129,28 @@ const { formId, about, aboutLabel, submitLabel, successHeading, successBody, wha
     <p class="sf__formerror" data-form-error hidden role="alert"></p>
   </form>
 
-  <div class="sf__success" data-success hidden>
+  {/* ---- thank you: under review, pick a window ---- */}
+  <div class="sf__success" data-success hidden tabindex="-1">
     <span class="sf__success-rule" aria-hidden="true"></span>
     <h3>{successHeading}</h3>
     <p>{successBody}</p>
+    <p class="sf__label sf__call-label">{callLabel}</p>
+    <div class="sf__tiles sf__tiles--call" role="group" aria-label={callLabel}>
+      {callOptions.map((c) => (
+        <button type="button" class="sf__tile sf__tile--call" data-call={c.value} data-label={c.label}>
+          <span class="sf__tile-label">{c.label}</span>
+          <span class="sf__tile-mark" aria-hidden="true"></span>
+        </button>
+      ))}
+    </div>
+    <p class="sf__formerror" data-call-error hidden role="alert"></p>
+  </div>
+
+  {/* ---- done ---- */}
+  <div class="sf__success sf__done" data-done hidden tabindex="-1">
+    <span class="sf__success-rule" aria-hidden="true"></span>
+    <h3>{doneHeading}</h3>
+    <p data-done-text></p>
     <a class="sf__wa" href={whatsappLink(whatsapp)} target="_blank" rel="noopener">
       Or message Harrison on WhatsApp <span aria-hidden="true">→</span>
     </a>
@@ -104,6 +163,7 @@ const { formId, about, aboutLabel, submitLabel, successHeading, successBody, wha
     --glass-bg: linear-gradient(160deg, oklch(100% 0 0 / 0.11), oklch(100% 0 0 / 0.035) 46%, oklch(100% 0 0 / 0.07));
     --glass-line: oklch(100% 0 0 / 0.14);
     --glass-tile: oklch(100% 0 0 / 0.06);
+    --glass-tile-hover: oklch(100% 0 0 / 0.1);
     position: relative;
     isolation: isolate;
     color: var(--text-on-ink);
@@ -130,11 +190,51 @@ const { formId, about, aboutLabel, submitLabel, successHeading, successBody, wha
     filter: blur(20px);
   }
 
+  /* ---- the rooms, and the call windows: glass tiles that answer on tap ---- */
+  .sf__sessions { border: 0; margin: 0 0 1.1rem; padding: 0; min-width: 0; }
+  .sf__sessions legend { padding: 0; margin-bottom: 0.5rem; }
+  .sf__tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 10.5rem), 1fr)); gap: 0.6rem; }
+  .sf__tile {
+    position: relative;
+    display: grid;
+    gap: 0.15rem;
+    text-align: left;
+    padding: 0.85rem 2.8rem 0.85rem 1rem;
+    border-radius: 14px;
+    border: 1px solid var(--glass-line);
+    background: var(--glass-tile);
+    color: var(--text-on-ink);
+    cursor: pointer;
+    font: inherit;
+    box-shadow: inset 0 1px 0 oklch(100% 0 0 / 0.08);
+    transition: background var(--dur-fast) ease, border-color var(--dur-fast) ease, transform var(--dur-fast) var(--ease-out-expo), box-shadow var(--dur-fast) ease;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .sf__tile:hover { background: var(--glass-tile-hover); border-color: oklch(84% 0.11 78 / 0.5); transform: translateY(-1px); }
+  .sf__tile:focus-visible { outline: none; border-color: var(--gold); box-shadow: 0 0 0 3px oklch(75% 0.12 75 / 0.28), inset 0 1px 0 oklch(100% 0 0 / 0.08); }
+  .sf__tile-label { font-family: var(--font-display); font-size: 1.12rem; line-height: 1.2; }
+  .sf__tile-hint { font-size: 0.78rem; color: var(--text-on-ink-muted); line-height: 1.4; }
+  .sf__tile-mark {
+    position: absolute;
+    right: 0.9rem;
+    top: 50%;
+    width: 20px;
+    height: 20px;
+    margin-top: -10px;
+    border-radius: 50%;
+    border: 1px solid oklch(100% 0 0 / 0.22);
+    transition: border-color var(--dur-fast) ease, background var(--dur-fast) ease, transform var(--dur-fast) var(--ease-out-expo);
+  }
+  .sf__tile[aria-checked='true'], .sf__tile.is-picked { border-color: var(--gold); background: oklch(84% 0.11 78 / 0.12); }
+  .sf__tile[aria-checked='true'] .sf__tile-mark, .sf__tile.is-picked .sf__tile-mark { border-color: var(--gold); background: var(--gold); transform: scale(0.72); }
+  .sf__tile[disabled] { opacity: 0.6; cursor: progress; }
+
   /* ---- fields ---- */
   .sf__fields { display: grid; grid-template-columns: 1fr 1fr; gap: 0.9rem; }
   .sf__field { display: grid; gap: 0.35rem; min-width: 0; }
   .sf__field--wide { grid-column: 1 / -1; }
   .sf__label {
+    display: block;
     font-size: 0.7rem;
     font-weight: 700;
     letter-spacing: 0.14em;
@@ -158,7 +258,7 @@ const { formId, about, aboutLabel, submitLabel, successHeading, successBody, wha
   .sf__field--ask { margin-top: 0.9rem; }
   .sf__optional { font-weight: 500; letter-spacing: 0.04em; text-transform: none; color: var(--text-on-ink-faint); margin-left: 0.4em; }
   .sf__textarea { resize: vertical; min-height: 4.6rem; line-height: 1.5; font-size: 0.98rem; }
-  .sf__error { margin: 0; font-size: 0.8rem; color: oklch(80% 0.12 40); }
+  .sf__error { margin: 0.4rem 0 0; font-size: 0.8rem; color: oklch(80% 0.12 40); }
   .sf__error[hidden] { display: none; }
 
   .sf__consent {
@@ -205,12 +305,15 @@ const { formId, about, aboutLabel, submitLabel, successHeading, successBody, wha
   .sf__formerror[hidden] { display: none; }
   .sf__formerror a { color: var(--text-on-ink); }
 
-  /* ---- the answer ---- */
-  .sf__success { text-align: center; padding: clamp(0.6rem, 2vw, 1.4rem) 0; }
+  /* ---- the answer, and the call ---- */
+  .sf__success { text-align: center; padding: clamp(0.6rem, 2vw, 1.4rem) 0; outline: none; }
   .sf__success[hidden] { display: none; }
   .sf__success-rule { display: block; width: 56px; height: 2px; margin: 0 auto 1.2rem; background: linear-gradient(to right, #f2c275, #daa24f); }
   .sf__success h3 { font-family: var(--font-display); font-size: var(--step-3); font-weight: 300; margin: 0 0 0.7rem; color: var(--text-on-ink); }
-  .sf__success p { color: var(--text-on-ink-muted); max-width: 40ch; margin: 0 auto; line-height: 1.7; }
+  .sf__success p { color: var(--text-on-ink-muted); max-width: 42ch; margin: 0 auto; line-height: 1.7; }
+  .sf__call-label { margin: 1.4rem 0 0.6rem !important; max-width: none !important; }
+  .sf__tiles--call { text-align: left; }
+  .sf__tile--call { padding-block: 0.8rem; }
   .sf__wa {
     display: inline-flex;
     gap: 0.5em;
@@ -239,16 +342,32 @@ const { formId, about, aboutLabel, submitLabel, successHeading, successBody, wha
     const formId = root.dataset.seatForm!;
     const eventName = root.dataset.event || 'lead';
     const success = root.querySelector<HTMLElement>('[data-success]')!;
+    const done = root.querySelector<HTMLElement>('[data-done]')!;
+    const doneText = root.querySelector<HTMLElement>('[data-done-text]')!;
     const formError = root.querySelector<HTMLElement>('[data-form-error]')!;
+    const callError = root.querySelector<HTMLElement>('[data-call-error]')!;
     const submitBtn = root.querySelector<HTMLButtonElement>('[data-submit]')!;
     const consent = form.querySelector<HTMLInputElement>('[name="consent"]')!;
     const wa = root.querySelector<HTMLAnchorElement>('.sf__wa')!;
+    const hidden = (name: string) => form.querySelector<HTMLInputElement>(`input[type="hidden"][name="${name}"]`)!;
 
     form.addEventListener(
       'input',
       () => track('form_start', { form_id: formId, page_path: location.pathname }),
       { once: true }
     );
+
+    /* ---- the room: a tap answers ---- */
+    root.querySelectorAll<HTMLButtonElement>('[data-session]').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        root.querySelectorAll<HTMLElement>('[data-session]').forEach((b) => b.setAttribute('aria-checked', String(b === btn)));
+        hidden('session').value = btn.dataset.session || '';
+        hidden('session_label').value = btn.dataset.label || '';
+        const slot = root.querySelector<HTMLElement>('[data-error-for="session"]');
+        if (slot) slot.hidden = true;
+        track('form_step', { form_id: formId, step: 1, question: 'session', answer: btn.dataset.session, page_path: location.pathname });
+      });
+    });
 
     const showError = (name: string, message: string) => {
       const slot = root.querySelector<HTMLElement>(`[data-error-for="${name}"]`);
@@ -259,7 +378,12 @@ const { formId, about, aboutLabel, submitLabel, successHeading, successBody, wha
     const validate = (): boolean => {
       root.querySelectorAll<HTMLElement>('[data-error-for]').forEach((el) => { el.hidden = true; el.textContent = ''; });
       let ok = true;
-      let first: HTMLInputElement | null = null;
+      let first: HTMLElement | null = null;
+      if (!hidden('session').value) {
+        showError('session', 'Pick a session.');
+        ok = false;
+        first = root.querySelector<HTMLElement>('[data-session]');
+      }
       form.querySelectorAll<HTMLInputElement>('.sf__input[required]').forEach((el) => {
         let msg = '';
         if (!el.value.trim()) msg = 'This one is needed.';
@@ -271,6 +395,36 @@ const { formId, about, aboutLabel, submitLabel, successHeading, successBody, wha
       return ok;
     };
 
+    /* what every post carries: who they are, and where this came from */
+    const identity = (): Record<string, unknown> => {
+      const data = new FormData(form);
+      const p: Record<string, unknown> = {};
+      data.forEach((value, key) => { if (key !== 'website') p[key] = value; });
+      /* the session goes into GHL's existing "topic" field as well, so it is
+         readable there whether or not a session field has been created */
+      p.topic = p.session;
+      p.topic_label = p.session_label;
+      p.form_id = formId;
+      p.page_path = location.pathname;
+      p.page_url = location.href;
+      p.referrer = document.referrer || undefined;
+      try {
+        p.fy = sessionStorage.getItem('rts-fy') || undefined;
+        p.fy_pick = sessionStorage.getItem('rts-fy-pick') || undefined;
+      } catch {}
+      p.fbc = document.cookie.match(/_fbc=([^;]+)/)?.[1];
+      p.fbp = document.cookie.match(/_fbp=([^;]+)/)?.[1];
+      return p;
+    };
+
+    const post = async (payload: Record<string, unknown>) => {
+      const res = await fetch(ENDPOINT, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+      const json = await res.json().catch(() => ({}));
+      if (!res.ok || json.ok === false) throw new Error(json.error || `HTTP ${res.status}`);
+      return json;
+    };
+
+    /* ---- 1. the application ---- */
     form.addEventListener('submit', async (e) => {
       e.preventDefault();
       formError.hidden = true;
@@ -280,44 +434,46 @@ const { formId, about, aboutLabel, submitLabel, successHeading, successBody, wha
         formError.hidden = false;
         return;
       }
-
-      const data = new FormData(form);
-      if ((data.get('website') as string)?.trim()) { form.hidden = true; success.hidden = false; return; }
-
-      const payload: Record<string, unknown> = {};
-      data.forEach((value, key) => { if (key !== 'website') payload[key] = value; });
+      if ((new FormData(form).get('website') as string)?.trim()) { form.hidden = true; success.hidden = false; return; }
 
       const id = eventId();
-      payload.form_id = formId;
-      payload.event_id = id;
-      payload.event_name = eventName;
-      payload.page_path = location.pathname;
-      payload.page_url = location.href;
-      payload.referrer = document.referrer || undefined;
-      /* The badge set the visitor came through, if they walked the home page
-         first this visit (FrameHero writes it; src/data/badges.ts). */
-      try {
-        payload.fy = sessionStorage.getItem('rts-fy') || undefined;
-        payload.fy_pick = sessionStorage.getItem('rts-fy-pick') || undefined;
-      } catch {}
-      payload.fbc = document.cookie.match(/_fbc=([^;]+)/)?.[1];
-      payload.fbp = document.cookie.match(/_fbp=([^;]+)/)?.[1];
-
+      const payload = { ...identity(), event_id: id, event_name: eventName };
       submitBtn.disabled = true;
       try {
-        const res = await fetch(ENDPOINT, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
-        const json = await res.json().catch(() => ({}));
-        if (!res.ok || json.ok === false) throw new Error(json.error || `HTTP ${res.status}`);
+        await post(payload);
         track(eventName, { event_id: id, form_id: formId, page_path: location.pathname });
         form.hidden = true;
         success.hidden = false;
-        success.querySelector<HTMLElement>('h3')?.focus?.();
+        success.focus({ preventScroll: true });
       } catch (err) {
         formError.innerHTML = `That did not send. Try again, or <a href="${wa.href}" target="_blank" rel="noopener">message Harrison on WhatsApp</a>.`;
         formError.hidden = false;
         submitBtn.disabled = false;
         track('form_error', { form_id: formId, page_path: location.pathname, message: String((err as Error).message).slice(0, 80) });
       }
+    });
+
+    /* ---- 2. the window for the call ---- */
+    root.querySelectorAll<HTMLButtonElement>('[data-call]').forEach((btn) => {
+      btn.addEventListener('click', async () => {
+        callError.hidden = true;
+        root.querySelectorAll<HTMLButtonElement>('[data-call]').forEach((b) => { b.classList.toggle('is-picked', b === btn); b.disabled = true; });
+        const id = eventId();
+        const payload = { ...identity(), timing: btn.dataset.call, timing_label: btn.dataset.label, event_id: id, event_name: 'schedule' };
+        try {
+          await post(payload);
+          track('schedule', { event_id: id, form_id: formId, window: btn.dataset.call, page_path: location.pathname });
+          doneText.textContent = (root.dataset.doneBody || '').replace('{window}', (btn.dataset.label || '').toLowerCase());
+          success.hidden = true;
+          done.hidden = false;
+          done.focus({ preventScroll: true });
+        } catch (err) {
+          root.querySelectorAll<HTMLButtonElement>('[data-call]').forEach((b) => { b.disabled = false; });
+          callError.innerHTML = `That did not send. Try again, or <a href="${wa.href}" target="_blank" rel="noopener">message Harrison on WhatsApp</a> with the window.`;
+          callError.hidden = false;
+          track('form_error', { form_id: formId, page_path: location.pathname, message: String((err as Error).message).slice(0, 80) });
+        }
+      });
     });
   });
 </script>
