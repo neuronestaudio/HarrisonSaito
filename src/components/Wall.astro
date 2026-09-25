@@ -17,6 +17,8 @@
  * no-lone-word fit all apply.
  */
 import { WALL, personOf } from '../data/wall';
+import { GAINS } from '../data/gains';
+import { forYouIcon } from '../lib/morel-icons';
 import { TESTIMONIALS } from '../data/site';
 import { src, srcset } from '../lib/images';
 ---
@@ -32,6 +34,17 @@ import { src, srcset } from '../lib/images';
         Calmer under pressure. Present in the room. Able to say no and mean it, and to feel the difference in the people
         around them. Not what the training is — what they walked away with, in their own words.
       </p>
+      {/* What people walked away with, at a glance (Dion, 25 Sep). Labels, not
+          quotations — each one is drawn from a line somebody actually wrote or
+          said, and data/gains.ts fails the build if it is not. */}
+      <ul class="gains" data-stagger>
+        {GAINS.map((g) => (
+          <li class="gain reveal reveal--fade" title={`“${g.said}” — ${g.from}`}>
+            <Fragment set:html={forYouIcon(g.icon)} />
+            <span>{g.label}</span>
+          </li>
+        ))}
+      </ul>
     </header>
 
     <div class="wall__grid">
@@ -96,6 +109,56 @@ import { src, srcset } from '../lib/images';
   }
   .wall__head h2 { margin: 0; }
   .wall__lede { margin: 0; color: var(--fg4); max-width: 46ch; }
+
+  /* The pills: one row of small badges under the head, wrapping as they need
+     to. Mark, then the thing itself — nothing else. */
+  .gains {
+    grid-column: 1 / -1;
+    list-style: none;
+    margin: clamp(18px, 2.4vw, 30px) 0 0;
+    padding: 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: clamp(7px, 0.8vw, 11px);
+  }
+  .gain {
+    display: inline-flex;
+    align-items: center;
+    gap: 9px;
+    padding: 8px 15px 8px 11px;
+    border: 1px solid rgba(176, 121, 50, 0.32);
+    border-radius: 100px;
+    background: rgba(255, 255, 255, 0.55);
+    color: var(--fg1);
+    font-family: var(--font-base);
+    font-size: clamp(0.78rem, 0.72rem + 0.22vw, 0.95rem);
+    font-weight: 700;
+    line-height: 1.1;
+    letter-spacing: -0.005em;
+    white-space: nowrap;
+    transition: border-color 0.3s ease, background 0.3s ease, transform 0.3s ease;
+  }
+  .gain:hover { border-color: rgba(176, 121, 50, 0.7); background: #fff; transform: translateY(-1px); }
+  .gain :global(.fy__icon) { width: 22px; height: 22px; flex: none; color: var(--gold-deep); }
+  /* The marks are drawn on when a "who this is for" card reveals (morel.css
+     holds them at stroke-dashoffset 1 until then). A pill is not a card, so
+     they would sit here undrawn — invisible. Draw them. */
+  .gain :global(.fy__icon :is(path, circle, ellipse)) { stroke-dasharray: none; stroke-dashoffset: 0; animation: none; }
+  .gain :global(.fy__icon .ico-ping) { display: none; }
+  @media (max-width: 700px) {
+    /* a phone reads them in a swipeable line rather than a stack of chips */
+    .gains {
+      flex-wrap: nowrap;
+      overflow-x: auto;
+      scrollbar-width: none;
+      margin-inline: calc(var(--pad, 0px) * -1);
+      padding-inline: var(--pad, 0px);
+      scroll-snap-type: x proximity;
+    }
+    .gains::-webkit-scrollbar { display: none; }
+    .gain { flex: 0 0 auto; scroll-snap-align: start; padding: 7px 13px 7px 9px; }
+    .gain :global(.fy__icon) { width: 19px; height: 19px; }
+  }
 
   .wall__grid {
     display: grid;
