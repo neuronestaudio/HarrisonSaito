@@ -1,0 +1,310 @@
+---
+/**
+ * A seat, asked for in one step.
+ *
+ * The site's lead form (LeadForm.astro) walks three questions before it asks
+ * for a name, because a coaching enquiry earns that. A seat at a three-person
+ * room does not: Dion's brief for /workshop (25 Sep 2026) is "very minimal
+ * friction", so this is the contact step of that form on its own — a name, a
+ * phone, an email, the consent line — nothing else to answer.
+ *
+ * It posts the same shape to /api/lead as the big form does (form_id, about,
+ * event_id, page_url, the badge-set tags from sessionStorage, fbc/fbp), so
+ * the lead lands in GHL tagged form-<id> and enquiry-<about>, the Pixel and
+ * the Conversions API see one deduplicated Lead, and nothing downstream has
+ * to learn a new payload.
+ */
+import { whatsappLink } from '../data/site';
+
+interface Props {
+  formId: string;
+  /** rides into GHL as enquiry-<about> and the "about" custom field */
+  about: string;
+  aboutLabel: string;
+  submitLabel: string;
+  successHeading: string;
+  successBody: string;
+  /** the pre-written WhatsApp message, for the direct route */
+  whatsapp: string;
+  /** GA4 / Meta event fired on success */
+  eventName?: string;
+}
+
+const { formId, about, aboutLabel, submitLabel, successHeading, successBody, whatsapp, eventName = 'lead' } = Astro.props;
+---
+
+<div class="sf" data-seat-form={formId} data-event={eventName}>
+  <form class="sf__form" novalidate>
+    <div class="sf__fields">
+      <div class="sf__field sf__field--wide">
+        <label class="sf__label" for={`${formId}-name`}>Your name</label>
+        <input class="sf__input" id={`${formId}-name`} name="name" type="text" required autocomplete="name" placeholder="First and last" />
+        <p class="sf__error" data-error-for="name" hidden></p>
+      </div>
+      <div class="sf__field">
+        <label class="sf__label" for={`${formId}-phone`}>Phone</label>
+        <input class="sf__input" id={`${formId}-phone`} name="phone" type="tel" required autocomplete="tel" inputmode="tel" placeholder="04…" />
+        <p class="sf__error" data-error-for="phone" hidden></p>
+      </div>
+      <div class="sf__field">
+        <label class="sf__label" for={`${formId}-email`}>Email</label>
+        <input class="sf__input" id={`${formId}-email`} name="email" type="email" required autocomplete="email" placeholder="you@…" />
+        <p class="sf__error" data-error-for="email" hidden></p>
+      </div>
+    </div>
+
+    <label class="sf__consent">
+      <input type="checkbox" name="consent" required />
+      <span>
+        I agree to Harrison Saito storing these details in order to reply. See the
+        <a href="/privacy" target="_blank" rel="noopener">Privacy Policy</a>.
+      </span>
+    </label>
+
+    <input type="hidden" name="about" value={about} />
+    <input type="hidden" name="about_label" value={aboutLabel} />
+
+    {/* Honeypot — bots fill it, humans never see it. */}
+    <div class="sf__pot" aria-hidden="true">
+      <label for={`${formId}-website`}>Website</label>
+      <input id={`${formId}-website`} name="website" type="text" tabindex="-1" autocomplete="off" />
+    </div>
+
+    <button type="submit" class="sf__submit" data-submit>
+      <span>{submitLabel}</span><span aria-hidden="true">→</span>
+    </button>
+    <p class="sf__help">A phone number so Harrison can call, rather than trade emails for a week.</p>
+
+    <p class="sf__formerror" data-form-error hidden role="alert"></p>
+  </form>
+
+  <div class="sf__success" data-success hidden>
+    <span class="sf__success-rule" aria-hidden="true"></span>
+    <h3>{successHeading}</h3>
+    <p>{successBody}</p>
+    <a class="sf__wa" href={whatsappLink(whatsapp)} target="_blank" rel="noopener">
+      Or message Harrison on WhatsApp <span aria-hidden="true">→</span>
+    </a>
+  </div>
+</div>
+
+<style>
+  /* ---- the glass — the same pane the big form sits in ------------------- */
+  .sf {
+    --glass-bg: linear-gradient(160deg, oklch(100% 0 0 / 0.11), oklch(100% 0 0 / 0.035) 46%, oklch(100% 0 0 / 0.07));
+    --glass-line: oklch(100% 0 0 / 0.14);
+    --glass-tile: oklch(100% 0 0 / 0.06);
+    position: relative;
+    isolation: isolate;
+    color: var(--text-on-ink);
+    border-radius: 24px;
+    padding: clamp(1.4rem, 4vw, 2.4rem);
+    background: var(--glass-bg);
+    -webkit-backdrop-filter: blur(28px) saturate(1.25);
+    backdrop-filter: blur(28px) saturate(1.25);
+    border: 1px solid var(--glass-line);
+    box-shadow:
+      inset 0 1px 0 oklch(100% 0 0 / 0.18),
+      inset 0 -1px 0 oklch(0% 0 0 / 0.25),
+      0 30px 80px -30px oklch(0% 0 0 / 0.75);
+    overflow: hidden;
+  }
+  .sf::before {
+    content: '';
+    position: absolute;
+    inset: -30% -20% auto -20%;
+    height: 70%;
+    z-index: -1;
+    pointer-events: none;
+    background: radial-gradient(ellipse at 22% 18%, oklch(84% 0.11 78 / 0.22), transparent 58%);
+    filter: blur(20px);
+  }
+
+  /* ---- fields ---- */
+  .sf__fields { display: grid; grid-template-columns: 1fr 1fr; gap: 0.9rem; }
+  .sf__field { display: grid; gap: 0.35rem; min-width: 0; }
+  .sf__field--wide { grid-column: 1 / -1; }
+  .sf__label {
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--text-on-ink-muted);
+  }
+  .sf__input {
+    width: 100%;
+    font: inherit;
+    font-size: 1.02rem;
+    color: var(--text-on-ink);
+    padding: 0.85rem 1rem;
+    border-radius: 12px;
+    border: 1px solid var(--glass-line);
+    background: var(--glass-tile);
+    box-shadow: inset 0 1px 0 oklch(100% 0 0 / 0.08);
+    transition: border-color var(--dur-fast) ease, box-shadow var(--dur-fast) ease, background var(--dur-fast) ease;
+  }
+  .sf__input::placeholder { color: var(--text-on-ink-faint); }
+  .sf__input:focus { outline: none; border-color: var(--gold); box-shadow: 0 0 0 3px oklch(75% 0.12 75 / 0.28), inset 0 1px 0 oklch(100% 0 0 / 0.08); }
+  .sf__error { margin: 0; font-size: 0.8rem; color: oklch(80% 0.12 40); }
+  .sf__error[hidden] { display: none; }
+
+  .sf__consent {
+    display: flex;
+    gap: 0.7rem;
+    align-items: flex-start;
+    margin-top: 1.1rem;
+    font-size: 0.82rem;
+    line-height: 1.5;
+    color: var(--text-on-ink-muted);
+  }
+  .sf__consent input { margin-top: 0.25rem; accent-color: var(--gold); flex: none; }
+  .sf__consent a { color: var(--text-on-ink); text-decoration-color: oklch(75% 0.12 75 / 0.6); text-underline-offset: 0.2em; }
+
+  .sf__pot { position: absolute; left: -9999px; width: 1px; height: 1px; overflow: hidden; }
+
+  /* ---- the ask ---- */
+  .sf__submit {
+    margin-top: 1.2rem;
+    width: 100%;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.6rem;
+    padding: 1rem 1.4rem;
+    border: 0;
+    border-radius: 999px;
+    font: inherit;
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: #14100d;
+    background: linear-gradient(to right, #f2c275 0%, #daa24f 100%);
+    cursor: pointer;
+    box-shadow: 0 10px 30px -10px oklch(75% 0.12 75 / 0.7);
+    transition: transform var(--dur-fast) var(--ease-out-expo), box-shadow var(--dur-fast) ease, filter var(--dur-fast) ease;
+  }
+  .sf__submit:hover { transform: translateY(-1px); filter: brightness(1.04); box-shadow: 0 14px 34px -10px oklch(75% 0.12 75 / 0.85); }
+  .sf__submit:focus-visible { outline: 2px solid var(--gold); outline-offset: 3px; }
+  .sf__submit[disabled] { opacity: 0.7; cursor: progress; transform: none; }
+  .sf__submit span:last-child { transition: transform var(--dur-fast) var(--ease-out-expo); }
+  .sf__submit:hover span:last-child { transform: translateX(3px); }
+  .sf__help { margin: 0.8rem 0 0; font-size: 0.8rem; text-align: center; color: var(--text-on-ink-faint); }
+  .sf__formerror { margin: 0.9rem 0 0; font-size: 0.88rem; color: oklch(80% 0.12 40); }
+  .sf__formerror[hidden] { display: none; }
+  .sf__formerror a { color: var(--text-on-ink); }
+
+  /* ---- the answer ---- */
+  .sf__success { text-align: center; padding: clamp(0.6rem, 2vw, 1.4rem) 0; }
+  .sf__success[hidden] { display: none; }
+  .sf__success-rule { display: block; width: 56px; height: 2px; margin: 0 auto 1.2rem; background: linear-gradient(to right, #f2c275, #daa24f); }
+  .sf__success h3 { font-family: var(--font-display); font-size: var(--step-3); font-weight: 300; margin: 0 0 0.7rem; color: var(--text-on-ink); }
+  .sf__success p { color: var(--text-on-ink-muted); max-width: 40ch; margin: 0 auto; line-height: 1.7; }
+  .sf__wa {
+    display: inline-flex;
+    gap: 0.5em;
+    align-items: center;
+    margin-top: 1.3rem;
+    color: var(--gold);
+    font-weight: 700;
+    text-decoration: none;
+    border-bottom: 1px solid oklch(75% 0.12 75 / 0.45);
+    padding-bottom: 2px;
+  }
+  .sf__wa:hover { color: var(--text-on-ink); border-color: var(--text-on-ink); }
+
+  @media (max-width: 480px) {
+    .sf__fields { grid-template-columns: 1fr; }
+  }
+</style>
+
+<script>
+  import { track, eventId } from '../scripts/tracking';
+
+  const ENDPOINT = import.meta.env.PUBLIC_FORM_ENDPOINT || '/api/lead';
+
+  document.querySelectorAll<HTMLElement>('[data-seat-form]').forEach((root) => {
+    const form = root.querySelector('form')!;
+    const formId = root.dataset.seatForm!;
+    const eventName = root.dataset.event || 'lead';
+    const success = root.querySelector<HTMLElement>('[data-success]')!;
+    const formError = root.querySelector<HTMLElement>('[data-form-error]')!;
+    const submitBtn = root.querySelector<HTMLButtonElement>('[data-submit]')!;
+    const consent = form.querySelector<HTMLInputElement>('[name="consent"]')!;
+    const wa = root.querySelector<HTMLAnchorElement>('.sf__wa')!;
+
+    form.addEventListener(
+      'input',
+      () => track('form_start', { form_id: formId, page_path: location.pathname }),
+      { once: true }
+    );
+
+    const showError = (name: string, message: string) => {
+      const slot = root.querySelector<HTMLElement>(`[data-error-for="${name}"]`);
+      if (!slot) return;
+      slot.textContent = message;
+      slot.hidden = false;
+    };
+    const validate = (): boolean => {
+      root.querySelectorAll<HTMLElement>('[data-error-for]').forEach((el) => { el.hidden = true; el.textContent = ''; });
+      let ok = true;
+      let first: HTMLInputElement | null = null;
+      form.querySelectorAll<HTMLInputElement>('.sf__input[required]').forEach((el) => {
+        let msg = '';
+        if (!el.value.trim()) msg = 'This one is needed.';
+        else if (el.type === 'email' && !/^[^@\s]+@[^@\s]+\.[^@\s]{2,}$/.test(el.value)) msg = 'That email address does not look right.';
+        else if (el.type === 'tel' && el.value.replace(/\D/g, '').length < 8) msg = 'Please include a full phone number.';
+        if (msg) { showError(el.name, msg); ok = false; first ??= el; }
+      });
+      first?.focus();
+      return ok;
+    };
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      formError.hidden = true;
+      if (!validate()) return;
+      if (!consent.checked) {
+        formError.textContent = 'Please tick the consent box so Harrison can reply.';
+        formError.hidden = false;
+        return;
+      }
+
+      const data = new FormData(form);
+      if ((data.get('website') as string)?.trim()) { form.hidden = true; success.hidden = false; return; }
+
+      const payload: Record<string, unknown> = {};
+      data.forEach((value, key) => { if (key !== 'website') payload[key] = value; });
+
+      const id = eventId();
+      payload.form_id = formId;
+      payload.event_id = id;
+      payload.event_name = eventName;
+      payload.page_path = location.pathname;
+      payload.page_url = location.href;
+      payload.referrer = document.referrer || undefined;
+      /* The badge set the visitor came through, if they walked the home page
+         first this visit (FrameHero writes it; src/data/badges.ts). */
+      try {
+        payload.fy = sessionStorage.getItem('rts-fy') || undefined;
+        payload.fy_pick = sessionStorage.getItem('rts-fy-pick') || undefined;
+      } catch {}
+      payload.fbc = document.cookie.match(/_fbc=([^;]+)/)?.[1];
+      payload.fbp = document.cookie.match(/_fbp=([^;]+)/)?.[1];
+
+      submitBtn.disabled = true;
+      try {
+        const res = await fetch(ENDPOINT, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+        const json = await res.json().catch(() => ({}));
+        if (!res.ok || json.ok === false) throw new Error(json.error || `HTTP ${res.status}`);
+        track(eventName, { event_id: id, form_id: formId, page_path: location.pathname });
+        form.hidden = true;
+        success.hidden = false;
+        success.querySelector<HTMLElement>('h3')?.focus?.();
+      } catch (err) {
+        formError.innerHTML = `That did not send. Try again, or <a href="${wa.href}" target="_blank" rel="noopener">message Harrison on WhatsApp</a>.`;
+        formError.hidden = false;
+        submitBtn.disabled = false;
+        track('form_error', { form_id: formId, page_path: location.pathname, message: String((err as Error).message).slice(0, 80) });
+      }
+    });
+  });
+</script>
