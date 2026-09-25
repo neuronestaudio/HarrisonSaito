@@ -119,7 +119,11 @@ export const INTRO = {
    third paragraph is ours, written to his line — it needs his sign-off. */
 export const STORY_SECTION = {
   ...local(S.STORY_SECTION),
-  posterAlt: 'Harrison Saito in his gi at the Shinbukan dojo, in the SBS World News feature that names him as a karate teacher',
+  /* Dion, 25 Sep: the studio portrait from his downloads (_DSF1394), not the
+     broadcast grab with the watermark on it. A 16:9 band off a 4160x6240
+     frame, his face in the upper third. */
+  poster: '/img/story-gi-v2-1600.webp',
+  posterAlt: 'Harrison Saito in his gi and black belt, standing before a lit shoji screen at the Shinbukan dojo',
   paragraphs: [
     ...local(S.STORY_SECTION).paragraphs,
     'My dad is 81. I only really started talking to him three years ago. I used to think healing that meant getting him to change — I was wrong. He might never apologise, he might never change, and I might still be the one who looks after him. <strong>I had the conversation anyway.</strong> That is the work, and I did it before I asked it of anyone else.',

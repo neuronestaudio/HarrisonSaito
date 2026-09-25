@@ -608,7 +608,7 @@ export const ARCHETYPES: Archetype[] = [
     id: 'dutiful-son',
     grade: 'oklch(31% 0.042 62)',
     number: '02',
-    name: 'The Dutiful Son',
+    name: 'The Dutiful Child',
     kanji: '孝',
     romaji: 'kō',
     kanjiMeaning: 'filial duty',
@@ -863,8 +863,10 @@ export type Proof = { value: string; label: string; source: string };
 
 export const PROOF: Proof[] = [
   {
-    value: 'SBS World News',
-    label: 'National broadcast feature',
+    /* "SBS World News" wrapped to two lines in the stat slot and left "News"
+       alone on one (25 Sep). The channel is the stat; the rest is the label. */
+    value: 'SBS',
+    label: 'National broadcast feature on SBS World News',
     source: 'SBS World News segment, "For the youth" — broadcast transcript.',
   },
   {

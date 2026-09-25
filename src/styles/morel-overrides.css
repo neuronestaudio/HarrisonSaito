@@ -324,6 +324,49 @@
   .mo .fy__card .fy__icon, .mo .fy__card:hover .fy__icon { scale: none; translate: none; animation: none; }
 }
 
+/* ---- 25 Sep, Dion: the credentials strip ------------------------------
+   The values were painting as solid gold blocks: the gradient is clipped to
+   the text on a <mark>, but the <strong> inside it puts the fill colour back,
+   so the gradient showed as a slab behind black letters. Gold letters, no
+   slab. And the strip gets the room from the first screen behind it at half
+   strength, dark enough underneath that every line still reads. */
+.mo .numbers {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  border-radius: 20px;
+  padding: clamp(20px, 2.6vw, 38px) clamp(18px, 2.6vw, 38px);
+  background: #14100d;
+  color: #fcfaf8;
+}
+.mo .numbers::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -2;
+  background: url("/img/rts-hero-poster-v3.webp") 50% 46% / cover no-repeat;
+  opacity: 0.5;
+}
+.mo .numbers::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: linear-gradient(180deg, rgba(20, 16, 13, 0.62) 0%, rgba(20, 16, 13, 0.72) 100%);
+}
+.mo .numbers > div { border-right-color: rgba(252, 250, 248, 0.2); }
+.mo .numbers p:not(.numbers__value) { color: rgba(252, 250, 248, 0.84); }
+.mo .numbers__value mark,
+.mo .numbers__value mark strong {
+  background: none;
+  -webkit-text-fill-color: currentColor;
+  color: #f9d79a;
+  animation: none;
+}
+@media (max-width: 1240px) {
+  .mo .numbers > div { border-right: 0 !important; }
+}
+
 /* ---- 22 Sep, Dion ------------------------------------------------------ */
 
 /* The chakra film: the statue filled the card and the two people at its feet

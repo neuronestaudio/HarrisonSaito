@@ -241,7 +241,8 @@ export const STORY_SECTION = {
   posterAlt: 'Harrison Saito with students at the Shinbukan dojo, from the SBS World News feature',
   playLabel: 'Watch the SBS feature',
   paragraphs: [
-    'He gave me discipline. He gave me martial arts. He gave me Buddhism. He also gave me <strong>people-pleasing, suppressed rage, and a five-year-old frozen inside a grown man’s body.</strong>',
+    'He gave me discipline. He gave me martial arts. He gave me Buddhism. He gave me the endurance to push past my emotions and the discipline to fight through the pain — and I achieved a great deal on both of them.',
+    'He also gave me <strong>the endurance to keep suppressing how I actually felt, and the discipline to keep living a life I felt disconnected from.</strong>',
     'I took all of it, the gift and the wound, and walked a path that only I could walk.',
   ],
   cta: { label: 'Read the full story', href: '/story' },
@@ -297,7 +298,7 @@ export const PATTERNS: Pattern[] = [
   },
   {
     number: '02',
-    name: 'The Dutiful Son',
+    name: 'The Dutiful Child',
     kanji: '孝',
     romaji: 'kō',
     kanjiMeaning: 'filial duty',
