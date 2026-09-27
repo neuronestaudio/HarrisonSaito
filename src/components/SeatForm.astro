@@ -30,7 +30,9 @@
  *
  * It posts the same shape to /api/lead as the big form does (form_id, about,
  * event_id, page_url, the badge-set tags from sessionStorage, fbc/fbp), so
- * the lead lands in GHL tagged form-<id>, enquiry-<about> and
+ * the lead lands in GHL tagged form-<id>, enquiry-<about> and (email is
+ * optional since 27 Sep — GHL then upserts on the phone, which every post
+ * carries)
  * session-<id>, with the session in the "topic" field and the windows in
  * "when suits" — the fields that already exist — and nothing downstream has
  * to learn a new payload.
@@ -120,8 +122,8 @@ const {
         <p class="sf__error" data-error-for="phone" hidden></p>
       </div>
       <div class="sf__field">
-        <label class="sf__label" for={`${formId}-email`}>Email</label>
-        <input class="sf__input" id={`${formId}-email`} name="email" type="email" required autocomplete="email" placeholder="you@…" />
+        <label class="sf__label" for={`${formId}-email`}>Email <span class="sf__optional">optional</span></label>
+        <input class="sf__input" id={`${formId}-email`} name="email" type="email" autocomplete="email" placeholder="you@…" />
         <p class="sf__error" data-error-for="email" hidden></p>
       </div>
     </div>
@@ -275,7 +277,7 @@ const {
 
   /* ---- fields ---- */
   .sf__fields { display: grid; grid-template-columns: 1fr 1fr; gap: 0.9rem; }
-  .sf__field { display: grid; gap: 0.35rem; min-width: 0; }
+  .sf__field { display: grid; gap: 0.35rem; min-width: 0; align-content: start; }
   .sf__field--wide { grid-column: 1 / -1; }
   .sf__label {
     display: block;
@@ -625,6 +627,13 @@ const {
         else if (el.type === 'tel' && el.value.replace(/\D/g, '').length < 8) msg = 'Please include a full phone number.';
         if (msg) { showError(el.name, msg); ok = false; first ??= el; }
       });
+      /* email is optional (Dion, 27 Sep 2026) — but if it is there, it has to be one */
+      const email = form.querySelector<HTMLInputElement>('.sf__input[type="email"]');
+      if (email && email.value.trim() && !/^[^@\s]+@[^@\s]+\.[^@\s]{2,}$/.test(email.value)) {
+        showError(email.name, 'That email address does not look right.');
+        ok = false;
+        first ??= email;
+      }
       first?.focus();
       return ok;
     };

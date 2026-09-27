@@ -11,7 +11,7 @@
  *   1  What is this about?               (skipped where the page already says)
  *   2  What would you like to talk about? (the choices follow the answer above)
  *   3  When suits you?
- *   4  Your name, phone and email          → send
+ *   4  Your name and phone (email optional) → send
  *
  * Submission posts JSON to /api/lead (api/lead.ts on Vercel) and fires a Lead
  * event with an event_id shared with the server-side Conversions API call, so
@@ -191,8 +191,8 @@ const presetLabel = preset ? ABOUT.find((c) => c.value === preset)?.label ?? '' 
             <p class="lf__error" data-error-for="phone" hidden></p>
           </div>
           <div class="lf__field">
-            <label class="lf__label" for={`${formId}-email`}>Email</label>
-            <input class="lf__input" id={`${formId}-email`} name="email" type="email" required autocomplete="email" placeholder="you@…" />
+            <label class="lf__label" for={`${formId}-email`}>Email <span class="lf__optional">optional</span></label>
+            <input class="lf__input" id={`${formId}-email`} name="email" type="email" autocomplete="email" placeholder="you@…" />
             <p class="lf__error" data-error-for="email" hidden></p>
           </div>
         </div>
@@ -449,7 +449,10 @@ const presetLabel = preset ? ABOUT.find((c) => c.value === preset)?.label ?? '' 
     .lf__fields { grid-template-columns: 1fr 1fr; }
     .lf__field--wide { grid-column: 1 / -1; }
   }
-  .lf__field { display: grid; gap: 0.45rem; }
+  /* align-content: start — a help or error line under one field must not
+     stretch the input beside it (the phone/email row did exactly that). */
+  .lf__field { display: grid; gap: 0.45rem; align-content: start; }
+  .lf__optional { font-weight: 500; letter-spacing: 0.04em; text-transform: none; color: var(--text-on-ink-faint); margin-left: 0.4em; }
   .lf__label { font-size: 0.7rem; font-weight: 700; letter-spacing: 0.16em; text-transform: uppercase; color: var(--text-on-ink-muted); }
   .lf__input {
     width: 100%;
@@ -464,8 +467,8 @@ const presetLabel = preset ? ABOUT.find((c) => c.value === preset)?.label ?? '' 
   }
   .lf__input::placeholder { color: var(--text-on-ink-faint); }
   .lf__input:focus { outline: none; border-color: var(--gold); background: oklch(100% 0 0 / 0.09); box-shadow: 0 0 0 3px oklch(75% 0.12 75 / 0.22); }
-  .lf__help { font-size: 0.76rem; color: var(--text-on-ink-faint); line-height: 1.5; }
-  .lf__error { font-size: 0.78rem; font-weight: 600; color: oklch(78% 0.14 30); }
+  .lf__help { margin: 0; font-size: 0.76rem; color: var(--text-on-ink-faint); line-height: 1.5; }
+  .lf__error { margin: 0; font-size: 0.78rem; font-weight: 600; color: oklch(78% 0.14 30); }
   .lf__error[hidden] { display: none; }
 
   .lf__consent {
@@ -714,6 +717,13 @@ const presetLabel = preset ? ABOUT.find((c) => c.value === preset)?.label ?? '' 
           first ??= el;
         }
       });
+      /* email is optional (Dion, 27 Sep 2026) — but if it is there, it has to be one */
+      const email = form.querySelector<HTMLInputElement>('.lf__input[type="email"]');
+      if (email && email.value.trim() && !/^[^@\s]+@[^@\s]+\.[^@\s]{2,}$/.test(email.value)) {
+        showError(email.name, 'That email address does not look right.');
+        ok = false;
+        first ??= email;
+      }
       first?.focus();
       return ok;
     };

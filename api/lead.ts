@@ -17,7 +17,7 @@
  *   GHL_TOKEN, GHL_LOCATION_ID       GoHighLevel private integration → contact upsert
  *   META_PIXEL_ID, META_CAPI_TOKEN   Meta Conversions API
  *   LEAD_WEBHOOK_URL                 any other CRM / automation endpoint
- *   RESEND_API_KEY, LEAD_NOTIFY_TO   email notification
+ *   RESEND_API_KEY, LEAD_NOTIFY_TO   email notification (comma-separated recipients)
  *   TEST_EVENT_CODE                  optional, for Meta's Test Events tab
  */
 
@@ -115,8 +115,8 @@ async function sendToGHL(env: Env, body: Payload): Promise<boolean> {
     locationId: env.GHL_LOCATION_ID,
     firstName: parts[0] ?? '',
     lastName: parts.slice(1).join(' '),
-    email: body.email,
-    phone: typeof body.phone === 'string' ? e164(body.phone) : undefined,
+    email: typeof body.email === 'string' && body.email ? body.email : undefined,
+    phone: typeof body.phone === 'string' && body.phone ? e164(body.phone) : undefined,
     source: `Website - ${formId}`,
     /* fy-<set> / fy-pick-<card>: which "Who This Is For" badge set the
        visitor saw, and which cards they tapped at the gate — up to six, comma
@@ -247,8 +247,9 @@ async function sendEmail(env: Env, body: Payload): Promise<boolean> {
     headers: { Authorization: `Bearer ${env.RESEND_API_KEY}`, 'Content-Type': 'application/json' },
     body: JSON.stringify({
       from: 'Website <leads@harrisonsaito.com.au>',
-      to: [env.LEAD_NOTIFY_TO],
-      reply_to: typeof body.email === 'string' ? body.email : undefined,
+      /* "a@x, b@y" — Harrison and Dion, set 27 Sep 2026 */
+      to: env.LEAD_NOTIFY_TO.split(/[,;\s]+/).filter(Boolean),
+      reply_to: typeof body.email === 'string' && body.email ? body.email : undefined,
       subject: `New enquiry — ${body.form_id ?? 'website'}${body.name ? ` — ${body.name}` : ''}`,
       html: `<div style="font-family:system-ui,sans-serif;max-width:560px">
         <h2 style="font-weight:400;color:#1a1714">New enquiry from harrisonsaito.com.au</h2>
@@ -290,10 +291,18 @@ export async function POST(request: Request): Promise<Response> {
   // Honeypot — the client filters this, but never trust the client.
   if (typeof body.website === 'string' && body.website.trim()) return reply(200, { ok: true, delivered: true });
 
-  const email = typeof body.email === 'string' ? body.email : '';
-  if (!email || !/^[^@\s]+@[^@\s]+\.[^@\s]{2,}$/.test(email)) {
-    return reply(422, { ok: false, error: 'A valid email is required' });
+  // Email is optional on the site's forms (Dion, 27 Sep 2026): a phone is
+  // enough to be called back, and GHL upserts on either. If an email is given
+  // it has to be one; if not, the phone has to be real.
+  const email = typeof body.email === 'string' ? body.email.trim() : '';
+  const phoneDigits = typeof body.phone === 'string' ? body.phone.replace(/\D/g, '') : '';
+  if (email && !/^[^@\s]+@[^@\s]+\.[^@\s]{2,}$/.test(email)) {
+    return reply(422, { ok: false, error: 'That email address does not look right' });
   }
+  if (!email && phoneDigits.length < 8) {
+    return reply(422, { ok: false, error: 'A phone number or an email is required' });
+  }
+  if (!email) delete body.email;
 
   // Integrations run in parallel and are individually non-fatal: a CRM outage
   // must never cost us the lead or show the visitor an error.
