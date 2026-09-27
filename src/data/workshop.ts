@@ -297,14 +297,30 @@ export const FORM = {
   /* Dion, 26 Sep, as said: thank you, your spot is under review, Harrison will
      reach out directly, select a window for him to call you. */
   successHeading: 'Thank you.',
-  successBody: 'Your spot is under review, and Harrison will reach out directly. Pick a window for him to call you.',
+  successBody: 'Your spot is under review, and Harrison will reach out directly. Pick up to three one-hour windows for his call.',
   callLabel: 'When can he call?',
-  callOptions: [
-    { value: 'weekday-mornings', label: 'Weekday mornings' },
-    { value: 'weekday-evenings', label: 'Weekday evenings' },
-    { value: 'weekends', label: 'Weekends' },
-    { value: 'flexible', label: 'I’m flexible' },
-  ],
+  /* Dion, 26 Sep: "time-block hours to select, UI/UX high end." Harrison
+     teaches, so on a weekday the blocks are late afternoon and evening; on a
+     weekend, the morning. One-hour blocks, Sydney time, across the next seven
+     days that have one — from tomorrow, so he has read the application before
+     the first window opens — and up to three picks across them. Change the
+     hours here and nowhere else; SeatForm draws whatever this says. */
+  call: {
+    tz: 'Australia/Sydney',
+    /** how many days to offer, and how many days out the first one is */
+    days: 7,
+    from: 1,
+    /** block start hours (24h); every block runs one hour */
+    weekday: [16, 17, 18, 19],
+    weekend: [9, 10, 11, 12],
+    max: 3,
+    hint: 'Sydney time · one-hour windows · up to three',
+    countLabel: '{n} of {max}',
+    confirm: 'Confirm windows',
+    flexible: 'I’m flexible — any time this week works',
+    /** how "flexible" reads on the page and in GHL's "when suits" */
+    flexibleLabel: 'any time this week',
+  },
   doneHeading: 'Done.',
   doneBody: 'Harrison will call you — {window}. Three seats a room; if yours is taken, you are first for the next.',
   whatsapp: 'Hi Harrison, I’d like to apply for one of the three seats at the workshop.',

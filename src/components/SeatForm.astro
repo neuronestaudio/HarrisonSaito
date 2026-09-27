@@ -1,6 +1,6 @@
 ---
 /**
- * A seat, applied for in one step — then a window for the call.
+ * A seat, applied for in one step — then the windows for the call.
  *
  * The site's lead form (LeadForm.astro) walks three questions before it asks
  * for a name, because a coaching enquiry earns that. A seat at a three-person
@@ -12,21 +12,50 @@
  * see: thank you, your spot is under review and Harrison will reach out
  * directly — please select a window for him to call you. When they apply,
  * they get into the workshop." So the session is chosen up front, and the
- * thank-you screen asks one more thing: when he can call. That answer goes
- * up as a second post against the same email, so the contact in GHL gains
- * the window without a second lead being counted (it fires as Schedule).
+ * thank-you screen asks one more thing: when he can call.
+ *
+ * Dion, later that day: "time-block hours to select, UI/UX high end." So the
+ * window is not a broad "weekday evenings" any more but real one-hour blocks:
+ * a strip of the next seven days (Sydney time, drawn in the browser so it is
+ * always current), the blocks that day has (weekday afternoons and evenings,
+ * weekend mornings — Harrison teaches), and up to three picks across days.
+ * A quiet "I'm flexible" is the way out for people who do not want to choose.
+ * The hours live in workshop.ts (FORM.call); nothing here knows a time.
+ *
+ * The picks go up as a second post against the same email, so the contact in
+ * GHL gains the windows without a second lead being counted (it fires as
+ * Schedule): `timing` is the machine list ("2026-09-28 17:00-18:00; …") and
+ * `timing_label` the sentence Harrison reads in "when suits" ("Mon 28 Sep,
+ * 5–6 pm or 6–7 pm; or Wed 30 Sep, 4–5 pm (Sydney)").
  *
  * It posts the same shape to /api/lead as the big form does (form_id, about,
  * event_id, page_url, the badge-set tags from sessionStorage, fbc/fbp), so
  * the lead lands in GHL tagged form-<id>, enquiry-<about> and
- * session-<id>, with the session in the "topic" field and the call window in
+ * session-<id>, with the session in the "topic" field and the windows in
  * "when suits" — the fields that already exist — and nothing downstream has
  * to learn a new payload.
  */
 import { whatsappLink } from '../data/site';
 
 export type Session = { id: string; label: string; time: string };
-export type CallOption = { value: string; label: string };
+export type CallConfig = {
+  /** IANA zone the blocks are drawn in — Harrison's, not the visitor's */
+  tz: string;
+  /** how many days to offer, and how many days out the first one is */
+  days: number;
+  from: number;
+  /** block start hours (24h); every block runs one hour */
+  weekday: number[];
+  weekend: number[];
+  /** picks allowed across all days */
+  max: number;
+  hint: string;
+  /** "{n} of {max}" */
+  countLabel: string;
+  confirm: string;
+  flexible: string;
+  flexibleLabel: string;
+};
 
 interface Props {
   formId: string;
@@ -37,12 +66,12 @@ interface Props {
   sessions: Session[];
   sessionLabel: string;
   submitLabel: string;
-  /** the thank-you: the spot is under review, pick a window for the call */
+  /** the thank-you: the spot is under review, pick the windows for the call */
   successHeading: string;
   successBody: string;
   callLabel: string;
-  callOptions: CallOption[];
-  /** after the window is picked; `{window}` is replaced with their pick */
+  call: CallConfig;
+  /** after the windows are picked; `{window}` is replaced with their picks */
   doneHeading: string;
   doneBody: string;
   /** the pre-written WhatsApp message, for the direct route */
@@ -55,7 +84,7 @@ interface Props {
 
 const {
   formId, about, aboutLabel, sessions, sessionLabel, submitLabel,
-  successHeading, successBody, callLabel, callOptions, doneHeading, doneBody,
+  successHeading, successBody, callLabel, call, doneHeading, doneBody,
   whatsapp, eventName = 'lead', ask,
 } = Astro.props;
 ---
@@ -129,21 +158,35 @@ const {
     <p class="sf__formerror" data-form-error hidden role="alert"></p>
   </form>
 
-  {/* ---- thank you: under review, pick a window ---- */}
+  {/* ---- thank you: under review, pick the windows ---- */}
   <div class="sf__success" data-success hidden tabindex="-1">
     <span class="sf__success-rule" aria-hidden="true"></span>
     <h3>{successHeading}</h3>
     <p>{successBody}</p>
-    <p class="sf__label sf__call-label">{callLabel}</p>
-    <div class="sf__tiles sf__tiles--call" role="group" aria-label={callLabel}>
-      {callOptions.map((c) => (
-        <button type="button" class="sf__tile sf__tile--call" data-call={c.value} data-label={c.label}>
-          <span class="sf__tile-label">{c.label}</span>
-          <span class="sf__tile-mark" aria-hidden="true"></span>
-        </button>
-      ))}
+
+    <div class="sf__call" data-call-root data-call-config={JSON.stringify(call)}>
+      <div class="sf__call-head">
+        <p class="sf__label sf__call-label" id={`${formId}-call-label`}>{callLabel}</p>
+        <p class="sf__count" data-count aria-live="polite"></p>
+      </div>
+      <p class="sf__call-hint">{call.hint}</p>
+
+      {/* the day strip: drawn by the script from today, in Sydney time */}
+      <div class="sf__days" role="radiogroup" aria-labelledby={`${formId}-call-label`} data-days></div>
+
+      {/* that day's one-hour blocks */}
+      <p class="sf__hours-day" data-hours-day aria-live="polite"></p>
+      <div class="sf__hours" role="group" aria-label="One-hour windows" data-hours></div>
+
+      {/* what they have picked so far, each removable */}
+      <div class="sf__picks" data-picks hidden></div>
+
+      <button type="button" class="sf__submit sf__confirm" data-confirm disabled>
+        <span>{call.confirm}</span><span aria-hidden="true">→</span>
+      </button>
+      <button type="button" class="sf__flex" data-flexible>{call.flexible}</button>
+      <p class="sf__formerror" data-call-error hidden role="alert"></p>
     </div>
-    <p class="sf__formerror" data-call-error hidden role="alert"></p>
   </div>
 
   {/* ---- done ---- */}
@@ -164,6 +207,8 @@ const {
     --glass-line: oklch(100% 0 0 / 0.14);
     --glass-tile: oklch(100% 0 0 / 0.06);
     --glass-tile-hover: oklch(100% 0 0 / 0.1);
+    --gold-wash: oklch(84% 0.11 78 / 0.12);
+    --gold-ring: 0 0 0 3px oklch(75% 0.12 75 / 0.28);
     position: relative;
     isolation: isolate;
     color: var(--text-on-ink);
@@ -190,7 +235,7 @@ const {
     filter: blur(20px);
   }
 
-  /* ---- the rooms, and the call windows: glass tiles that answer on tap ---- */
+  /* ---- the rooms: glass tiles that answer on tap ------------------------- */
   .sf__sessions { border: 0; margin: 0 0 1.1rem; padding: 0; min-width: 0; }
   .sf__sessions legend { padding: 0; margin-bottom: 0.5rem; }
   .sf__tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 10.5rem), 1fr)); gap: 0.6rem; }
@@ -211,7 +256,7 @@ const {
     -webkit-tap-highlight-color: transparent;
   }
   .sf__tile:hover { background: var(--glass-tile-hover); border-color: oklch(84% 0.11 78 / 0.5); transform: translateY(-1px); }
-  .sf__tile:focus-visible { outline: none; border-color: var(--gold); box-shadow: 0 0 0 3px oklch(75% 0.12 75 / 0.28), inset 0 1px 0 oklch(100% 0 0 / 0.08); }
+  .sf__tile:focus-visible { outline: none; border-color: var(--gold); box-shadow: var(--gold-ring), inset 0 1px 0 oklch(100% 0 0 / 0.08); }
   .sf__tile-label { font-family: var(--font-display); font-size: 1.12rem; line-height: 1.2; }
   .sf__tile-hint { font-size: 0.78rem; color: var(--text-on-ink-muted); line-height: 1.4; }
   .sf__tile-mark {
@@ -225,9 +270,8 @@ const {
     border: 1px solid oklch(100% 0 0 / 0.22);
     transition: border-color var(--dur-fast) ease, background var(--dur-fast) ease, transform var(--dur-fast) var(--ease-out-expo);
   }
-  .sf__tile[aria-checked='true'], .sf__tile.is-picked { border-color: var(--gold); background: oklch(84% 0.11 78 / 0.12); }
-  .sf__tile[aria-checked='true'] .sf__tile-mark, .sf__tile.is-picked .sf__tile-mark { border-color: var(--gold); background: var(--gold); transform: scale(0.72); }
-  .sf__tile[disabled] { opacity: 0.6; cursor: progress; }
+  .sf__tile[aria-checked='true'] { border-color: var(--gold); background: var(--gold-wash); }
+  .sf__tile[aria-checked='true'] .sf__tile-mark { border-color: var(--gold); background: var(--gold); transform: scale(0.72); }
 
   /* ---- fields ---- */
   .sf__fields { display: grid; grid-template-columns: 1fr 1fr; gap: 0.9rem; }
@@ -254,7 +298,7 @@ const {
     transition: border-color var(--dur-fast) ease, box-shadow var(--dur-fast) ease, background var(--dur-fast) ease;
   }
   .sf__input::placeholder { color: var(--text-on-ink-faint); }
-  .sf__input:focus { outline: none; border-color: var(--gold); box-shadow: 0 0 0 3px oklch(75% 0.12 75 / 0.28), inset 0 1px 0 oklch(100% 0 0 / 0.08); }
+  .sf__input:focus { outline: none; border-color: var(--gold); box-shadow: var(--gold-ring), inset 0 1px 0 oklch(100% 0 0 / 0.08); }
   .sf__field--ask { margin-top: 0.9rem; }
   .sf__optional { font-weight: 500; letter-spacing: 0.04em; text-transform: none; color: var(--text-on-ink-faint); margin-left: 0.4em; }
   .sf__textarea { resize: vertical; min-height: 4.6rem; line-height: 1.5; font-size: 0.98rem; }
@@ -293,11 +337,11 @@ const {
     background: linear-gradient(to right, #f2c275 0%, #daa24f 100%);
     cursor: pointer;
     box-shadow: 0 10px 30px -10px oklch(75% 0.12 75 / 0.7);
-    transition: transform var(--dur-fast) var(--ease-out-expo), box-shadow var(--dur-fast) ease, filter var(--dur-fast) ease;
+    transition: transform var(--dur-fast) var(--ease-out-expo), box-shadow var(--dur-fast) ease, filter var(--dur-fast) ease, opacity var(--dur-fast) ease;
   }
   .sf__submit:hover { transform: translateY(-1px); filter: brightness(1.04); box-shadow: 0 14px 34px -10px oklch(75% 0.12 75 / 0.85); }
   .sf__submit:focus-visible { outline: 2px solid var(--gold); outline-offset: 3px; }
-  .sf__submit[disabled] { opacity: 0.7; cursor: progress; transform: none; }
+  .sf__submit[disabled] { opacity: 0.45; cursor: not-allowed; transform: none; filter: none; box-shadow: none; }
   .sf__submit span:last-child { transition: transform var(--dur-fast) var(--ease-out-expo); }
   .sf__submit:hover span:last-child { transform: translateX(3px); }
   .sf__help { margin: 0.8rem 0 0; font-size: 0.8rem; text-align: center; color: var(--text-on-ink-faint); }
@@ -305,15 +349,12 @@ const {
   .sf__formerror[hidden] { display: none; }
   .sf__formerror a { color: var(--text-on-ink); }
 
-  /* ---- the answer, and the call ---- */
+  /* ---- the answer ---- */
   .sf__success { text-align: center; padding: clamp(0.6rem, 2vw, 1.4rem) 0; outline: none; }
   .sf__success[hidden] { display: none; }
   .sf__success-rule { display: block; width: 56px; height: 2px; margin: 0 auto 1.2rem; background: linear-gradient(to right, #f2c275, #daa24f); }
   .sf__success h3 { font-family: var(--font-display); font-size: var(--step-3); font-weight: 300; margin: 0 0 0.7rem; color: var(--text-on-ink); }
-  .sf__success p { color: var(--text-on-ink-muted); max-width: 42ch; margin: 0 auto; line-height: 1.7; }
-  .sf__call-label { margin: 1.4rem 0 0.6rem !important; max-width: none !important; }
-  .sf__tiles--call { text-align: left; }
-  .sf__tile--call { padding-block: 0.8rem; }
+  .sf__success > p { color: var(--text-on-ink-muted); max-width: 42ch; margin: 0 auto; line-height: 1.7; }
   .sf__wa {
     display: inline-flex;
     gap: 0.5em;
@@ -327,8 +368,161 @@ const {
   }
   .sf__wa:hover { color: var(--text-on-ink); border-color: var(--text-on-ink); }
 
+  /* ---- the call: a strip of days, that day's hours, the picks ------------
+     The day strip is a radio (one day open at a time); the hours are toggles
+     (many picks, capped); the picks are a row of removable chips so what has
+     been chosen is never out of sight while another day is open. The tiles,
+     chips and picks themselves are drawn by the script, so Astro's scoping
+     attribute never reaches them: their rules live in the global block below. */
+  .sf__call { margin-top: 1.6rem; text-align: left; }
+  .sf__call.is-sending { opacity: 0.6; pointer-events: none; }
+  .sf__call-head { display: flex; justify-content: space-between; align-items: baseline; gap: 1rem; }
+  .sf__call-label { margin: 0; }
+  .sf__count { margin: 0; font-size: 0.78rem; font-variant-numeric: tabular-nums; color: var(--text-on-ink-faint); transition: color var(--dur-fast) ease; }
+  .sf__count.is-full { color: var(--gold-light); }
+  .sf__count.is-nudge { animation: sf-nudge 420ms var(--ease-out-expo); }
+  .sf__call-hint { margin: 0.3rem 0 0.85rem; font-size: 0.76rem; color: var(--text-on-ink-faint); }
+  .sf__days { display: grid; grid-template-columns: repeat(7, minmax(2.55rem, 1fr)); gap: 0.4rem; }
+  .sf__hours-day { margin: 1.1rem 0 0.55rem; font-family: var(--font-display); font-size: 1.18rem; line-height: 1.2; color: var(--text-on-ink); }
+  .sf__hours-day:empty { display: none; }
+  .sf__hours { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+  .sf__hours.is-in { animation: sf-in var(--dur-fast) var(--ease-out-expo) both; }
+  .sf__picks { display: flex; flex-wrap: wrap; gap: 0.4rem; margin-top: 1rem; }
+  .sf__picks[hidden] { display: none; }
+  .sf__confirm { margin-top: 1.15rem; }
+  .sf__flex {
+    display: block;
+    margin: 0.85rem auto 0;
+    padding: 0.25rem 0.4rem;
+    background: none;
+    border: 0;
+    font: inherit;
+    font-size: 0.86rem;
+    color: var(--text-on-ink-muted);
+    text-decoration: underline;
+    text-decoration-color: oklch(100% 0 0 / 0.25);
+    text-underline-offset: 0.22em;
+    cursor: pointer;
+    transition: color var(--dur-fast) ease;
+  }
+  .sf__flex:hover { color: var(--text-on-ink); text-decoration-color: var(--gold); }
+  .sf__flex:focus-visible { outline: none; color: var(--text-on-ink); text-decoration-color: var(--gold); }
+
   @media (max-width: 480px) {
     .sf__fields { grid-template-columns: 1fr; }
+    .sf__days { gap: 0.3rem; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .sf__hours.is-in, .sf__count.is-nudge { animation: none; }
+  }
+</style>
+
+<style is:global>
+  /* The picker's tiles, chips and picks — built by the script, hence global;
+     everything is under .sf and prefixed sf__ so nothing leaks. */
+  .sf .sf__day {
+    position: relative;
+    display: grid;
+    justify-items: center;
+    gap: 0.05rem;
+    padding: 0.6rem 0.15rem 0.85rem;
+    border-radius: 14px;
+    border: 1px solid var(--glass-line);
+    background: var(--glass-tile);
+    color: var(--text-on-ink);
+    cursor: pointer;
+    font: inherit;
+    box-shadow: inset 0 1px 0 oklch(100% 0 0 / 0.08);
+    transition: background var(--dur-fast) ease, border-color var(--dur-fast) ease, transform var(--dur-fast) var(--ease-out-expo), box-shadow var(--dur-fast) ease;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .sf .sf__day:hover { background: var(--glass-tile-hover); border-color: oklch(84% 0.11 78 / 0.5); transform: translateY(-1px); }
+  .sf .sf__day:focus-visible { outline: none; border-color: var(--gold); box-shadow: var(--gold-ring), inset 0 1px 0 oklch(100% 0 0 / 0.08); }
+  .sf .sf__day[aria-checked='true'] { border-color: var(--gold); background: var(--gold-wash); }
+  .sf .sf__day-wd { font-size: 0.6rem; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: var(--text-on-ink-muted); transition: color var(--dur-fast) ease; }
+  .sf .sf__day[aria-checked='true'] .sf__day-wd { color: var(--gold-light); }
+  .sf .sf__day-n { font-family: var(--font-display); font-size: 1.5rem; line-height: 1.05; }
+  .sf .sf__day-mo { font-size: 0.66rem; color: var(--text-on-ink-faint); }
+  .sf .sf__day-dot {
+    position: absolute;
+    bottom: 0.36rem;
+    left: 50%;
+    width: 5px;
+    height: 5px;
+    margin-left: -2.5px;
+    border-radius: 50%;
+    background: var(--gold);
+    opacity: 0;
+    transform: scale(0.4);
+    transition: opacity var(--dur-fast) ease, transform var(--dur-fast) var(--ease-out-expo);
+  }
+  .sf .sf__day.has-picks .sf__day-dot { opacity: 1; transform: none; }
+
+  .sf .sf__hour {
+    padding: 0.62rem 1.05rem;
+    border-radius: 999px;
+    border: 1px solid var(--glass-line);
+    background: var(--glass-tile);
+    color: var(--text-on-ink);
+    font: inherit;
+    font-size: 0.95rem;
+    font-variant-numeric: tabular-nums;
+    cursor: pointer;
+    box-shadow: inset 0 1px 0 oklch(100% 0 0 / 0.08);
+    transition: background var(--dur-fast) ease, border-color var(--dur-fast) ease, color var(--dur-fast) ease, transform var(--dur-fast) var(--ease-out-expo), box-shadow var(--dur-fast) ease, opacity var(--dur-fast) ease;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .sf .sf__hour:hover { background: var(--glass-tile-hover); border-color: oklch(84% 0.11 78 / 0.5); transform: translateY(-1px); }
+  .sf .sf__hour:focus-visible { outline: none; border-color: var(--gold); box-shadow: var(--gold-ring), inset 0 1px 0 oklch(100% 0 0 / 0.08); }
+  .sf .sf__hour[aria-pressed='true'] {
+    border-color: transparent;
+    background: linear-gradient(to right, #f2c275, #daa24f);
+    color: #14100d;
+    font-weight: 700;
+    box-shadow: 0 8px 22px -10px oklch(75% 0.12 75 / 0.75);
+  }
+  .sf .sf__hour[aria-disabled='true'] { opacity: 0.35; cursor: not-allowed; }
+  .sf .sf__hour[aria-disabled='true']:hover { transform: none; background: var(--glass-tile); border-color: var(--glass-line); }
+
+  .sf .sf__pick {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    padding: 0.28rem 0.3rem 0.28rem 0.8rem;
+    border-radius: 999px;
+    font-size: 0.82rem;
+    font-variant-numeric: tabular-nums;
+    color: var(--text-on-ink);
+    background: var(--gold-wash);
+    border: 1px solid oklch(84% 0.11 78 / 0.35);
+    animation: sf-in var(--dur-fast) var(--ease-out-expo) both;
+  }
+  .sf .sf__pick-x {
+    width: 1.45rem;
+    height: 1.45rem;
+    border-radius: 50%;
+    border: 0;
+    background: oklch(100% 0 0 / 0.1);
+    color: inherit;
+    font: inherit;
+    font-size: 1rem;
+    line-height: 1;
+    cursor: pointer;
+    transition: background var(--dur-fast) ease;
+  }
+  .sf .sf__pick-x:hover { background: oklch(100% 0 0 / 0.24); }
+  .sf .sf__pick-x:focus-visible { outline: none; box-shadow: var(--gold-ring); }
+
+  @keyframes sf-in { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+  @keyframes sf-nudge { 0% { transform: translateX(0); } 30% { transform: translateX(-3px); } 60% { transform: translateX(3px); } 100% { transform: translateX(0); } }
+
+  @media (max-width: 480px) {
+    .sf .sf__day { padding: 0.5rem 0.1rem 0.8rem; border-radius: 12px; }
+    .sf .sf__day-n { font-size: 1.3rem; }
+    .sf .sf__hour { padding: 0.58rem 0.9rem; font-size: 0.92rem; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .sf .sf__pick { animation: none; }
   }
 </style>
 
@@ -336,6 +530,46 @@ const {
   import { track, eventId } from '../scripts/tracking';
 
   const ENDPOINT = import.meta.env.PUBLIC_FORM_ENDPOINT || '/api/lead';
+
+  type CallCfg = {
+    tz: string; days: number; from: number; weekday: number[]; weekend: number[]; max: number;
+    hint: string; countLabel: string; confirm: string; flexible: string; flexibleLabel: string;
+  };
+  type Day = { iso: string; wd: number; n: number; mo: number; hours: number[] };
+  type Pick = { iso: string; h: number };
+
+  const WD = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+  const WD_LONG = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+  const MO = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+  const MO_LONG = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+  const pad = (n: number) => String(n).padStart(2, '0');
+  const h12 = (h: number) => ((h + 11) % 12) + 1;
+  const mer = (h: number) => (h % 24 >= 12 ? 'pm' : 'am');
+  /** 16 → "4–5 pm"; 11 → "11 am–12 pm"; 12 → "12–1 pm" */
+  const blockLabel = (h: number) =>
+    mer(h) === mer(h + 1) ? `${h12(h)}–${h12(h + 1)} ${mer(h)}` : `${h12(h)} ${mer(h)}–${h12(h + 1)} ${mer(h + 1)}`;
+
+  /** The wall clock in Harrison's zone — the only place Intl is needed. From
+      there the days are plain calendar arithmetic on UTC-noon dates, which is
+      immune to the DST change Sydney makes in October. */
+  function nowIn(tz: string) {
+    const parts = new Intl.DateTimeFormat('en-AU', { timeZone: tz, hourCycle: 'h23', year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit' }).formatToParts(new Date());
+    const get = (t: string) => Number(parts.find((p) => p.type === t)?.value ?? 0);
+    return { y: get('year'), m: get('month'), d: get('day'), h: get('hour') % 24 };
+  }
+
+  function buildDays(cfg: CallCfg): Day[] {
+    const now = nowIn(cfg.tz);
+    const days: Day[] = [];
+    for (let i = cfg.from; days.length < cfg.days && i < cfg.from + cfg.days + 7; i++) {
+      const dt = new Date(Date.UTC(now.y, now.m - 1, now.d + i, 12));
+      const wd = dt.getUTCDay();
+      const hours = (wd === 0 || wd === 6 ? cfg.weekend : cfg.weekday).filter((h) => i > 0 || h > now.h + 1);
+      if (!hours.length) continue;
+      days.push({ iso: `${dt.getUTCFullYear()}-${pad(dt.getUTCMonth() + 1)}-${pad(dt.getUTCDate())}`, wd, n: dt.getUTCDate(), mo: dt.getUTCMonth(), hours });
+    }
+    return days;
+  }
 
   document.querySelectorAll<HTMLElement>('[data-seat-form]').forEach((root) => {
     const form = root.querySelector('form')!;
@@ -424,6 +658,139 @@ const {
       return json;
     };
 
+    const failed = (slot: HTMLElement, suffix: string, err: unknown) => {
+      slot.innerHTML = `That did not send. Try again, or <a href="${wa.href}" target="_blank" rel="noopener">message Harrison on WhatsApp</a>${suffix}.`;
+      slot.hidden = false;
+      track('form_error', { form_id: formId, page_path: location.pathname, message: String((err as Error).message).slice(0, 80) });
+    };
+
+    /* ---- 2. the windows for the call: day → hour blocks → up to three ---- */
+    const callRoot = root.querySelector<HTMLElement>('[data-call-root]')!;
+    const cfg = JSON.parse(callRoot.dataset.callConfig || '{}') as CallCfg;
+    const daysEl = callRoot.querySelector<HTMLElement>('[data-days]')!;
+    const hoursDayEl = callRoot.querySelector<HTMLElement>('[data-hours-day]')!;
+    const hoursEl = callRoot.querySelector<HTMLElement>('[data-hours]')!;
+    const picksEl = callRoot.querySelector<HTMLElement>('[data-picks]')!;
+    const countEl = callRoot.querySelector<HTMLElement>('[data-count]')!;
+    const confirmBtn = callRoot.querySelector<HTMLButtonElement>('[data-confirm]')!;
+    const flexBtn = callRoot.querySelector<HTMLButtonElement>('[data-flexible]')!;
+
+    let days: Day[] = [];
+    let activeDay = '';
+    const picks: Pick[] = [];
+    const dayOf = (iso: string) => days.find((d) => d.iso === iso);
+    const sorted = () => picks.slice().sort((a, b) => (a.iso === b.iso ? a.h - b.h : a.iso < b.iso ? -1 : 1));
+    const short = (d: Day) => `${WD[d.wd]} ${d.n} ${MO[d.mo]}`;
+
+    /** "2026-09-28 17:00-18:00; 2026-09-30 16:00-17:00" — for a workflow */
+    const machine = () => sorted().map((p) => `${p.iso} ${pad(p.h)}:00-${pad(p.h + 1)}:00`).join('; ');
+    /** "Mon 28 Sep, 5–6 pm or 6–7 pm; or Wed 30 Sep, 4–5 pm (Sydney)" — for Harrison */
+    const sentence = () => {
+      const byDay: string[] = [];
+      for (const d of days) {
+        const hs = sorted().filter((p) => p.iso === d.iso).map((p) => blockLabel(p.h));
+        if (hs.length) byDay.push(`${short(d)}, ${hs.join(' or ')}`);
+      }
+      return `${byDay.join('; or ')} (Sydney)`;
+    };
+
+    const renderDays = () => {
+      daysEl.querySelectorAll<HTMLButtonElement>('[data-day]').forEach((b) => {
+        b.setAttribute('aria-checked', String(b.dataset.day === activeDay));
+        b.tabIndex = b.dataset.day === activeDay ? 0 : -1;
+        b.classList.toggle('has-picks', picks.some((p) => p.iso === b.dataset.day));
+      });
+    };
+    const renderHours = (animate = false) => {
+      const d = dayOf(activeDay);
+      if (!d) return;
+      hoursDayEl.textContent = `${WD_LONG[d.wd]} ${d.n} ${MO_LONG[d.mo]}`;
+      hoursEl.innerHTML = '';
+      const full = picks.length >= cfg.max;
+      for (const h of d.hours) {
+        const on = picks.some((p) => p.iso === d.iso && p.h === h);
+        const b = document.createElement('button');
+        b.type = 'button';
+        b.className = 'sf__hour';
+        b.dataset.hour = String(h);
+        b.setAttribute('aria-pressed', String(on));
+        if (!on && full) b.setAttribute('aria-disabled', 'true');
+        b.textContent = blockLabel(h);
+        b.addEventListener('click', () => toggle(d.iso, h));
+        hoursEl.appendChild(b);
+      }
+      if (animate) { hoursEl.classList.remove('is-in'); void hoursEl.offsetWidth; hoursEl.classList.add('is-in'); }
+    };
+    const renderPicks = () => {
+      countEl.textContent = cfg.countLabel.replace('{n}', String(picks.length)).replace('{max}', String(cfg.max));
+      countEl.classList.toggle('is-full', picks.length >= cfg.max);
+      picksEl.innerHTML = '';
+      picksEl.hidden = picks.length === 0;
+      for (const p of sorted()) {
+        const d = dayOf(p.iso);
+        if (!d) continue;
+        const chip = document.createElement('span');
+        chip.className = 'sf__pick';
+        const text = document.createElement('span');
+        text.textContent = `${short(d)} · ${blockLabel(p.h)}`;
+        const x = document.createElement('button');
+        x.type = 'button';
+        x.className = 'sf__pick-x';
+        x.setAttribute('aria-label', `Remove ${short(d)} ${blockLabel(p.h)}`);
+        x.textContent = '×';
+        x.addEventListener('click', () => toggle(p.iso, p.h));
+        chip.append(text, x);
+        picksEl.appendChild(chip);
+      }
+      confirmBtn.disabled = picks.length === 0;
+    };
+    const sync = () => { renderDays(); renderHours(); renderPicks(); };
+    const toggle = (iso: string, h: number) => {
+      const i = picks.findIndex((p) => p.iso === iso && p.h === h);
+      if (i >= 0) picks.splice(i, 1);
+      else if (picks.length >= cfg.max) {
+        countEl.classList.remove('is-nudge'); void countEl.offsetWidth; countEl.classList.add('is-nudge');
+        return;
+      } else picks.push({ iso, h });
+      sync();
+      track('form_step', { form_id: formId, step: 2, question: 'window', answer: `${iso} ${pad(h)}:00`, picks: picks.length, page_path: location.pathname });
+    };
+
+    /** Drawn when the thank-you appears, so "now" is now. */
+    const openPicker = () => {
+      days = buildDays(cfg);
+      activeDay = days[0]?.iso ?? '';
+      daysEl.innerHTML = '';
+      for (const d of days) {
+        const b = document.createElement('button');
+        b.type = 'button';
+        b.className = 'sf__day';
+        b.setAttribute('role', 'radio');
+        b.dataset.day = d.iso;
+        b.setAttribute('aria-label', `${WD_LONG[d.wd]} ${d.n} ${MO_LONG[d.mo]}`);
+        b.innerHTML = `<span class="sf__day-wd">${WD[d.wd]}</span><span class="sf__day-n">${d.n}</span><span class="sf__day-mo">${MO[d.mo]}</span><span class="sf__day-dot" aria-hidden="true"></span>`;
+        b.addEventListener('click', () => {
+          if (activeDay === d.iso) return;
+          activeDay = d.iso;
+          renderDays();
+          renderHours(true);
+        });
+        daysEl.appendChild(b);
+      }
+      sync();
+    };
+    /* arrow keys walk the day strip, as a radio group should */
+    daysEl.addEventListener('keydown', (e) => {
+      if (!['ArrowLeft', 'ArrowRight', 'Home', 'End'].includes(e.key)) return;
+      const i = days.findIndex((d) => d.iso === activeDay);
+      const j = e.key === 'Home' ? 0 : e.key === 'End' ? days.length - 1 : (i + (e.key === 'ArrowRight' ? 1 : -1) + days.length) % days.length;
+      e.preventDefault();
+      activeDay = days[j].iso;
+      renderDays();
+      renderHours(true);
+      daysEl.querySelector<HTMLButtonElement>(`[data-day="${activeDay}"]`)?.focus();
+    });
+
     /* ---- 1. the application ---- */
     form.addEventListener('submit', async (e) => {
       e.preventDefault();
@@ -442,38 +809,38 @@ const {
       try {
         await post(payload);
         track(eventName, { event_id: id, form_id: formId, page_path: location.pathname });
+        openPicker();
         form.hidden = true;
         success.hidden = false;
         success.focus({ preventScroll: true });
       } catch (err) {
-        formError.innerHTML = `That did not send. Try again, or <a href="${wa.href}" target="_blank" rel="noopener">message Harrison on WhatsApp</a>.`;
-        formError.hidden = false;
+        failed(formError, '', err);
         submitBtn.disabled = false;
-        track('form_error', { form_id: formId, page_path: location.pathname, message: String((err as Error).message).slice(0, 80) });
       }
     });
 
-    /* ---- 2. the window for the call ---- */
-    root.querySelectorAll<HTMLButtonElement>('[data-call]').forEach((btn) => {
-      btn.addEventListener('click', async () => {
-        callError.hidden = true;
-        root.querySelectorAll<HTMLButtonElement>('[data-call]').forEach((b) => { b.classList.toggle('is-picked', b === btn); b.disabled = true; });
-        const id = eventId();
-        const payload = { ...identity(), timing: btn.dataset.call, timing_label: btn.dataset.label, event_id: id, event_name: 'schedule' };
-        try {
-          await post(payload);
-          track('schedule', { event_id: id, form_id: formId, window: btn.dataset.call, page_path: location.pathname });
-          doneText.textContent = (root.dataset.doneBody || '').replace('{window}', (btn.dataset.label || '').toLowerCase());
-          success.hidden = true;
-          done.hidden = false;
-          done.focus({ preventScroll: true });
-        } catch (err) {
-          root.querySelectorAll<HTMLButtonElement>('[data-call]').forEach((b) => { b.disabled = false; });
-          callError.innerHTML = `That did not send. Try again, or <a href="${wa.href}" target="_blank" rel="noopener">message Harrison on WhatsApp</a> with the window.`;
-          callError.hidden = false;
-          track('form_error', { form_id: formId, page_path: location.pathname, message: String((err as Error).message).slice(0, 80) });
-        }
-      });
-    });
+    /* ---- 2. the windows, sent ---- */
+    const send = async (timing: string, label: string, said: string) => {
+      callError.hidden = true;
+      callRoot.classList.add('is-sending');
+      confirmBtn.disabled = true;
+      flexBtn.disabled = true;
+      const id = eventId();
+      try {
+        await post({ ...identity(), timing, timing_label: label, event_id: id, event_name: 'schedule' });
+        track('schedule', { event_id: id, form_id: formId, window: timing === 'flexible' ? 'flexible' : `${picks.length} blocks`, page_path: location.pathname });
+        doneText.textContent = (root.dataset.doneBody || '').replace('{window}', said);
+        success.hidden = true;
+        done.hidden = false;
+        done.focus({ preventScroll: true });
+      } catch (err) {
+        callRoot.classList.remove('is-sending');
+        confirmBtn.disabled = picks.length === 0;
+        flexBtn.disabled = false;
+        failed(callError, ' with the windows', err);
+      }
+    };
+    confirmBtn.addEventListener('click', () => { if (picks.length) send(machine(), sentence(), sentence()); });
+    flexBtn.addEventListener('click', () => send('flexible', `Flexible — ${cfg.flexibleLabel}`, cfg.flexibleLabel));
   });
 </script>
