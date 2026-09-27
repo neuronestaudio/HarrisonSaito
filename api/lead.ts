@@ -36,7 +36,8 @@ interface Env {
 
 /* ---------------------------------------------------------------- GHL ----
    The contact lands in the "Harrison Saito - Return to Self" sub-account with
-   the form's answers on custom fields created 12 Sep 2026 (keys below), tags a
+   the form's answers on custom fields created 12 Sep 2026 (keys below; the
+   session and call-windows fields on 27 Sep, when the token was renewed), tags a
    workflow can trigger on, and the form as its source. Field ids are looked
    up by key at runtime and cached, so the fields may be recreated in GHL
    without touching this file. GHL's edge answers a bare client with
@@ -46,9 +47,16 @@ const GHL = 'https://services.leadconnectorhq.com';
 const GHL_FIELDS: Record<string, string> = {
   about_label: 'contact.enquiry__about',
   topic_label: 'contact.enquiry__topic',
+  /* "When suits" is a dropdown in GHL, but the API stores any string in it
+     (checked 27 Sep 2026), so the workshop's sentence — "Tue 29 Sep, 4–5 pm
+     or 5–6 pm (Sydney)" — reads there as-is beside the old forms' options. */
   timing_label: 'contact.enquiry__when_suits',
-  /* /workshop: which room they applied for. The field may not exist yet in
-     GHL — it is skipped if not — so the form also mirrors it into topic. */
+  /* /workshop: the machine list of the same windows ("2026-09-29 16:00-17:00;
+     …", or "flexible"), for a workflow or calendar step later. Field created
+     27 Sep 2026. Old forms put their slug here, harmlessly. */
+  timing: 'contact.enquiry__call_windows',
+  /* /workshop: which room they applied for ("Sunday 4 October · 1–2 pm").
+     Field created 27 Sep 2026; the form also mirrors it into topic. */
   session_label: 'contact.enquiry__session',
   form_id: 'contact.enquiry__form',
   page_url: 'contact.enquiry__page',
