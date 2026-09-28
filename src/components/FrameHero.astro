@@ -207,7 +207,9 @@ const hallAt = (i: number) => (0.34 + (i * 0.46) / (HALL_N - 1)).toFixed(3);
 
     <div class="hero__copy">
       <p class="hero__eyebrow"><span>Harrison Saito · Coaching</span><i aria-hidden="true"> · </i><span>Chatswood, Sydney</span></p>
-      <h1 class="hero__title">You don’t have to react<br /><mark>to everything you feel.</mark></h1>
+      {/* Dion, 28 Sep: the opening line. (Was the guide's "You don't have to
+          react to everything you feel." — that line now lives on /workshop.) */}
+      <h1 class="hero__title">You can be good at life<br />and still feel <mark>disconnected from yourself.</mark></h1>
       <p class="hero__sub">17+ Years Karate | Coach | Buddhist</p>
       {/* A row of four client interviews stood here for a day (20-21 Sep). Dion took
           it off: too much too soon, and four men in front of the same curtain read as
@@ -416,7 +418,14 @@ const hallAt = (i: number) => (0.34 + (i * 0.46) / (HALL_N - 1)).toFixed(3);
   .enter__class {
     position: absolute;
     inset: 0;
-    background: url('/img/enter-class-w-v1-1440.webp') 50% 45% / cover no-repeat;
+    /* Dion, 28 Sep: not the class any more — him alone, kneeling in seiza on
+       the mats, the same frame /workshop opens on (the 23 Sep dojo still).
+       Portrait, so on a wide screen it stands to the left of the mark at the
+       frame's full height, its edges dissolved into the room by the mask;
+       the phone rule below lets it fill the frame instead. */
+    background: url('/img/workshop-seiza-v1-1000.webp') 30% 50% / auto 100% no-repeat;
+    -webkit-mask-image: radial-gradient(ellipse 26% 62% at 30% 50%, #000 38%, transparent 100%);
+            mask-image: radial-gradient(ellipse 26% 62% at 30% 50%, #000 38%, transparent 100%);
     /* Dion asked for 50%. At 50% the class swallowed the room — the doors
        vanished and it read as a photo, not a presence — so it sits at 0.4
        with the scrim below doing the rest. One number if he wants it up. */
@@ -510,7 +519,14 @@ const hallAt = (i: number) => (0.34 + (i * 0.46) / (HALL_N - 1)).toFixed(3);
   @media (max-width: 700px) {
     /* a phone holds one thing at a time: the class is a whisper, the name and
        the instruction stack with air between them */
-    .enter__class { background-image: url('/img/enter-class-t-v1-720.webp'); background-position: 50% 38%; opacity: 0.3; }
+    .enter__class {
+      background-image: url('/img/workshop-seiza-v1-700.webp');
+      background-size: cover;
+      background-position: 50% 28%;
+      -webkit-mask-image: linear-gradient(180deg, transparent 0%, #000 12%, #000 78%, transparent 100%);
+              mask-image: linear-gradient(180deg, transparent 0%, #000 12%, #000 78%, transparent 100%);
+      opacity: 0.3;
+    }
     .enter__mark { right: 0; left: 0; top: auto; bottom: calc(clamp(1.4rem, 6vh, 4rem) + var(--consent-h, 0px) + 6.4rem); justify-items: center; text-align: center; font-size: clamp(2rem, 13vw, 3.2rem); transform: translateY(calc((1 - var(--go, 0)) * 26px)); }
     .enter__go { font-size: clamp(1.15rem, 6vw, 1.8rem); letter-spacing: 0.16em; }
   }
