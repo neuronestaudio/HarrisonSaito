@@ -392,3 +392,9 @@
    with it. :has() scopes it to the page that actually holds the block. */
 .mo:has(> #patterns) { display: flex; flex-direction: column; }
 .mo:has(> #patterns) > #patterns { order: 9; }
+
+/* The callback form's error line (Dion, 30 Sep: the newsletter became a
+   name-and-number callback). Ink-red on the paper, with the phone link. */
+.mo .nl-form .nl-form__error { color: #b3412a; }
+.mo .nl-form .nl-form__error[hidden] { display: none; }
+.mo .nl-form .nl-form__error a { color: inherit; text-decoration: underline; }

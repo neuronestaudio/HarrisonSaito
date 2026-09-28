@@ -275,6 +275,18 @@ export const FAMILY = {
    resonated," lead-in). 22 Sep: "Let's connect." — the same words as the ask
    under the newsletter, so the page closes the way it invites. */
 export const CLOSE = { ...local(S.CLOSE), title: '<mark>Let’s connect.</mark>' };
-/* "Send it to me" was the ask; the ask is really an introduction. */
-export const NEWSLETTER = { ...local(S.NEWSLETTER), cta: 'Let’s connect', body: 'A five-minute guided practice — one small place to start noticing.' };
+/* "Send it to me" was the ask; the ask is really an introduction. Dion, 30 Sep:
+   not an email for a practice any more — "just your name and number and I'll
+   reach out to you directly. Let me give you the space to share." A callback,
+   in his first person, like the rest of the page. */
+export const NEWSLETTER = {
+  ...local(S.NEWSLETTER),
+  body: 'Just your name and number, and I’ll reach out to you directly. Let me give you the space to share.',
+  namePlaceholder: 'Your name',
+  phonePlaceholder: 'Your number',
+  cta: 'Let’s connect',
+  note: 'No pitch. A call from Harrison, and the space to say as much or as little as you want.',
+  thanks: 'Thank you, {name}. Harrison will reach out to you directly.',
+  error: 'That did not send. Try again, or call ',
+};
 export const WORKSHOPS_PAGE = local(S.PAGES.find((p) => p.slug === 'workshops')!);

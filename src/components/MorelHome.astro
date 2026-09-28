@@ -25,8 +25,10 @@ import {
   FAQ_SECTION, FAQ, QUOTE, FAMILY, FILMS_SECTION, FILMS, CLOSE, NEWSLETTER, asset,
 } from '../data/morel';
 import { forYouIcon, PLAY_ICON } from '../lib/morel-icons';
+import { SITE } from '../data/site';
 import Wall from './Wall.astro';
 import WhoFor from './WhoFor.astro';
+import '../styles/plates.css';
 
 const book = (href: string) => href === '/book';
 ---
@@ -49,7 +51,9 @@ const book = (href: string) => href === '/book';
   </div>
 
   <!-- ============ THE CORE ============ -->
-  <section class="section section--bg4 core" id="the-core" data-section="core">
+  <!-- TEST: the room from the walk, baked to the section's cream (styles/plates.css) -->
+  <section class="section section--bg4 section--plate core" id="the-core" data-section="core"
+    style="--plate:url(/img/mo/plate-room-v1-1600.webp);--plate-sm:url(/img/mo/plate-room-v1-900.webp);--plate-pos:100% 42%;--plate-flip:-1">
     <div class="wide">
       <header class="core__head">
         <p class="eyebrow">{CORE.label}</p>
@@ -345,11 +349,17 @@ const book = (href: string) => href === '/book';
           </div>
           <div class="newsletter__right">
             <p class="fs-sm">{NEWSLETTER.body}</p>
-            <form class="nl-form" action="/api/lead" method="post" data-fallback={NEWSLETTER.fallbackHref}>
-              <label class="sr-only" for="nl-email">Email address</label>
-              <input id="nl-email" name="email" type="email" required placeholder={NEWSLETTER.placeholder} autocomplete="email" />
+            {/* A callback (Dion, 30 Sep): a name and a number, nothing else.
+                Posts to /api/lead as form "callback" — GHL upserts on the
+                phone, tags form-callback — and the thank-you names them. */}
+            <form class="nl-form" action="/api/lead" method="post" novalidate data-thanks={NEWSLETTER.thanks} data-error={NEWSLETTER.error} data-phone={SITE.phone} data-phone-display={SITE.phoneDisplay}>
+              <label class="sr-only" for="nl-name">Your name</label>
+              <input id="nl-name" name="name" type="text" required placeholder={NEWSLETTER.namePlaceholder} autocomplete="name" />
+              <label class="sr-only" for="nl-phone">Your number</label>
+              <input id="nl-phone" name="phone" type="tel" required inputmode="tel" placeholder={NEWSLETTER.phonePlaceholder} autocomplete="tel" />
               <button type="submit">{NEWSLETTER.cta}</button>
-              <small>No spam. One practice, then the occasional note from Harrison.</small>
+              <small>{NEWSLETTER.note}</small>
+              <small class="nl-form__error" hidden role="alert"></small>
             </form>
           </div>
         </div>

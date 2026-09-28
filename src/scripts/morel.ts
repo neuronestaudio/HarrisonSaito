@@ -151,24 +151,45 @@ export function initMorel() {
     document.addEventListener('keydown', (e) => { if (e.key === 'Escape') close(); });
   })();
 
-  /* 5. Newsletter — posts to this site's lead endpoint (GoHighLevel), then hands
-     the visitor the practice straight away. A failed post still hands it over:
-     the practice is the promise, and the function log keeps every submission. */
+  /* 5. The callback (Dion, 30 Sep; it was the newsletter) — a name and a
+     number, posted to this site's lead endpoint (GoHighLevel, on the phone),
+     and a thank-you that names them. A post that fails says so and keeps the
+     form, with his number as the way round it. */
   (() => {
     const form = root.querySelector<HTMLFormElement>('.nl-form');
     if (!form) return;
-    form.addEventListener('submit', (e) => {
+    const nameEl = form.querySelector<HTMLInputElement>('input[name=name]');
+    const phoneEl = form.querySelector<HTMLInputElement>('input[name=phone]');
+    const err = form.querySelector<HTMLElement>('.nl-form__error');
+    const button = form.querySelector<HTMLButtonElement>('button');
+    if (!nameEl || !phoneEl || !err || !button) return;
+    const fail = (msg: string) => { err.textContent = msg; err.hidden = false; };
+    form.addEventListener('submit', async (e) => {
       e.preventDefault();
-      const email = (form.querySelector<HTMLInputElement>('input[type=email]')?.value || '').trim();
-      const fallback = form.dataset.fallback || '#';
-      fetch(form.getAttribute('action') || '/api/lead', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, form_id: 'newsletter', page: location.pathname, referrer: document.referrer || undefined }),
-        keepalive: true,
-      }).catch(() => {});
-      form.innerHTML = `<p class="fs-sm">Thanks. The practice is ready for you now:</p><a class="btn btn--filled" href="${fallback}" target="_blank" rel="noopener">Watch the 5-minute practice</a>`;
-      track('newsletter_submit', { form_id: 'newsletter', page_path: location.pathname });
+      err.hidden = true;
+      const name = nameEl.value.trim();
+      const phone = phoneEl.value.trim();
+      if (!name) { fail('Your name, so Harrison knows who he is calling.'); nameEl.focus(); return; }
+      if (phone.replace(/\D/g, '').length < 8) { fail('Please include a full phone number.'); phoneEl.focus(); return; }
+      button.disabled = true;
+      try {
+        const res = await fetch(form.getAttribute('action') || '/api/lead', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ name, phone, form_id: 'callback', about: 'callback', about_label: 'Callback — name and number', page_path: location.pathname, page_url: location.href, referrer: document.referrer || undefined, event_name: 'lead' }),
+        });
+        const json = await res.json().catch(() => ({}));
+        if (!res.ok || json.ok === false) throw new Error(json.error || `HTTP ${res.status}`);
+        const first = name.split(/\s+/)[0];
+        form.innerHTML = `<p class="fs-sm">${(form.dataset.thanks || 'Thank you, {name}.').replace('{name}', first)}</p>`;
+        track('lead', { form_id: 'callback', page_path: location.pathname });
+      } catch (ex) {
+        button.disabled = false;
+        const tel = form.dataset.phone ? `<a href="tel:${form.dataset.phone}">${form.dataset.phoneDisplay || form.dataset.phone}</a>.` : 'Harrison directly.';
+        err.innerHTML = (form.dataset.error || 'That did not send. Try again, or call ') + tel;
+        err.hidden = false;
+        track('form_error', { form_id: 'callback', page_path: location.pathname, message: String((ex as Error).message).slice(0, 80) });
+      }
     });
   })();
 
