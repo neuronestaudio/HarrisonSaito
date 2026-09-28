@@ -673,6 +673,7 @@
 }
 .mo .film:hover { transform: translateY(-4px); box-shadow: 0 24px 60px rgba(20, 16, 13, 0.25); }
 .mo .film--feature { aspect-ratio: 21 / 9; min-height: 380px; margin-bottom: 20px; background-position: center top; } /* a two-shot of people: keep the faces, lose the mats */
+.mo .film--feature.film--tall { aspect-ratio: 3 / 2; } /* a portrait pair cut to 3:2: faces at the top, belts at the foot, nothing lost */
 .mo .film__inner {
   position: absolute;
   inset: auto 0 0 0;

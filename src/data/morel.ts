@@ -211,7 +211,16 @@ export const FILMS_SECTION = local(S.FILMS_SECTION);
    uses sbs-karate-v1. */
 export const FILMS = local(S.FILMS).map((f) =>
   f.image === '/img/sbs-karate-v1.webp'
-    ? { ...f, image: '/img/seiza-pair-v1.webp', /* phones: the 4:5 cut on a taller card, so the title never sits on a face */ imageMobile: '/img/seiza-pair-portrait-v1.webp' }
+    ? {
+        ...f,
+        /* Dion, 29 Sep: "move the preview image a lot higher, so I can see the gi /
+           black belt" — the cut is 3:2 from y=140 now (faces to belt) and the
+           card stands at 3:2 on a desk to hold it (`tall`). */
+        image: '/img/seiza-pair-v1.webp',
+        tall: true,
+        /* phones: the 4:5 cut on a taller card, so the title never sits on a face */
+        imageMobile: '/img/seiza-pair-portrait-v1.webp',
+      }
     : f
 );
 const FAMILY_BASE = local(S.FAMILY);
