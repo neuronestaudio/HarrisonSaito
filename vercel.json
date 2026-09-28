@@ -84,11 +84,6 @@
       "permanent": true
     },
     {
-      "source": "/return-to-self",
-      "destination": "/mens-coaching",
-      "permanent": true
-    },
-    {
       "source": "/returntoself",
       "destination": "/mens-coaching",
       "permanent": true
