@@ -140,8 +140,15 @@ const STILL = 'rts-still-v1';
 interface Props {
   /** Which "Who This Is For" badge set the pause shows (src/data/badges.ts). */
   set?: string;
+  /** The pause on the doors with its panel. Off (Dion, 28 Sep 2026: "the 6
+      squares don't exist… that's only part of the home page below the hero")
+      the walk runs straight through to the doorway and the arrival, and the
+      first screen's "Start here" walks in. The ads' landing pages keep it. */
+  gate?: boolean;
 }
 const SET = setById(Astro.props.set);
+const GATE = Astro.props.gate !== false;
+const START = GATE ? '#for-you' : '#portfolio';
 const picks = SET.id === 'protectors';
 
 /* The hallway (Dion, 20 Sep): on the walk from the first screen to the doors,
@@ -174,7 +181,7 @@ const HALL_Y = [22, 42, 58, 20, 30, 60, 62, 34];   /* same-side neighbours alter
 const hallAt = (i: number) => (0.34 + (i * 0.46) / (HALL_N - 1)).toFixed(3);
 ---
 
-<section class="hero" id="hero" data-frame-hero data-fy={SET.id} data-section="hero" aria-label="Harrison Saito — Return to Self">
+<section class:list={['hero', { 'hero--nogate': !GATE }]} id="hero" data-frame-hero data-fy={SET.id} data-gate={GATE ? 'on' : 'off'} data-section="hero" aria-label="Harrison Saito — Return to Self">
   <div class="hero__frame">
     <img class="hero__poster" src="/img/rts-hero-poster-v3.webp" alt="" aria-hidden="true" width="1280" height="720" fetchpriority="high" decoding="sync" />
     <video class="hero__film" muted playsinline preload="metadata"
@@ -219,11 +226,12 @@ const hallAt = (i: number) => (0.34 + (i * 0.46) / (HALL_N - 1)).toFixed(3);
           sequence (land, walk in, choose, learn more). The booking asks come
           once he has arrived. */}
       <p class="hero__ctas">
-        <a class="hero__more" href="#for-you" data-beat-go data-track="cta_click" data-track-label="Hero — Start here" data-track-section="hero">Start here ↓</a>
+        <a class="hero__more" href={START} data-beat-go data-track="cta_click" data-track-label="Hero — Start here" data-track-section="hero">Start here ↓</a>
       </p>
     </div>
 
-    {/* The beat: "Who this is for", over the four shut doors. */}
+    {/* The beat: "Who this is for", over the four shut doors. Only where the walk is gated. */}
+    {GATE && (
     <div class="beat mo mo--bare" data-beat aria-hidden="true">
       <div class="beat__panel" role="region" aria-label="Who This Is For">
         <header class="beat__head">
@@ -247,6 +255,7 @@ const hallAt = (i: number) => (0.34 + (i * 0.46) / (HALL_N - 1)).toFixed(3);
         </p>
       </div>
     </div>
+    )}
 
     {/* The arrival: the page's hero, built over the room the walk ends in. */}
     <div class="arrive" data-meet>
@@ -1181,6 +1190,10 @@ const hallAt = (i: number) => (0.34 + (i * 0.46) / (HALL_N - 1)).toFixed(3);
     transition: opacity 0.35s ease;
   }
   .hero--beat .beat { visibility: visible; pointer-events: auto; }
+  /* No gate (the home page): no pause on the doors — the runway loses that
+     length and the walk runs straight through. !important because the phone
+     rule below sets the lengths again on .hero. */
+  .hero--nogate { --run-pause: 0 !important; }
   /* Squarer (Dion, 18 Sep): the head is centred and runs the panel's width
      instead of sitting in its left half, and the six cards are near-square
      tiles — mark on top, words under it — so nothing in the panel is air. */
@@ -1433,7 +1446,10 @@ const hallAt = (i: number) => (0.34 + (i * 0.46) / (HALL_N - 1)).toFixed(3);
     var beatEl = hero && hero.querySelector<HTMLElement>('[data-beat]');
     var figure = hero && hero.querySelector<HTMLImageElement>('.arrive__photo');
     var panel = beatEl && beatEl.querySelector<HTMLElement>('.beat__panel');
-    if (!hero || !video || !beatEl || !panel) return;
+    if (!hero || !video) return;
+    /* No panel in the markup (gate={false}): the walk runs straight through —
+       nothing below catches, locks or nudges, and the runway has no pause. */
+    var gated = !!(beatEl && panel);
     /* The badge set this page shows: remembered for the lead form (it tags the
        enquiry fy-<id>), and reported once so sets can be compared. A protector
        tap is remembered too (fy-pick-<name>). */
@@ -1486,7 +1502,7 @@ const hallAt = (i: number) => (0.34 + (i * 0.46) / (HALL_N - 1)).toFixed(3);
     var LOCK_MS = 900, QUIET_MS = 260, MAX_LOCK_MS = 2500;
     var st = hero.style;
     var filmOn = false, failed = false;
-    var cards = [].slice.call(beatEl.querySelectorAll('.beat__card')) as HTMLElement[];
+    var cards = (beatEl ? [].slice.call(beatEl.querySelectorAll('.beat__card')) : []) as HTMLElement[];
 
     function clamp(v: number, a: number, b: number) { return v < a ? a : v > b ? b : v; }
     function runway() { return hero!.offsetHeight - window.innerHeight; }
@@ -1533,7 +1549,7 @@ const hallAt = (i: number) => (0.34 + (i * 0.46) / (HALL_N - 1)).toFixed(3);
       return clamp((p - pD) / ((1 - pD) * MEET_EDGE), 0, 1);
     }
     function beatFor(p: number) {
-      if (p <= pA || p >= pB) return 0;
+      if (!gated || pB <= pA || p <= pA || p >= pB) return 0;
       var e = (pB - pA) * EDGE;
       return Math.min(clamp((p - pA) / e, 0, 1), clamp((pB - p) / e, 0, 1));
     }
@@ -1568,6 +1584,7 @@ const hallAt = (i: number) => (0.34 + (i * 0.46) / (HALL_N - 1)).toFixed(3);
 
     /* ---- the panel: fitted between the nav and the consent bar ---- */
     function fit() {
+      if (!panel) return;
       var nav = document.querySelector<HTMLElement>('[data-nav]');
       var top = (nav ? nav.offsetHeight : 72) + 8;
       var consent = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--consent-h')) || 0;
@@ -1639,7 +1656,7 @@ const hallAt = (i: number) => (0.34 + (i * 0.46) / (HALL_N - 1)).toFixed(3);
       if (on !== beatOn) {
         beatOn = on;
         hero!.classList.toggle('hero--beat', on);
-        beatEl!.setAttribute('aria-hidden', on ? 'false' : 'true');
+        if (beatEl) beatEl.setAttribute('aria-hidden', on ? 'false' : 'true');
         if (on) fit();
       }
       /* The cards draw their marks in once, the first time the panel is up. */
@@ -1668,9 +1685,11 @@ const hallAt = (i: number) => (0.34 + (i * 0.46) / (HALL_N - 1)).toFixed(3);
        holds the gate open for the whole visit — nothing on the site sets it;
        it is there for tests that need to scroll straight through. */
     var gateOpen = false, gateFree = false, canGo = false, reported = false, bootUntil = performance.now() + 900, nudgeAt = 0;
-    var onBtn = beatEl.querySelector<HTMLButtonElement>('[data-beat-on]')!;
+    var onBtn = beatEl ? beatEl.querySelector<HTMLButtonElement>('[data-beat-on]') : null;
     try { gateFree = gateOpen = sessionStorage.getItem('rts-gate') === '1'; } catch (e) {}
+    if (!gated) gateFree = gateOpen = true;   /* nothing to pass: the doors are open */
     function showGate() {
+      if (!onBtn) return;
       canGo = picked().length > 0;
       onBtn.textContent = (canGo ? onBtn.dataset.open : onBtn.dataset.closed) || '';
       if (canGo) onBtn.removeAttribute('aria-disabled'); else onBtn.setAttribute('aria-disabled', 'true');
@@ -1685,6 +1704,7 @@ const hallAt = (i: number) => (0.34 + (i * 0.46) / (HALL_N - 1)).toFixed(3);
       unlock();
     }
     function nudge() {
+      if (!panel) return;
       var now = performance.now();
       if (now - nudgeAt < 900) return;
       nudgeAt = now;
@@ -1695,7 +1715,7 @@ const hallAt = (i: number) => (0.34 + (i * 0.46) / (HALL_N - 1)).toFixed(3);
     onPick = function () {
       var was = canGo;
       showGate();
-      if (canGo && !was) { panel!.classList.remove('is-open'); void panel!.offsetWidth; panel!.classList.add('is-open'); }
+      if (panel && canGo && !was) { panel.classList.remove('is-open'); void panel.offsetWidth; panel.classList.add('is-open'); }
     };
     showGate();
     document.addEventListener('click', function (e) {
@@ -1772,6 +1792,7 @@ const hallAt = (i: number) => (0.34 + (i * 0.46) / (HALL_N - 1)).toFixed(3);
       lock(y);
     }
     function watch(p: number) {
+      if (!gated) { prevP = p; return; }
       if (p < pA - 0.004) armed = true;
       else if (p > pB) armed = false;
       /* p < 1: a jump to an anchor further down the page is not a walk. */
@@ -1813,16 +1834,18 @@ const hallAt = (i: number) => (0.34 + (i * 0.46) / (HALL_N - 1)).toFixed(3);
         window.scrollTo({ top: y, behavior: 'smooth' });
       }
     }
-    onBtn.addEventListener('click', function () {
+    if (onBtn) onBtn.addEventListener('click', function () {
       if (!canGo) { nudge(); return; }
       openGate('button');
       armed = false;
       glide(yAt(pB + (1 - pB) * 0.12), 1.4);
     });
+    /* "Start here": to the panel where there is one; otherwise straight
+       through the doors to where the arrival begins. */
     hero.querySelector('[data-beat-go]')!.addEventListener('click', function (e) {
       e.preventDefault();
       armed = false;
-      glide(yAt(pA + (pB - pA) * BEAT_AT), 2.4);
+      glide(gated ? yAt(pA + (pB - pA) * BEAT_AT) : yAt(pB + (1 - pB) * 0.12), gated ? 2.4 : 2.8);
     });
 
     /* ---- the film: one seek in flight, three ways to settle ---- */

@@ -1,0 +1,79 @@
+---
+/**
+ * The page under the walk, since 29 Sep 2026: the portfolio.
+ *
+ * Dion, 28 Sep: the home page is his portfolio again — what he does, then
+ * the choice to go on to Return to Self or out to his channels — and the
+ * twelve-week sales page that used to sit here is /return-to-self, whole
+ * (MorelHome). What stays from that build is what a portfolio needs: the
+ * films ("See the work"), the wall of what people took with them, and the
+ * close. Same design system (MoShell), so the reveals, the tokens and the
+ * video lightbox are the ones the rest of the site uses.
+ */
+import MoShell from './MoShell.astro';
+import Portfolio from './Portfolio.astro';
+import Wall from './Wall.astro';
+import { FILMS, FILMS_SECTION, CLOSE, asset } from '../data/morel';
+import { PLAY_ICON } from '../lib/morel-icons';
+---
+
+<MoShell>
+  <Portfolio />
+
+  <!-- ============ FILMS (as on /return-to-self) ============ -->
+  <section class="section section--white films" id="films" data-section="films">
+    <div class="wide">
+      <div class="sec-head">
+        <div>
+          <p class="eyebrow">{FILMS_SECTION.label}</p>
+          <h2 class="reveal" set:html={FILMS_SECTION.title} />
+        </div>
+        <a class="btn btn--outline" href={FILMS_SECTION.cta.href}>{FILMS_SECTION.cta.label}</a>
+      </div>
+
+      {FILMS.filter((f) => f.featured).map((f) => (
+        <a class={`film film--feature js-video reveal${'imageMobile' in f ? ' film--has-mobile' : ''}${'tall' in f && f.tall ? ' film--tall' : ''}`} href={`https://www.youtube.com/watch?v=${f.id}`} data-video={f.id} style={`background-image:url(${f.image})${'imageMobile' in f ? `;--film-mobile:url(${f.imageMobile})` : ''}`}>
+          <div class="film__inner">
+            <div>
+              <span class="pill">{f.label}</span>
+              <h3>{f.title}</h3>
+              {f.description && <p class="fs-xs">{f.description}</p>}
+            </div>
+            <Fragment set:html={PLAY_ICON} />
+          </div>
+        </a>
+      ))}
+
+      <div class="films__pair" data-stagger>
+        {FILMS.filter((f) => !f.featured).map((f) => (
+          <a class="film js-video reveal" href={`https://www.youtube.com/watch?v=${f.id}`} data-video={f.id} style={`background-image:url(${f.image})`}>
+            <div class="film__inner">
+              <div>
+                <span class="pill">{f.label}</span>
+                <h3>{f.title}</h3>
+              </div>
+              <Fragment set:html={PLAY_ICON} />
+            </div>
+          </a>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ THE WALL: what they took with them ============ -->
+  <Wall />
+
+  <!-- ============ CLOSE ============ -->
+  <section class="section section--dark on-dark close" data-section="close">
+    <div class="close__enso" aria-hidden="true"><img src={asset('/img/logo-light-512.png')} alt="" width="320" height="320" loading="lazy" /></div>
+    <div class="content text-center">
+      <h2 class="reveal" set:html={CLOSE.title} />
+      <p class="fs-md close__sub reveal">{CLOSE.body}</p>
+      <div class="close__ctas reveal">
+        {CLOSE.ctas.map((c) => (
+          <a class={`btn btn--${c.style} btn--wide`} href={c.href} data-track="cta_click" data-track-label={`Close — ${c.label}`}>{c.label}</a>
+        ))}
+      </div>
+    </div>
+  </section>
+</MoShell>

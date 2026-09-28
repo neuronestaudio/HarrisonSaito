@@ -1,0 +1,80 @@
+/* Ink — a sumi-e painting carried in a cream section, as ink on the paper.
+ *
+ * Dion, 28 Sep 2026: "in the background I want it drawing like a Japanese
+ * painting… splash animate in with low opacity, so it's faint but detailed."
+ * The painting is Hasegawa Tōhaku's Pine Trees (Shōrin-zu byōbu, right-hand
+ * screen, Tokyo National Museum; public domain, via Wikimedia Commons), with
+ * the paper taken out so only the ink is left (scratch: ink alpha = paper
+ * brightness − pixel brightness), laid on the section's own cream at
+ * --ink-o. Add `section--sumi` to a cream section (not `section--ink`: that is
+ * the first build's dark section in global.css, and it turns the text light) and hand it the files:
+ *   style="--ink:url(/img/ink-pines-v1-1200.webp);--ink-sm:url(…-800.webp)"
+ *   --ink-o     how much ink shows (0..1) — 0.5 reads faint on the cream
+ *   --ink-pos   background-position on a desk
+ *   --ink-from  where the wash starts from (mask origin)
+ *
+ * The wash: the ink is masked to nothing, then the mask blooms out from
+ * --ink-from over three seconds while the picture comes from a blur to sharp
+ * and settles from a hair larger — the look of ink spreading on wet paper.
+ * `is-inked` starts it (Portfolio.astro's observer, when the section is in
+ * view); `is-set` drops the mask afterwards so scrolling never pays for it.
+ * Without script the ink is simply there.
+ */
+.mo .section--sumi { position: relative; isolation: isolate; overflow: hidden; }
+.mo .section--sumi::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background: var(--ink) var(--ink-pos, 50% 42%) / cover no-repeat;
+  opacity: var(--ink-o, 0.5);
+  -webkit-mask: radial-gradient(circle at var(--ink-from, 50% 40%), #000 0 34%, rgba(0, 0, 0, 0.55) 52%, transparent 72%) var(--ink-from, 50% 40%) / 0% 0% no-repeat;
+          mask: radial-gradient(circle at var(--ink-from, 50% 40%), #000 0 34%, rgba(0, 0, 0, 0.55) 52%, transparent 72%) var(--ink-from, 50% 40%) / 0% 0% no-repeat;
+  filter: blur(14px);
+  transform: scale(1.06);
+  transition:
+    -webkit-mask-size 3.2s cubic-bezier(0.16, 1, 0.3, 1),
+    mask-size 3.2s cubic-bezier(0.16, 1, 0.3, 1),
+    filter 2.4s ease-out,
+    transform 3.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.mo .section--sumi.is-inked::before {
+  -webkit-mask-size: 420% 420%;
+          mask-size: 420% 420%;
+  filter: blur(0);
+  transform: none;
+}
+.mo .section--sumi.is-set::before,
+.no-js .mo .section--sumi::before {
+  -webkit-mask: none;
+          mask: none;
+  filter: none;
+  transform: none;
+}
+@media (prefers-reduced-motion: reduce) {
+  .mo .section--sumi::before { -webkit-mask: none; mask: none; filter: none; transform: none; transition: none; }
+}
+@media (max-width: 760px) {
+  /* One column makes the section tall; `cover` would zoom into a trunk. The
+     smaller file at its own scale, the pines across the top, gone by the foot. */
+  .mo .section--sumi::before {
+    background: var(--ink-sm, var(--ink)) 40% 0 / 190% auto no-repeat;
+    -webkit-mask-image: radial-gradient(circle at var(--ink-from, 50% 40%), #000 0 34%, rgba(0, 0, 0, 0.55) 52%, transparent 72%), linear-gradient(180deg, #000 55%, transparent 100%);
+            mask-image: radial-gradient(circle at var(--ink-from, 50% 40%), #000 0 34%, rgba(0, 0, 0, 0.55) 52%, transparent 72%), linear-gradient(180deg, #000 55%, transparent 100%);
+    -webkit-mask-size: 0% 0%, 100% 100%;
+            mask-size: 0% 0%, 100% 100%;
+    -webkit-mask-position: var(--ink-from, 50% 40%), 0 0;
+            mask-position: var(--ink-from, 50% 40%), 0 0;
+    -webkit-mask-repeat: no-repeat;
+            mask-repeat: no-repeat;
+    -webkit-mask-composite: source-in;
+            mask-composite: intersect;
+  }
+  .mo .section--sumi.is-inked::before { -webkit-mask-size: 420% 420%, 100% 100%; mask-size: 420% 420%, 100% 100%; }
+  .mo .section--sumi.is-set::before,
+  .no-js .mo .section--sumi::before {
+    -webkit-mask: linear-gradient(180deg, #000 55%, transparent 100%);
+            mask: linear-gradient(180deg, #000 55%, transparent 100%);
+  }
+}

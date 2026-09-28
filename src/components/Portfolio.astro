@@ -1,0 +1,231 @@
+---
+/**
+ * The portfolio: six doors in the dark glass panel from the walk.
+ *
+ * Dion, 28–29 Sep 2026: "the six squares IS the new portfolio section… I like
+ * the animation, the overlay, the UI/UX, very high end, definitely want to
+ * keep that theme." So this is the beat panel from FrameHero — the ink
+ * panel over his photograph, six glass tiles with a gold mark each, the
+ * sheen that crosses them in turn — set on the cream of the page, with a
+ * sumi-e washing in behind it (styles/ink.css), and every tile a link:
+ * the twelve weeks, the workshop, coaching, the dojo, the HSC work, the
+ * films. Under it, the way out to his channels. Words: data/portfolio.ts.
+ *
+ * The cards keep the `fy__card` class so the site's mark system draws the
+ * icons on reveal (morel-overrides.css) and the sheen keeps their clock.
+ */
+import { PORTFOLIO_SECTION as S, DOORS, CHANNELS } from '../data/portfolio';
+import { forYouIcon } from '../lib/morel-icons';
+import '../styles/ink.css';
+---
+
+<section
+  class="section section--bg4 section--sumi pf"
+  id="portfolio"
+  data-section="portfolio"
+  style="--ink:url(/img/ink-pines-v1-1200.webp);--ink-sm:url(/img/ink-pines-v1-800.webp);--ink-from:50% 36%;--ink-o:0.5"
+>
+  <div class="wide">
+    <header class="pf__head">
+      <p class="eyebrow">{S.label}</p>
+      <h2 class="reveal" set:html={S.title} />
+      <p class="fs-sm pf__lede reveal">{S.lede}</p>
+    </header>
+
+    <div class="pf__panel reveal reveal--fade">
+      <div class="pf__grid" data-stagger>
+        {DOORS.map((d, i) => (
+          <a
+            class="fy__card pf__card reveal"
+            style={`--k:${i}`}
+            href={d.href}
+            data-track="cta_click"
+            data-track-label={`Portfolio — ${d.name}`}
+            data-track-section="portfolio"
+          >
+            <Fragment set:html={forYouIcon(d.icon)} />
+            <p class="pf__name">{d.tag && <span class="pf__tag">{d.tag}</span>}{d.name}</p>
+            <p class="pf__line">{d.line}</p>
+            <span class="pf__go" aria-hidden="true">→</span>
+          </a>
+        ))}
+      </div>
+      <div class="pf__foot">
+        <p class="pf__note">{S.foot}</p>
+        <a class="pf__cta" href={S.cta.href} data-track="cta_click" data-track-label={`Portfolio — ${S.cta.label}`} data-track-section="portfolio">
+          {S.cta.label} <span aria-hidden="true">→</span>
+        </a>
+      </div>
+    </div>
+
+    <p class="pf__channels reveal">
+      <span>Elsewhere</span>
+      {CHANNELS.map((c) => (
+        <a href={c.href} target="_blank" rel="noopener" data-track="cta_click" data-track-label={`Portfolio — ${c.label}`} data-track-section="portfolio">{c.label}</a>
+      ))}
+    </p>
+  </div>
+</section>
+
+<style>
+  .pf { overflow: hidden; }
+  .pf__head { max-width: 880px; margin: 0 auto clamp(26px, 3.4vw, 48px); text-align: center; }
+  .pf__lede { max-width: 58ch; margin: 12px auto 0; }
+
+  /* ---- the panel: the beat's, on the page ------------------------------- */
+  .pf__panel {
+    width: min(960px, 100%);
+    margin: 0 auto;
+    position: relative;
+    isolation: isolate;
+    overflow: hidden;
+    background: #14100d;
+    color: #fcfaf8;
+    border: 1px solid rgba(242, 194, 117, 0.22);
+    border-radius: 28px;
+    padding: clamp(18px, 3vw, 40px);
+    box-shadow: 0 30px 90px rgba(20, 16, 13, 0.35);
+  }
+  /* frame 45 of the 26 Aug shoot behind it, as in the beat — hands to chest */
+  .pf__panel::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: -2;
+    background: url('/img/beat-seiza-v1-1400.webp') 50% 43% / cover no-repeat;
+  }
+  .pf__panel::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    background: linear-gradient(to bottom, rgba(20, 16, 13, 0.78) 0%, rgba(20, 16, 13, 0.72) 30%, rgba(20, 16, 13, 0.56) 52%, rgba(20, 16, 13, 0.72) 78%, rgba(20, 16, 13, 0.88) 100%);
+  }
+
+  /* ---- six tiles, each a door ------------------------------------------- */
+  .pf__grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+  .pf .pf__card {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    aspect-ratio: 3 / 2;
+    width: 100%;
+    padding: 16px 14px 22px;
+    text-align: center;
+    text-decoration: none;
+    color: #fcfaf8;
+    background: rgba(20, 16, 13, 0.62);
+    border: 1px solid rgba(242, 194, 117, 0.26);
+    border-radius: 18px;
+    -webkit-backdrop-filter: blur(10px) saturate(1.1);
+    backdrop-filter: blur(10px) saturate(1.1);
+    overflow: hidden;
+    transition: transform 0.4s var(--ease-out-quart, ease), border-color 0.3s ease, box-shadow 0.3s ease;
+  }
+  .pf .pf__card:hover { transform: translateY(-4px); border-color: rgba(242, 194, 117, 0.7); box-shadow: 0 18px 40px rgba(0, 0, 0, 0.35); }
+  .pf .pf__card:focus-visible { outline: 2px solid #daa24f; outline-offset: 2px; }
+  .pf .pf__card :global(.fy__icon) { width: 52px; height: 52px; color: #f2c275; }
+  .pf .pf__card p { margin: 0; color: #fcfaf8; }
+  .pf .pf__name {
+    font-family: var(--font-base);
+    font-weight: 700;
+    font-size: clamp(0.92rem, 0.82rem + 0.4vw, 1.12rem);
+    line-height: 1.2;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+  }
+  .pf .pf__tag { display: block; margin-bottom: 4px; font-size: 0.62rem; font-weight: 700; letter-spacing: 0.2em; color: #f2c275; }
+  .pf .pf__line { font-weight: 400; font-size: clamp(0.82rem, 0.78rem + 0.2vw, 0.95rem); line-height: 1.35; color: rgba(252, 250, 248, 0.8); max-width: 28ch; }
+  .pf__go {
+    position: absolute;
+    right: 13px;
+    bottom: 9px;
+    color: #f2c275;
+    font-size: 1rem;
+    line-height: 1;
+    opacity: 0.7;
+    transition: transform 0.3s var(--ease-out-quart, ease), opacity 0.3s ease;
+  }
+  .pf .pf__card:hover .pf__go { transform: translateX(3px); opacity: 1; }
+  /* the sheen, on the marks' clock, so the eye is led round the six */
+  .pf .pf__card::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background: linear-gradient(105deg, rgba(242, 194, 117, 0) 36%, rgba(242, 194, 117, 0.3) 50%, rgba(242, 194, 117, 0) 64%);
+    transform: translateX(-120%);
+  }
+  .pf .pf__card:global(.is-in)::before { animation: pfSheen var(--ico-t, 5.4s) ease-in-out infinite; animation-delay: var(--ico-at, 1.5s); }
+  @keyframes pfSheen { 0% { transform: translateX(-120%); } 30%, 100% { transform: translateX(120%); } }
+
+  /* ---- the way on, and the way out --------------------------------------- */
+  .pf__foot { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 10px 18px; margin: clamp(14px, 2vw, 22px) 0 0; }
+  .pf__note { margin: 0; color: rgba(252, 250, 248, 0.8); font-size: var(--fs-xs); }
+  .pf__cta {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5em;
+    font-family: var(--font-base);
+    font-size: clamp(0.82rem, 0.78rem + 0.2vw, 0.95rem);
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    line-height: 1.6;
+    border-radius: 100px;
+    padding: 0.65rem clamp(1.1rem, 2.4vw, 1.9rem) 0.5rem;
+    background: linear-gradient(to right, #f2c275 0%, #daa24f 100%);
+    color: #14100d;
+    text-decoration: none;
+    transition: background 0.3s ease, color 0.3s ease, box-shadow 0.3s ease, transform 0.3s ease;
+  }
+  .pf__cta:hover { background: #fcfaf8; color: #14100d; box-shadow: 0 8px 26px rgba(0, 0, 0, 0.35); transform: translateY(-1px); }
+  .pf__channels {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: baseline;
+    gap: 6px 18px;
+    margin: clamp(18px, 2.6vw, 30px) auto 0;
+    font-size: var(--fs-xs);
+    color: var(--fg1);
+  }
+  .pf__channels span { font-size: 0.66rem; font-weight: 700; letter-spacing: 0.2em; text-transform: uppercase; opacity: 0.6; }
+  .pf__channels a { color: var(--fg1); text-decoration: underline; text-decoration-color: rgba(218, 162, 79, 0.6); text-underline-offset: 0.22em; }
+  .pf__channels a:hover { text-decoration-color: currentColor; }
+
+  @media (max-width: 900px) {
+    .pf__grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .pf .pf__card { aspect-ratio: auto; min-height: 8.2rem; }
+  }
+  @media (max-width: 600px) {
+    .pf__panel { border-radius: 20px; padding: 14px 10px 14px; }
+    .pf__grid { gap: 8px; }
+    .pf .pf__card { gap: 6px; padding: 12px 8px 20px; border-radius: 14px; min-height: 7.2rem; }
+    .pf .pf__card :global(.fy__icon) { width: 34px; height: 34px; }
+    .pf .pf__name { font-size: 0.8rem; }
+    .pf .pf__line { font-size: 0.74rem; }
+    .pf__go { right: 9px; bottom: 6px; font-size: 0.9rem; }
+    .pf__foot { gap: 8px; }
+    .pf__cta { width: 100%; justify-content: center; }
+  }
+</style>
+
+<script>
+  /* The wash starts when the section comes into view, once; the mask is
+     dropped once it has run so scrolling never pays for it. */
+  const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  document.querySelectorAll<HTMLElement>('.section--sumi').forEach((el) => {
+    if (reduce || !('IntersectionObserver' in window)) { el.classList.add('is-inked', 'is-set'); return; }
+    const io = new IntersectionObserver((entries) => {
+      if (!entries.some((e) => e.isIntersecting)) return;
+      io.disconnect();
+      el.classList.add('is-inked');
+      window.setTimeout(() => el.classList.add('is-set'), 3600);
+    }, { threshold: 0.12 });
+    io.observe(el);
+  });
+</script>

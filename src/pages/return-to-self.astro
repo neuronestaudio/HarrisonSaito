@@ -1,0 +1,36 @@
+---
+/**
+ * Return to Self — the twelve weeks, sold.
+ *
+ * This was the home page from 18 to 29 Sep 2026: the walk through the house
+ * that pauses on the shut doors for "Who this is for" (FrameHero, gated),
+ * and the harrison-saito-morel build under it, whole (MorelHome). Dion,
+ * 28 Sep: the home page is his portfolio again, and the funnel keeps this
+ * experience at its own address. The ads' landing pages (/lp/<set>) are
+ * unchanged; the portfolio's first door and the nav come here.
+ */
+import Base from '../layouts/Base.astro';
+import FrameHero from '../components/FrameHero.astro';
+import MorelHome from '../components/MorelHome.astro';
+import { VIDEO_IDS } from '../data/site';
+import { graph, personSchema, localBusinessSchema, videoSchema } from '../lib/seo';
+
+const title = 'Return to Self | 12 weeks with Harrison Saito — Chatswood, Sydney';
+const description =
+  'You don’t have to react to everything you feel. Return to Self is a 12-week program with Harrison Saito — teacher, 2nd Dan karate, coach — to notice your patterns, regulate your reactions and return to what actually matters. Chatswood, Sydney and online.';
+
+const schema = graph(
+  personSchema(),
+  localBusinessSchema(),
+  videoSchema({
+    id: VIDEO_IDS.sbsWorldNews,
+    title: 'SBS World News',
+    description: 'SBS World News interview about youth and adult mental health.',
+  })
+);
+---
+
+<Base title={title} description={description} path="/return-to-self" schema={schema}>
+  <FrameHero />
+  <MorelHome />
+</Base>
