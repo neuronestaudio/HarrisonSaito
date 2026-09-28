@@ -24,6 +24,13 @@ export type Identity = {
   tag: string;
   text: string;
   emphasis: string;
+  /** the slug a tap is remembered as (sessionStorage rts-fy-pick → GHL tag
+      fy-pick-<slug>). Dion, 30 Sep: the cards are tapped, not followed —
+      a card that left the walk mid-house ("it took me to /workshop") was a
+      bug to him, and the gate's cards never did. */
+  pick: string;
+  /** where this identity's own page is — for whatever links to it later;
+      the panel's cards do not */
   href: string;
   kind: 'his' | 'site' | 'team' | 'guide' | 'new';
   source: string;
@@ -42,6 +49,7 @@ export const IDENTITIES: Identity[] = [
   {
     icon: 'switch',
     tag: 'Burnout',
+    pick: 'burnout',
     text: 'You can’t switch off,',
     emphasis: 'even when there’s nothing left to do.',
     href: '/lp/burnout',
@@ -51,6 +59,7 @@ export const IDENTITIES: Identity[] = [
   {
     icon: 'comment',
     tag: 'Regulation',
+    pick: 'regulation',
     text: 'One comment',
     emphasis: 'takes your whole day.',
     href: '/workshop',
@@ -60,6 +69,7 @@ export const IDENTITIES: Identity[] = [
   {
     icon: 'trophy',
     tag: 'Identity through ego',
+    pick: 'ego',
     text: 'You have achieved a lot,',
     emphasis: 'and struggle to feel satisfied by it.',
     href: '/lp/worth',
@@ -69,6 +79,7 @@ export const IDENTITIES: Identity[] = [
   {
     icon: 'family',
     tag: 'Generational trauma',
+    pick: 'generational',
     text: 'Some of what you carry',
     emphasis: 'was never yours to choose.',
     href: '/return-to-self',
@@ -78,6 +89,7 @@ export const IDENTITIES: Identity[] = [
   {
     icon: 'ember',
     tag: 'Unresolved emotions',
+    pick: 'unresolved',
     text: 'There is an anger underneath',
     emphasis: 'you cannot name.',
     href: '/return-to-self',
@@ -87,6 +99,7 @@ export const IDENTITIES: Identity[] = [
   {
     icon: 'saidmeant',
     tag: 'The mask',
+    pick: 'mask',
     text: 'You say yes when you mean no,',
     emphasis: 'then call it keeping the peace.',
     href: '/lp/core',

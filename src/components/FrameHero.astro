@@ -202,7 +202,7 @@ const ROW = !GATE;
 const hallAt = (i: number) => (0.34 + (i * 0.46) / Math.max(1, HALL_ITEMS.length - 1)).toFixed(3);
 ---
 
-<section class:list={['hero', { 'hero--nogate': !PAUSE }]} id="hero" data-frame-hero data-fy={SET.id} data-beat-kind={BEAT} data-section="hero" aria-label="Harrison Saito — Return to Self">
+<section class:list={['hero', { 'hero--nogate': !PAUSE }]} id="hero" data-frame-hero data-fy={BEAT === 'identities' ? 'identities' : SET.id} data-beat-kind={BEAT} data-section="hero" aria-label="Harrison Saito — Return to Self">
   <div class="hero__frame">
     <img class="hero__poster" src="/img/rts-hero-poster-v3.webp" alt="" aria-hidden="true" width="1280" height="720" fetchpriority="high" decoding="sync" />
     <video class="hero__film" muted playsinline preload="metadata"
@@ -333,12 +333,16 @@ const hallAt = (i: number) => (0.34 + (i * 0.46) / Math.max(1, HALL_ITEMS.length
           <h2 class="beat__title" set:html={IDENTITIES_SECTION.title} />
           <p class="beat__lede">{IDENTITIES_SECTION.lede}</p>
         </header>
-        <div class="fy__grid beat__grid" data-stagger role="list">
+        {/* Tapped, not followed (Dion, 30 Sep: a card that left the walk —
+            "it took me to /workshop" — was a bug to him). Any number can be
+            tapped; the picks ride to the lead form as fy-pick-<slug>, and
+            "Keep walking" is never held. */}
+        <div class="fy__grid beat__grid" data-stagger data-picks="many" role="group" aria-label="Tap what is true for you">
           {IDENTITIES.map((c, i) => (
-            <a class="fy__card beat__card beat__card--id" style={`--k:${i}`} href={c.href} role="listitem" data-track="cta_click" data-track-label={`Who's this for — ${c.tag}`} data-track-section="hero-beat">
+            <button type="button" class="fy__card beat__card" style={`--k:${i}`} data-pick={c.pick} aria-pressed="false" data-track="fy_pick" data-track-label={c.pick} data-track-section="hero-beat">
               <Fragment set:html={forYouIcon(c.icon)} />
               <p><span class="beat__tag">{c.tag}</span>{c.text} <strong>{c.emphasis}</strong></p>
-            </a>
+            </button>
           ))}
         </div>
         <p class="beat__foot">
@@ -1955,9 +1959,10 @@ const hallAt = (i: number) => (0.34 + (i * 0.46) / Math.max(1, HALL_ITEMS.length
     var gateOpen = false, gateFree = false, canGo = false, reported = false, bootUntil = performance.now() + 900, nudgeAt = 0;
     var onBtn = beatEl ? beatEl.querySelector<HTMLButtonElement>('[data-beat-on]') : null;
     try { gateFree = gateOpen = sessionStorage.getItem('rts-gate') === '1'; } catch (e) {}
-    /* Nothing to pass — no panel, or a panel with nothing to pick (the doors):
-       the catch still lands the scroll on it, but the hold lets go by itself. */
-    var free = !gated || !pickBtns.length;
+    /* Nothing to pass — no panel, or a pause rather than a gate (the doors,
+       the identities: cards may be tapped, but nothing is required): the
+       catch still lands the scroll on it, but the hold lets go by itself. */
+    var free = !gated || (hero.dataset.beatKind || 'gate') !== 'gate';
     if (free) gateFree = gateOpen = true;
     function showGate() {
       if (!onBtn) return;
