@@ -131,6 +131,7 @@ import { srcset, src } from '../lib/images';
 import { HERO as ARRIVE } from '../data/morel';
 import { setById, BADGE_SETS } from '../data/badges';
 import { ROOMS, DOORS, PORTFOLIO_SECTION } from '../data/portfolio';
+import { IDENTITIES, IDENTITIES_SECTION } from '../data/identities';
 import { forYouIcon } from '../lib/morel-icons';
 import '../styles/avant.css';
 import '../styles/morel.css';
@@ -146,14 +147,17 @@ interface Props {
                 (the ads' landing pages, /return-to-self);
       'doors' — pauses, and the six-door portfolio panel comes up — "a nice
                 little sub page mid house" (Dion, 29 Sep) — then a scroll or
-                "Keep walking" goes on: a pause, not a gate (the home page);
+                "Keep walking" goes on: a pause, not a gate;
+      'identities' — pauses, and "Who's this for?" comes up: six identities
+                (data/identities.ts), each a link, nothing to pick — "nicer
+                for the user journey" (Dion, 29 Sep, later; the home page);
       'none'  — no pause; the walk runs straight through to the doorway. */
-  beat?: 'gate' | 'doors' | 'none';
+  beat?: 'gate' | 'doors' | 'identities' | 'none';
   /** Old spelling of beat: false = 'none'. */
   gate?: boolean;
 }
 const SET = setById(Astro.props.set);
-const BEAT: 'gate' | 'doors' | 'none' = Astro.props.beat ?? (Astro.props.gate === false ? 'none' : 'gate');
+const BEAT: 'gate' | 'doors' | 'identities' | 'none' = Astro.props.beat ?? (Astro.props.gate === false ? 'none' : 'gate');
 const GATE = BEAT === 'gate';
 const PAUSE = BEAT !== 'none';
 const START = PAUSE ? '#for-you' : '#portfolio';
@@ -186,12 +190,15 @@ for (let round = 0; round < 6 && HALL.length < HALL_N; round++) {
    him, as a fraction of the walk to the doors (0.34 = the title has just
    gone, 0.80 = clear before the panel comes up). */
 const HALL_Y = [22, 42, 58, 20, 30, 60, 62, 34];   /* same-side neighbours alternate high and low */
-/* Ungated (the home page, Dion 29 Sep): the hallway carries the rooms of the
-   house instead — THE CORE, DOJO, TEMPLE… — as tiles, "so it gives direction
-   and image as the users are navigating through the house". */
+/* Ungated (the home page, Dion 29 Sep): the hallway's passing lines are the
+   gate's; here the rooms of the house — THE CORE, DOJO, TEMPLE… — sit in a
+   row at the ceiling instead (.hall-row below), from the first scroll to
+   the pause, "so there's references of what Hari does and avenues to get
+   there from the get go". */
 const HALL_ITEMS = GATE
   ? HALL.map((c) => ({ kind: 'line' as const, icon: c.icon, text: c.text, emphasis: c.emphasis, name: '', sub: '' }))
-  : ROOMS.map((r) => ({ kind: 'room' as const, icon: r.icon, text: '', emphasis: '', name: r.name, sub: r.sub }));
+  : [];
+const ROW = !GATE;
 const hallAt = (i: number) => (0.34 + (i * 0.46) / Math.max(1, HALL_ITEMS.length - 1)).toFixed(3);
 ---
 
@@ -227,6 +234,21 @@ const hallAt = (i: number) => (0.34 + (i * 0.46) / Math.max(1, HALL_ITEMS.length
         </p>
       ))}
     </div>
+
+    {/* The rooms, at the ceiling (Dion, 29 Sep): up as soon as the first
+        screen is left, one after another, held there through the walk, gone
+        as the pause comes up. Every one a way in. The script sets
+        .hero--row for the stretch; the stagger and the fade are --p's. */}
+    {ROW && (
+      <nav class="hall-row" aria-label="What Harrison does">
+        {ROOMS.map((r, i) => (
+          <a class="hall-row__chip" style={`--k:${i}`} href={r.href} title={r.sub} data-track="cta_click" data-track-label={`Ceiling — ${r.name}`} data-track-section="hero-row">
+            <Fragment set:html={forYouIcon(r.icon)} />
+            <span>{r.name}</span>
+          </a>
+        ))}
+      </nav>
+    )}
 
     <div class="hero__copy">
       <p class="hero__eyebrow"><span>Harrison Saito · Coaching</span><i aria-hidden="true"> · </i><span>Chatswood, Sydney</span></p>
@@ -295,6 +317,32 @@ const hallAt = (i: number) => (0.34 + (i * 0.46) / Math.max(1, HALL_ITEMS.length
         </div>
         <p class="beat__foot">
           <button class="beat__on" type="button" data-beat-on data-track="cta_click" data-track-label="Doors — Keep walking" data-track-section="hero-beat" data-closed="Keep walking ↓" data-open="Keep walking ↓">Keep walking ↓</button>
+        </p>
+      </div>
+    </div>
+    )}
+
+    {/* The identities (Dion, 29 Sep, later): at the pause, "Who's this for?" —
+        six patterns in the gate's own tiles, a gold word naming each, every
+        tile a link. Nothing to pick; "Keep walking" or a scroll goes on. */}
+    {BEAT === 'identities' && (
+    <div class="beat mo mo--bare beat--ids" data-beat aria-hidden="true">
+      <div class="beat__panel" role="region" aria-label="Who this is for">
+        <header class="beat__head">
+          <p class="eyebrow beat__eyebrow">{IDENTITIES_SECTION.label}</p>
+          <h2 class="beat__title" set:html={IDENTITIES_SECTION.title} />
+          <p class="beat__lede">{IDENTITIES_SECTION.lede}</p>
+        </header>
+        <div class="fy__grid beat__grid" data-stagger role="list">
+          {IDENTITIES.map((c, i) => (
+            <a class="fy__card beat__card beat__card--id" style={`--k:${i}`} href={c.href} role="listitem" data-track="cta_click" data-track-label={`Who's this for — ${c.tag}`} data-track-section="hero-beat">
+              <Fragment set:html={forYouIcon(c.icon)} />
+              <p><span class="beat__tag">{c.tag}</span>{c.text} <strong>{c.emphasis}</strong></p>
+            </a>
+          ))}
+        </div>
+        <p class="beat__foot">
+          <button class="beat__on" type="button" data-beat-on data-track="cta_click" data-track-label="Who's this for — Keep walking" data-track-section="hero-beat" data-closed="Keep walking ↓" data-open="Keep walking ↓">Keep walking ↓</button>
         </p>
       </div>
     </div>
@@ -637,6 +685,58 @@ const hallAt = (i: number) => (0.34 + (i * 0.46) / Math.max(1, HALL_ITEMS.length
     transform-origin: 100% 50%;
     transform: translate3d(calc(var(--t) * 8vw), calc(var(--t) * -2.5vh), 0) scale(calc(1 + var(--t) * 0.2));
   }
+  /* The rooms, in a row at the ceiling (home page). Each chip comes up in
+     turn once the first screen is behind him (--k staggers it off --p) and
+     the row fades as the pause arrives (--pa). Hidden and inert outside that
+     stretch — the script's .hero--row — so nothing under it is blocked. */
+  .hall-row {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: calc(var(--beat-top, 84px) + 4px);
+    z-index: 6;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 8px;
+    padding: 0 clamp(12px, 3vw, 40px);
+    visibility: hidden;
+    pointer-events: none;
+  }
+  .hero--row .hall-row { visibility: visible; pointer-events: auto; }
+  .hall-row__chip {
+    --in: clamp(0, calc((var(--p, 0) - 0.045 - var(--k, 0) * 0.011) / 0.035), 1);
+    --out: clamp(0, calc((var(--pa, 0.41) - 0.05 - var(--p, 0)) / 0.03), 1);
+    --v: min(var(--in), var(--out));
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 14px 8px 10px;
+    border-radius: 999px;
+    border: 1px solid rgba(242, 194, 117, 0.42);
+    background: rgba(20, 16, 13, 0.72);
+    box-shadow: 0 12px 34px rgba(0, 0, 0, 0.4);
+    color: #fcfaf8;
+    font-family: var(--font-avant);
+    font-size: clamp(0.66rem, 0.58rem + 0.3vw, 0.86rem);
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    text-decoration: none;
+    white-space: nowrap;
+    opacity: var(--v);
+    transform: translateY(calc((1 - var(--v)) * -14px));
+    transition: border-color 0.3s ease, background 0.3s ease;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .hall-row__chip:hover, .hall-row__chip:focus-visible { border-color: #f2c275; background: rgba(20, 16, 13, 0.9); outline: none; }
+  .hall-row__chip :global(.fy__icon) { width: 22px; height: 22px; color: #f2c275; flex: none; }
+  @media (max-width: 700px) {
+    .hall-row { gap: 6px; padding: 0 8px; top: calc(var(--beat-top, 72px) + 2px); }
+    .hall-row__chip { padding: 6px 10px 6px 8px; gap: 6px; font-size: 0.6rem; }
+    .hall-row__chip :global(.fy__icon) { width: 18px; height: 18px; }
+  }
+
   /* The rooms (home page): the same ride, as a tile — the mark above the
      name, the name in the walk's capitals, one plain line under it, a gold
      rule between, on the beat's dark glass. */
@@ -1407,6 +1507,9 @@ const hallAt = (i: number) => (0.34 + (i * 0.46) / Math.max(1, HALL_ITEMS.length
     text-shadow: 0 2px 14px rgba(0, 0, 0, 0.65);
   }
   .beat .beat__card--door::after { display: none; }
+  /* The identities: the gate's glass tiles, as links — no seal either. */
+  .beat .beat__card--id { text-decoration: none; }
+  .beat .beat__card--id::after { display: none; }
   .beat .beat__card--door p { text-transform: uppercase; letter-spacing: 0.03em; }
   .beat .beat__card--door :global(strong) { display: block; margin-top: 4px; font-weight: 500; font-size: 0.82em; letter-spacing: 0; text-transform: none; color: rgba(252, 250, 248, 0.85); }
   .beat .beat__card--door :global(.fy__icon) { filter: drop-shadow(0 2px 8px rgba(0, 0, 0, 0.6)); }
@@ -1692,10 +1795,13 @@ const hallAt = (i: number) => (0.34 + (i * 0.46) / Math.max(1, HALL_ITEMS.length
 
     /* ---- paint: everything the page shows is a function of p ---- */
     var target = 0, eased = 0, beatOn = false, cardsIn = false, meetOn = false;
-    var away = false;
+    var away = false, rowOn = false;
     function paint(p: number) {
       st.setProperty('--p', p.toFixed(4));
       if ((p > 0.13) !== away) { away = !away; hero!.classList.toggle('hero--away', away); }
+      /* the rooms' row at the ceiling: from the first scroll to the pause */
+      var rowNow = p > 0.04 && p < pA - 0.02;
+      if (rowNow !== rowOn) { rowOn = rowNow; hero!.classList.toggle('hero--row', rowOn); }
       if (filmOn) {
         var still = clamp((eased - HOLD_FROM_T) / (T_END - HOLD_FROM_T), 0, 1);
         st.setProperty('--hold', still.toFixed(3));

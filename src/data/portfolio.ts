@@ -111,14 +111,20 @@ export const DOORS: Door[] = [
  * each line is a fact the site already states. They ride the hallway
  * (FrameHero) where the recognition lines ride on the gated pages.
  */
-export type Room = { icon: string; name: string; sub: string };
+/* 29 Sep, later: "as soon as the person scrolls after the beat, I want the
+   core, the dojo, the temple, the other ones, all as a row element sitting at
+   the top of the ceiling, and keyframes to stay there as the user progresses
+   to the next checkpoint — that way there's references of what Hari does and
+   avenues to get there from the get go." So the six ride at the ceiling of the
+   walk as a row of links (FrameHero .hall-row), not past him one by one. */
+export type Room = { icon: string; name: string; sub: string; href: string };
 export const ROOMS: Room[] = [
-  { icon: 'stairs', name: 'The Core', sub: 'Twelve weeks. Separate, return, integrate.' },
-  { icon: 'summit', name: 'Dojo', sub: 'Shinbukan. His father’s school.' },
-  { icon: 'moon', name: 'Temple', sub: 'Koyasan. Attention, not belief.' },
-  { icon: 'mirror', name: 'Return to Self', sub: 'The practice: notice, then choose.' },
-  { icon: 'comment', name: 'One on One', sub: 'Coaching, session by session.' },
-  { icon: 'ember', name: 'Breathwork', sub: 'The monthly room. Sixteen seats.' },
+  { icon: 'stairs', name: 'The Core', sub: 'Twelve weeks. Separate, return, integrate.', href: '/return-to-self' },
+  { icon: 'summit', name: 'Dojo', sub: 'Shinbukan. His father’s school.', href: '/about' },
+  { icon: 'moon', name: 'Temple', sub: 'Koyasan. Attention, not belief.', href: '/about' },
+  { icon: 'mirror', name: 'Return to Self', sub: 'The practice: notice, then choose.', href: '/return-to-self' },
+  { icon: 'comment', name: 'One on One', sub: 'Coaching, session by session.', href: '/mens-coaching' },
+  { icon: 'ember', name: 'Breathwork', sub: 'The monthly room. Sixteen seats.', href: '/workshops' },
 ];
 
 /** His other channels — the way out of the site, on purpose. */
