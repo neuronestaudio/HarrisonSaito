@@ -117,14 +117,19 @@ export const DOORS: Door[] = [
    to the next checkpoint — that way there's references of what Hari does and
    avenues to get there from the get go." So the six ride at the ceiling of the
    walk as a row of links (FrameHero .hall-row), not past him one by one. */
-export type Room = { icon: string; name: string; sub: string; href: string };
+/* Dion, 29 Sep, later still: "each with the picture so there's a proper
+   thumbnail — that way the user journey sees a human / Harrison / others
+   immediately after scroll; a sense of human touch is receptive." So each
+   chip carries a face (`thumb` → /img/room-<k>-v1-{96,192}.webp, cut from
+   photographs already on the site; the full-moon one from the asset album). */
+export type Room = { icon: string; name: string; sub: string; href: string; thumb: string; thumbAlt: string };
 export const ROOMS: Room[] = [
-  { icon: 'stairs', name: 'The Core', sub: 'Twelve weeks. Separate, return, integrate.', href: '/return-to-self' },
-  { icon: 'summit', name: 'Dojo', sub: 'Shinbukan. His father’s school.', href: '/about' },
-  { icon: 'moon', name: 'Temple', sub: 'Koyasan. Attention, not belief.', href: '/about' },
-  { icon: 'mirror', name: 'Return to Self', sub: 'The practice: notice, then choose.', href: '/return-to-self' },
-  { icon: 'comment', name: 'One on One', sub: 'Coaching, session by session.', href: '/mens-coaching' },
-  { icon: 'ember', name: 'Breathwork', sub: 'The monthly room. Sixteen seats.', href: '/workshops' },
+  { icon: 'stairs', name: 'The Core', sub: 'Twelve weeks. Separate, return, integrate.', href: '/return-to-self', thumb: 'room-core-v1', thumbAlt: 'Harrison, lit by a match' },
+  { icon: 'summit', name: 'Dojo', sub: 'Shinbukan. His father’s school.', href: '/about', thumb: 'room-dojo-v1', thumbAlt: 'Harrison in his gi' },
+  { icon: 'moon', name: 'Temple', sub: 'Koyasan. Attention, not belief.', href: '/about', thumb: 'room-temple-v1', thumbAlt: 'Harrison in seiza, eyes closed' },
+  { icon: 'mirror', name: 'Return to Self', sub: 'The practice: notice, then choose.', href: '/return-to-self', thumb: 'room-rts-v1', thumbAlt: 'Harrison before the shoji' },
+  { icon: 'comment', name: 'One on One', sub: 'Coaching, session by session.', href: '/mens-coaching', thumb: 'room-one-v1', thumbAlt: 'A client, seated, eyes closed' },
+  { icon: 'ember', name: 'Breathwork', sub: 'The monthly room. Sixteen seats.', href: '/workshops', thumb: 'room-breath-v1', thumbAlt: 'Harrison seated on the grass by the water' },
 ];
 
 /** His other channels — the way out of the site, on purpose. */

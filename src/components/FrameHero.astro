@@ -243,7 +243,7 @@ const hallAt = (i: number) => (0.34 + (i * 0.46) / Math.max(1, HALL_ITEMS.length
       <nav class="hall-row" aria-label="What Harrison does">
         {ROOMS.map((r, i) => (
           <a class="hall-row__chip" style={`--k:${i}`} href={r.href} title={r.sub} data-track="cta_click" data-track-label={`Ceiling — ${r.name}`} data-track-section="hero-row">
-            <Fragment set:html={forYouIcon(r.icon)} />
+            <img class="hall-row__face" src={`/img/${r.thumb}-96.webp`} srcset={`/img/${r.thumb}-96.webp 1x, /img/${r.thumb}-192.webp 2x`} alt={r.thumbAlt} width="96" height="96" loading="lazy" decoding="async" />
             <span>{r.name}</span>
           </a>
         ))}
@@ -710,8 +710,8 @@ const hallAt = (i: number) => (0.34 + (i * 0.46) / Math.max(1, HALL_ITEMS.length
     --v: min(var(--in), var(--out));
     display: inline-flex;
     align-items: center;
-    gap: 8px;
-    padding: 8px 14px 8px 10px;
+    gap: 9px;
+    padding: 5px 15px 5px 5px;
     border-radius: 999px;
     border: 1px solid rgba(242, 194, 117, 0.42);
     background: rgba(20, 16, 13, 0.72);
@@ -730,11 +730,22 @@ const hallAt = (i: number) => (0.34 + (i * 0.46) / Math.max(1, HALL_ITEMS.length
     -webkit-tap-highlight-color: transparent;
   }
   .hall-row__chip:hover, .hall-row__chip:focus-visible { border-color: #f2c275; background: rgba(20, 16, 13, 0.9); outline: none; }
-  .hall-row__chip :global(.fy__icon) { width: 22px; height: 22px; color: #f2c275; flex: none; }
+  /* the face: a round thumbnail with a hair of gold round it, so a person
+     is the first thing the row shows */
+  .hall-row__face {
+    width: 32px;
+    height: 32px;
+    flex: none;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 1px solid rgba(242, 194, 117, 0.7);
+    box-shadow: 0 0 0 1px rgba(20, 16, 13, 0.6);
+    background: #14100d;
+  }
   @media (max-width: 700px) {
     .hall-row { gap: 6px; padding: 0 8px; top: calc(var(--beat-top, 72px) + 2px); }
-    .hall-row__chip { padding: 6px 10px 6px 8px; gap: 6px; font-size: 0.6rem; }
-    .hall-row__chip :global(.fy__icon) { width: 18px; height: 18px; }
+    .hall-row__chip { padding: 4px 10px 4px 4px; gap: 6px; font-size: 0.6rem; }
+    .hall-row__face { width: 24px; height: 24px; }
   }
 
   /* The rooms (home page): the same ride, as a tile — the mark above the
