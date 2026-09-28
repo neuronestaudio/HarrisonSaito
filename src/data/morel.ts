@@ -204,8 +204,15 @@ export const QUOTE = local(S.QUOTE);
 export const FILMS_SECTION = local(S.FILMS_SECTION);
 /* The SBS film card takes the second still from the broadcast, so the story's
    poster and the film wall do not show the same frame twice. */
+/* Dion, 28 Sep: the featured SBS card wears the seiza two-shot — Harrison and
+   a student kneeling on the mats, eyes closed (his WhatsApp photo, cut to
+   16:9 from y=130 so the faces keep headroom; the card anchors it top). The
+   broadcast frame (sbs-karate-2-v1) stays on disk; the Story poster still
+   uses sbs-karate-v1. */
 export const FILMS = local(S.FILMS).map((f) =>
-  f.image === '/img/sbs-karate-v1.webp' ? { ...f, image: '/img/sbs-karate-2-v1.webp' } : f
+  f.image === '/img/sbs-karate-v1.webp'
+    ? { ...f, image: '/img/seiza-pair-v1.webp', /* phones: the 4:5 cut on a taller card, so the title never sits on a face */ imageMobile: '/img/seiza-pair-portrait-v1.webp' }
+    : f
 );
 const FAMILY_BASE = local(S.FAMILY);
 /* The three doors show who is behind them (Dion, 22 Sep): the Core is a wall

@@ -672,7 +672,7 @@
   pointer-events: none;
 }
 .mo .film:hover { transform: translateY(-4px); box-shadow: 0 24px 60px rgba(20, 16, 13, 0.25); }
-.mo .film--feature { aspect-ratio: 21 / 9; min-height: 380px; margin-bottom: 20px; }
+.mo .film--feature { aspect-ratio: 21 / 9; min-height: 380px; margin-bottom: 20px; background-position: center top; } /* a two-shot of people: keep the faces, lose the mats */
 .mo .film__inner {
   position: absolute;
   inset: auto 0 0 0;
@@ -691,6 +691,8 @@
 @media (max-width: 780px) {
   .mo .films__pair { grid-template-columns: 1fr; }
   .mo .film--feature { aspect-ratio: 16 / 9; min-height: 240px; }
+  /* a film with a portrait cut (--film-mobile from the data) stands taller on a phone, faces above the text */
+  .mo .film--feature.film--has-mobile { aspect-ratio: 4 / 5; min-height: 0; background-image: var(--film-mobile) !important; background-position: center; }
   .mo .film { min-height: 220px; }
   .mo .film__inner { padding: var(--sp-40); }
 }

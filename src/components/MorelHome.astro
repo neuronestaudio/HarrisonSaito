@@ -284,7 +284,7 @@ const book = (href: string) => href === '/book';
       </div>
 
       {FILMS.filter((f) => f.featured).map((f) => (
-        <a class="film film--feature js-video reveal" href={`https://www.youtube.com/watch?v=${f.id}`} data-video={f.id} style={`background-image:url(${f.image})`}>
+        <a class={`film film--feature js-video reveal${'imageMobile' in f ? ' film--has-mobile' : ''}`} href={`https://www.youtube.com/watch?v=${f.id}`} data-video={f.id} style={`background-image:url(${f.image})${'imageMobile' in f ? `;--film-mobile:url(${f.imageMobile})` : ''}`}>
           <div class="film__inner">
             <div>
               <span class="pill">{f.label}</span>
