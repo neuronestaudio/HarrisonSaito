@@ -780,8 +780,10 @@ export const CHAPTERS: Chapter[] = [
       'The dojo is where I learned that discipline without honesty just builds a better shell. It is also the room where I eventually took mine apart.',
     ],
     credential: '2nd Dan black belt, Karate',
-    image: 'karate-training',
-    imageAlt: 'Harrison Saito training karate in a white gi',
+    /* Dion, 29 Sep: not the two students — him. DSC0549 from the 23 Sep dojo
+       set: in his gi and black belt before the shoji, facing the lens. */
+    image: 'about-dojo-v1',
+    imageAlt: 'Harrison Saito standing in his gi and black belt before the shoji screens of the dojo',
     bg: 'karate-group',
     tone: 'oklch(27% 0.03 265)',
   },
@@ -796,9 +798,13 @@ export const CHAPTERS: Chapter[] = [
       'I teach in a New South Wales high school. I hold a Master of Teaching (Secondary) and a Bachelor of Commerce.',
       'That means I know the HSC from the inside — the syllabus, the markers, the pressure — rather than from a tutoring centre’s brochure. I have walked beside hundreds of students through it.',
     ],
-    credential: 'M.Teach (Secondary) · B.Com · practising high school teacher',
-    image: 'youth-tutoring',
-    imageAlt: 'Harrison Saito teaching two students at a table with laptops',
+    /* Dion, 29 Sep: "NSW Department of Education" in place of "practising
+       high school teacher", and "something a bit more formal" for the
+       picture — DSC0688 from the 23 Sep set: at a desk with a laptop, the
+       certificates on the wall behind him. */
+    credential: 'M.Teach (Secondary) · B.Com · NSW Department of Education',
+    image: 'about-desk-v1',
+    imageAlt: 'Harrison Saito at a desk with a laptop, certificates framed on the wall behind him',
     bg: 'naruto-group',
     tone: 'oklch(30% 0.032 118)',
   },
