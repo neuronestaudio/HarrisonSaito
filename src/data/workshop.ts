@@ -297,24 +297,27 @@ export const FORM = {
   /* Dion, 26 Sep, as said: thank you, your spot is under review, Harrison will
      reach out directly, select a window for him to call you. */
   successHeading: 'Thank you.',
-  successBody: 'Your spot is under review, and Harrison will reach out directly. Pick up to three one-hour windows for his call.',
+  successBody: 'Your spot is under review, and Harrison will reach out directly. Pick up to three windows for his call.',
   callLabel: 'When can he call?',
-  /* Dion, 26 Sep: "time-block hours to select, UI/UX high end." Harrison
-     teaches, so on a weekday the blocks are late afternoon and evening; on a
-     weekend, the morning. One-hour blocks, Sydney time, across the next seven
-     days that have one — from tomorrow, so he has read the application before
-     the first window opens — and up to three picks across them. Change the
-     hours here and nowhere else; SeatForm draws whatever this says. */
+  /* Dion, 26 Sep: "time-block hours to select, UI/UX high end." Then, 30 Sep:
+     "the call can start anywhere between 8 and 8, but in windows — 8–10,
+     10–12, 12–2, 2–4, 4–6, 6–8." So six two-hour blocks a day, every day,
+     Sydney time, across the next seven days — from tomorrow, so he has read
+     the application before the first window opens — and up to three picks
+     across them. Change the hours here and nowhere else; SeatForm draws
+     whatever this says. (Before 30 Sep: one-hour blocks, weekday 4–8 pm,
+     weekend 9 am–1 pm.) */
   call: {
     tz: 'Australia/Sydney',
     /** how many days to offer, and how many days out the first one is */
     days: 7,
     from: 1,
-    /** block start hours (24h); every block runs one hour */
-    weekday: [16, 17, 18, 19],
-    weekend: [9, 10, 11, 12],
+    /** block start hours (24h), and how many hours each block runs */
+    block: 2,
+    weekday: [8, 10, 12, 14, 16, 18],
+    weekend: [8, 10, 12, 14, 16, 18],
     max: 3,
-    hint: 'Sydney time · one-hour windows · up to three',
+    hint: 'Sydney time · two-hour windows · up to three',
     countLabel: '{n} of {max}',
     confirm: 'Confirm windows',
     flexible: 'I’m flexible — any time this week works',

@@ -15,7 +15,8 @@
  * thank-you screen asks one more thing: when he can call.
  *
  * Dion, later that day: "time-block hours to select, UI/UX high end." So the
- * window is not a broad "weekday evenings" any more but real one-hour blocks:
+ * window is not a broad "weekday evenings" any more but real blocks (two
+ * hours each since 30 Sep — 8 am to 8 pm, six a day; FORM.call says):
  * a strip of the next seven days (Sydney time, drawn in the browser so it is
  * always current), the blocks that day has (weekday afternoons and evenings,
  * weekend mornings — Harrison teaches), and up to three picks across days.
@@ -176,7 +177,7 @@ const {
       {/* the day strip: drawn by the script from today, in Sydney time */}
       <div class="sf__days" role="radiogroup" aria-labelledby={`${formId}-call-label`} data-days></div>
 
-      {/* that day's one-hour blocks */}
+      {/* that day's blocks (FORM.call.block hours each) */}
       <p class="sf__hours-day" data-hours-day aria-live="polite"></p>
       <div class="sf__hours" role="group" aria-label="One-hour windows" data-hours></div>
 
@@ -534,7 +535,7 @@ const {
   const ENDPOINT = import.meta.env.PUBLIC_FORM_ENDPOINT || '/api/lead';
 
   type CallCfg = {
-    tz: string; days: number; from: number; weekday: number[]; weekend: number[]; max: number;
+    tz: string; days: number; from: number; block?: number; weekday: number[]; weekend: number[]; max: number;
     hint: string; countLabel: string; confirm: string; flexible: string; flexibleLabel: string;
   };
   type Day = { iso: string; wd: number; n: number; mo: number; hours: number[] };
@@ -547,9 +548,9 @@ const {
   const pad = (n: number) => String(n).padStart(2, '0');
   const h12 = (h: number) => ((h + 11) % 12) + 1;
   const mer = (h: number) => (h % 24 >= 12 ? 'pm' : 'am');
-  /** 16 → "4–5 pm"; 11 → "11 am–12 pm"; 12 → "12–1 pm" */
-  const blockLabel = (h: number) =>
-    mer(h) === mer(h + 1) ? `${h12(h)}–${h12(h + 1)} ${mer(h)}` : `${h12(h)} ${mer(h)}–${h12(h + 1)} ${mer(h + 1)}`;
+  /** n hours from h: 16,2 → "4–6 pm"; 10,2 → "10 am–12 pm"; 12,2 → "12–2 pm" */
+  const blockLabel = (h: number, n: number) =>
+    mer(h) === mer(h + n) ? `${h12(h)}–${h12(h + n)} ${mer(h)}` : `${h12(h)} ${mer(h)}–${h12(h + n)} ${mer(h + n)}`;
 
   /** The wall clock in Harrison's zone — the only place Intl is needed. From
       there the days are plain calendar arithmetic on UTC-noon dates, which is
@@ -566,7 +567,7 @@ const {
     for (let i = cfg.from; days.length < cfg.days && i < cfg.from + cfg.days + 7; i++) {
       const dt = new Date(Date.UTC(now.y, now.m - 1, now.d + i, 12));
       const wd = dt.getUTCDay();
-      const hours = (wd === 0 || wd === 6 ? cfg.weekend : cfg.weekday).filter((h) => i > 0 || h > now.h + 1);
+      const hours = (wd === 0 || wd === 6 ? cfg.weekend : cfg.weekday).filter((h) => i > 0 || h >= now.h + 2);
       if (!hours.length) continue;
       days.push({ iso: `${dt.getUTCFullYear()}-${pad(dt.getUTCMonth() + 1)}-${pad(dt.getUTCDate())}`, wd, n: dt.getUTCDate(), mo: dt.getUTCMonth(), hours });
     }
@@ -692,12 +693,14 @@ const {
     const short = (d: Day) => `${WD[d.wd]} ${d.n} ${MO[d.mo]}`;
 
     /** "2026-09-28 17:00-18:00; 2026-09-30 16:00-17:00" — for a workflow */
-    const machine = () => sorted().map((p) => `${p.iso} ${pad(p.h)}:00-${pad(p.h + 1)}:00`).join('; ');
+    const N = cfg.block || 1;
+    const label = (h: number) => blockLabel(h, N);
+    const machine = () => sorted().map((p) => `${p.iso} ${pad(p.h)}:00-${pad(p.h + N)}:00`).join('; ');
     /** "Mon 28 Sep, 5–6 pm or 6–7 pm; or Wed 30 Sep, 4–5 pm (Sydney)" — for Harrison */
     const sentence = () => {
       const byDay: string[] = [];
       for (const d of days) {
-        const hs = sorted().filter((p) => p.iso === d.iso).map((p) => blockLabel(p.h));
+        const hs = sorted().filter((p) => p.iso === d.iso).map((p) => label(p.h));
         if (hs.length) byDay.push(`${short(d)}, ${hs.join(' or ')}`);
       }
       return `${byDay.join('; or ')} (Sydney)`;
@@ -724,7 +727,7 @@ const {
         b.dataset.hour = String(h);
         b.setAttribute('aria-pressed', String(on));
         if (!on && full) b.setAttribute('aria-disabled', 'true');
-        b.textContent = blockLabel(h);
+        b.textContent = label(h);
         b.addEventListener('click', () => toggle(d.iso, h));
         hoursEl.appendChild(b);
       }
@@ -741,11 +744,11 @@ const {
         const chip = document.createElement('span');
         chip.className = 'sf__pick';
         const text = document.createElement('span');
-        text.textContent = `${short(d)} · ${blockLabel(p.h)}`;
+        text.textContent = `${short(d)} · ${label(p.h)}`;
         const x = document.createElement('button');
         x.type = 'button';
         x.className = 'sf__pick-x';
-        x.setAttribute('aria-label', `Remove ${short(d)} ${blockLabel(p.h)}`);
+        x.setAttribute('aria-label', `Remove ${short(d)} ${label(p.h)}`);
         x.textContent = '×';
         x.addEventListener('click', () => toggle(p.iso, p.h));
         chip.append(text, x);
