@@ -242,9 +242,9 @@ const hallAt = (i: number) => (0.34 + (i * 0.46) / Math.max(1, HALL_ITEMS.length
     {ROW && (
       <nav class="hall-row" aria-label="What Harrison does">
         {ROOMS.map((r, i) => (
-          <a class="hall-row__chip" style={`--k:${i}`} href={r.href} title={r.sub} data-track="cta_click" data-track-label={`Ceiling — ${r.name}`} data-track-section="hero-row">
-            <img class="hall-row__face" src={`/img/${r.thumb}-96.webp`} srcset={`/img/${r.thumb}-96.webp 1x, /img/${r.thumb}-192.webp 2x`} alt={r.thumbAlt} width="96" height="96" loading="lazy" decoding="async" />
-            <span>{r.name}</span>
+          <a class="hall-row__chip" style={`--k:${i}`} href={r.href} data-track="cta_click" data-track-label={`Ceiling — ${r.name}`} data-track-section="hero-row">
+            <img class="hall-row__face" src={`/img/${r.thumb}-240.webp`} srcset={`/img/${r.thumb}-240.webp 1x, /img/${r.thumb}-480.webp 2x`} alt={r.thumbAlt} width="240" height="240" loading="lazy" decoding="async" />
+            <span class="hall-row__words"><b>{r.name}</b><small>{r.sub}</small></span>
           </a>
         ))}
       </nav>
@@ -689,16 +689,22 @@ const hallAt = (i: number) => (0.34 + (i * 0.46) / Math.max(1, HALL_ITEMS.length
      turn once the first screen is behind him (--k staggers it off --p) and
      the row fades as the pause arrives (--pa). Hidden and inert outside that
      stretch — the script's .hero--row — so nothing under it is blocked. */
+  /* Tiles, not pills (Dion, 29 Sep: "bigger components as boxes so there's
+     substance to the size… like the length of the pill ×1.5 as a square"):
+     six near-square cards in a row under the nav, each its photograph with
+     the name and one line at its foot. Sized from the viewport so six always
+     fit on a desk; three by two on a phone. */
   .hall-row {
+    --tile: clamp(104px, calc((100vw - 2 * clamp(12px, 3vw, 40px) - 5 * 10px) / 6), 210px);
     position: absolute;
     left: 0;
     right: 0;
-    top: calc(var(--beat-top, 84px) + 4px);
+    top: calc(var(--beat-top, 84px) + 6px);
     z-index: 6;
-    display: flex;
-    flex-wrap: wrap;
+    display: grid;
+    grid-template-columns: repeat(6, var(--tile));
     justify-content: center;
-    gap: 8px;
+    gap: 10px;
     padding: 0 clamp(12px, 3vw, 40px);
     visibility: hidden;
     pointer-events: none;
@@ -708,44 +714,79 @@ const hallAt = (i: number) => (0.34 + (i * 0.46) / Math.max(1, HALL_ITEMS.length
     --in: clamp(0, calc((var(--p, 0) - 0.045 - var(--k, 0) * 0.011) / 0.035), 1);
     --out: clamp(0, calc((var(--pa, 0.41) - 0.05 - var(--p, 0)) / 0.03), 1);
     --v: min(var(--in), var(--out));
-    display: inline-flex;
-    align-items: center;
-    gap: 9px;
-    padding: 5px 15px 5px 5px;
-    border-radius: 999px;
-    border: 1px solid rgba(242, 194, 117, 0.42);
-    background: rgba(20, 16, 13, 0.72);
-    box-shadow: 0 12px 34px rgba(0, 0, 0, 0.4);
+    position: relative;
+    display: block;
+    aspect-ratio: 1 / 1;
+    overflow: hidden;
+    border-radius: 16px;
+    border: 1px solid rgba(242, 194, 117, 0.45);
+    background: #14100d;
+    box-shadow: 0 16px 40px rgba(0, 0, 0, 0.45);
     color: #fcfaf8;
+    text-decoration: none;
+    opacity: var(--v);
+    transform: translateY(calc((1 - var(--v)) * -16px));
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .hall-row__chip:hover, .hall-row__chip:focus-visible { border-color: #f2c275; box-shadow: 0 20px 48px rgba(0, 0, 0, 0.55), 0 0 0 1px rgba(242, 194, 117, 0.35); outline: none; }
+  /* the photograph fills the tile; the words sit on a dark fall at its foot */
+  .hall-row__face {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.6s var(--ease-out-quart, ease);
+  }
+  .hall-row__chip:hover .hall-row__face { transform: scale(1.04); }
+  .hall-row__chip::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background: linear-gradient(to top, rgba(20, 16, 13, 0.9) 0%, rgba(20, 16, 13, 0.55) 38%, rgba(20, 16, 13, 0) 68%);
+  }
+  .hall-row__words {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 1;
+    display: grid;
+    gap: 2px;
+    padding: 0 10px 9px;
+    text-shadow: 0 1px 10px rgba(0, 0, 0, 0.6);
+  }
+  .hall-row__words b {
     font-family: var(--font-avant);
-    font-size: clamp(0.66rem, 0.58rem + 0.3vw, 0.86rem);
+    font-size: clamp(0.64rem, 0.52rem + 0.36vw, 0.9rem);
     font-weight: 700;
     letter-spacing: 0.04em;
     text-transform: uppercase;
-    text-decoration: none;
-    white-space: nowrap;
-    opacity: var(--v);
-    transform: translateY(calc((1 - var(--v)) * -14px));
-    transition: border-color 0.3s ease, background 0.3s ease;
-    -webkit-tap-highlight-color: transparent;
+    line-height: 1.1;
   }
-  .hall-row__chip:hover, .hall-row__chip:focus-visible { border-color: #f2c275; background: rgba(20, 16, 13, 0.9); outline: none; }
-  /* the face: a round thumbnail with a hair of gold round it, so a person
-     is the first thing the row shows */
-  .hall-row__face {
-    width: 32px;
-    height: 32px;
-    flex: none;
-    border-radius: 50%;
-    object-fit: cover;
-    border: 1px solid rgba(242, 194, 117, 0.7);
-    box-shadow: 0 0 0 1px rgba(20, 16, 13, 0.6);
-    background: #14100d;
+  .hall-row__words small {
+    font-family: var(--font-base);
+    font-size: clamp(0.56rem, 0.5rem + 0.2vw, 0.7rem);
+    font-weight: 500;
+    line-height: 1.25;
+    color: rgba(252, 250, 248, 0.82);
+  }
+  @media (max-width: 900px) {
+    .hall-row__words small { display: none; }
   }
   @media (max-width: 700px) {
-    .hall-row { gap: 6px; padding: 0 8px; top: calc(var(--beat-top, 72px) + 2px); }
-    .hall-row__chip { padding: 4px 10px 4px 4px; gap: 6px; font-size: 0.6rem; }
-    .hall-row__face { width: 24px; height: 24px; }
+    .hall-row {
+      --tile: calc((100vw - 16px - 2 * 8px) / 3);
+      grid-template-columns: repeat(3, var(--tile));
+      gap: 8px;
+      padding: 0 8px;
+      top: calc(var(--beat-top, 72px) + 4px);
+    }
+    .hall-row__chip { border-radius: 12px; }
+    .hall-row__words { padding: 0 8px 7px; }
+    .hall-row__words b { font-size: 0.6rem; }
   }
 
   /* The rooms (home page): the same ride, as a tile — the mark above the
