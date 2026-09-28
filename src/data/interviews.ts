@@ -62,4 +62,14 @@ export const INTERVIEWS: Interview[] = [
       'sometimes I can feel that and then I can just do a soft exhale and heaps of that’s gone, doesn’t have to be a big popping of a balloon',
     ],
   },
+  /* Not from the 9 Sep shoot: filmed by himself on his phone and sent to
+     Harrison (Drive: "2026-09-XX - Testimonies - Harrisons Clients",
+     "Jeremy Yap testimony.mp4", 16 s; transcript by Whisper, checked by ear,
+     29 Sep 2026). First name only on the wall. No tile in the interview row. */
+  {
+    id: 'iv-jeremy-v1', name: 'Jeremy', role: 'Karate', quote: 'I’m more calm, I’m more focused on my breathing and I’m more intentional.',
+    said: [
+      'Harrison has been coaching me martial arts for quite a few years now. He’s taught me to handle stressful situations much better such as during sparring. I’m more calm, I’m more focused on my breathing and I’m more intentional.',
+    ],
+  },
 ];

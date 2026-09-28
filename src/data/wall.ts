@@ -129,6 +129,23 @@ export const WALL: WallTile[] = [
   { type: 'photo', shape: 'square', img: 'wall-p55-v1', alt: 'Harrison and a client sitting cross-legged in meditation on the mats', caption: 'Meditation', pos: '50% 42%', more: true },
   { type: 'photo', shape: 'square', img: 'wall-k02-v1', alt: 'Harrison in his gi and black belt, teaching technique in the dojo', caption: 'In the dojo', pos: '50% 22%', more: true },
 
+  /* band 4b — feature · tall · tall · line / line
+     (29 Sep 2026: the first of the testimonies the clients filmed themselves
+     on their phones — Drive "2026-09-XX - Testimonies - Harrisons Clients".
+     Jeremy is the one who gave his name; the two faces are two of the
+     others, uncaptioned by name as the wall's rule has it, until Dion has
+     their names and their yes. Same pack as band 1 — two squares here left
+     the top row a cell short and broke the band below.) */
+  {
+    type: 'quote', size: 'feature', tone: 'gold', kicker: 'Karate · a few years in', name: 'Jeremy', voice: 'filmed',
+    big: 'More focused on my breathing',
+    quote: 'He’s taught me to handle stressful situations much better… I’m more calm, I’m more focused on my breathing and I’m more intentional.',
+  },
+  { type: 'photo', shape: 'tall', img: 'wall-t02-v1', alt: 'A client at his gym, filming his testimony on his phone', caption: 'Testimony, filmed at the gym · Sept 2026' },
+  { type: 'photo', shape: 'tall', img: 'wall-t01-v1', alt: 'A client at home, filming his testimony on his phone', caption: 'Testimony, on his phone · Sept 2026', more: true },
+  { type: 'quote', size: 'line', tone: 'ink', kicker: 'Coaching · musician', name: 'Jake', voice: 'filmed', big: 'I can just do a soft exhale' },
+  { type: 'quote', size: 'line', tone: 'paper', kicker: 'HSC student · Cammeraygal', name: 'Kai Bennetts', big: 'One of my greatest mentors', more: 'phone' },
+
   /* band 5 — tall · feature · tall · the way on (2×2, drawn by the component) */
   { type: 'photo', shape: 'tall', img: 'wall-k13-v1', alt: 'An older student on the mats with one arm raised, grinning', caption: 'A student on the mats', more: true },
   {
