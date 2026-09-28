@@ -176,6 +176,8 @@ export const PHASES = local(S.PHASES);
    off — they are ours, written to his brief, not quoted from him. */
 export const CORE = {
   ...local(S.CORE),
+  /* Dion, 29 Sep: "The Program", not "The Training". */
+  label: 'The Program',
   lede: 'Very few of us are taught what happens inside us when things become difficult. So we react — we withdraw, we overwork, we get defensive, we reach for the next achievement. Sometimes that has worked for years. Return to Self is twelve weeks of learning to notice what you feel before it decides what you do next: the pattern, where it came from, what actually matters to you, and how you want to respond.',
   note: 'Not therapy, and not about becoming endlessly calm. It is not about suppressing anger, removing ambition or pretending difficult emotions do not exist. It is practice — conversation, reflection, awareness, and principles built over seventeen years in the dojo — handed over in three keys (Separate, Return, Integrate) until they are yours. In person around Chatswood and Sydney’s North Shore, or online Australia-wide.',
 };

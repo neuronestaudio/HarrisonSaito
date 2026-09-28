@@ -69,7 +69,20 @@ const book = (href: string) => href === '/book';
        Dion, 29 Sep: "below the testimonies should be Return to Self — those 3
        components". The Core as it is on /return-to-self (words: data/morel.ts
        CORE + PHASES), without that page's plate experiment. -->
-  <section class="section section--bg4 core" id="the-core" data-section="core">
+  <section class="section section--bg4 section--film core" id="the-core" data-section="core" style="--film-o:0.5;--film-pos:50% 40%">
+    {/* Dion, 29 Sep: the "Harrison Painting" film behind The Program at 50% —
+        an ink landscape drawing itself in; plays once when the section is in
+        view and holds on the finished painting (styles/ink.css, script below). */}
+    <div class="film-bg" aria-hidden="true" data-film-bg>
+      <video
+        muted
+        playsinline
+        preload="none"
+        poster="/img/painting-poster-v1-1600.webp"
+        data-src="/video/harrison-painting-v1.mp4"
+        data-src-sm="/video/harrison-painting-v1-sm.mp4"
+      ></video>
+    </div>
     <div class="wide">
       <header class="core__head">
         <p class="eyebrow">{CORE.label}</p>
@@ -98,6 +111,37 @@ const book = (href: string) => href === '/book';
       </div>
     </div>
   </section>
+
+  <script>
+    /* The film behind The Program: its source is given only as the section
+       nears (no 5 MB on a page that is never scrolled that far), it plays
+       once — muted set imperatively, which is what iOS needs — and pauses if
+       the section leaves before it has finished. Reduced motion keeps the
+       poster: the finished painting. */
+    document.querySelectorAll<HTMLElement>('[data-film-bg]').forEach((box) => {
+      const video = box.querySelector('video');
+      if (!video) return;
+      if (window.matchMedia('(prefers-reduced-motion: reduce)').matches || !('IntersectionObserver' in window)) return;
+      let armed = false;
+      const io = new IntersectionObserver((entries) => {
+        entries.forEach((e) => {
+          if (e.isIntersecting) {
+            if (!armed) {
+              armed = true;
+              const small = window.matchMedia('(max-width: 700px)').matches;
+              video.src = (small && video.dataset.srcSm) || video.dataset.src || '';
+              video.muted = true;
+              video.load();
+            }
+            if (!video.ended) video.play().catch(() => {});
+          } else if (!video.paused) {
+            video.pause();
+          }
+        });
+      }, { rootMargin: '25% 0px', threshold: 0.01 });
+      io.observe(box.closest('section') || box);
+    });
+  </script>
 
   <!-- ============ CLOSE ============ -->
   <section class="section section--dark on-dark close" data-section="close">

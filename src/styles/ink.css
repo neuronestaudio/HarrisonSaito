@@ -20,6 +20,17 @@
  * view); `is-set` drops the mask afterwards so scrolling never pays for it.
  * Without script the ink is simply there.
  */
+/* A film behind a cream section, at half strength (Dion, 29 Sep 2026: the
+   "Harrison Painting" — an ink landscape that draws itself in — "as an
+   overlay background, bring to back and add 50% opacity" for The Program).
+   The <video> sits in .film-bg; PortfolioHome's script gives it its source
+   and plays it once when the section comes into view, and it holds on the
+   finished painting (no loop — a painting does not un-draw itself). The
+   poster is that last frame, so reduced motion and no-script see it whole. */
+.mo .section--film { position: relative; isolation: isolate; overflow: hidden; }
+.mo .film-bg { position: absolute; inset: 0; z-index: -1; pointer-events: none; opacity: var(--film-o, 0.5); }
+.mo .film-bg video { display: block; width: 100%; height: 100%; object-fit: cover; object-position: var(--film-pos, 50% 50%); }
+
 .mo .section--sumi { position: relative; isolation: isolate; overflow: hidden; }
 .mo .section--sumi::before {
   content: '';
