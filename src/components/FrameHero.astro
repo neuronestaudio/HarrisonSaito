@@ -405,12 +405,16 @@ const hallAt = (i: number) => (0.34 + (i * 0.46) / Math.max(1, HALL_ITEMS.length
         function of --go (1 from the end of the pause to the doorway). */}
     <div class="hero__enter" aria-hidden="true">
       <div class="enter__class"></div>
-      <p class="enter__mark"><span>Return to Self</span></p>
       <p class="enter__go">
         <span>Scroll to enter</span>
         <svg viewBox="0 0 28 40" width="28" height="40" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 6l9 9 9-9" /><path d="M5 17l9 9 9-9" /><path d="M5 28l9 9 9-9" /></svg>
       </p>
     </div>
+    {/* The name outlives the card (Dion, 30 Sep: "animates out way too
+        soon — it should fade out at the beat" of the arrival): its own
+        layer over everything, on --mark — up with the card, held through
+        the doorway, gone as the arrival's photograph comes up. */}
+    <p class="enter__mark" aria-hidden="true"><span>Return to Self</span></p>
     <div class="hero__rail" aria-hidden="true"><i></i></div>
   </div>
 </section>
@@ -546,12 +550,13 @@ const hallAt = (i: number) => (0.34 + (i * 0.46) / Math.max(1, HALL_ITEMS.length
      so it doesn't look too strong"). It was two lines down the right. */
   .enter__mark {
     position: absolute;
-    z-index: 1;
+    z-index: 7;
     left: 0;
     right: 0;
     top: 50%;
     margin: 0;
     padding: 0 clamp(0.6rem, 2vw, 2rem);
+    pointer-events: none;
     font-family: var(--font-avant);
     font-size: clamp(2.2rem, 9.4vw, 11.5rem);
     font-weight: 700;
@@ -560,11 +565,12 @@ const hallAt = (i: number) => (0.34 + (i * 0.46) / Math.max(1, HALL_ITEMS.length
     text-transform: uppercase;
     text-align: center;
     white-space: nowrap;
-    opacity: 0.5;
+    /* 50% at full (Dion, 30 Sep); --mark is its own clock, not the card's */
+    opacity: calc(var(--mark, 0) * 0.5);
     /* drop-shadow, not text-shadow: the letters are hollow here, and a text
        shadow would show straight through them */
     filter: drop-shadow(0 2px 10px rgba(20, 16, 13, 0.9)) drop-shadow(0 6px 40px rgba(20, 16, 13, 0.75));
-    transform: translateY(calc(-50% + (1 - var(--go, 0)) * 26px));
+    transform: translateY(calc(-50% + (1 - var(--mark, 0)) * 26px));
     transition: transform 0.4s ease;
   }
   /* The fill (Dion, 25 Sep: "keyframe the typography so when the user scrolls
@@ -1883,6 +1889,10 @@ const hallAt = (i: number) => (0.34 + (i * 0.46) / Math.max(1, HALL_ITEMS.length
       /* The title card: up as soon as the pause is behind him, gone as the
          arrival starts to build. */
       st.setProperty('--go', (smooth((p - pB) / 0.012) * (1 - smooth((p - (pD - 0.012)) / 0.03))).toFixed(3));
+      /* The name: up with the card, held through the doorway, and out over
+         the arrival's build — still there as the photograph rises, gone as
+         the words settle (m: 0.3 → 0.7). */
+      st.setProperty('--mark', (smooth((p - pB) / 0.012) * (1 - smooth((m - 0.3) / 0.4))).toFixed(3));
       /* How far through the doorway stretch he is, 0 → 1: the wordmark's fill
          line. A pure function of the scroll, so it reverses exactly. */
       st.setProperty('--gofill', clamp((p - pB) / Math.max(0.0001, pD - pB), 0, 1).toFixed(4));
@@ -1990,6 +2000,16 @@ const hallAt = (i: number) => (0.34 + (i * 0.46) / Math.max(1, HALL_ITEMS.length
 
     /* ---- the catch: a scroll arriving from above stops on the panel ---- */
     var armed = true, prevP = 0, quietUntil = performance.now() + 700;
+    /* Until the visitor has touched anything, every scroll is the browser's —
+       a reload restoring where they were, back/forward, a hash — and is taken
+       as given: no catch, no lock, no snap (Dion, 30 Sep: "every time I
+       refresh it goes to the panel and then to the beginning — get rid of
+       that"). The gate opens for a position past the doors, and the walk's
+       own catch waits for a real wheel, touch, key or pointer. */
+    var userInput = false;
+    ['wheel', 'touchstart', 'keydown', 'pointerdown'].forEach(function (t) {
+      window.addEventListener(t, function () { userInput = true; }, { passive: true, capture: true });
+    });
     var locked = false, lockTimer = 0, lockY = 0, touchY = -1, lockedAt = 0, lastInput = 0;
     var CAPTURE: AddEventListenerOptions = { passive: false, capture: true };
     var LISTEN: AddEventListenerOptions = { passive: true, capture: true };
@@ -2054,6 +2074,15 @@ const hallAt = (i: number) => (0.34 + (i * 0.46) / Math.max(1, HALL_ITEMS.length
     }
     function watch(p: number) {
       if (!gated) { prevP = p; return; }
+      if (!userInput) {
+        /* the browser put the page here: past the doors, the gate is open
+           for this pass; on the panel, it simply shows, un-caught — and
+           still shut, so the first real scroll down meets it as usual */
+        if (p >= pA - 0.004) armed = false;
+        if (p > pB && !gateOpen) openGate('restore');
+        prevP = p;
+        return;
+      }
       if (p < pA - 0.004) armed = true;
       else if (p > pB) armed = false;
       /* p < 1: a jump to an anchor further down the page is not a walk. */

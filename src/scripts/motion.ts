@@ -42,6 +42,10 @@ function initLenis() {
   lenis.on('scroll', ScrollTrigger.update);
   gsap.ticker.add((time) => lenis.raf(time * 1000));
   gsap.ticker.lagSmoothing(0);
+  // A reload restores the browser's scroll before this runs; Lenis starts
+  // from wherever the page actually is, not from zero, so its first frame
+  // cannot drag a restored page back to the top.
+  if (window.scrollY > 0) lenis.scrollTo(window.scrollY, { immediate: true, force: true });
 
   // Anchor links inside the page hand off to Lenis so the easing matches.
   document.addEventListener('click', (e) => {
