@@ -33,6 +33,11 @@ export type Door = {
   href: string;
   /** a small gold word above the name */
   tag?: string;
+  /** the photograph the tile is filled with (Dion, 29 Sep: "those 6 pills as
+      image filled so there's actually images on this page"), and where its
+      subject sits, as background-position */
+  image: string;
+  pos?: string;
 };
 
 export const DOORS: Door[] = [
@@ -42,6 +47,9 @@ export const DOORS: Door[] = [
     name: 'Return to Self',
     line: 'Twelve weeks, three phases. The core of the work.',
     href: '/return-to-self',
+    /* the match, from the arrival */
+    image: '/img/harrison-arrival-v1-640.webp',
+    pos: '50% 36%',
   },
   {
     icon: 'pause',
@@ -49,30 +57,48 @@ export const DOORS: Door[] = [
     name: 'The Workshop',
     line: 'One room, three people, one hour with Harrison.',
     href: '/workshop',
+    /* the seiza two-shot */
+    image: '/img/seiza-pair-v1-768.webp',
+    pos: '50% 30%',
   },
   {
     icon: 'comment',
     name: '1:1 Coaching',
     line: 'Session by session, at your pace.',
     href: '/mens-coaching',
+    /* him, before the shoji */
+    image: '/img/about-shoji-768.webp',
+    pos: '50% 28%',
   },
   {
     icon: 'summit',
     name: 'Shinbukan Karate',
     line: 'His father’s school. 2nd Dan, Shido-In.',
     href: '/about',
+    /* the stance in the dojo, from the broadcast */
+    image: '/img/sbs-karate-2-v1-768.webp',
+    pos: '50% 40%',
   },
   {
-    icon: 'explain',
-    name: 'HSC & Youth Mentoring',
-    line: 'English, mindset and pressure, one to one.',
-    href: '/hsc-tutoring',
+    /* Dion, 29 Sep: not HSC here — "the temple that's affiliated". Koyasan
+       Seizanji, where he was ordained in 2014 (WHO in workshop.ts; never
+       "monk" or "priest"). */
+    icon: 'moon',
+    tag: 'The temple',
+    name: 'Koyasan Seizanji',
+    line: 'Ordained there in 2014. Attention, not belief.',
+    href: '/about',
+    image: '/img/buddha-768.webp',
+    pos: '50% 42%',
   },
   {
     icon: 'eye',
     name: 'Films & Media',
     line: 'SBS World News, the interviews, the practice on film.',
     href: '/media',
+    /* the SBS studio, with his father */
+    image: '/img/sbs-group-768.webp',
+    pos: '50% 45%',
   },
 ];
 

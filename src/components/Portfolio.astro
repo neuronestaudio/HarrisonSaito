@@ -37,7 +37,7 @@ import '../styles/ink.css';
         {DOORS.map((d, i) => (
           <a
             class="fy__card pf__card reveal"
-            style={`--k:${i}`}
+            style={`--k:${i};--img:url(${d.image});--pos:${d.pos ?? '50% 50%'}`}
             href={d.href}
             data-track="cta_click"
             data-track-label={`Portfolio — ${d.name}`}
@@ -117,15 +117,20 @@ import '../styles/ink.css';
     text-align: center;
     text-decoration: none;
     color: #fcfaf8;
-    background: rgba(20, 16, 13, 0.62);
-    border: 1px solid rgba(242, 194, 117, 0.26);
+    /* each tile is its photograph (--img, --pos from the data), under a dark
+       fall from the foot so the name and the line always sit on ink */
+    background:
+      linear-gradient(to top, rgba(20, 16, 13, 0.92) 0%, rgba(20, 16, 13, 0.62) 46%, rgba(20, 16, 13, 0.3) 100%),
+      var(--img) var(--pos, 50% 50%) / cover no-repeat #14100d;
+    border: 1px solid rgba(242, 194, 117, 0.3);
     border-radius: 18px;
-    -webkit-backdrop-filter: blur(10px) saturate(1.1);
-    backdrop-filter: blur(10px) saturate(1.1);
+    box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.25);
+    text-shadow: 0 2px 14px rgba(0, 0, 0, 0.65);
     overflow: hidden;
     transition: transform 0.4s var(--ease-out-quart, ease), border-color 0.3s ease, box-shadow 0.3s ease;
   }
-  .pf .pf__card:hover { transform: translateY(-4px); border-color: rgba(242, 194, 117, 0.7); box-shadow: 0 18px 40px rgba(0, 0, 0, 0.35); }
+  .pf .pf__card:hover { transform: translateY(-4px); border-color: rgba(242, 194, 117, 0.75); box-shadow: 0 18px 40px rgba(0, 0, 0, 0.45); }
+  .pf .pf__card :global(.fy__icon) { filter: drop-shadow(0 2px 8px rgba(0, 0, 0, 0.6)); }
   .pf .pf__card:focus-visible { outline: 2px solid #daa24f; outline-offset: 2px; }
   .pf .pf__card :global(.fy__icon) { width: 52px; height: 52px; color: #f2c275; }
   .pf .pf__card p { margin: 0; color: #fcfaf8; }

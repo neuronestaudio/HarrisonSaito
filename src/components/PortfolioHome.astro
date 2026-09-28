@@ -13,8 +13,10 @@
 import MoShell from './MoShell.astro';
 import Portfolio from './Portfolio.astro';
 import Wall from './Wall.astro';
-import { FILMS, FILMS_SECTION, CLOSE, asset } from '../data/morel';
+import { FILMS, FILMS_SECTION, CORE, PHASES, CLOSE, asset } from '../data/morel';
 import { PLAY_ICON } from '../lib/morel-icons';
+
+const book = (href: string) => href === '/book';
 ---
 
 <MoShell>
@@ -62,6 +64,40 @@ import { PLAY_ICON } from '../lib/morel-icons';
 
   <!-- ============ THE WALL: what they took with them ============ -->
   <Wall />
+
+  <!-- ============ RETURN TO SELF: the three phases, under the testimonies ============
+       Dion, 29 Sep: "below the testimonies should be Return to Self — those 3
+       components". The Core as it is on /return-to-self (words: data/morel.ts
+       CORE + PHASES), without that page's plate experiment. -->
+  <section class="section section--bg4 core" id="the-core" data-section="core">
+    <div class="wide">
+      <header class="core__head">
+        <p class="eyebrow">{CORE.label}</p>
+        <h2 class="reveal">{CORE.title}</h2>
+        <p class="fs-md core__lede reveal">{CORE.lede}</p>
+      </header>
+
+      <div class="core__grid" data-stagger>
+        {PHASES.map((ph) => (
+          <article class="phase-card reveal">
+            <span class="phase-card__kanji" lang="ja" aria-hidden="true">{ph.kanji}</span>
+            <p class="phase-card__weeks">{ph.weeks}</p>
+            <h3>{ph.name}</h3>
+            <p class="fs-xs">{ph.body}</p>
+            <p class="phase-card__romaji" aria-hidden="true">{ph.kanji} {ph.romaji}</p>
+          </article>
+        ))}
+      </div>
+
+      <p class="fs-xs core__note reveal">{CORE.note}</p>
+
+      <div class="core__cta reveal">
+        {CORE.ctas.map((c) => (
+          <a class={`btn btn--${c.style} btn--wide`} href={c.href} data-track={book(c.href) ? 'cta_click' : undefined} data-track-label={book(c.href) ? `Core — ${c.label}` : undefined}>{c.label}</a>
+        ))}
+      </div>
+    </div>
+  </section>
 
   <!-- ============ CLOSE ============ -->
   <section class="section section--dark on-dark close" data-section="close">
