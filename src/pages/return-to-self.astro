@@ -6,11 +6,17 @@
  * that pauses on the shut doors for "Who this is for" (FrameHero, gated),
  * and the harrison-saito-morel build under it, whole (MorelHome). Dion,
  * 28 Sep: the home page is his portfolio again, and the funnel keeps this
- * experience at its own address. The ads' landing pages (/lp/<set>) are
- * unchanged; the portfolio's first door and the nav come here.
+ * experience at its own address.
+ *
+ * 30 Sep (Dion: "every time I click a button it takes me to /return-to-self
+ * — so buggy — remove this"): five of the home page's links (The Core and
+ * Return to Self at the ceiling, two identities, the first door) land here,
+ * and landing here replayed the whole walk and caught the visitor on the
+ * gate a second time. The walk is the home page's; this page now opens on
+ * the programme itself — no hero, no gate. The ads' landing pages
+ * (/lp/<set>) keep the gated walk.
  */
 import Base from '../layouts/Base.astro';
-import FrameHero from '../components/FrameHero.astro';
 import MorelHome from '../components/MorelHome.astro';
 import { VIDEO_IDS } from '../data/site';
 import { graph, personSchema, localBusinessSchema, videoSchema } from '../lib/seo';
@@ -31,6 +37,5 @@ const schema = graph(
 ---
 
 <Base title={title} description={description} path="/return-to-self" schema={schema}>
-  <FrameHero />
   <MorelHome />
 </Base>
