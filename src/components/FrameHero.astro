@@ -130,7 +130,7 @@
 import { srcset, src } from '../lib/images';
 import { HERO as ARRIVE } from '../data/morel';
 import { setById, BADGE_SETS } from '../data/badges';
-import { ROOMS } from '../data/portfolio';
+import { ROOMS, DOORS, PORTFOLIO_SECTION } from '../data/portfolio';
 import { forYouIcon } from '../lib/morel-icons';
 import '../styles/avant.css';
 import '../styles/morel.css';
@@ -141,15 +141,22 @@ const STILL = 'rts-still-v1';
 interface Props {
   /** Which "Who This Is For" badge set the pause shows (src/data/badges.ts). */
   set?: string;
-  /** The pause on the doors with its panel. Off (Dion, 28 Sep 2026: "the 6
-      squares don't exist… that's only part of the home page below the hero")
-      the walk runs straight through to the doorway and the arrival, and the
-      first screen's "Start here" walks in. The ads' landing pages keep it. */
+  /** What the walk does at the shut doors:
+      'gate'  — pauses, and "Who this is for" holds it until a card is tapped
+                (the ads' landing pages, /return-to-self);
+      'doors' — pauses, and the six-door portfolio panel comes up — "a nice
+                little sub page mid house" (Dion, 29 Sep) — then a scroll or
+                "Keep walking" goes on: a pause, not a gate (the home page);
+      'none'  — no pause; the walk runs straight through to the doorway. */
+  beat?: 'gate' | 'doors' | 'none';
+  /** Old spelling of beat: false = 'none'. */
   gate?: boolean;
 }
 const SET = setById(Astro.props.set);
-const GATE = Astro.props.gate !== false;
-const START = GATE ? '#for-you' : '#portfolio';
+const BEAT: 'gate' | 'doors' | 'none' = Astro.props.beat ?? (Astro.props.gate === false ? 'none' : 'gate');
+const GATE = BEAT === 'gate';
+const PAUSE = BEAT !== 'none';
+const START = PAUSE ? '#for-you' : '#portfolio';
 const picks = SET.id === 'protectors';
 
 /* The hallway (Dion, 20 Sep): on the walk from the first screen to the doors,
@@ -188,7 +195,7 @@ const HALL_ITEMS = GATE
 const hallAt = (i: number) => (0.34 + (i * 0.46) / Math.max(1, HALL_ITEMS.length - 1)).toFixed(3);
 ---
 
-<section class:list={['hero', { 'hero--nogate': !GATE }]} id="hero" data-frame-hero data-fy={SET.id} data-gate={GATE ? 'on' : 'off'} data-section="hero" aria-label="Harrison Saito — Return to Self">
+<section class:list={['hero', { 'hero--nogate': !PAUSE }]} id="hero" data-frame-hero data-fy={SET.id} data-beat-kind={BEAT} data-section="hero" aria-label="Harrison Saito — Return to Self">
   <div class="hero__frame">
     <img class="hero__poster" src="/img/rts-hero-poster-v3.webp" alt="" aria-hidden="true" width="1280" height="720" fetchpriority="high" decoding="sync" />
     <video class="hero__film" muted playsinline preload="metadata"
@@ -262,6 +269,32 @@ const hallAt = (i: number) => (0.34 + (i * 0.46) / Math.max(1, HALL_ITEMS.length
         </div>
         <p class="beat__foot">
           <button class="beat__on" type="button" data-beat-on aria-disabled="true" data-track="cta_click" data-track-label={`Beat (${SET.id}) — Learn more`} data-track-section="hero-beat" data-closed={picks ? 'Tap the one that runs you' : 'Tap what’s true for you'} data-open="Learn more ↓">{picks ? 'Tap the one that runs you' : 'Tap what’s true for you'}</button>
+        </p>
+      </div>
+    </div>
+    )}
+
+    {/* The doors (Dion, 29 Sep): at the same pause, the portfolio's six doors
+        instead — the panel he liked, on the shut doors, every tile a link and
+        its photograph. Nothing to pick; "Keep walking" or a scroll goes on. */}
+    {BEAT === 'doors' && (
+    <div class="beat mo mo--bare beat--doors" data-beat aria-hidden="true">
+      <div class="beat__panel" role="region" aria-label="Harrison Saito — what he does">
+        <header class="beat__head">
+          <p class="eyebrow beat__eyebrow">{PORTFOLIO_SECTION.label}</p>
+          <h2 class="beat__title" set:html={PORTFOLIO_SECTION.title} />
+          <p class="beat__lede">{PORTFOLIO_SECTION.lede}</p>
+        </header>
+        <div class="fy__grid beat__grid" data-stagger role="list">
+          {DOORS.map((d, i) => (
+            <a class="fy__card beat__card beat__card--door" style={`--k:${i};--img:url(${d.image});--pos:${d.pos ?? '50% 50%'}`} href={d.href} role="listitem" data-track="cta_click" data-track-label={`Doors — ${d.name}`} data-track-section="hero-beat">
+              <Fragment set:html={forYouIcon(d.icon)} />
+              <p>{d.tag && <span class="beat__tag">{d.tag}</span>}{d.name} <strong>{d.line}</strong></p>
+            </a>
+          ))}
+        </div>
+        <p class="beat__foot">
+          <button class="beat__on" type="button" data-beat-on data-track="cta_click" data-track-label="Doors — Keep walking" data-track-section="hero-beat" data-closed="Keep walking ↓" data-open="Keep walking ↓">Keep walking ↓</button>
         </p>
       </div>
     </div>
@@ -1362,6 +1395,21 @@ const hallAt = (i: number) => (0.34 + (i * 0.46) / Math.max(1, HALL_ITEMS.length
     transform: scale(0.4);
     transition: opacity 0.25s ease, transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
   }
+  /* The doors: each tile is its photograph under a dark fall; the name, then
+     the line in plain weight. No seal — nothing is picked here. */
+  .beat .beat__card--door {
+    background:
+      linear-gradient(to top, rgba(20, 16, 13, 0.92) 0%, rgba(20, 16, 13, 0.6) 46%, rgba(20, 16, 13, 0.28) 100%),
+      var(--img) var(--pos, 50% 50%) / cover no-repeat #14100d;
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+    text-decoration: none;
+    text-shadow: 0 2px 14px rgba(0, 0, 0, 0.65);
+  }
+  .beat .beat__card--door::after { display: none; }
+  .beat .beat__card--door p { text-transform: uppercase; letter-spacing: 0.03em; }
+  .beat .beat__card--door :global(strong) { display: block; margin-top: 4px; font-weight: 500; font-size: 0.82em; letter-spacing: 0; text-transform: none; color: rgba(252, 250, 248, 0.85); }
+  .beat .beat__card--door :global(.fy__icon) { filter: drop-shadow(0 2px 8px rgba(0, 0, 0, 0.6)); }
   .beat .beat__card[aria-pressed='true'] {
     border-color: #f2c275;
     background: linear-gradient(160deg, rgba(218, 162, 79, 0.42) 0%, rgba(120, 78, 24, 0.5) 100%);
@@ -1735,10 +1783,13 @@ const hallAt = (i: number) => (0.34 + (i * 0.46) / Math.max(1, HALL_ITEMS.length
     var gateOpen = false, gateFree = false, canGo = false, reported = false, bootUntil = performance.now() + 900, nudgeAt = 0;
     var onBtn = beatEl ? beatEl.querySelector<HTMLButtonElement>('[data-beat-on]') : null;
     try { gateFree = gateOpen = sessionStorage.getItem('rts-gate') === '1'; } catch (e) {}
-    if (!gated) gateFree = gateOpen = true;   /* nothing to pass: the doors are open */
+    /* Nothing to pass — no panel, or a panel with nothing to pick (the doors):
+       the catch still lands the scroll on it, but the hold lets go by itself. */
+    var free = !gated || !pickBtns.length;
+    if (free) gateFree = gateOpen = true;
     function showGate() {
       if (!onBtn) return;
-      canGo = picked().length > 0;
+      canGo = free || picked().length > 0;
       onBtn.textContent = (canGo ? onBtn.dataset.open : onBtn.dataset.closed) || '';
       if (canGo) onBtn.removeAttribute('aria-disabled'); else onBtn.setAttribute('aria-disabled', 'true');
     }
