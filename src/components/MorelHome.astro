@@ -28,7 +28,6 @@ import { forYouIcon, PLAY_ICON } from '../lib/morel-icons';
 import { SITE } from '../data/site';
 import Wall from './Wall.astro';
 import WhoFor from './WhoFor.astro';
-import '../styles/plates.css';
 
 const book = (href: string) => href === '/book';
 ---
@@ -51,9 +50,7 @@ const book = (href: string) => href === '/book';
   </div>
 
   <!-- ============ THE CORE ============ -->
-  <!-- TEST: the room from the walk, baked to the section's cream (styles/plates.css) -->
-  <section class="section section--bg4 section--plate core" id="the-core" data-section="core"
-    style="--plate:url(/img/mo/plate-room-v1-1600.webp);--plate-sm:url(/img/mo/plate-room-v1-900.webp);--plate-pos:100% 42%;--plate-flip:-1">
+  <section class="section section--bg4 core" id="the-core" data-section="core">
     <div class="wide">
       <header class="core__head">
         <p class="eyebrow">{CORE.label}</p>
