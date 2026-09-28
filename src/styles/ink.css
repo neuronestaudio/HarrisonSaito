@@ -30,6 +30,18 @@
 .mo .section--film { position: relative; isolation: isolate; overflow: hidden; }
 .mo .film-bg { position: absolute; inset: 0; z-index: -1; pointer-events: none; opacity: var(--film-o, 0.5); }
 .mo .film-bg video { display: block; width: 100%; height: 100%; object-fit: cover; object-position: var(--film-pos, 50% 50%); }
+/* The words over the film (Dion, 30 Sep: the film 15% stronger, and "for the
+   text Return to Self just add contrast somehow, maybe a light glow"): a
+   soft paper-white halo behind the heading and, lighter, behind the lede
+   and the eyebrow, so ink type holds on a busy painting. */
+.mo .section--film .core__head h2 {
+  text-shadow: 0 0 12px rgba(255, 253, 250, 0.95), 0 0 28px rgba(255, 253, 250, 0.85), 0 0 56px rgba(255, 253, 250, 0.6);
+}
+.mo .section--film .core__head .eyebrow,
+.mo .section--film .core__lede,
+.mo .section--film .core__note {
+  text-shadow: 0 0 6px rgba(255, 253, 250, 0.95), 0 0 16px rgba(255, 253, 250, 0.8);
+}
 
 .mo .section--sumi { position: relative; isolation: isolate; overflow: hidden; }
 .mo .section--sumi::before {
