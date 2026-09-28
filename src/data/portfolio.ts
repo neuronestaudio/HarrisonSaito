@@ -76,6 +76,25 @@ export const DOORS: Door[] = [
   },
 ];
 
+/**
+ * The rooms of the house — what comes up along the walk on the home page.
+ * Dion, 29 Sep 2026: "as you're going through the house I want the main
+ * things to pop up like THE CORE, DOJO, TEMPLE, RETURN TO SELF, ONE ON ONE,
+ * BREATHWORK, those box elements to pop up, so it gives direction and image
+ * as the users are navigating through the house." His six, in his order;
+ * each line is a fact the site already states. They ride the hallway
+ * (FrameHero) where the recognition lines ride on the gated pages.
+ */
+export type Room = { icon: string; name: string; sub: string };
+export const ROOMS: Room[] = [
+  { icon: 'stairs', name: 'The Core', sub: 'Twelve weeks. Separate, return, integrate.' },
+  { icon: 'summit', name: 'Dojo', sub: 'Shinbukan. His father’s school.' },
+  { icon: 'moon', name: 'Temple', sub: 'Koyasan. Attention, not belief.' },
+  { icon: 'mirror', name: 'Return to Self', sub: 'The practice: notice, then choose.' },
+  { icon: 'comment', name: 'One on One', sub: 'Coaching, session by session.' },
+  { icon: 'ember', name: 'Breathwork', sub: 'The monthly room. Sixteen seats.' },
+];
+
 /** His other channels — the way out of the site, on purpose. */
 export const CHANNELS = [
   { label: 'Instagram', href: 'https://www.instagram.com/harrison_saito/' },

@@ -130,6 +130,7 @@
 import { srcset, src } from '../lib/images';
 import { HERO as ARRIVE } from '../data/morel';
 import { setById, BADGE_SETS } from '../data/badges';
+import { ROOMS } from '../data/portfolio';
 import { forYouIcon } from '../lib/morel-icons';
 import '../styles/avant.css';
 import '../styles/morel.css';
@@ -178,7 +179,13 @@ for (let round = 0; round < 6 && HALL.length < HALL_N; round++) {
    him, as a fraction of the walk to the doors (0.34 = the title has just
    gone, 0.80 = clear before the panel comes up). */
 const HALL_Y = [22, 42, 58, 20, 30, 60, 62, 34];   /* same-side neighbours alternate high and low */
-const hallAt = (i: number) => (0.34 + (i * 0.46) / (HALL_N - 1)).toFixed(3);
+/* Ungated (the home page, Dion 29 Sep): the hallway carries the rooms of the
+   house instead — THE CORE, DOJO, TEMPLE… — as tiles, "so it gives direction
+   and image as the users are navigating through the house". */
+const HALL_ITEMS = GATE
+  ? HALL.map((c) => ({ kind: 'line' as const, icon: c.icon, text: c.text, emphasis: c.emphasis, name: '', sub: '' }))
+  : ROOMS.map((r) => ({ kind: 'room' as const, icon: r.icon, text: '', emphasis: '', name: r.name, sub: r.sub }));
+const hallAt = (i: number) => (0.34 + (i * 0.46) / Math.max(1, HALL_ITEMS.length - 1)).toFixed(3);
 ---
 
 <section class:list={['hero', { 'hero--nogate': !GATE }]} id="hero" data-frame-hero data-fy={SET.id} data-gate={GATE ? 'on' : 'off'} data-section="hero" aria-label="Harrison Saito — Return to Self">
@@ -204,10 +211,12 @@ const hallAt = (i: number) => (0.34 + (i * 0.46) / (HALL_N - 1)).toFixed(3);
     {/* The hallway's badges: decoration for the walk, read out nowhere — the
         panel that follows is where the lines are said. */}
     <div class="hall" aria-hidden="true">
-      {HALL.map((c, i) => (
-        <p class={`hall__chip hall__chip--${i % 2 ? 'r' : 'l'}`} style={`--f:${hallAt(i)};--y:${HALL_Y[i % HALL_Y.length]}%`}>
+      {HALL_ITEMS.map((c, i) => (
+        <p class={`hall__chip hall__chip--${i % 2 ? 'r' : 'l'}${c.kind === 'room' ? ' hall__chip--room' : ''}`} style={`--f:${hallAt(i)};--y:${HALL_Y[i % HALL_Y.length]}%`}>
           <Fragment set:html={forYouIcon(c.icon)} />
-          <span>{c.text} <strong>{c.emphasis}</strong></span>
+          {c.kind === 'room'
+            ? <span class="room"><span class="room__name">{c.name}</span><span class="room__sub">{c.sub}</span></span>
+            : <span>{c.text} <strong>{c.emphasis}</strong></span>}
         </p>
       ))}
     </div>
@@ -594,11 +603,49 @@ const hallAt = (i: number) => (0.34 + (i * 0.46) / (HALL_N - 1)).toFixed(3);
     transform-origin: 100% 50%;
     transform: translate3d(calc(var(--t) * 8vw), calc(var(--t) * -2.5vh), 0) scale(calc(1 + var(--t) * 0.2));
   }
+  /* The rooms (home page): the same ride, as a tile — the mark above the
+     name, the name in the walk's capitals, one plain line under it, a gold
+     rule between, on the beat's dark glass. */
+  .hall__chip--room {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+    max-width: min(20rem, 27vw);
+    padding: 16px 18px 15px;
+    border-radius: 18px;
+    border-color: rgba(242, 194, 117, 0.5);
+    background: rgba(20, 16, 13, 0.78);
+    box-shadow: 0 22px 60px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(242, 194, 117, 0.18);
+  }
+  .hall__chip--room :global(.fy__icon) { width: 42px; height: 42px; }
+  .hall__chip--room .room { display: grid; gap: 6px; }
+  .hall__chip--room .room__name {
+    display: block;
+    font-size: clamp(1rem, 0.7rem + 1vw, 1.55rem);
+    line-height: 1.02;
+    color: #fcfaf8;
+    padding-bottom: 8px;
+    border-bottom: 1px solid rgba(242, 194, 117, 0.45);
+  }
+  .hall__chip--room .room__sub {
+    display: block;
+    font-family: var(--font-base);
+    font-size: clamp(0.72rem, 0.62rem + 0.3vw, 0.9rem);
+    font-weight: 500;
+    letter-spacing: 0.01em;
+    text-transform: none;
+    line-height: 1.35;
+    color: rgba(252, 250, 248, 0.82);
+  }
   @media (max-width: 700px) {
     .hall__chip { max-width: 45vw; gap: 8px; padding: 9px 11px 8px 9px; border-radius: 13px; font-size: 0.66rem; }
     .hall__chip :global(.fy__icon) { width: 24px; height: 24px; }
     .hall__chip--l { left: 8px; }
     .hall__chip--r { right: 8px; }
+    .hall__chip--room { max-width: 50vw; gap: 6px; padding: 11px 12px 10px; border-radius: 14px; }
+    .hall__chip--room :global(.fy__icon) { width: 28px; height: 28px; }
+    .hall__chip--room .room__name { font-size: 0.92rem; padding-bottom: 5px; }
+    .hall__chip--room .room__sub { font-size: 0.66rem; }
   }
 
   .hero__vignette {
