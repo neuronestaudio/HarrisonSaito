@@ -87,12 +87,13 @@ const TOPICS: Record<string, Choice[]> = {
   ],
 };
 
-const TIMING: Choice[] = [
-  { value: 'weekday-mornings', label: 'Weekday mornings' },
-  { value: 'weekday-evenings', label: 'Weekday evenings' },
-  { value: 'weekends', label: 'Weekends' },
-  { value: 'flexible', label: "I'm flexible" },
-];
+/* Dion, 29 Sep 2026: not "weekday mornings" any more — a day. The next
+   fourteen are drawn by the script when the page opens (Sydney time, so they
+   are always today's fourteen), one is chosen, and its date goes up as
+   `timing` (2026-10-01) with "Wed 1 Oct" as the label — so a calendar can be
+   put behind it later. This is the one choice that is not a day. */
+const TIMING: Choice[] = [{ value: 'flexible', label: "I'm flexible" }];
+const DAYS_AHEAD = 14;
 
 const RAIL = preset ? ['Talk about', 'When', 'You'] : ['About', 'Talk about', 'When', 'You'];
 const presetLabel = preset ? ABOUT.find((c) => c.value === preset)?.label ?? '' : '';
@@ -158,13 +159,17 @@ const presetLabel = preset ? ABOUT.find((c) => c.value === preset)?.label ?? '' 
         <input type="hidden" name="topic_label" value="" />
       </fieldset>
 
-      {/* ---- 3. when suits you ---- */}
+      {/* ---- 3. when suits you: a day from the next fourteen, or flexible ---- */}
       <fieldset class="lf__step" data-step="timing" hidden>
         <legend class="lf__q">When suits you?</legend>
-        <div class="lf__choices lf__choices--two" role="radiogroup" aria-label="When suits you?">
+        <p class="lf__hint">A day from the next two weeks, Sydney time. Harrison settles the hour with you on the call.</p>
+        <div class="lf__choices lf__when" role="radiogroup" aria-label="When suits you?">
+          {/* the fourteen days: drawn by the script, so they are always today's */}
+          <div class="lf__days" data-days data-days-ahead={DAYS_AHEAD}></div>
           {TIMING.map((c) => (
-            <button type="button" class="lf__choice" role="radio" aria-checked="false" data-choice="timing" data-value={c.value} data-label={c.label}>
+            <button type="button" class="lf__choice lf__choice--wide" role="radio" aria-checked="false" data-choice="timing" data-value={c.value} data-label={c.label}>
               <span class="lf__choice-label">{c.label}</span>
+              <span class="lf__choice-hint">Any day works — Harrison will suggest one</span>
               <span class="lf__choice-mark" aria-hidden="true"></span>
             </button>
           ))}
@@ -419,6 +424,11 @@ const presetLabel = preset ? ABOUT.find((c) => c.value === preset)?.label ?? '' 
   .lf__choice[aria-checked='true'] .lf__choice-mark { background: var(--gold); border-color: var(--gold); transform: scale(1.05); }
   .lf__choice[aria-checked='true'] .lf__choice-mark::after { transform: rotate(45deg) scale(1); }
 
+  /* ---- when: the fourteen days, then the one that is not a day ---- */
+  .lf__hint { margin: -0.4rem 0 0.9rem; font-size: 0.82rem; line-height: 1.5; color: var(--text-on-ink-muted); }
+  .lf__when { display: grid; gap: 0.6rem; }
+  .lf__choice--wide { grid-column: 1 / -1; }
+
   /* ---- the last step: the answers, then the person ---- */
   .lf__summary {
     list-style: none;
@@ -443,6 +453,43 @@ const presetLabel = preset ? ABOUT.find((c) => c.value === preset)?.label ?? '' 
   }
   .lf__summary :global(button:hover), .lf__summary :global(button:focus-visible) { color: var(--gold); border-color: var(--gold); outline: none; }
   .lf__summary :global(button)::after { content: ' ✎'; opacity: 0.55; }
+
+  /* :global — the day tiles are drawn by the script and carry no scoped attribute */
+  .lf__days { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 0.4rem; }
+  .lf__days :global(.lf__day) {
+    position: relative;
+    display: grid;
+    justify-items: center;
+    gap: 0.05rem;
+    padding: 0.55rem 0.15rem 0.65rem;
+    border-radius: 12px;
+    border: 1px solid var(--glass-line);
+    background: var(--glass-tile);
+    color: var(--text-on-ink);
+    cursor: pointer;
+    font: inherit;
+    box-shadow: inset 0 1px 0 oklch(100% 0 0 / 0.08);
+    transition: background var(--dur-fast) ease, border-color var(--dur-fast) ease, transform var(--dur-fast) var(--ease-out-expo), box-shadow var(--dur-fast) ease;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .lf__days :global(.lf__day:hover) { background: var(--glass-tile-hover); border-color: oklch(84% 0.11 78 / 0.5); transform: translateY(-1px); }
+  .lf__days :global(.lf__day:focus-visible) { outline: none; border-color: var(--gold); box-shadow: 0 0 0 3px oklch(75% 0.12 75 / 0.28), inset 0 1px 0 oklch(100% 0 0 / 0.08); }
+  .lf__days :global(.lf__day-wd) { font-size: 0.58rem; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: var(--text-on-ink-muted); transition: color var(--dur-fast) ease; }
+  .lf__days :global(.lf__day-n) { font-family: var(--font-display); font-size: 1.45rem; line-height: 1.05; }
+  .lf__days :global(.lf__day-mo) { font-size: 0.64rem; color: var(--text-on-ink-faint); }
+  .lf__days :global(.lf__day--we .lf__day-wd) { color: var(--gold-light); opacity: 0.85; }
+  .lf__days :global(.lf__day[aria-checked='true']) {
+    border-color: var(--gold);
+    background: oklch(75% 0.12 75 / 0.14);
+    box-shadow: 0 0 0 1px oklch(75% 0.12 75 / 0.35), 0 10px 30px -14px oklch(75% 0.12 75 / 0.7);
+  }
+  .lf__days :global(.lf__day[aria-checked='true'] .lf__day-wd) { color: var(--gold-light); }
+  @media (max-width: 480px) {
+    .lf__days { gap: 0.3rem; }
+    .lf__days :global(.lf__day) { padding: 0.45rem 0.1rem 0.55rem; border-radius: 10px; }
+    .lf__days :global(.lf__day-n) { font-size: 1.2rem; }
+    .lf__days :global(.lf__day-wd) { font-size: 0.52rem; letter-spacing: 0.08em; }
+  }
 
   .lf__fields { display: grid; gap: 1rem; }
   @media (min-width: 640px) {
@@ -635,10 +682,43 @@ const presetLabel = preset ? ABOUT.find((c) => c.value === preset)?.label ?? '' 
       if (step.dataset.step === 'contact') {
         window.setTimeout(() => step.querySelector<HTMLElement>('input[name="name"]')?.focus({ preventScroll: true }), 80);
       } else {
-        const checked = step.querySelector<HTMLElement>('.lf__choice[aria-checked="true"]:not([hidden])');
-        window.setTimeout(() => (checked ?? step.querySelector<HTMLElement>('.lf__choice'))?.focus({ preventScroll: true }), 80);
+        const checked = step.querySelector<HTMLElement>('[data-choice][aria-checked="true"]:not([hidden])');
+        window.setTimeout(() => (checked ?? step.querySelector<HTMLElement>('[data-choice]'))?.focus({ preventScroll: true }), 80);
       }
     };
+
+    /* ---- the days: the next fourteen, Sydney time, drawn now -----------
+       Before the taps are wired below, so each day is a choice like any
+       other: its value is the date (2026-10-01), its label the day
+       ("Wed 1 Oct"), and both ride to GHL as timing / "when suits". */
+    (() => {
+      const host = root.querySelector<HTMLElement>('[data-days]');
+      if (!host) return;
+      const ahead = Number(host.dataset.daysAhead) || 14;
+      const parts = new Intl.DateTimeFormat('en-AU', { timeZone: 'Australia/Sydney', year: 'numeric', month: '2-digit', day: '2-digit' }).formatToParts(new Date());
+      const get = (t: string) => Number(parts.find((p) => p.type === t)?.value ?? 0);
+      const WD = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+      const WD_LONG = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+      const MO = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+      const MO_LONG = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+      const pad = (n: number) => String(n).padStart(2, '0');
+      for (let i = 1; i <= ahead; i++) {
+        /* noon UTC on the calendar date: the same date in Sydney whatever DST does */
+        const dt = new Date(Date.UTC(get('year'), get('month') - 1, get('day') + i, 12));
+        const wd = dt.getUTCDay(), d = dt.getUTCDate(), m = dt.getUTCMonth();
+        const b = document.createElement('button');
+        b.type = 'button';
+        b.className = 'lf__day' + (wd === 0 || wd === 6 ? ' lf__day--we' : '') + (i === 1 ? ' lf__day--first' : '');
+        b.setAttribute('role', 'radio');
+        b.setAttribute('aria-checked', 'false');
+        b.setAttribute('aria-label', `${WD_LONG[wd]} ${d} ${MO_LONG[m]}${i === 1 ? ', tomorrow' : ''}`);
+        b.dataset.choice = 'timing';
+        b.dataset.value = `${dt.getUTCFullYear()}-${pad(m + 1)}-${pad(d)}`;
+        b.dataset.label = `${WD[wd]} ${d} ${MO[m]}`;
+        b.innerHTML = `<span class="lf__day-wd">${WD[wd]}</span><span class="lf__day-n">${d}</span><span class="lf__day-mo">${MO[m]}</span>`;
+        host.appendChild(b);
+      }
+    })();
 
     /* ---- a tap answers, and moves on ---------------------------------- */
 
