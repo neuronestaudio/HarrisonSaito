@@ -8,7 +8,7 @@
  * 12 Sep 2026 at Dion's ask as a stepped, glass form: each tap answers the
  * question and moves on by itself, and the only typing is at the end.
  *
- *   1  What is this about?               (skipped where the page already says)
+ *   1  Which path brings you to Harrison? (skipped where the page already says)
  *   2  What would you like to talk about? (the choices follow the answer above)
  *   3  When suits you?
  *   4  Your name and phone (email optional) → send
@@ -95,7 +95,7 @@ const TOPICS: Record<string, Choice[]> = {
 const TIMING: Choice[] = [{ value: 'flexible', label: "I'm flexible" }];
 const DAYS_AHEAD = 14;
 
-const RAIL = preset ? ['Talk about', 'When', 'You'] : ['About', 'Talk about', 'When', 'You'];
+const RAIL = preset ? ['Talk about', 'When', 'You'] : ['Your path', 'Talk about', 'When', 'You'];
 const presetLabel = preset ? ABOUT.find((c) => c.value === preset)?.label ?? '' : '';
 ---
 
@@ -127,8 +127,10 @@ const presetLabel = preset ? ABOUT.find((c) => c.value === preset)?.label ?? '' 
     <div class="lf__stage" data-stage>
       {/* ---- 1. what is this about ---- */}
       <fieldset class="lf__step" data-step="about" hidden={!!preset}>
-        <legend class="lf__q">What is this about?</legend>
-        <div class="lf__choices lf__choices--two" role="radiogroup" aria-label="What is this about?">
+        {/* Dion, 30 Sep: "What is this about?" sounded demanding; pathways to Harrison */}
+        <legend class="lf__q">Which path brings you to Harrison?</legend>
+        <p class="lf__hint">There is no wrong door. Choose the one closest to where you are.</p>
+        <div class="lf__choices lf__choices--two" role="radiogroup" aria-label="Which path brings you to Harrison?">
           {ABOUT.map((c) => (
             <button type="button" class="lf__choice" role="radio" aria-checked="false" data-choice="about" data-value={c.value} data-label={c.label}>
               <span class="lf__choice-label">{c.label}</span>
@@ -162,10 +164,15 @@ const presetLabel = preset ? ABOUT.find((c) => c.value === preset)?.label ?? '' 
       {/* ---- 3. when suits you: a day from the next fourteen, or flexible ---- */}
       <fieldset class="lf__step" data-step="timing" hidden>
         <legend class="lf__q">When suits you?</legend>
-        <p class="lf__hint">A day from the next two weeks, Sydney time. Harrison settles the hour with you on the call.</p>
+        <p class="lf__hint">Pick a day in the next two weeks, then a two-hour window for his call. Sydney time.</p>
         <div class="lf__choices lf__when" role="radiogroup" aria-label="When suits you?">
           {/* the fourteen days: drawn by the script, so they are always today's */}
           <div class="lf__days" data-days data-days-ahead={DAYS_AHEAD}></div>
+          {/* Dion, 30 Sep: after a day, its two-hour windows, 8 am to 8 pm */}
+          <div class="lf__windows" data-windows hidden>
+            <p class="lf__windows-day" data-windows-day aria-live="polite"></p>
+            <div class="lf__windows-grid" data-windows-grid></div>
+          </div>
           {TIMING.map((c) => (
             <button type="button" class="lf__choice lf__choice--wide" role="radio" aria-checked="false" data-choice="timing" data-value={c.value} data-label={c.label}>
               <span class="lf__choice-label">{c.label}</span>
@@ -456,6 +463,21 @@ const presetLabel = preset ? ABOUT.find((c) => c.value === preset)?.label ?? '' 
 
   /* :global — the day tiles are drawn by the script and carry no scoped attribute */
   .lf__days { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 0.4rem; }
+  .lf__windows { margin-top: 0.4rem; }
+  .lf__windows[hidden] { display: none; }
+  .lf__windows.is-in { animation: lfWin var(--dur-fast) var(--ease-out-expo) both; }
+  @keyframes lfWin { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+  .lf__windows-day { margin: 0.2rem 0 0.55rem; font-family: var(--font-display); font-size: 1.15rem; color: var(--text-on-ink); }
+  .lf__windows-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0.45rem; }
+  .lf__windows-grid :global(.lf__window) {
+    padding: 0.7rem 0.4rem; border-radius: 999px; border: 1px solid var(--glass-line); background: var(--glass-tile);
+    color: var(--text-on-ink); font: inherit; font-size: 0.9rem; font-variant-numeric: tabular-nums; cursor: pointer;
+    transition: background var(--dur-fast) ease, border-color var(--dur-fast) ease, transform var(--dur-fast) var(--ease-out-expo);
+  }
+  .lf__windows-grid :global(.lf__window:hover) { border-color: oklch(84% 0.11 78 / 0.5); background: var(--glass-tile-hover); transform: translateY(-1px); }
+  .lf__windows-grid :global(.lf__window:focus-visible) { outline: none; border-color: var(--gold); box-shadow: 0 0 0 3px oklch(75% 0.12 75 / 0.28); }
+  .lf__windows-grid :global(.lf__window[aria-checked='true']) { border-color: transparent; background: linear-gradient(to right, #f2c275, #daa24f); color: #14100d; font-weight: 700; }
+  @media (max-width: 480px) { .lf__windows-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
   .lf__days :global(.lf__day) {
     position: relative;
     display: grid;
@@ -712,18 +734,54 @@ const presetLabel = preset ? ABOUT.find((c) => c.value === preset)?.label ?? '' 
         b.setAttribute('role', 'radio');
         b.setAttribute('aria-checked', 'false');
         b.setAttribute('aria-label', `${WD_LONG[wd]} ${d} ${MO_LONG[m]}${i === 1 ? ', tomorrow' : ''}`);
-        b.dataset.choice = 'timing';
-        b.dataset.value = `${dt.getUTCFullYear()}-${pad(m + 1)}-${pad(d)}`;
+        b.dataset.day = `${dt.getUTCFullYear()}-${pad(m + 1)}-${pad(d)}`;
         b.dataset.label = `${WD[wd]} ${d} ${MO[m]}`;
+        b.dataset.long = `${WD_LONG[wd]} ${d} ${MO_LONG[m]}`;
         b.innerHTML = `<span class="lf__day-wd">${WD[wd]}</span><span class="lf__day-n">${d}</span><span class="lf__day-mo">${MO[m]}</span>`;
         host.appendChild(b);
       }
+
+      /* A day opens its windows: six two-hour blocks, 8 am to 8 pm. Each
+         window is the answer (value "2026-10-02 08:00-10:00", label
+         "Fri 2 Oct, 8-10 am") and moves the form on like any tap. */
+      const wrap = root.querySelector<HTMLElement>('[data-windows]')!;
+      const grid = root.querySelector<HTMLElement>('[data-windows-grid]')!;
+      const dayLine = root.querySelector<HTMLElement>('[data-windows-day]')!;
+      const STARTS = [8, 10, 12, 14, 16, 18];
+      const h12 = (h: number) => ((h + 11) % 12) + 1;
+      const mer = (h: number) => (h >= 12 ? 'pm' : 'am');
+      const win = (h: number) => (mer(h) === mer(h + 2) ? `${h12(h)}–${h12(h + 2)} ${mer(h)}` : `${h12(h)} ${mer(h)}–${h12(h + 2)} ${mer(h + 2)}`);
+      host.addEventListener('click', (e) => {
+        const day = (e.target as HTMLElement).closest<HTMLButtonElement>('[data-day]');
+        if (!day) return;
+        host.querySelectorAll('[data-day]').forEach((b) => b.setAttribute('aria-checked', String(b === day)));
+        root.querySelectorAll('[data-choice="timing"]').forEach((b) => b.setAttribute('aria-checked', 'false'));
+        dayLine.textContent = day.dataset.long || '';
+        grid.innerHTML = '';
+        for (const h of STARTS) {
+          const w = document.createElement('button');
+          w.type = 'button';
+          w.className = 'lf__window';
+          w.setAttribute('role', 'radio');
+          w.setAttribute('aria-checked', 'false');
+          w.dataset.choice = 'timing';
+          w.dataset.value = `${day.dataset.day} ${pad(h)}:00-${pad(h + 2)}:00`;
+          w.dataset.label = `${day.dataset.label}, ${win(h)}`;
+          w.textContent = win(h);
+          grid.appendChild(w);
+        }
+        wrap.hidden = false;
+        wrap.classList.remove('is-in'); void wrap.offsetWidth; wrap.classList.add('is-in');
+        grid.querySelector<HTMLElement>('button')?.focus({ preventScroll: true });
+      });
     })();
 
     /* ---- a tap answers, and moves on ---------------------------------- */
 
-    root.querySelectorAll<HTMLButtonElement>('[data-choice]').forEach((btn) => {
-      btn.addEventListener('click', () => {
+    root.addEventListener('click', (ev) => {
+      const btn = (ev.target as HTMLElement).closest<HTMLButtonElement>('[data-choice]');
+      if (!btn || !root.contains(btn)) return;
+      {
         const name = btn.dataset.choice!;
         const group = btn.closest<HTMLElement>('.lf__choices')!;
         group.querySelectorAll<HTMLElement>('[data-choice]').forEach((b) => b.setAttribute('aria-checked', String(b === btn)));
@@ -745,11 +803,18 @@ const presetLabel = preset ? ABOUT.find((c) => c.value === preset)?.label ?? '' 
         }
         track('form_step', { form_id: formId, step: current + 1, question: name, answer: btn.dataset.value, page_path: location.pathname });
 
+        /* "flexible" clears a day that was picked */
+        if (name === 'timing' && btn.dataset.value === 'flexible') {
+          root.querySelectorAll('[data-day]').forEach((b) => b.setAttribute('aria-checked', 'false'));
+          const w = root.querySelector<HTMLElement>('[data-windows]');
+          if (w) w.hidden = true;
+        }
+
         window.clearTimeout(advancing);
         advancing = window.setTimeout(() => {
           if (current < steps.length - 1) goTo(current + 1);
         }, ADVANCE_MS);
-      });
+      }
     });
 
     backBtn.addEventListener('click', () => {
