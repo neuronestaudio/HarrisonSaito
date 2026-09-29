@@ -931,19 +931,21 @@ const hallAt = (i: number) => (0.34 + (i * 0.46) / Math.max(1, HALL_ITEMS.length
      Two copies of one seamless smoke tile (alpha, the site's ink) over the
      leaf, sized in em so the wisps stay letter-sized at every width, each
      travelling exactly one tile per loop so the loop has no seam. */
+  /* Dion, 30 Sep: "I don't like the black bits — nice bright gold like the
+     other bits." The ink smoke is gone: the panel titles' bright gold, a
+     slow sheen crossing it, and a soft dark shadow (drop-shadow, since the
+     letters are clipped) so it holds against the pale shoji. */
   .hero__title mark {
-    background:
-      url('/img/gold-smoke-v1.webp') 0 0 / 11em 5.5em repeat,
-      url('/img/gold-smoke-v1.webp') 6em 3em / 17em 8.5em repeat,
-      linear-gradient(100deg, #f9e0a3 0%, #f2c275 20%, #c48c3a 46%, #f3ca80 64%, #daa24f 82%, #a5732a 100%);
+    background: linear-gradient(100deg, #ffd98a 0%, #f5b547 30%, #ffe29a 50%, #f5b547 70%, #e39d33 100%) 0 0 / 200% 100%;
     -webkit-background-clip: text;
     background-clip: text;
     -webkit-text-fill-color: transparent;
     color: #f2c275;
-    animation: goldSmoke 80s linear infinite;
+    filter: drop-shadow(0 2px 14px rgba(20, 16, 13, 0.55)) drop-shadow(0 1px 2px rgba(20, 16, 13, 0.5));
+    animation: goldSmoke 9s ease-in-out infinite alternate;
   }
   @keyframes goldSmoke {
-    to { background-position: 11em 0, -11em 3em, 0 0; }
+    to { background-position: 100% 0; }
   }
   /* Off screen it holds still: nothing repaints under the walk. */
   .hero--away .hero__title mark { animation-play-state: paused; }
