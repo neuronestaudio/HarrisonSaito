@@ -67,6 +67,9 @@ const OPEN: [string, string][] = [
   ['Years coaching men in Chatswood', 'Years coaching in Chatswood'],
   ['Men’s coaching with Harrison Saito', 'Coaching with Harrison Saito'],
   ['Harrison Saito · Men’s coaching', 'Harrison Saito · Coaching'],
+  /* His own inbox (Dion, 30 Sep). Here as well as in the source, so a re-sync
+     of the template cannot bring the old address back. */
+  ['hello@harrisonsaito.com.au', 'harrison.saito3011@gmail.com'],
 ];
 
 function local<T>(value: T): T {

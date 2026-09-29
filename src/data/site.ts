@@ -18,7 +18,9 @@ export const SITE = {
   postcode: '2067',
   phone: '+61424657548',
   phoneDisplay: '+61 424 657 548',
-  email: 'hello@harrisonsaito.com.au',
+  /* Dion, 30 Sep: his own inbox, site-wide. (It was hello@harrisonsaito.com.au,
+     a mailbox nobody had confirmed exists.) */
+  email: 'harrison.saito3011@gmail.com',
   whatsapp: '61424657548',
   instagram: 'https://www.instagram.com/harrison_saito/',
   youtube: 'https://www.youtube.com/@Harrison_saito',

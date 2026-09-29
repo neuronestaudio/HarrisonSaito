@@ -29,11 +29,12 @@ const FACTS = [
 ];
 
 /* The direct routes, as marks without words (same ask): his own inbox
-   (Dion's record, 27 Sep), WhatsApp with the message written, LinkedIn. */
+   (SITE.email — his Gmail, site-wide since 30 Sep), WhatsApp with the message
+   written, LinkedIn. */
 const DIRECT = [
   {
     label: 'Email Harrison',
-    href: 'mailto:harrison.saito3011@gmail.com',
+    href: `mailto:${SITE.email}`,
     track: 'Book — email',
     external: false,
     /* an envelope */

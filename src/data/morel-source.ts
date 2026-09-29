@@ -24,7 +24,7 @@ export const SITE = {
   domain: 'https://harrison-saito-morel.vercel.app',
   tagline: 'Martial Artist · Coach',
   locality: 'Chatswood, NSW',
-  email: 'hello@harrisonsaito.com.au',
+  email: 'harrison.saito3011@gmail.com',
   phone: '+61424657548',
   phoneDisplay: '+61 424 657 548',
   whatsappBase: 'https://wa.me/61424657548',
@@ -947,12 +947,12 @@ export const PAGES: InnerPage[] = [
         ],
       },
       {
-        paragraphs: ['To make a request, email hello@harrisonsaito.com.au. I will respond within 30 days.'],
+        paragraphs: ['To make a request, email harrison.saito3011@gmail.com. I will respond within 30 days.'],
       },
       {
         heading: 'Complaints',
         paragraphs: [
-          'If you believe your privacy has been breached, contact me first at hello@harrisonsaito.com.au and I will investigate and respond within 30 days. If you are not satisfied with my response, you may complain to the Office of the Australian Information Commissioner at oaic.gov.au or on 1300 363 992.',
+          'If you believe your privacy has been breached, contact me first at harrison.saito3011@gmail.com and I will investigate and respond within 30 days. If you are not satisfied with my response, you may complain to the Office of the Australian Information Commissioner at oaic.gov.au or on 1300 363 992.',
         ],
       },
       {
@@ -970,7 +970,7 @@ export const PAGES: InnerPage[] = [
       {
         heading: 'Contact',
         paragraphs: [
-          'Harrison Saito, Chatswood, NSW, Australia. hello@harrisonsaito.com.au · +61 424 657 548',
+          'Harrison Saito, Chatswood, NSW, Australia. harrison.saito3011@gmail.com · +61 424 657 548',
           'This policy has been prepared to reflect how this website actually operates. It is not legal advice. Have it reviewed by an Australian legal practitioner before relying on it, and update it whenever a new data processor is introduced.',
         ],
       },
@@ -1068,7 +1068,7 @@ export const PAGES: InnerPage[] = [
       {
         heading: '13. Contact',
         paragraphs: [
-          'Harrison Saito, Chatswood, NSW, Australia. hello@harrisonsaito.com.au · +61 424 657 548',
+          'Harrison Saito, Chatswood, NSW, Australia. harrison.saito3011@gmail.com · +61 424 657 548',
           'These terms have been drafted to reflect how this business actually operates. They are not legal advice. Have them reviewed by an Australian legal practitioner before relying on them — particularly clauses 3, 4 and 9, which carry commercial risk.',
         ],
       },
