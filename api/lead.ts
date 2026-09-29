@@ -220,12 +220,216 @@ async function sendToMeta(env: Env, body: Payload, request: Request): Promise<bo
   return res.ok;
 }
 
+/* ------------------------------------------------------- the notification ----
+   What Harrison reads when someone reaches out. Dion, 29 Sep 2026: the GHL
+   notification should map ALL the information and read logically, genuinely,
+   concisely. So it is composed here, once, from the whole post, and every
+   webhook call carries it finished:
+     notify_kind    workshop-application | workshop-windows | application |
+                    discovery-call | message | callback | enquiry
+     notify_title   one line: the email subject
+     notify_sms     the text message: who, what, when, how to reach them
+     notify_body    every fact, one per line, plain text
+     notify_html    the same as a small table, for an email body
+   The GHL workflow's Internal Notification is then just those variables, and
+   the Resend email (if a key is ever set) says the same thing. Six forms feed
+   this; a workshop applicant posts twice — the application, then the call
+   windows — so the first message says a second is coming. */
+
+type Kind = 'workshop-application' | 'workshop-windows' | 'application' | 'discovery-call' | 'message' | 'callback' | 'enquiry';
+
+/* The six "Who's this for?" cards on the home walk (src/data/identities.ts),
+   as the line the visitor recognised. Kept here because the function cannot
+   import from src/; if a card's words change there, change them here. */
+const IDENTITY_LINES: Record<string, string> = {
+  burnout: 'can’t switch off, even when there’s nothing left to do',
+  regulation: 'one comment takes the whole day',
+  ego: 'achieved a lot, struggles to feel satisfied by it',
+  generational: 'carries what was never theirs to choose',
+  unresolved: 'an anger underneath they cannot name',
+  mask: 'says yes when they mean no',
+};
+
+const s = (v: unknown): string => (typeof v === 'string' ? v.trim() : typeof v === 'number' ? String(v) : '');
+
+/** 0412 345 678, from whatever was typed; anything that isn't an AU mobile is left as typed. */
+function phoneForHumans(raw: string): string {
+  const d = raw.replace(/\D/g, '');
+  const local = d.startsWith('61') ? `0${d.slice(2)}` : d;
+  if (/^04\d{8}$/.test(local)) return `${local.slice(0, 4)} ${local.slice(4, 7)} ${local.slice(7)}`;
+  if (/^0[2378]\d{8}$/.test(local)) return `${local.slice(0, 2)} ${local.slice(2, 6)} ${local.slice(6)}`;
+  return raw.trim();
+}
+
+/** Where they came from, in words: the ad, the search, the site that linked, or nothing. */
+function cameFrom(body: Payload): { from: string; page: string } {
+  let url: URL | null = null;
+  try { url = new URL(s(body.page_url)); } catch {}
+  const q = url?.searchParams;
+  const src = (q?.get('utm_source') ?? '').toLowerCase();
+  const med = (q?.get('utm_medium') ?? '').toLowerCase();
+  const camp = q?.get('utm_campaign') ?? '';
+  const ad = q?.get('utm_content') ?? '';
+  const paid = /paid|cpc|ppc|ads?$|paid_social|social_paid/.test(med);
+  let from: string;
+  if (q?.get('gclid') || q?.get('gbraid') || q?.get('wbraid') || (src === 'google' && paid)) from = 'Google ad';
+  else if (/^(facebook|fb|instagram|ig|meta)$/.test(src)) from = paid || camp ? 'Meta ad' : 'Instagram / Facebook';
+  else if (q?.get('fbclid')) from = 'Instagram / Facebook link';
+  else if (src) from = med ? `${src} / ${med}` : src;
+  else {
+    let host = '';
+    try { host = new URL(s(body.referrer)).hostname.replace(/^www\./, ''); } catch {}
+    from = host && !host.endsWith('harrisonsaito.com.au') ? host : 'Direct (typed in or a saved link)';
+  }
+  if (camp) from += ` · campaign ${camp}`;
+  if (ad) from += ` · ad ${ad}`;
+  const page = url ? url.pathname || '/' : s(body.page_path) || '';
+  return { from, page };
+}
+
+/** What they tapped before the form: the home walk's cards in their words, or an ad page's set. */
+function recognised(body: Payload): string {
+  const picks = s(body.fy_pick).split(',').map((p) => p.trim().toLowerCase()).filter(Boolean);
+  if (!picks.length) return '';
+  const lines = picks.map((p) => IDENTITY_LINES[p] ?? p.replace(/-/g, ' '));
+  return lines.join('; ');
+}
+
+function kindOf(body: Payload): Kind {
+  const form = s(body.form_id);
+  if (form === 'workshop') return body.event_name === 'schedule' ? 'workshop-windows' : 'workshop-application';
+  if (form === 'return-to-self-application' || form === 'lp-return-to-self') return 'application';
+  if (form === 'discovery-chat') return 'discovery-call';
+  if (form === 'general-contact') return 'message';
+  if (form === 'callback') return 'callback';
+  return 'enquiry';
+}
+
+const esc = (t: string) => t.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+
+export function buildNotice(body: Payload, now = new Date()) {
+  const kind = kindOf(body);
+  const name = s(body.name) || 'No name given';
+  const phone = s(body.phone) ? phoneForHumans(s(body.phone)) : '';
+  const email = s(body.email);
+  const reach = [phone, email].filter(Boolean).join(' · ') || 'no contact details';
+  const about = s(body.about_label);
+  const topic = s(body.topic_label);
+  const when = s(body.timing_label);
+  const room = s(body.session_label);
+  const words = s(body.note).replace(/\s+/g, ' ');
+  const picked = recognised(body);
+  const { from, page } = cameFrom(body);
+  const received = new Intl.DateTimeFormat('en-AU', {
+    timeZone: 'Australia/Sydney', weekday: 'short', day: 'numeric', month: 'short', hour: 'numeric', minute: '2-digit',
+  }).format(now);
+
+  /* per kind: the headline, the kind-specific facts, and what the page told
+     them would happen next — which is what Harrison now has to do */
+  let title: string;
+  let head: string;
+  let facts: Array<[string, string]>;
+  let promise: string;
+  switch (kind) {
+    case 'workshop-application':
+      title = `Workshop application · ${name} · ${room || 'room not chosen'}`;
+      head = 'Workshop application';
+      facts = [['Room', room], ['In their words', words]];
+      promise = 'Told: the seat is under review and you will reach out directly. They are picking call windows now; a second message follows if they do.';
+      break;
+    case 'workshop-windows':
+      title = `Call windows · ${name} · workshop ${room}`;
+      head = 'Workshop: call windows chosen';
+      facts = [['Call them', when ? `${when}` : 'no windows chosen'], ['Room', room]];
+      promise = 'Told: you will call in one of these windows. Three seats a room; if theirs is full, they are first for the next.';
+      break;
+    case 'application':
+      title = `Return to Self application · ${name}`;
+      head = 'Return to Self application';
+      facts = [['Wants to know', topic], ['Day that suits', when]];
+      promise = 'Told: you read it yourself and reply within two business days, usually with a call.';
+      break;
+    case 'discovery-call':
+      title = `Call request · ${name}${about ? ` · ${about}` : ''}`;
+      head = `Call request${about ? ` · ${about}` : ''}`;
+      facts = [['About', about], ['To talk about', topic], ['Day that suits', when]];
+      promise = 'Told: you will come back with a couple of times, usually within a day.';
+      break;
+    case 'message':
+      title = `Message · ${name}${about ? ` · ${about}` : ''}`;
+      head = `New message${about ? ` · ${about}` : ''}`;
+      facts = [['About', about], ['To talk about', topic], ['Day that suits', when]];
+      promise = 'Told: you reply personally, usually within a day.';
+      break;
+    case 'callback':
+      title = `Callback request · ${name}`;
+      head = 'Callback request';
+      facts = [];
+      promise = 'They left only a name and number, and expect a call back.';
+      break;
+    default:
+      title = `Enquiry · ${name}${about ? ` · ${about}` : ''}`;
+      head = `Enquiry${about ? ` · ${about}` : ''}`;
+      facts = [['About', about], ['To talk about', topic], ['Day that suits', when], ['In their words', words]];
+      promise = '';
+  }
+  facts = facts.filter(([, v]) => v);
+
+  const rows: Array<[string, string]> = [
+    ['Name', name],
+    ['Phone', phone || '—'],
+    ['Email', email || '—'],
+    ...facts,
+    ...(picked ? [['Recognised', picked] as [string, string]] : []),
+    ['Came from', from],
+    ['Page', page],
+    ['Received', `${received} (Sydney)`],
+  ];
+
+  /* the text: the headline, who and how to reach them, the one or two facts
+     that decide the call, where they came from. A quoted line is cut at 140. */
+  const quote = words.length > 140 ? `${words.slice(0, 139)}…` : words;
+  const smsLines = [
+    head,
+    `${name} · ${reach}`,
+    /* "About" is already the headline; the quote gets its own line below */
+    ...facts.filter(([k]) => k !== 'In their words' && k !== 'About').map(([k, v]) => `${k}: ${v}`),
+    ...(quote ? [`“${quote}”`] : []),
+    ...(kind === 'workshop-application' ? ['Call windows to follow.'] : []),
+    ...(picked ? [`Recognised: ${picked}`] : []),
+    `From: ${from}`,
+  ];
+
+  const body_ = [
+    head,
+    '',
+    ...rows.map(([k, v]) => `${k}: ${v}`),
+    ...(promise ? ['', promise] : []),
+  ].join('\n');
+
+  const tel = s(body.phone) ? e164(s(body.phone)) : '';
+  const cell = (k: string, v: string) =>
+    `<tr><td style="padding:6px 16px 6px 0;color:#8a8378;white-space:nowrap;vertical-align:top">${esc(k)}</td><td style="padding:6px 0;color:#1a1714">${v}</td></tr>`;
+  const html = `<div style="font-family:system-ui,-apple-system,sans-serif;max-width:560px;color:#1a1714">
+  <p style="margin:0 0 4px;font-size:18px">${esc(head)}</p>
+  <p style="margin:0 0 16px;font-size:14px;color:#8a8378">${esc(received)} (Sydney)</p>
+  <table style="border-collapse:collapse;font-size:14px">${rows
+    .map(([k, v]) =>
+      cell(k, k === 'Phone' && tel ? `<a href="tel:${tel}">${esc(v)}</a>` : k === 'Email' && email ? `<a href="mailto:${esc(email)}">${esc(v)}</a>` : esc(v))
+    )
+    .join('')}</table>
+  ${promise ? `<p style="margin:16px 0 0;font-size:14px;color:#5c564d">${esc(promise)}</p>` : ''}
+</div>`;
+
+  return { notify_kind: kind, notify_title: title, notify_sms: smsLines.join('\n'), notify_body: body_, notify_html: html };
+}
+
 async function sendToWebhook(env: Env, body: Payload): Promise<boolean> {
   if (!env.LEAD_WEBHOOK_URL) return false;
   const res = await fetch(env.LEAD_WEBHOOK_URL, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ ...body, received_at: new Date().toISOString() }),
+    body: JSON.stringify({ ...body, ...buildNotice(body), received_at: new Date().toISOString() }),
   });
   if (!res.ok) throw new Error(`webhook HTTP ${res.status}`);
   return true;
@@ -233,14 +437,7 @@ async function sendToWebhook(env: Env, body: Payload): Promise<boolean> {
 
 async function sendEmail(env: Env, body: Payload): Promise<boolean> {
   if (!env.RESEND_API_KEY || !env.LEAD_NOTIFY_TO) return false;
-
-  const rows = Object.entries(body)
-    .filter(([k]) => !['event_id', 'fbc', 'fbp', 'event_name', 'website'].includes(k))
-    .map(
-      ([k, v]) =>
-        `<tr><td style="padding:6px 14px 6px 0;color:#8a8378;white-space:nowrap;vertical-align:top">${k}</td><td style="padding:6px 0;color:#1a1714">${String(v ?? '')}</td></tr>`
-    )
-    .join('');
+  const notice = buildNotice(body);
 
   const res = await fetch('https://api.resend.com/emails', {
     method: 'POST',
@@ -250,11 +447,9 @@ async function sendEmail(env: Env, body: Payload): Promise<boolean> {
       /* "a@x, b@y" — Harrison and Dion, set 27 Sep 2026 */
       to: env.LEAD_NOTIFY_TO.split(/[,;\s]+/).filter(Boolean),
       reply_to: typeof body.email === 'string' && body.email ? body.email : undefined,
-      subject: `New enquiry — ${body.form_id ?? 'website'}${body.name ? ` — ${body.name}` : ''}`,
-      html: `<div style="font-family:system-ui,sans-serif;max-width:560px">
-        <h2 style="font-weight:400;color:#1a1714">New enquiry from harrisonsaito.com.au</h2>
-        <table style="border-collapse:collapse;font-size:14px">${rows}</table>
-      </div>`,
+      subject: notice.notify_title,
+      html: notice.notify_html,
+      text: notice.notify_body,
     }),
   });
   if (!res.ok) throw new Error(`resend HTTP ${res.status}`);

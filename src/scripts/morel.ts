@@ -172,11 +172,18 @@ export function initMorel() {
       if (!name) { fail('Your name, so Harrison knows who he is calling.'); nameEl.focus(); return; }
       if (phone.replace(/\D/g, '').length < 8) { fail('Please include a full phone number.'); phoneEl.focus(); return; }
       button.disabled = true;
+      /* what they tapped on the walk, so Harrison's notification says it (as the big forms do) */
+      let fy: string | undefined;
+      let fyPick: string | undefined;
+      try {
+        fy = sessionStorage.getItem('rts-fy') || undefined;
+        fyPick = sessionStorage.getItem('rts-fy-pick') || undefined;
+      } catch {}
       try {
         const res = await fetch(form.getAttribute('action') || '/api/lead', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ name, phone, form_id: 'callback', about: 'callback', about_label: 'Callback — name and number', page_path: location.pathname, page_url: location.href, referrer: document.referrer || undefined, event_name: 'lead' }),
+          body: JSON.stringify({ name, phone, form_id: 'callback', about: 'callback', about_label: 'Callback — name and number', page_path: location.pathname, page_url: location.href, referrer: document.referrer || undefined, fy, fy_pick: fyPick, event_name: 'lead' }),
         });
         const json = await res.json().catch(() => ({}));
         if (!res.ok || json.ok === false) throw new Error(json.error || `HTTP ${res.status}`);
