@@ -123,6 +123,13 @@ const ogImage = new URL(image, SITE.domain).href;
     <meta name="author" content="Harrison Saito" />
 
     {schema && <script type="application/ld+json" set:html={JSON.stringify(schema)} />}
+
+    {/* The conversation pages, fetched as soon as any page has loaded, so
+        "Talk with me" / "Start the conversation" open instantly. ~10 KB each
+        compressed; Chromium browsers honour this, Safari falls back to the
+        hover prefetch in astro.config.mjs. */}
+    <script type="speculationrules" set:html={JSON.stringify({ prefetch: [{ source: 'list', urls: ['/book', '/contact'], eagerness: 'immediate' }] })} />
+
   </head>
 
   <body class={bodyClass}>

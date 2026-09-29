@@ -26,10 +26,19 @@ const coarse = window.matchMedia('(pointer: coarse)').matches;
 
 /* ---------------------------------------------------------- smooth scroll */
 
+/* Off (Dion, 29 Sep 2026: "insanely laggy"). Lenis moves every wheel step
+   onto the main thread, so any work in a frame became scroll lag: on a
+   4x-throttled laptop the home page took a median 336 ms to move after a
+   wheel tick with Lenis, 67 ms with the browser's own scrolling, which runs
+   on the compositor and is already smoothed. Everything that used it has a
+   native path (the hero's snap and glide, the video modal, #anchors via
+   scroll-padding-top). Set true to bring it back. */
+const SMOOTH_SCROLL = false;
+
 function initLenis() {
   // Touch devices already have good native inertia; hijacking it makes things
   // worse and costs battery.
-  if (reduceMotion || coarse) return null;
+  if (!SMOOTH_SCROLL || reduceMotion || coarse) return null;
 
   const lenis = new Lenis({
     duration: 1.05,

@@ -39,6 +39,11 @@ export default defineConfig({
   site: SITE,
   output: 'static',
   trailingSlash: 'never',
+  /* Every internal link fetches its page the moment it is hovered, focused
+     or touched, so the click lands on a page already in the browser (Dion,
+     29 Sep 2026: "the lets talk page takes forever to load"). /book and
+     /contact are fetched outright after load — see Base.astro. */
+  prefetch: { prefetchAll: true, defaultStrategy: 'hover' },
   build: {
     format: 'file',
     inlineStylesheets: 'auto',

@@ -17,6 +17,13 @@ export function initMorel() {
   const root = document.querySelector<HTMLElement>('[data-morel]');
   if (!root) return;
   const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  /* The scroll position, taken once per scroll event in the CAPTURE phase at
+     the window — before any other handler or animation frame has written a
+     style. Reading window.scrollY after a style write forces Chrome to lay
+     the whole page out first, and the effects below each did that every
+     frame (29 Sep 2026). They read `sy` instead. */
+  let sy = window.scrollY;
+  window.addEventListener('scroll', () => { sy = window.scrollY; }, { capture: true, passive: true });
 
   /* 1. Reveal-on-scroll.
      A sweep rather than an IntersectionObserver on purpose. IO only fires for
@@ -32,16 +39,32 @@ export function initMorel() {
       return;
     }
     let ticking = false;
+    /* Where each element sits on the PAGE, measured once and kept (Dion,
+       29 Sep 2026: "insanely laggy"). Reading every pending element's rect on
+       every scroll frame forced a full layout of the whole page each frame —
+       1.6 s of main thread in a 60-step scroll at 4x CPU on the home page.
+       The sweep now compares stored page offsets with scrollY, which costs no
+       layout; the offsets are re-measured when the page changes size. */
+    let tops: number[] = [];
+    let stale = true;
+    const measure = () => {
+      const y = window.scrollY;
+      tops = pending.map((el) => el.getBoundingClientRect().top + y);
+      stale = false;
+    };
     const sweep = () => {
-      const fold = window.innerHeight - 60;
-      pending = pending.filter((el) => {
-        if (el.getBoundingClientRect().top > fold) return true;
-        el.classList.add('is-in');
-        return false;
-      });
+      if (stale) measure();
+      const line = sy + window.innerHeight - 60;
+      const due = pending.filter((_, i) => tops[i] <= line);
+      if (due.length) {
+        const keep = tops.map((t) => t > line);
+        pending = pending.filter((_, i) => keep[i]);
+        tops = tops.filter((_, i) => keep[i]);
+        due.forEach((el) => el.classList.add('is-in'));
+      }
       if (!pending.length) {
         window.removeEventListener('scroll', onScroll);
-        window.removeEventListener('resize', onScroll);
+        window.removeEventListener('resize', onChange);
       }
       ticking = false;
     };
@@ -51,12 +74,14 @@ export function initMorel() {
         requestAnimationFrame(sweep);
       }
     };
+    /* anything that can move elements: re-measure before the next sweep */
+    const onChange = () => { stale = true; onScroll(); };
     window.addEventListener('scroll', onScroll, { passive: true });
-    window.addEventListener('resize', onScroll);
-    window.addEventListener('load', onScroll, { once: true });
+    window.addEventListener('resize', onChange);
+    window.addEventListener('load', onChange, { once: true });
     /* Lazy images change the page height after first paint, which moves
-       elements across the fold without a scroll event. Re-sweep on growth. */
-    if ('ResizeObserver' in window) new ResizeObserver(onScroll).observe(document.body);
+       elements across the fold without a scroll event. Re-measure on growth. */
+    if ('ResizeObserver' in window) new ResizeObserver(onChange).observe(document.body);
     sweep();
   })();
 
@@ -82,16 +107,32 @@ export function initMorel() {
     split(p);
     const letters = p.querySelectorAll('span');
     const total = letters.length;
+    /* once a frame, and only the letters whose state changed — it used to
+       toggle every letter on every scroll event, then read the rect */
+    let shown = 0;
+    let ticking = false;
+    /* the paragraph's place on the page, kept rather than read each frame
+       (a per-frame rect read forced a whole-page layout — see the sweep) */
+    let pageTop = 0;
+    let stale = true;
     const update = () => {
-      const rect = p.getBoundingClientRect();
+      ticking = false;
+      if (stale) { pageTop = p.getBoundingClientRect().top + window.scrollY; stale = false; }
+      const top = pageTop - sy;
       const winH = window.innerHeight;
       const start = winH * 0.7;
       const end = winH * 0.2;
-      const progress = Math.min(1, Math.max(0, (start - rect.top) / (start - end)));
+      const progress = Math.min(1, Math.max(0, (start - top) / (start - end)));
       const n = Math.floor(total * progress);
-      letters.forEach((l, i) => l.classList.toggle('colored', i < n));
+      for (let i = Math.min(n, shown); i < Math.max(n, shown); i++) letters[i].classList.toggle('colored', i < n);
+      shown = n;
     };
-    window.addEventListener('scroll', update, { passive: true });
+    const onScroll = () => { if (!ticking) { ticking = true; requestAnimationFrame(update); } };
+    const onChange = () => { stale = true; onScroll(); };
+    window.addEventListener('scroll', onScroll, { passive: true });
+    window.addEventListener('resize', onChange);
+    window.addEventListener('load', onChange, { once: true });
+    if ('ResizeObserver' in window) new ResizeObserver(onChange).observe(document.body);
     update();
   })();
 
@@ -101,19 +142,28 @@ export function initMorel() {
     if (!els.length) return;
     if (reduceMotion) { els.forEach((el) => (el.style.transform = 'none')); return; }
     let ticking = false;
+    /* each card's place on the page, kept rather than read every frame (a
+       per-frame rect read forced a whole-page layout — see the sweep). The
+       0.9–1 scale moves a card's top by a few pixels at most; not worth a read. */
+    let tops: number[] = [];
+    let stale = true;
     const update = () => {
+      if (stale) { const y = window.scrollY; tops = Array.from(els, (el) => el.getBoundingClientRect().top + y); stale = false; }
       const vh = window.innerHeight;
       const dist = vh * 0.75;
-      els.forEach((el) => {
-        const rect = el.getBoundingClientRect();
-        const progress = Math.min(Math.max((vh - rect.top) / dist, 0), 1);
+      const y = sy;
+      els.forEach((el, i) => {
+        const progress = Math.min(Math.max((vh - (tops[i] - y)) / dist, 0), 1);
         el.style.transform = `scale(${0.9 + 0.1 * progress})`;
       });
       ticking = false;
     };
     const onScroll = () => { if (!ticking) { ticking = true; requestAnimationFrame(update); } };
+    const onChange = () => { stale = true; onScroll(); };
     window.addEventListener('scroll', onScroll, { passive: true });
-    window.addEventListener('resize', onScroll);
+    window.addEventListener('resize', onChange);
+    window.addEventListener('load', onChange, { once: true });
+    if ('ResizeObserver' in window) new ResizeObserver(onChange).observe(document.body);
     update();
   })();
 

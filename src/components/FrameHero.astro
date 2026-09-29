@@ -1770,11 +1770,22 @@ const hallAt = (i: number) => (0.34 + (i * 0.46) / Math.max(1, HALL_ITEMS.length
     var cards = (beatEl ? [].slice.call(beatEl.querySelectorAll('.beat__card')) : []) as HTMLElement[];
 
     function clamp(v: number, a: number, b: number) { return v < a ? a : v > b ? b : v; }
-    function runway() { return hero!.offsetHeight - window.innerHeight; }
-    function heroTop() { return hero!.getBoundingClientRect().top + window.scrollY; }
+    /* The hero's place on the page, read once and kept (Dion, 29 Sep 2026:
+       "insanely laggy"). progress() runs on every scroll event and every
+       frame of the film, right after paint() has written the custom
+       properties — reading the rect there forced a full layout each time,
+       1.6 s of a 60-step scroll at 4x CPU. Now it is arithmetic on scrollY;
+       the numbers are re-read on resize, on load, and whenever the hero
+       itself changes size (the gate opening, fonts landing). */
+    var geoTop = 0, geoRun = 0;
+    function readGeo() {
+      geoRun = hero!.offsetHeight - window.innerHeight;
+      geoTop = hero!.getBoundingClientRect().top + window.scrollY;
+    }
+    function runway() { return geoRun; }
+    function heroTop() { return geoTop; }
     function progress() {
-      var run = runway();
-      return run > 0 ? clamp(-hero!.getBoundingClientRect().top / run, 0, 1) : 0;
+      return geoRun > 0 ? clamp((window.scrollY - geoTop) / geoRun, 0, 1) : 0;
     }
     function yAt(p: number) { return heroTop() + p * runway(); }
     function lenisOf(): any { return (window as any).lenis || null; }
@@ -1787,6 +1798,7 @@ const hallAt = (i: number) => (0.34 + (i * 0.46) / Math.max(1, HALL_ITEMS.length
     /* ---- the runway: three lengths read back from the CSS ---- */
     var pA = 0.34, pB = 0.57, pC = 0.79, pD = 0.66;
     function measure() {
+      readGeo();
       var cs = getComputedStyle(hero!);
       var a = parseFloat(cs.getPropertyValue('--run-in')) || 180;
       var h = parseFloat(cs.getPropertyValue('--run-pause')) || 120;
@@ -2267,6 +2279,9 @@ const hallAt = (i: number) => (0.34 + (i * 0.46) / Math.max(1, HALL_ITEMS.length
     window.addEventListener('resize', onResize);
     /* the photograph's box is only final once it has its picture */
     if (figure) figure.addEventListener('load', placeFlame);
+    /* the cached geometry follows the hero's own size, and the page's settle */
+    if ('ResizeObserver' in window) new ResizeObserver(readGeo).observe(hero!);
+    window.addEventListener('load', readGeo);
     measure();
     prevP = progress();
     paint(prevP);
