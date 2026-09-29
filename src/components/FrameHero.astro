@@ -725,7 +725,11 @@ const hallAt = (i: number) => (0.34 + (i * 0.46) / Math.max(1, HALL_ITEMS.length
   }
   .hero--row .hall-row { visibility: visible; pointer-events: auto; }
   .hall-row__chip {
-    --in: clamp(0, calc((var(--p, 0) - 0.045 - var(--k, 0) * 0.011) / 0.035), 1);
+    /* one after another down the corridor (Dion, 30 Sep: "it comes in too
+       quick… Breathwork shows at this beat"): each tile lands ~9% of the walk
+       to the doors after the one before, so the last arrives as the four-door
+       room comes into view (~0.27 of the runway on a desk) */
+    --in: clamp(0, calc((var(--p, 0) - 0.045 - var(--k, 0) * var(--pa, 0.41) * 0.09) / (var(--pa, 0.41) * 0.085)), 1);
     --out: clamp(0, calc((var(--pa, 0.41) - 0.05 - var(--p, 0)) / 0.03), 1);
     --v: min(var(--in), var(--out));
     position: relative;
