@@ -228,9 +228,11 @@ async function sendToMeta(env: Env, body: Payload, request: Request): Promise<bo
      notify_kind    workshop-application | workshop-windows | application |
                     discovery-call | message | callback | enquiry
      notify_title   one line: the email subject
-     notify_sms     the text message: who, what, when, how to reach them
-     notify_body    every fact, one per line, plain text
-     notify_html    the same as a small table, for an email body
+     notify_sms     the text: "Hey Harrison," + one line per form step + source
+     notify_body    the same plus page, time received and what they were told
+     notify_html    notify_body as small tables, for an email body
+     notify_steps   just the step lines; lead_phone, came_from, recognised,
+                    received_sydney: the pieces, for a layout built in GHL
    The GHL workflow's Internal Notification is then just those variables, and
    the Resend email (if a key is ever set) says the same thing. Six forms feed
    this; a workshop applicant posts twice — the application, then the call
@@ -249,6 +251,9 @@ const IDENTITY_LINES: Record<string, string> = {
   unresolved: 'an anger underneath they cannot name',
   mask: 'says yes when they mean no',
 };
+
+/** Who the notification speaks to: it goes to Harrison (the email copies Dion). */
+const GREETING = 'Hey Harrison,';
 
 const s = (v: unknown): string => (typeof v === 'string' ? v.trim() : typeof v === 'number' ? String(v) : '');
 
@@ -312,7 +317,6 @@ export function buildNotice(body: Payload, now = new Date()) {
   const name = s(body.name) || 'No name given';
   const phone = s(body.phone) ? phoneForHumans(s(body.phone)) : '';
   const email = s(body.email);
-  const reach = [phone, email].filter(Boolean).join(' · ') || 'no contact details';
   const about = s(body.about_label);
   const topic = s(body.topic_label);
   const when = s(body.timing_label);
@@ -324,104 +328,112 @@ export function buildNotice(body: Payload, now = new Date()) {
     timeZone: 'Australia/Sydney', weekday: 'short', day: 'numeric', month: 'short', hour: 'numeric', minute: '2-digit',
   }).format(now);
 
-  /* per kind: the headline, the kind-specific facts, and what the page told
-     them would happen next — which is what Harrison now has to do */
-  let title: string;
+  /* Dion, 29 Sep 2026: "Hey Harrison," then one line per step of the form,
+     in the order the visitor answered them. Per kind: the headline, those
+     steps, and what the page told them would happen next — which is what
+     Harrison now has to do. A step left blank reads "—" so the line is
+     still there and he can see it was skipped. */
+  const reachSteps: Array<[string, string]> = [['Name', name], ['Phone', phone], ['Email', email]];
+  const askSteps: Array<[string, string]> = [['About', about], ['Wants to talk about', topic], ['When suits', when]];
   let head: string;
-  let facts: Array<[string, string]>;
+  let steps: Array<[string, string]>;
   let promise: string;
   switch (kind) {
     case 'workshop-application':
-      title = `Workshop application · ${name} · ${room || 'room not chosen'}`;
       head = 'Workshop application';
-      facts = [['Room', room], ['In their words', words]];
-      promise = 'Told: the seat is under review and you will reach out directly. They are picking call windows now; a second message follows if they do.';
+      steps = [['Session', room], ...reachSteps, ['Wants to understand', words ? `“${words}”` : '']];
+      promise = 'They were told their seat is under review and you will reach out directly. They are picking call windows now; a second message follows if they do.';
       break;
     case 'workshop-windows':
-      title = `Call windows · ${name} · workshop ${room}`;
-      head = 'Workshop: call windows chosen';
-      facts = [['Call them', when ? `${when}` : 'no windows chosen'], ['Room', room]];
-      promise = 'Told: you will call in one of these windows. Three seats a room; if theirs is full, they are first for the next.';
+      head = 'workshop call windows chosen';
+      steps = [['Call them', when || 'no windows chosen'], ['Session', room], ['Name', name], ['Phone', phone]];
+      promise = 'They were told you will call in one of these windows. Three seats a room; if theirs is full, they are first for the next.';
       break;
     case 'application':
-      title = `Return to Self application · ${name}`;
       head = 'Return to Self application';
-      facts = [['Wants to know', topic], ['Day that suits', when]];
-      promise = 'Told: you read it yourself and reply within two business days, usually with a call.';
+      steps = [...askSteps, ...reachSteps];
+      promise = 'They were told you read it yourself and reply within two business days, usually with a call.';
       break;
     case 'discovery-call':
-      title = `Call request · ${name}${about ? ` · ${about}` : ''}`;
-      head = `Call request${about ? ` · ${about}` : ''}`;
-      facts = [['About', about], ['To talk about', topic], ['Day that suits', when]];
-      promise = 'Told: you will come back with a couple of times, usually within a day.';
+      head = 'Call request';
+      steps = [...askSteps, ...reachSteps];
+      promise = 'They were told you will come back with a couple of times, usually within a day.';
       break;
     case 'message':
-      title = `Message · ${name}${about ? ` · ${about}` : ''}`;
-      head = `New message${about ? ` · ${about}` : ''}`;
-      facts = [['About', about], ['To talk about', topic], ['Day that suits', when]];
-      promise = 'Told: you reply personally, usually within a day.';
+      head = 'Message';
+      steps = [...askSteps, ...reachSteps];
+      promise = 'They were told you reply personally, usually within a day.';
       break;
     case 'callback':
-      title = `Callback request · ${name}`;
       head = 'Callback request';
-      facts = [];
+      steps = [['Name', name], ['Phone', phone]];
       promise = 'They left only a name and number, and expect a call back.';
       break;
     default:
-      title = `Enquiry · ${name}${about ? ` · ${about}` : ''}`;
-      head = `Enquiry${about ? ` · ${about}` : ''}`;
-      facts = [['About', about], ['To talk about', topic], ['Day that suits', when], ['In their words', words]];
+      head = 'Enquiry';
+      steps = [...askSteps, ...reachSteps, ['In their words', words]];
       promise = '';
   }
-  facts = facts.filter(([, v]) => v);
+  steps = steps.map(([k, v]) => [k, v || '—'] as [string, string]);
+  /* the windows are the same applicant coming back, not a second lead */
+  const intro = kind === 'workshop-windows' ? `Update: ${head}` : `New lead: ${head}`;
+  const title = `${intro} · ${name}`;
 
-  const rows: Array<[string, string]> = [
-    ['Name', name],
-    ['Phone', phone || '—'],
-    ['Email', email || '—'],
-    ...facts,
+  /* after the steps: what they recognised on the walk, where they came from */
+  const context: Array<[string, string]> = [
     ...(picked ? [['Recognised', picked] as [string, string]] : []),
     ['Came from', from],
-    ['Page', page],
-    ['Received', `${received} (Sydney)`],
   ];
+  const extra: Array<[string, string]> = [['Page', page], ['Received', `${received} (Sydney)`]];
+  const line = ([k, v]: [string, string]) => `${k}: ${v}`;
 
-  /* the text: the headline, who and how to reach them, the one or two facts
-     that decide the call, where they came from. A quoted line is cut at 140. */
-  const quote = words.length > 140 ? `${words.slice(0, 139)}…` : words;
-  const smsLines = [
-    head,
-    `${name} · ${reach}`,
-    /* "About" is already the headline; the quote gets its own line below */
-    ...facts.filter(([k]) => k !== 'In their words' && k !== 'About').map(([k, v]) => `${k}: ${v}`),
-    ...(quote ? [`“${quote}”`] : []),
-    ...(kind === 'workshop-application' ? ['Call windows to follow.'] : []),
-    ...(picked ? [`Recognised: ${picked}`] : []),
-    `From: ${from}`,
-  ];
-
-  const body_ = [
-    head,
+  const sms = [
+    GREETING,
+    intro,
     '',
-    ...rows.map(([k, v]) => `${k}: ${v}`),
+    ...steps.map(line),
+    '',
+    ...context.map(line),
+    ...(kind === 'workshop-application' ? ['Call windows to follow.'] : []),
+  ].join('\n');
+
+  const text = [
+    GREETING,
+    intro,
+    '',
+    ...steps.map(line),
+    '',
+    ...[...context, ...extra].map(line),
     ...(promise ? ['', promise] : []),
   ].join('\n');
 
   const tel = s(body.phone) ? e164(s(body.phone)) : '';
-  const cell = (k: string, v: string) =>
-    `<tr><td style="padding:6px 16px 6px 0;color:#8a8378;white-space:nowrap;vertical-align:top">${esc(k)}</td><td style="padding:6px 0;color:#1a1714">${v}</td></tr>`;
-  const html = `<div style="font-family:system-ui,-apple-system,sans-serif;max-width:560px;color:#1a1714">
-  <p style="margin:0 0 4px;font-size:18px">${esc(head)}</p>
-  <p style="margin:0 0 16px;font-size:14px;color:#8a8378">${esc(received)} (Sydney)</p>
-  <table style="border-collapse:collapse;font-size:14px">${rows
-    .map(([k, v]) =>
-      cell(k, k === 'Phone' && tel ? `<a href="tel:${tel}">${esc(v)}</a>` : k === 'Email' && email ? `<a href="mailto:${esc(email)}">${esc(v)}</a>` : esc(v))
-    )
-    .join('')}</table>
-  ${promise ? `<p style="margin:16px 0 0;font-size:14px;color:#5c564d">${esc(promise)}</p>` : ''}
+  const cell = ([k, v]: [string, string]) =>
+    `<tr><td style="padding:6px 16px 6px 0;color:#8a8378;white-space:nowrap;vertical-align:top">${esc(k)}</td><td style="padding:6px 0;color:#1a1714">${
+      k === 'Phone' && tel ? `<a href="tel:${tel}">${esc(v)}</a>` : k === 'Email' && email ? `<a href="mailto:${esc(email)}">${esc(v)}</a>` : esc(v)
+    }</td></tr>`;
+  const table = (rows: Array<[string, string]>) => `<table style="border-collapse:collapse;font-size:14px;margin:0 0 16px">${rows.map(cell).join('')}</table>`;
+  const html = `<div style="font-family:system-ui,-apple-system,sans-serif;max-width:560px;color:#1a1714;font-size:14px">
+  <p style="margin:0 0 4px">${esc(GREETING)}</p>
+  <p style="margin:0 0 16px;font-size:18px">${esc(intro)}</p>
+  ${table(steps)}
+  ${table([...context, ...extra])}
+  ${promise ? `<p style="margin:0;color:#5c564d">${esc(promise)}</p>` : ''}
 </div>`;
 
-  return { notify_kind: kind, notify_title: title, notify_sms: smsLines.join('\n'), notify_body: body_, notify_html: html };
+  return {
+    notify_kind: kind,
+    notify_title: title,
+    notify_sms: sms,
+    notify_body: text,
+    notify_html: html,
+    /* the pieces, for anyone who would rather lay the message out in GHL */
+    notify_steps: steps.map(line).join('\n'),
+    lead_phone: phone,
+    came_from: from,
+    recognised: picked,
+    received_sydney: `${received} (Sydney)`,
+  };
 }
 
 async function sendToWebhook(env: Env, body: Payload): Promise<boolean> {
