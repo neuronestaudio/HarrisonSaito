@@ -479,7 +479,7 @@ const hallAt = (i: number) => (0.34 + (i * 0.46) / Math.max(1, HALL_ITEMS.length
   .hero__crowd {
     position: absolute; inset: 0; z-index: 4; pointer-events: none;
     background: url('/img/crowd-wide-v1.webp') center / cover no-repeat;
-    opacity: calc(0.28 * (1 - min(1, var(--p, 0) / 0.035)));
+    opacity: calc(0.13 * (1 - min(1, var(--p, 0) / 0.035)));  /* 28% → 13% (Dion, 1 Oct: 15% less) */
     -webkit-mask-image: radial-gradient(ellipse 46% 40% at 50% 52%, rgba(0,0,0,.25) 0%, #000 100%);
             mask-image: radial-gradient(ellipse 46% 40% at 50% 52%, rgba(0,0,0,.25) 0%, #000 100%);
     mix-blend-mode: multiply;
@@ -803,7 +803,13 @@ const hallAt = (i: number) => (0.34 + (i * 0.46) / Math.max(1, HALL_ITEMS.length
     font-size: calc(var(--tile) * 0.138) !important;  /* "BREATHWORK" fits on one line */
     line-height: 0.95 !important;
     letter-spacing: -0.01em !important;
-    color: rgba(255, 255, 255, 0.3);
+    /* the landing title's gold, at 20% (Dion, 1 Oct: 10% less, and gold) */
+    background: linear-gradient(100deg, #ffd98a 0%, #f5b547 35%, #ffe29a 55%, #e39d33 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    color: #f5b547;
+    opacity: 0.2;
     text-shadow: none;
     overflow-wrap: normal;
     word-break: keep-all;
