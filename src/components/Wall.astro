@@ -54,6 +54,20 @@ import { src, srcset } from '../lib/images';
               <span><strong>{t.name}</strong>{t.via && <em>{t.via}</em>}</span>
             </figcaption>
           </figure>
+        ) : t.type === 'video' ? (
+          <figure class="wall__tile wall__p wall__p--tall wall__v reveal" style={`--d:${(i % 6) * 70}ms`} data-wall-video>
+            <video
+              src={t.src}
+              poster={`/img/wall/${t.poster}-720.webp`}
+              preload="none"
+              playsinline
+              aria-label={t.alt}
+            ></video>
+            <button class="wall__play" type="button" aria-label="Play the testimonials, with sound" data-track="video_play" data-track-label="Wall — combined testimonials" data-track-section="voices">
+              <svg viewBox="0 0 28 28" aria-hidden="true"><circle cx="14" cy="14" r="14" fill="#fff"/><path d="M11 9.5v9l8-4.5z" fill="#14100D"/></svg>
+            </button>
+            <figcaption><span>{t.caption}</span></figcaption>
+          </figure>
         ) : (
           <figure class:list={['wall__tile', 'wall__p', `wall__p--${t.shape}`, 'reveal', { 'wall__tile--more': t.more === true }]} style={`--d:${(i % 6) * 70}ms`}>
             <img
@@ -184,6 +198,15 @@ import { src, srcset } from '../lib/images';
   /* ---- the people ---- */
   .wall__p { background: #14100d; }
   .wall__p--tall { grid-row: span 2; }
+  /* the film tile: poster until tapped, then it plays in place with controls */
+  .wall__v video { width: 100%; height: 100%; object-fit: cover; display: block; background: #14100d; }
+  .wall__play {
+    position: absolute; inset: 0; margin: auto; width: 64px; height: 64px; padding: 0; border: 0; background: none;
+    cursor: pointer; filter: drop-shadow(0 6px 18px rgba(0, 0, 0, 0.45)); transition: transform 0.3s ease; z-index: 2;
+  }
+  .wall__play svg { width: 100%; height: 100%; }
+  .wall__play:hover, .wall__play:focus-visible { transform: scale(1.08); outline: none; }
+  .wall__v.is-playing .wall__play, .wall__v.is-playing figcaption { display: none; }
   .wall__p img {
     position: absolute;
     inset: 0;
@@ -279,3 +302,20 @@ import { src, srcset } from '../lib/images';
     .wall__p:hover img { transform: none; }
   }
 </style>
+
+<script>
+  /* The film plays where it sits, with sound, on the tap that asked for it;
+     nothing is fetched before then (preload="none"). */
+  document.querySelectorAll<HTMLElement>('[data-wall-video]').forEach((tile) => {
+    const video = tile.querySelector('video');
+    const btn = tile.querySelector<HTMLButtonElement>('.wall__play');
+    if (!video || !btn) return;
+    btn.addEventListener('click', () => {
+      tile.classList.add('is-playing');
+      video.controls = true;
+      video.muted = false;
+      video.play().catch(() => { video.muted = true; video.play().catch(() => {}); });
+    });
+    video.addEventListener('ended', () => { tile.classList.remove('is-playing'); video.controls = false; video.load(); });
+  });
+</script>

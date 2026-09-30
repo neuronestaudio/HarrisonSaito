@@ -66,7 +66,19 @@ export type PhotoTile = {
   more?: boolean;
 };
 
-export type WallTile = QuoteTile | PhotoTile;
+/** A film, played in its tile (Dion, 30 Sep: "a video of the combination
+    testimonial… top left corner… I want it playable"). Self-hosted, loads
+    nothing until tapped. */
+export type VideoTile = {
+  type: 'video';
+  shape: 'tall';
+  src: string;
+  poster: string;
+  alt: string;
+  caption: string;
+};
+
+export type WallTile = QuoteTile | PhotoTile | VideoTile;
 
 const FILMED = {
   caption: 'Filmed testimony · Sept 2026',
@@ -80,13 +92,19 @@ export const WALL: WallTile[] = [
      rectangle with no holes — change a band as a whole or not at all.
      (scratch check: pack.py; 6 cols -> 10 rows, 0 holes.) */
 
-  /* band 1 — feature · tall · tall · line/line */
+  /* band 1 — video · feature · tall · line/line (30 Sep: the combined
+     testimonial film in the top-left corner, where a filmed still stood) */
+  {
+    type: 'video', shape: 'tall',
+    src: '/video/testimonials-combo-v1.mp4', poster: 'wall-combo-v2',
+    alt: 'Harrison’s clients, one after another, on what the training changed for them',
+    caption: 'Watch · in their words',
+  },
   {
     type: 'quote', size: 'feature', tone: 'ink', kicker: 'Coaching · Return to Self', name: 'Matt Halpin',
     big: 'Helped me remove the mask',
     quote: 'Harrison helped me remove the mask, calm the mind, and move with intention rather than just speed, power, and grit.',
   },
-  { type: 'photo', shape: 'tall', img: 'wall-p05-v1', ...FILMED },
   { type: 'photo', shape: 'tall', img: 'wall-p11-v1', ...FILMED },
   { type: 'quote', size: 'line', tone: 'paper', kicker: 'Karate · three years in', name: 'Alex Wei', big: 'Forge their own path' },
   {

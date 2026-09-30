@@ -138,7 +138,7 @@ export const ROOMS: Room[] = [
   { icon: 'moon', name: 'Temple', sub: 'Koyasan. Attention, not belief.', href: '/about', thumb: 'room-temple-v1', thumbAlt: 'A stone Buddha seated among trees' },
   { icon: 'mirror', name: 'Return to Self', sub: 'The practice: notice, then choose.', href: '/return-to-self', thumb: 'room-rts-v1', thumbAlt: 'Harrison kneeling beside a client, a hand on his chest, the client’s eyes closed' },
   { icon: 'comment', name: 'One on One', sub: 'Coaching, session by session.', href: '/mens-coaching', thumb: 'room-one-v1', thumbAlt: 'Harrison with a client on the mats' },
-  { icon: 'ember', name: 'Breathwork', sub: 'The monthly room. Sixteen seats.', href: '/workshops', thumb: 'room-breath-v1', thumbAlt: 'Harrison seated in a circle of people by the water' },
+  { icon: 'ember', name: 'Breathwork', sub: 'The monthly room. Sixteen seats.', href: '/workshops', thumb: 'room-breath-v2', thumbAlt: 'Harrison and a client sitting cross-legged on the mats, eyes closed' },  /* Dion, 30 Sep: a brighter photo (wall-p55); -v2 because /img is immutable */
 ];
 
 /** His other channels — the way out of the site, on purpose. */
