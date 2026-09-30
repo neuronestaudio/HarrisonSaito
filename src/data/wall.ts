@@ -155,14 +155,40 @@ export const WALL: WallTile[] = [
      their names and their yes. Same pack as band 1 — two squares here left
      the top row a cell short and broke the band below.) */
   {
-    type: 'quote', size: 'feature', tone: 'gold', kicker: 'Karate · a few years in', name: 'Jeremy', voice: 'filmed',
+    type: 'quote', size: 'feature', tone: 'gold', kicker: 'Karate · a few years in', name: 'Jeremy Yap', voice: 'filmed',
     big: 'More focused on my breathing',
     quote: 'He’s taught me to handle stressful situations much better… I’m more calm, I’m more focused on my breathing and I’m more intentional.',
   },
-  { type: 'photo', shape: 'tall', img: 'wall-t02-v1', alt: 'A client at his gym, filming his testimony on his phone', caption: 'Testimony, filmed at the gym · Sept 2026' },
-  { type: 'photo', shape: 'tall', img: 'wall-t01-v1', alt: 'A client at home, filming his testimony on his phone', caption: 'Testimony, on his phone · Sept 2026', more: true },
+  { type: 'photo', shape: 'tall', img: 'wall-t02-v1', alt: 'Nico Roudier at his gym, filming his testimony', caption: 'Nico Roudier · martial arts' },
+  { type: 'photo', shape: 'tall', img: 'wall-t01-v1', alt: 'Shehab Khan filming his testimony', caption: 'Shehab Khan · martial arts', more: true },
   { type: 'quote', size: 'line', tone: 'ink', kicker: 'Coaching · musician', name: 'Jake', voice: 'filmed', big: 'I can just do a soft exhale' },
   { type: 'quote', size: 'line', tone: 'paper', kicker: 'HSC student · Cammeraygal', name: 'Kai Bennetts', big: 'One of my greatest mentors', more: 'phone' },
+
+  /* band 4c — feature · feature · line/line (1 Oct 2026: the named phone
+     testimonies and Alex Wei's interview — every name now in their own words) */
+  {
+    type: 'quote', size: 'feature', tone: 'ink', kicker: 'Navy officer · karate, four years', name: 'Alex Wei', voice: 'filmed',
+    big: 'It has genuinely changed my life',
+    quote: 'His teachings also come out of experience. They come out of a sincereness that I think is really unique to Harrison.',
+  },
+  {
+    type: 'quote', size: 'feature', tone: 'gold', kicker: 'Martial arts student', name: 'Nico Roudier', voice: 'filmed',
+    big: 'Surrender to the pain',
+    quote: 'At first I thought it was only about martial arts… I realized it was about life too. Facing the pain, accepting it, breathing through it and finding the peace on the other side.',
+  },
+  { type: 'quote', size: 'line', tone: 'paper', kicker: 'Martial arts student', name: 'Shehab Khan', voice: 'filmed', big: 'A loving soul' },
+  { type: 'quote', size: 'line', tone: 'ink', kicker: 'Martial arts student', name: 'Aiden Jacobs', voice: 'filmed', big: 'Grounded, patient, and encouraging' },
+
+  /* band 4d — feature · line/line · line/line */
+  {
+    type: 'quote', size: 'feature', tone: 'paper', kicker: 'Martial arts student', name: 'Harshil Dave', voice: 'filmed',
+    big: 'He speaks from experience',
+    quote: 'How you do anything is how you do everything… over time that sentence has had new meanings for me, which has helped me navigate through difficult times.',
+  },
+  { type: 'quote', size: 'line', tone: 'gold', kicker: 'Martial arts student', name: 'Lorenzo Ambrose', voice: 'filmed', big: 'Real strength comes from calm, not from tension' },
+  { type: 'quote', size: 'line', tone: 'ink', kicker: 'Martial arts student', name: 'Maksim Belchenko', voice: 'filmed', big: 'Calm when it matters most' },
+  { type: 'quote', size: 'line', tone: 'ink', kicker: 'His motto, as Alex remembers it', name: 'Alex Wei', voice: 'filmed', big: 'Strong body, sharp mind, soft heart' },
+  { type: 'quote', size: 'line', tone: 'paper', kicker: 'Karate · Navy officer', name: 'Alex Wei', voice: 'filmed', big: 'I was a lot more secure in myself' },
 
   /* band 5 — tall · feature · tall · the way on (2×2, drawn by the component) */
   { type: 'photo', shape: 'tall', img: 'wall-k13-v1', alt: 'An older student on the mats with one arm raised, grinning', caption: 'A student on the mats', more: true },
@@ -181,7 +207,7 @@ for (const t of WALL) {
   const written = TESTIMONIALS.find((x) => x.name === t.name);
   const filmed = INTERVIEWS.find((x) => x.name === t.name);
   if (!written && !filmed) throw new Error(`wall.ts: nothing on record from "${t.name}"`);
-  const body = flat(written ? written.quote : filmed!.said.join(' … '));
+  const body = flat([written ? written.quote : '', filmed ? filmed.said.join(' … ') : ''].join(' … '));
   for (const line of [t.big, ...(t.quote ? t.quote.split('…') : [])]) {
     const piece = flat(line).replace(/[.,;:]+$/, '');
     if (piece && !body.includes(piece)) throw new Error(`wall.ts: "${line}" is not in ${t.name}'s testimonial`);
