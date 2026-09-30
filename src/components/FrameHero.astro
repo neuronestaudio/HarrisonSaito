@@ -251,12 +251,13 @@ const hallAt = (i: number) => (0.34 + (i * 0.46) / Math.max(1, HALL_ITEMS.length
     )}
 
     <div class="hero__copy">
-      <p class="hero__eyebrow"><span>Harrison Saito · Coaching</span><i aria-hidden="true"> · </i><span>Chatswood, Sydney</span></p>
+      <p class="hero__eyebrow"><span>Harrison Saito · Coaching</span><i aria-hidden="true"> · </i><span>Sydney, Australia</span></p>
       {/* Dion, 29 Sep: the opening line. (28 Sep: "You can be good at life and
           still feel disconnected from yourself."; before that the guide's
           "You don't have to react to everything you feel.", now on /workshop.) */}
       <h1 class="hero__title">How you do one thing<br /><mark>is how you do everything</mark></h1>
-      <p class="hero__sub">17+ Years Karate | Coach | Buddhist</p>
+      {/* Dion, 30 Sep: says what he does, and pays off the headline */}
+      <p class="hero__sub">17+ years of karate and coaching, helping people understand their patterns and respond with intention.</p>
       {/* A row of four client interviews stood here for a day (20-21 Sep). Dion took
           it off: too much too soon, and four men in front of the same curtain read as
           staged. The component and the cut list are kept (InterviewRow.astro,
@@ -953,11 +954,15 @@ const hallAt = (i: number) => (0.34 + (i * 0.46) / Math.max(1, HALL_ITEMS.length
      on a phone the old 1.6rem floor sat above it. Same size on a desk. */
   .hero__sub {
     font-family: var(--font-display);
-    font-size: clamp(1.05rem, 0.9rem + 1.6vw, 2.15rem);
+    /* a sentence now, not three words (30 Sep): smaller, measured, balanced */
+    font-size: clamp(1.02rem, 0.9rem + 0.8vw, 1.6rem);
     font-weight: 500;
-    line-height: 1.2;
-    margin: 0;
-    color: rgba(252, 250, 248, 0.92);
+    line-height: 1.3;
+    margin: 0 auto;
+    max-width: 46ch;
+    text-wrap: balance;
+    color: rgba(252, 250, 248, 0.94);
+    text-shadow: 0 1px 14px rgba(20, 16, 13, 0.55);
   }
 
   .hero__ctas {
