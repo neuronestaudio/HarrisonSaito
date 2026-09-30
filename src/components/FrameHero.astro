@@ -221,6 +221,9 @@ const hallAt = (i: number) => (0.34 + (i * 0.46) / Math.max(1, HALL_ITEMS.length
     <div class="hero__scrim" aria-hidden="true"></div>
     <div class="hero__veil" aria-hidden="true"></div>
     <div class="hero__vignette" aria-hidden="true"></div>
+    {/* Dion, 1 Oct: the people he has worked with, faded behind the first
+        screen, gone on the first scroll (--p). Home page only. */}
+    {BEAT === 'identities' && <div class="hero__crowd" aria-hidden="true"></div>}
 
     {/* The hallway's badges: decoration for the walk, read out nowhere — the
         panel that follows is where the lines are said. */}
@@ -467,6 +470,22 @@ const hallAt = (i: number) => (0.34 + (i * 0.46) / Math.max(1, HALL_ITEMS.length
     object-fit: cover;
     object-position: 44% 50%;
   }
+  /* Phones (Dion, 1 Oct: "land centred with the door"): the first room's
+     doors sit at ~48.5% of the plate, the alcove at ~44%, so the crop slides
+     from one to the other over the walk to the doors. */
+  @media (max-aspect-ratio: 3/4) {
+    .hero__poster, .hero__film, .hero__plate { object-position: calc(48.5% - 4.5% * min(1, var(--p, 0) * 2.4)) 50%; }
+  }
+  .hero__crowd {
+    position: absolute; inset: 0; z-index: 4; pointer-events: none;
+    background: url('/img/crowd-wide-v1.webp') center / cover no-repeat;
+    opacity: calc(0.28 * (1 - min(1, var(--p, 0) / 0.035)));
+    -webkit-mask-image: radial-gradient(ellipse 46% 40% at 50% 52%, rgba(0,0,0,.25) 0%, #000 100%);
+            mask-image: radial-gradient(ellipse 46% 40% at 50% 52%, rgba(0,0,0,.25) 0%, #000 100%);
+    mix-blend-mode: multiply;
+  }
+  @media (max-aspect-ratio: 3/4) { .hero__crowd { background-image: url('/img/crowd-tall-v1.webp'); } }
+  @media (prefers-reduced-motion: reduce) { .hero__crowd { display: none; } }
   .hero__poster { z-index: 1; opacity: calc(1 - var(--film)); transition: opacity 0.5s ease; }
   .hero__film { z-index: 2; opacity: var(--film); transition: opacity 0.5s ease; }
 
@@ -766,17 +785,30 @@ const hallAt = (i: number) => (0.34 + (i * 0.46) / Math.max(1, HALL_ITEMS.length
     pointer-events: none;
     background: linear-gradient(to top, rgba(20, 16, 13, 0.9) 0%, rgba(20, 16, 13, 0.55) 38%, rgba(20, 16, 13, 0) 68%);
   }
+  /* Centred (Dion, 1 Oct): the name set as large as the tile allows, white
+     at 30%, across the middle; the line centred at the foot. */
   .hall-row__words {
     position: absolute;
-    left: 0;
-    right: 0;
-    bottom: 0;
+    inset: 0;
     z-index: 1;
     display: grid;
-    gap: 2px;
-    padding: 0 10px 9px;
+    grid-template-rows: 1fr auto;
+    justify-items: center;
+    align-items: center;
+    padding: 8px 8px 10px;
+    text-align: center;
     text-shadow: 0 1px 10px rgba(0, 0, 0, 0.6);
   }
+  .hall-row__words b {
+    font-size: calc(var(--tile) * 0.138) !important;  /* "BREATHWORK" fits on one line */
+    line-height: 0.95 !important;
+    letter-spacing: -0.01em !important;
+    color: rgba(255, 255, 255, 0.3);
+    text-shadow: none;
+    overflow-wrap: normal;
+    word-break: keep-all;
+  }
+  .hall-row__words small { align-self: end; }
   .hall-row__words b {
     font-family: var(--font-avant);
     font-size: clamp(0.64rem, 0.52rem + 0.36vw, 0.9rem);
