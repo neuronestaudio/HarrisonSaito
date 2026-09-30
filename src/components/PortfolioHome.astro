@@ -12,6 +12,7 @@
  */
 import MoShell from './MoShell.astro';
 import Portfolio from './Portfolio.astro';
+import Adaptation from './Adaptation.astro';
 import Wall from './Wall.astro';
 import { FILMS, FILMS_SECTION, CORE, PHASES, CLOSE, asset } from '../data/morel';
 import { PLAY_ICON } from '../lib/morel-icons';
@@ -25,6 +26,7 @@ const HOME_CLOSE_CTAS = [CLOSE.ctas[0], { label: 'Learn more', href: '/mens-coac
 ---
 
 <MoShell>
+  <Adaptation />
   <Portfolio />
 
   <!-- ============ FILMS (as on /return-to-self) ============ -->

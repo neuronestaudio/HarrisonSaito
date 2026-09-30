@@ -37,8 +37,8 @@ export type Identity = {
 };
 
 export const IDENTITIES_SECTION = {
-  label: 'Who this is for',
-  title: 'Who’s this <mark>for?</mark>',
+  label: 'Which one resonates with you the most?',
+  title: 'Who is this <mark>for?</mark>',
   /* the badge sets' own lede (badges.ts, control / core) */
   lede: 'If more than one of these lands, you are in the right place. They tend to travel together.',
   foot: 'Wherever you recognised yourself, the first step is the same conversation.',

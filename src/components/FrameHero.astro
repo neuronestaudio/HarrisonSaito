@@ -1586,6 +1586,7 @@ const hallAt = (i: number) => (0.34 + (i * 0.46) / Math.max(1, HALL_ITEMS.length
   .beat .beat__card--door::after { display: none; }
   /* The identities: the gate's glass tiles, as links — no seal either. */
   .beat .beat__card--id { text-decoration: none; }
+  .beat--ids .beat__title :global(mark) { display: inline; }  /* "Who is this for?" on one line */
   .beat .beat__card--id::after { display: none; }
   .beat .beat__card--door p { text-transform: uppercase; letter-spacing: 0.03em; }
   .beat .beat__card--door :global(strong) { display: block; margin-top: 4px; font-weight: 500; font-size: 0.82em; letter-spacing: 0; text-transform: none; color: rgba(252, 250, 248, 0.85); }

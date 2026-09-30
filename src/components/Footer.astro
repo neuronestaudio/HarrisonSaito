@@ -78,24 +78,21 @@ const year = new Date().getFullYear();
 
     <div class="footer__col">
       <h2 class="footer__head">Contact</h2>
-      <ul>
-        <li>
-          <a href={`mailto:${SITE.email}`} data-track="cta_click" data-track-label="Footer — email" aria-label={`Email ${SITE.email}`}>
-            <span class="footer__long">{SITE.email}</span><span class="footer__short">Email</span>
+      {/* Dion, 1 Oct: marks, not words */}
+      <div class="footer__icons">
+        {[
+          { l: `Email ${SITE.email}`, h: `mailto:${SITE.email}`, t: 'Footer — email', svg: '<rect x="3" y="5.5" width="18" height="13" rx="2"/><path d="M3.5 7l8.5 6 8.5-6"/>' },
+          { l: `Call ${SITE.phoneDisplay}`, h: `tel:${SITE.phone}`, t: 'Footer — phone', svg: '<path d="M6.6 3.5l3 4-2 2a12 12 0 0 0 6.9 6.9l2-2 4 3-1.5 3C11 21 3 13 3.6 5z"/>' },
+          { l: 'WhatsApp', h: `https://wa.me/${SITE.whatsapp}`, t: 'Footer — WhatsApp', x: 1, svg: '<path d="M12 3a9 9 0 0 0-7.7 13.6L3 21l4.5-1.2A9 9 0 1 0 12 3z"/><path d="M9 8.5c-.6.7-.6 1.8 0 3 .9 1.7 2.3 3 4 3.7 1 .4 1.9.2 2.5-.5l-1.7-1.4-.9.6c-.8-.4-1.5-1.1-1.9-1.9l.6-.9z"/>' },
+          { l: 'Instagram', h: SITE.instagram, t: 'Footer — Instagram', x: 1, svg: '<rect x="3.5" y="3.5" width="17" height="17" rx="5"/><circle cx="12" cy="12" r="4"/><path d="M17.2 6.8v.1"/>' },
+          { l: 'YouTube', h: SITE.youtube, t: 'Footer — YouTube', x: 1, svg: '<rect x="2.5" y="5.5" width="19" height="13" rx="4"/><path d="M10.5 9.5v5l4-2.5z"/>' },
+          { l: 'LinkedIn', h: 'https://www.linkedin.com/in/harrison-saito', t: 'Footer — LinkedIn', x: 1, svg: '<rect x="3.5" y="3.5" width="17" height="17" rx="3"/><path d="M8 10.5v6"/><path d="M8 7.4v.2"/><path d="M12 16.5v-6"/><path d="M12 13.2a2.2 2.2 0 0 1 4.4 0v3.3"/>' },
+        ].map((i) => (
+          <a class="footer__icon" href={i.h} aria-label={i.l} title={i.l} target={i.x ? '_blank' : undefined} rel={i.x ? 'noopener noreferrer' : undefined} data-track="cta_click" data-track-label={i.t}>
+            <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" set:html={i.svg} />
           </a>
-        </li>
-        <li>
-          <a href={`tel:${SITE.phone}`} data-track="cta_click" data-track-label="Footer — phone" aria-label={`Call ${SITE.phoneDisplay}`}>
-            <span class="footer__long">{SITE.phoneDisplay}</span><span class="footer__short">Call</span>
-          </a>
-        </li>
-        <li>
-          <a href={SITE.instagram} target="_blank" rel="noopener noreferrer">Instagram</a>
-        </li>
-        <li>
-          <a href={SITE.youtube} target="_blank" rel="noopener noreferrer">YouTube</a>
-        </li>
-      </ul>
+        ))}
+      </div>
     </div>
     </div>
 
@@ -258,6 +255,9 @@ const year = new Date().getFullYear();
     margin-bottom: 0.8rem;
   }
 
+  .footer__icons { display: grid; grid-template-columns: repeat(3, 42px); gap: 10px; }
+  .footer__icon { display: grid; place-items: center; width: 42px; height: 42px; border-radius: 50%; border: 1px solid oklch(75% 0.12 75 / 0.5); color: var(--gold) !important; transition: background .3s ease, color .3s ease, transform .3s ease; }
+  .footer__icon:hover, .footer__icon:focus-visible { background: var(--gold); color: #14100d !important; transform: translateY(-2px); outline: none; }
   .footer__col ul { list-style: none; padding: 0; margin: 0; display: grid; gap: 0.45rem; }
   .footer__col li { line-height: 1.4; }
 

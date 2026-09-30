@@ -421,3 +421,11 @@
    with, 17 ms without). The pane keeps its gradient, line and glow; only
    the live blur goes. Where the form sits over a picture, it stays. */
 .mo .section--dark .lf { -webkit-backdrop-filter: none; backdrop-filter: none; background: linear-gradient(160deg, rgba(255, 255, 255, 0.075), rgba(255, 255, 255, 0.03) 46%, rgba(255, 255, 255, 0.055)), rgba(24, 19, 16, 0.92); }
+
+/* /book (Dion, 1 Oct): the form centred, the details under it */
+.mo .book__stack { display: grid; justify-items: center; gap: var(--sp-60); }
+.mo .book__stack .formgrid__form { width: min(760px, 100%); flex: none; }
+.mo .book__stack .book__after { width: min(760px, 100%); flex: none; display: grid; grid-template-columns: 1fr auto; align-items: center; gap: 16px 40px; }
+.mo .book__stack .book__after .facts { margin: 0; }
+.mo .book__stack .book__after .facts__label { margin: 0 0 10px; }
+@media (max-width: 700px) { .mo .book__stack .book__after { grid-template-columns: 1fr; } }

@@ -80,8 +80,23 @@ const schema = graph(
     </section>
 
     <section class="section section--dark on-dark" data-section="book">
-      <div class="wide cols cols--top formgrid">
-        <div class="formgrid__aside">
+      <div class="wide book__stack">
+        <div class="formgrid__form">
+          {bookingUrl ? (
+            <div class="book__embed">
+              <iframe src={bookingUrl} title="Booking calendar" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+            </div>
+          ) : (
+            <LeadForm
+              formId="discovery-chat"
+              submitLabel="Request a time"
+              eventName="schedule"
+              successHeading="Request received."
+              successBody="I'll come back to you with a couple of times that work, usually within a day."
+            />
+          )}
+        </div>
+        <div class="formgrid__aside book__after">
           <ul class="facts">
             {FACTS.map((f) => (
               <li><strong>{f.t}</strong><span>{f.s}</span></li>
@@ -107,21 +122,6 @@ const schema = graph(
           </div>
         </div>
 
-        <div class="formgrid__form">
-          {bookingUrl ? (
-            <div class="book__embed">
-              <iframe src={bookingUrl} title="Booking calendar" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
-            </div>
-          ) : (
-            <LeadForm
-              formId="discovery-chat"
-              submitLabel="Request a time"
-              eventName="schedule"
-              successHeading="Request received."
-              successBody="I'll come back to you with a couple of times that work, usually within a day."
-            />
-          )}
-        </div>
       </div>
     </section>
   </MoShell>

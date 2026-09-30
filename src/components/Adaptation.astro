@@ -1,0 +1,69 @@
+---
+/**
+ * The preface under the walk: where patterns come from, before who works on
+ * them with you (Dion, 1 Oct 2026: "people scroll there and I want this kind
+ * of preface — he understands patterns and rebuilds intention… you are an
+ * adaptation of your upbringing… patterns carried down from your parents,
+ * which were carried down from theirs… we react in ways linked to how you
+ * would have responded out of safety as a kid… this helps you rebuild
+ * intention by connecting with yourself, your values… then it goes into
+ * Harrison"). A mask for the adaptation, a path for the return.
+ *
+ * The words are OURS, in the voice guide's register — on Harrison's
+ * sign-off list with the rest.
+ */
+import { forYouIcon } from '../lib/morel-icons';
+
+const PATH_ICON = `<svg class="fy__icon ad__path" viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path pathLength="1" d="M5 27c4-1 6-4 6-7s-4-4-4-7 3-6 8-6 9 2 9 6-5 4-5 7 3 4 7 4"/><circle cx="5" cy="27" r="1.6" fill="currentColor"/><circle cx="26" cy="24" r="1.6" fill="currentColor"/></svg>`;
+---
+
+<section class="section section--white ad" id="adaptation" data-section="adaptation">
+  <div class="wide ad__cols">
+    <header class="ad__head">
+      <p class="eyebrow">Where patterns come from</p>
+      <h2 class="reveal">You are an adaptation <mark>of how you grew up.</mark></h2>
+      <p class="fs-sm ad__lede reveal">
+        Some of who you are was never chosen. As a child you learned what kept you safe — when to go quiet, when to
+        push, when to please — and much of it was handed to you, the way it was handed to your parents by theirs.
+      </p>
+      <p class="fs-sm ad__lede reveal">
+        Those responses still run today, faster than thought. They are not wrong. They are just not always you.
+      </p>
+    </header>
+
+    <div class="ad__cards" data-stagger>
+      <article class="fy__card ad__card reveal">
+        <Fragment set:html={forYouIcon('mask')} />
+        <p class="ad__name">The adaptation</p>
+        <p class="ad__line">The reactions you learned for safety, still answering for you as an adult.</p>
+      </article>
+      <article class="fy__card ad__card reveal">
+        <Fragment set:html={PATH_ICON} />
+        <p class="ad__name">The return</p>
+        <p class="ad__line">Noticing them, reconnecting with what you value, and rebuilding how you choose to respond.</p>
+      </article>
+    </div>
+  </div>
+  <p class="ad__foot reveal">That is the work. <mark>This is who does it with you.</mark></p>
+</section>
+
+<style>
+  .ad__cols { display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr); gap: clamp(28px, 5vw, 80px); align-items: center; }
+  .ad__head h2 { margin: 0 0 var(--sp-40); }
+  .ad__lede { max-width: 52ch; margin: 0 0 var(--sp-30); color: var(--fg3); }
+  .ad__cards { display: grid; gap: 14px; }
+  .ad .ad__card { flex-direction: row; align-items: flex-start; gap: 18px; padding: clamp(18px, 2.4vw, 28px); }
+  .ad .ad__card :global(.fy__icon) { width: 46px; height: 46px; flex: none; color: var(--primary); }
+  .ad__name { margin: 0 0 6px !important; font-family: var(--font-base); font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; font-size: 1rem !important; }
+  .ad__line { margin: 0 !important; font-weight: 400 !important; font-size: clamp(0.95rem, 0.9rem + 0.25vw, 1.08rem) !important; line-height: 1.45 !important; color: var(--fg3); text-transform: none !important; letter-spacing: 0 !important; }
+  .ad .ad__card > :global(svg) + .ad__name { margin-top: 2px !important; }
+  .ad .ad__card { display: grid; grid-template-columns: 46px 1fr; column-gap: 18px; }
+  .ad .ad__card :global(.fy__icon) { grid-row: span 2; }
+  .ad__foot { text-align: center; margin: clamp(36px, 5vw, 64px) auto 0; font-family: var(--font-display); font-size: clamp(1.2rem, 1rem + 0.9vw, 1.8rem); }
+  /* the path draws itself on reveal, like the site's other marks */
+  .ad :global(.ad__path path) { stroke-dasharray: 1; stroke-dashoffset: 1; }
+  .ad :global(.fy__card.is-in .ad__path path) { animation: adDraw 1.6s var(--ease-out-quart, ease) 0.3s both; }
+  @keyframes adDraw { to { stroke-dashoffset: 0; } }
+  @media (max-width: 900px) { .ad__cols { grid-template-columns: 1fr; } }
+  @media (prefers-reduced-motion: reduce) { .ad :global(.ad__path path) { stroke-dasharray: none; animation: none; } }
+</style>
