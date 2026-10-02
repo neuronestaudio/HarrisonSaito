@@ -113,7 +113,7 @@ export const WALL: WallTile[] = [
   },
 
   /* band 2 — tall · feature · tall · square square / line */
-  { type: 'photo', shape: 'tall', img: 'wall-k09-v1', alt: 'A student mid-drill on the mats, laughing, Harrison behind her', caption: 'Training on the mats' },
+  { type: 'photo', shape: 'tall', img: 'wall-k09-v2', alt: 'A student mid-drill on the mats, laughing, Harrison behind her', caption: 'Training on the mats' },
   {
     type: 'quote', size: 'feature', tone: 'paper', kicker: 'Karate student', name: 'Harshil Dave',
     big: 'Be decisive',
