@@ -27,7 +27,19 @@ const ROLE: Record<string, string> = {
   'Lorenzo Ambrose': 'Martial arts student', 'Maksim Belchenko': 'Martial arts student', John: 'Coaching · consultant, 55',
   Andrew: 'Coaching · drummer', James: 'Coaching · construction', Jake: 'Coaching · musician',
 };
+/* A face for every voice (Dion, 2 Oct: "a portrait from each of those"):
+   a still from each person's own clip (Alex: his tile of the call only), cut
+   by D:\CLIENTS\HARRISON\_testimonies-drive/named/portraits; the four
+   9 Sep sitters keep their shoot crops. */
+const FACE: Record<string, string> = {
+  'Alex Wei': '/img/faces/face-alex-v1-160.webp', 'Harshil Dave': '/img/faces/face-harshil-v1-160.webp',
+  'Nico Roudier': '/img/faces/face-nico-v1-160.webp', 'Jeremy Yap': '/img/faces/face-jeremy-v1-160.webp',
+  'Aiden Jacobs': '/img/faces/face-aiden-v1-160.webp', 'Shehab Khan': '/img/faces/face-shehab-v1-160.webp',
+  'Lorenzo Ambrose': '/img/faces/face-lorenzo-v1-160.webp', 'Maksim Belchenko': '/img/faces/face-maksim-v1-160.webp',
+  John: '/img/face-john-v1-320.webp', Andrew: '/img/face-andrew-v1-320.webp', James: '/img/face-james-v1-320.webp', Jake: '/img/face-jake-v1-320.webp',
+};
 const FILMED = ORDER.map((n) => INTERVIEWS.find((v) => v.name === n)).filter(Boolean).map((v) => ({
+  face: FACE[v!.name],
   name: v!.name,
   context: `${ROLE[v!.name] ?? v!.role} · on camera`,
   quote: v!.said.join(' … ').replace(/^\s*([a-z])/, (m) => m.toUpperCase()),
@@ -105,7 +117,10 @@ const schema = graph(
             {g.list.map((t) => (
               <blockquote class="reveal">
                 <p>“{t.quote}”</p>
-                <cite>{t.name}<span>{t.context}</span></cite>
+                <cite class:list={[{ 'cite--face': 'face' in t && t.face }]}>
+                  {'face' in t && t.face && <img class="tface" src={t.face} alt={`${t.name}, from his testimony`} width="56" height="56" loading="lazy" decoding="async" />}
+                  <span class="tname">{t.name}<span>{t.context}</span></span>
+                </cite>
               </blockquote>
             ))}
           </div>
@@ -130,6 +145,10 @@ const schema = graph(
 </Base>
 
 <style>
+  .cite--face { display: flex; align-items: center; gap: 14px; }
+  .tface { flex: none; width: 56px; height: 56px; border-radius: 50%; object-fit: cover; box-shadow: 0 0 0 2px var(--bg1), 0 0 0 3px rgba(218, 162, 79, 0.55); }
+  :global(.mo .tlist cite .tname) { display: block; font-weight: 700; color: inherit; }
+  :global(.mo .tlist cite .tname > span) { display: block; font-weight: 500; color: var(--fg4); }
   .tfilm { width: min(360px, 100%); margin: 0 auto var(--sp-60); }
   .tfilm video { width: 100%; aspect-ratio: 9 / 16; border-radius: 20px; background: #14100d; display: block; box-shadow: 0 30px 60px -30px rgba(20, 16, 13, 0.5); }
   .tfilm figcaption { text-align: center; margin-top: 10px; color: var(--fg4); }
