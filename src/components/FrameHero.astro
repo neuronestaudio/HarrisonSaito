@@ -1638,6 +1638,16 @@ const hallAt = (i: number) => (0.34 + (i * 0.46) / Math.max(1, HALL_ITEMS.length
   /* The identities: the gate's glass tiles, as links — no seal either. */
   .beat .beat__card--id { text-decoration: none; }
   .beat--ids .beat__title :global(mark) { display: inline; }  /* "Who is this for?" on one line */
+  /* Sentence case (Dion for Harrison, 2 Oct: "everything here is in capitals…
+     I don't want it to feel like it's screaming"). Title, card lines, labels,
+     and the button — every pause panel. */
+  .beat .beat__title, .beat .beat__card p, .beat .beat__tag, .beat .beat__on {
+    text-transform: none !important;
+  }
+  .beat .beat__title { letter-spacing: -0.01em; }
+  .beat .beat__card p { font-weight: 600; letter-spacing: 0; line-height: 1.3; font-size: clamp(0.9rem, 0.8rem + 0.4vw, 1.1rem); }
+  .beat .beat__tag { letter-spacing: 0.04em; font-size: 0.72rem; font-weight: 600; margin-bottom: 6px; }
+  .beat .beat__on { letter-spacing: 0.02em; }
   .beat .beat__card--id::after { display: none; }
   .beat .beat__card--door p { text-transform: uppercase; letter-spacing: 0.03em; }
   .beat .beat__card--door :global(strong) { display: block; margin-top: 4px; font-weight: 500; font-size: 0.82em; letter-spacing: 0; text-transform: none; color: rgba(252, 250, 248, 0.85); }
