@@ -132,7 +132,7 @@ export const WALL: WallTile[] = [
     big: 'Rank 1 in my grade',
     quote: 'I was able to achieve the ATAR I was aiming for, but also gained a better understanding of myself.',
   },
-  { type: 'photo', shape: 'tall', img: 'wall-p23-v1', ...FILMED },
+  { type: 'photo', shape: 'tall', img: 'wall-p05-v1', ...FILMED },
   { type: 'quote', size: 'line', tone: 'ink', kicker: 'Coaching · consultant, 55', name: 'John', voice: 'filmed', big: 'A lot more calmer as a person', more: true },
 
   /* band 4 — tall · tall · feature · line / square square */
