@@ -423,6 +423,8 @@ const hallAt = (i: number) => (0.34 + (i * 0.46) / Math.max(1, HALL_ITEMS.length
         layer over everything, on --mark — up with the card, held through
         the doorway, gone as the arrival's photograph comes up. */}
     <p class="enter__mark" aria-hidden="true"><span>Return to Self</span></p>
+    {/* a thin "keep scrolling" mark while the name fills (Dion, 2 Oct) */}
+    <div class="enter__cue" aria-hidden="true"><i></i><span>Scroll</span></div>
     <div class="hero__rail" aria-hidden="true"><i></i></div>
   </div>
 </section>
@@ -597,6 +599,16 @@ const hallAt = (i: number) => (0.34 + (i * 0.46) / Math.max(1, HALL_ITEMS.length
     transform: translateY(calc(-50% + (1 - var(--mark, 0)) * 26px));
     transition: transform 0.4s ease;
   }
+  .enter__cue {
+    position: absolute; z-index: 7; left: 50%; bottom: calc(clamp(1.6rem, 7vh, 4.5rem) + var(--consent-h, 0px));
+    transform: translateX(-50%); display: grid; justify-items: center; gap: 8px; pointer-events: none;
+    opacity: var(--cue, 0); color: rgba(252, 250, 248, 0.85);
+  }
+  .enter__cue i { position: relative; display: block; width: 1px; height: 46px; background: rgba(252, 250, 248, 0.28); overflow: hidden; }
+  .enter__cue i::after { content: ''; position: absolute; left: 0; top: -40%; width: 1px; height: 40%; background: #f2c275; animation: cueRun 1.8s cubic-bezier(.6,0,.4,1) infinite; }
+  @keyframes cueRun { to { top: 100%; } }
+  .enter__cue span { font-size: 0.6rem; font-weight: 700; letter-spacing: 0.32em; text-transform: uppercase; padding-left: 0.32em; }
+  @media (prefers-reduced-motion: reduce) { .enter__cue i::after { animation: none; top: 30%; } }
   /* The fill (Dion, 25 Sep: "keyframe the typography so when the user scrolls
      it fills in the silhouette of the text, and if it scrolls up it goes up as
      well"; 30 Sep: "linear, left to right"). The line is drawn as an outline
@@ -1958,10 +1970,18 @@ const hallAt = (i: number) => (0.34 + (i * 0.46) / Math.max(1, HALL_ITEMS.length
       /* The name: up with the card, held through the doorway, and out over
          the arrival's build — still there as the photograph rises, gone as
          the words settle (m: 0.3 → 0.7). */
-      st.setProperty('--mark', (smooth((p - pB) / 0.012) * (1 - smooth((m - 0.3) / 0.4))).toFixed(3));
+      /* Dion, 2 Oct: the fill takes far longer — complete only once the
+         arrival has built (m 0.6) — and the name holds until then, fading
+         after it (m 0.65 -> 0.95). */
+      var pFull = pD + (1 - pD) * MEET_EDGE * 0.6;
+      var fill = clamp((p - pB) / Math.max(0.0001, pFull - pB), 0, 1);
+      var mk = smooth((p - pB) / 0.012) * (1 - smooth((m - 0.65) / 0.3));
+      st.setProperty('--mark', mk.toFixed(3));
+      /* the cue: once the doorway card has gone, while the name is still filling */
+      st.setProperty('--cue', (mk * smooth((p - (pD - 0.01)) / 0.02) * (1 - smooth((fill - 0.88) / 0.12))).toFixed(3));
       /* How far through the doorway stretch he is, 0 → 1: the wordmark's fill
          line. A pure function of the scroll, so it reverses exactly. */
-      st.setProperty('--gofill', clamp((p - pB) / Math.max(0.0001, pD - pB), 0, 1).toFixed(4));
+      st.setProperty('--gofill', fill.toFixed(4));
       /* The flame, keyed to the scroll (not the clock): three sines of the
          scroll position at unrelated periods, so it never repeats on screen. */
       if (m > 0.01) {
