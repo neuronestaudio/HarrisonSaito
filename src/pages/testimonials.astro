@@ -13,6 +13,25 @@
 import Base from '../layouts/Base.astro';
 import MoShell from '../components/MoShell.astro';
 import { TESTIMONIALS } from '../data/site';
+import { INTERVIEWS } from '../data/interviews';
+
+/* On camera (Dion, 2 Oct: "all the testimonies we used"): everyone filmed —
+   the clients' own phone testimonies, Alex Wei's interview, and the four
+   sitters of the 9 Sep shoot — word for word from the transcripts
+   (interviews.ts `said`; D:\CLIENTS\HARRISON\_testimonies-drive
+amed). */
+const ORDER = ['Alex Wei', 'Harshil Dave', 'Nico Roudier', 'Jeremy Yap', 'Aiden Jacobs', 'Shehab Khan', 'Lorenzo Ambrose', 'Maksim Belchenko', 'John', 'Andrew', 'James', 'Jake'];
+const ROLE: Record<string, string> = {
+  'Alex Wei': 'Navy officer · karate, four years', 'Harshil Dave': 'Martial arts student', 'Nico Roudier': 'Martial arts student',
+  'Jeremy Yap': 'Karate student', 'Aiden Jacobs': 'Martial arts student, Shinbukan', 'Shehab Khan': 'Martial arts student',
+  'Lorenzo Ambrose': 'Martial arts student', 'Maksim Belchenko': 'Martial arts student', John: 'Coaching · consultant, 55',
+  Andrew: 'Coaching · drummer', James: 'Coaching · construction', Jake: 'Coaching · musician',
+};
+const FILMED = ORDER.map((n) => INTERVIEWS.find((v) => v.name === n)).filter(Boolean).map((v) => ({
+  name: v!.name,
+  context: `${ROLE[v!.name] ?? v!.role} · on camera`,
+  quote: v!.said.join(' … ').replace(/^\s*([a-z])/, (m) => m.toUpperCase()),
+}));
 import { graph, localBusinessSchema, breadcrumbSchema } from '../lib/seo';
 
 const title = 'Testimonials — Coaching, Martial Arts & HSC | Harrison Saito';
@@ -20,6 +39,13 @@ const description =
   'Eleven testimonials from coaching clients, martial arts students, HSC students and parents across Sydney — Chatswood High, Cammeraygal, St Pius X and Brigidine College St Ives.';
 
 const groups = [
+  {
+    id: 'filmed',
+    label: 'On camera',
+    heading: 'In their own <mark>voices.</mark>',
+    list: FILMED,
+    video: true,
+  },
   {
     id: 'adults',
     label: 'Coaching & Martial Arts',
@@ -51,8 +77,8 @@ const schema = graph(
         <p class="eyebrow">Testimonials</p>
         <h1>In their <mark>words.</mark></h1>
         <p class="lede accent">
-          {TESTIMONIALS.length} people — {groups[0].list.length} from coaching and martial arts,
-          {groups[1].list.length} from HSC mentoring and parents. Names and schools included, because
+          {FILMED.length} on camera, and {TESTIMONIALS.length} in writing — from coaching, martial arts,
+          HSC mentoring and parents. Names and schools included, because
           unattributed praise is worth nothing.
         </p>
       </div>
@@ -69,6 +95,12 @@ const schema = graph(
             <p class="fs-xs thread__count">{g.list.length} {g.list.length === 1 ? 'voice' : 'voices'}</p>
           </div>
 
+          {'video' in g && g.video && (
+            <figure class="tfilm reveal">
+              <video src="/video/testimonials-combo-v1.mp4" poster="/img/wall/wall-combo-v2-720.webp" controls preload="none" playsinline></video>
+              <figcaption class="fs-xs">The combined testimonial, 68 seconds.</figcaption>
+            </figure>
+          )}
           <div class="tlist" data-stagger>
             {g.list.map((t) => (
               <blockquote class="reveal">
@@ -96,3 +128,9 @@ const schema = graph(
     </section>
   </MoShell>
 </Base>
+
+<style>
+  .tfilm { width: min(360px, 100%); margin: 0 auto var(--sp-60); }
+  .tfilm video { width: 100%; aspect-ratio: 9 / 16; border-radius: 20px; background: #14100d; display: block; box-shadow: 0 30px 60px -30px rgba(20, 16, 13, 0.5); }
+  .tfilm figcaption { text-align: center; margin-top: 10px; color: var(--fg4); }
+</style>
