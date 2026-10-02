@@ -69,18 +69,18 @@ export const DOORS: Door[] = [
     name: '1:1 Coaching',
     line: 'Session by session, at your pace.',
     href: '/mens-coaching',
-    /* him, before the shoji */
-    image: '/img/about-shoji-768.webp',
-    pos: '50% 28%',
+    /* Dion, 2 Oct: "the photo with him and Danny" — his hand on Danny's chest */
+    image: '/img/harrison-danny-v1-768.webp',
+    pos: '50% 40%',
   },
   {
     icon: 'summit',
     name: 'Shinbukan Karate',
     line: 'His father’s school. 2nd Dan, Shido-In.',
     href: '/about',
-    /* the stance in the dojo, from the broadcast */
-    image: '/img/sbs-karate-2-v1-768.webp',
-    pos: '50% 40%',
+    /* Dion, 2 Oct: "other students in the karate gi" — the club with its trophies */
+    image: '/img/karate-group-768.webp',
+    pos: '50% 45%',
   },
   {
     /* Dion, 29 Sep: not HSC here — "the temple that's affiliated". Koyasan
