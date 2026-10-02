@@ -479,7 +479,7 @@ const hallAt = (i: number) => (0.34 + (i * 0.46) / Math.max(1, HALL_ITEMS.length
   .hero__crowd {
     position: absolute; inset: 0; z-index: 4; pointer-events: none;
     background: url('/img/crowd-wide-v1.webp') center / cover no-repeat;
-    opacity: calc(0.13 * (1 - min(1, var(--p, 0) / 0.035)));  /* 28% → 13% (Dion, 1 Oct: 15% less) */
+    opacity: calc(0.35 * (1 - min(1, var(--p, 0) / 0.035)));  /* Dion, 2 Oct: 35% */
     -webkit-mask-image: radial-gradient(ellipse 46% 40% at 50% 52%, rgba(0,0,0,.25) 0%, #000 100%);
             mask-image: radial-gradient(ellipse 46% 40% at 50% 52%, rgba(0,0,0,.25) 0%, #000 100%);
     mix-blend-mode: multiply;
@@ -809,7 +809,7 @@ const hallAt = (i: number) => (0.34 + (i * 0.46) / Math.max(1, HALL_ITEMS.length
     background-clip: text;
     -webkit-text-fill-color: transparent;
     color: #f5b547;
-    opacity: 0.2;
+    opacity: 0.5;   /* Dion, 2 Oct: 50% */
     text-shadow: none;
     overflow-wrap: normal;
     word-break: keep-all;
