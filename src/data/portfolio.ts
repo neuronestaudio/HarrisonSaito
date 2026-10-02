@@ -131,14 +131,14 @@ export const DOORS: Door[] = [
    circle at the water. */
 export type Room = { icon: string; name: string; sub: string; href: string; thumb: string; thumbAlt: string };
 export const ROOMS: Room[] = [
-  { icon: 'stairs', name: 'The Core', sub: 'Twelve weeks. Separate, return, integrate.', href: '/return-to-self', thumb: 'room-core-v1', thumbAlt: 'People seated together on the grass at dusk, the harbour lights behind' },
+  { icon: 'stairs', name: 'The Core', sub: 'Twelve weeks. Separate, return, integrate.', href: '/return-to-self', thumb: 'room-core-v3', thumbAlt: 'People seated together on the grass at dusk, the harbour lights behind' },
   /* Dion, 30 Sep (later): Harrison in seiza on the mats, his photo. A new file
      name (-v2): /img is cached immutable, so a changed v1 never reached him. */
-  { icon: 'summit', name: 'Dojo', sub: 'Shinbukan. His father’s school.', href: '/about', thumb: 'room-dojo-v2', thumbAlt: 'Harrison kneeling in seiza on the dojo mats in his gi and black belt, eyes closed' },
-  { icon: 'moon', name: 'Temple', sub: 'Koyasan. Attention, not belief.', href: '/about', thumb: 'room-temple-v1', thumbAlt: 'A stone Buddha seated among trees' },
-  { icon: 'mirror', name: 'Return to Self', sub: 'The practice: notice, then choose.', href: '/return-to-self', thumb: 'room-rts-v1', thumbAlt: 'Harrison kneeling beside a client, a hand on his chest, the client’s eyes closed' },
-  { icon: 'comment', name: 'One on One', sub: 'Coaching, session by session.', href: '/mens-coaching', thumb: 'room-one-v1', thumbAlt: 'Harrison with a client on the mats' },
-  { icon: 'ember', name: 'Breathwork', sub: 'The monthly room. Sixteen seats.', href: '/workshops', thumb: 'room-breath-v2', thumbAlt: 'Harrison and a client sitting cross-legged on the mats, eyes closed' },  /* Dion, 30 Sep: a brighter photo (wall-p55); -v2 because /img is immutable */
+  { icon: 'summit', name: 'Dojo', sub: 'Shinbukan. His father’s school.', href: '/about', thumb: 'room-dojo-v3', thumbAlt: 'Harrison kneeling in seiza on the dojo mats in his gi and black belt, eyes closed' },
+  { icon: 'moon', name: 'Temple', sub: 'Koyasan. Attention, not belief.', href: '/about', thumb: 'room-temple-v3', thumbAlt: 'A stone Buddha seated among trees' },
+  { icon: 'mirror', name: 'Return to Self', sub: 'The practice: notice, then choose.', href: '/return-to-self', thumb: 'room-rts-v3', thumbAlt: 'Harrison kneeling beside a client, a hand on his chest, the client’s eyes closed' },
+  { icon: 'comment', name: 'One on One', sub: 'Coaching, session by session.', href: '/mens-coaching', thumb: 'room-one-v3', thumbAlt: 'Harrison with a client on the mats' },
+  { icon: 'ember', name: 'Breathwork', sub: 'The monthly room. Sixteen seats.', href: '/workshops', thumb: 'room-breath-v3', thumbAlt: 'Harrison and a client sitting cross-legged on the mats, eyes closed' },  /* Dion, 30 Sep: a brighter photo (wall-p55); -v2 because /img is immutable */
 ];
 
 /** His other channels — the way out of the site, on purpose. */

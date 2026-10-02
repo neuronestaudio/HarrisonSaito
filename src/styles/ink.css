@@ -101,3 +101,15 @@
             mask: linear-gradient(180deg, #000 55%, transparent 100%);
   }
 }
+
+/* Any section holding the painting film (PaintingFilm.astro) stacks it
+   behind its own content, wherever it is used (2 Oct: /return-to-self too). */
+.mo section:has(.film-bg) { isolation: isolate; }
+.mo section:has(.film-bg) .core__head h2 {
+  text-shadow: 0 0 12px rgba(255, 253, 250, 0.95), 0 0 28px rgba(255, 253, 250, 0.85), 0 0 56px rgba(255, 253, 250, 0.6);
+}
+.mo section:has(.film-bg) .core__head .eyebrow,
+.mo section:has(.film-bg) .core__lede,
+.mo section:has(.film-bg) .core__note {
+  text-shadow: 0 0 6px rgba(255, 253, 250, 0.95), 0 0 16px rgba(255, 253, 250, 0.8);
+}

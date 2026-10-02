@@ -424,7 +424,7 @@ const hallAt = (i: number) => (0.34 + (i * 0.46) / Math.max(1, HALL_ITEMS.length
         the doorway, gone as the arrival's photograph comes up. */}
     <p class="enter__mark" aria-hidden="true"><span>Return to Self</span></p>
     {/* a thin "keep scrolling" mark while the name fills (Dion, 2 Oct) */}
-    <div class="enter__cue" aria-hidden="true"><i></i><span>Scroll</span></div>
+    <div class="enter__cue" aria-hidden="true"><i></i><span>Scroll to continue</span></div>
     <div class="hero__rail" aria-hidden="true"><i></i></div>
   </div>
 </section>
@@ -439,7 +439,7 @@ const hallAt = (i: number) => (0.34 + (i * 0.46) / Math.max(1, HALL_ITEMS.length
     --run-in: 180;
     --run-pause: 120;
     --run-out: 80;
-    --run-meet: 55;
+    --run-meet: 95;   /* 55 -> 95 (Dion, 2 Oct): room for the name to finish filling on the built arrival, and hold */
     --font-avant: 'Avant', 'ITC Avant Garde Gothic', 'Century Gothic', 'Jost', sans-serif;
     position: relative;
     height: calc((100 + var(--run-in) + var(--run-pause) + var(--run-out) + var(--run-meet)) * 1vh);
@@ -787,9 +787,10 @@ const hallAt = (i: number) => (0.34 + (i * 0.46) / Math.max(1, HALL_ITEMS.length
     width: 100%;
     height: 100%;
     object-fit: cover;
-    transition: transform 0.6s var(--ease-out-quart, ease);
+    opacity: 0.6;   /* Dion, 2 Oct: the photo at 60% so the gold name reads */
+    transition: transform 0.6s var(--ease-out-quart, ease), opacity 0.3s ease;
   }
-  .hall-row__chip:hover .hall-row__face { transform: scale(1.04); }
+  .hall-row__chip:hover .hall-row__face { transform: scale(1.04); opacity: 0.85; }
   .hall-row__chip::after {
     content: '';
     position: absolute;
@@ -1740,7 +1741,7 @@ const hallAt = (i: number) => (0.34 + (i * 0.46) / Math.max(1, HALL_ITEMS.length
     .hero__cue { display: none; }
   }
   @media (max-width: 700px) {
-    .hero { --run-in: 146; --run-pause: 110; --run-out: 70; --run-meet: 50; }
+    .hero { --run-in: 146; --run-pause: 110; --run-out: 70; --run-meet: 85; }
     .hero__copy { top: calc(50% + 34px - var(--consent-h, 0px) / 2); }
     .hero__cue { display: none; }
     .hero__btn { width: 100%; }
@@ -1973,12 +1974,15 @@ const hallAt = (i: number) => (0.34 + (i * 0.46) / Math.max(1, HALL_ITEMS.length
       /* Dion, 2 Oct: the fill takes far longer — complete only once the
          arrival has built (m 0.6) — and the name holds until then, fading
          after it (m 0.65 -> 0.95). */
-      var pFull = pD + (1 - pD) * MEET_EDGE * 0.6;
+      /* 2 Oct, later: the fill completes only on the fully built arrival
+         (m = 1), holds full for a beat, then fades as the page moves on. */
+      var pFull = pD + (1 - pD) * MEET_EDGE;
       var fill = clamp((p - pB) / Math.max(0.0001, pFull - pB), 0, 1);
-      var mk = smooth((p - pB) / 0.012) * (1 - smooth((m - 0.65) / 0.3));
+      var pHold = pFull + (1 - pFull) * 0.45;
+      var mk = smooth((p - pB) / 0.012) * (1 - smooth((p - pHold) / Math.max(0.0001, (1 - pHold) * 0.9)));
       st.setProperty('--mark', mk.toFixed(3));
       /* the cue: once the doorway card has gone, while the name is still filling */
-      st.setProperty('--cue', (mk * smooth((p - (pD - 0.01)) / 0.02) * (1 - smooth((fill - 0.88) / 0.12))).toFixed(3));
+      st.setProperty('--cue', (mk * smooth((p - (pD - 0.01)) / 0.02)).toFixed(3));
       /* How far through the doorway stretch he is, 0 → 1: the wordmark's fill
          line. A pure function of the scroll, so it reverses exactly. */
       st.setProperty('--gofill', fill.toFixed(4));

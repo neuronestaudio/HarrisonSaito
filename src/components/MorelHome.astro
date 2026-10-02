@@ -20,6 +20,7 @@
  *    nowhere, then hands over the practice as before.
  */
 import MoShell from './MoShell.astro';
+import PaintingFilm from './PaintingFilm.astro';
 import {
   LOGOS, INTRO, FOR_YOU_SECTION, FOR_YOU, STORY_SECTION, PATTERNS_SECTION, PATTERNS, CORE, PHASES,
   FAQ_SECTION, FAQ, QUOTE, FAMILY, FILMS_SECTION, FILMS, CLOSE, NEWSLETTER, asset,
@@ -52,6 +53,7 @@ const book = (href: string) => href === '/book';
   <!-- ============ THE CORE ============ -->
   <section class="section section--bg4 core" id="the-core" data-section="core">
     <div class="wide">
+      <PaintingFilm />
       <header class="core__head">
         <p class="eyebrow">{CORE.label}</p>
         <h2 class="reveal">{CORE.title}</h2>
