@@ -144,6 +144,13 @@ import '../styles/ink.css';
   }
   .pf .pf__tag { display: block; margin-bottom: 4px; font-size: 0.62rem; font-weight: 700; letter-spacing: 0.2em; color: #f2c275; }
   .pf .pf__line { font-weight: 400; font-size: clamp(0.82rem, 0.78rem + 0.2vw, 0.95rem); line-height: 1.35; color: rgba(252, 250, 248, 0.8); max-width: 28ch; }
+  /* No capitals on the doors (Dion for Harrison, 2 Oct: "please no caps
+     here" — same as the pause panel). morel.css uppercases .fy__card p. */
+  .pf .pf__name, .pf .pf__line, .pf .pf__tag, .pf .pf__cta { text-transform: none !important; }
+  .pf .pf__name { letter-spacing: 0; font-size: clamp(1rem, 0.88rem + 0.45vw, 1.22rem); }
+  .pf .pf__line { letter-spacing: 0 !important; }
+  .pf .pf__tag { letter-spacing: 0.04em; font-size: 0.72rem; font-weight: 600; }
+  .pf .pf__cta { letter-spacing: 0.02em; }
   .pf__go {
     position: absolute;
     right: 13px;
