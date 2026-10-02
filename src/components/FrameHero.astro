@@ -596,13 +596,16 @@ const hallAt = (i: number) => (0.34 + (i * 0.46) / Math.max(1, HALL_ITEMS.length
     /* drop-shadow, not text-shadow: the letters are hollow here, and a text
        shadow would show straight through them */
     filter: drop-shadow(0 2px 10px rgba(20, 16, 13, 0.9)) drop-shadow(0 6px 40px rgba(20, 16, 13, 0.75));
-    transform: translateY(calc(-50% + (1 - var(--mark, 0)) * 26px));
+    transform: translateY(calc(-50% + (1 - var(--mark, 0)) * 26px - var(--unfill, 0) * 8vh));
     transition: transform 0.4s ease;
+    /* the wipe out: a soft edge that runs from the right end to the left */
+    -webkit-mask-image: linear-gradient(to right, #000 calc((1 - var(--unfill, 0)) * 130% - 30%), transparent calc((1 - var(--unfill, 0)) * 130%));
+            mask-image: linear-gradient(to right, #000 calc((1 - var(--unfill, 0)) * 130% - 30%), transparent calc((1 - var(--unfill, 0)) * 130%));
   }
   .enter__cue {
     position: absolute; z-index: 7; left: 50%; bottom: calc(clamp(1.6rem, 7vh, 4.5rem) + var(--consent-h, 0px));
     transform: translateX(-50%); display: grid; justify-items: center; gap: 8px; pointer-events: none;
-    opacity: var(--cue, 0); color: rgba(252, 250, 248, 0.85);
+    opacity: max(0, calc(var(--cue, 0) * (1 - var(--unfill, 0) * 3))); color: rgba(252, 250, 248, 0.85);
   }
   .enter__cue i { position: relative; display: block; width: 1px; height: 46px; background: rgba(252, 250, 248, 0.28); overflow: hidden; }
   .enter__cue i::after { content: ''; position: absolute; left: 0; top: -40%; width: 1px; height: 40%; background: #f2c275; animation: cueRun 1.8s cubic-bezier(.6,0,.4,1) infinite; }
@@ -1988,9 +1991,17 @@ const hallAt = (i: number) => (0.34 + (i * 0.46) / Math.max(1, HALL_ITEMS.length
          (m = 1), holds full for a beat, then fades as the page moves on. */
       var pFull = pD + (1 - pD) * MEET_EDGE;
       var fill = clamp((p - pB) / Math.max(0.0001, pFull - pB), 0, 1);
-      var pHold = pFull + (1 - pFull) * 0.45;
-      var mk = smooth((p - pB) / 0.012) * (1 - smooth((p - pHold) / Math.max(0.0001, (1 - pHold) * 0.9)));
+      /* 2 Oct, later still: "afterwards it kind of just disappears awkwardly —
+         fade out from right to left as the user scrolls, so it feels smooth
+         into the next section". After the hold the name is not dimmed: it is
+         wiped away right to left (--unfill, a soft-edged mask) and lifts with
+         the scroll, keyed to p like the fill, so it reverses exactly. The
+         wipe runs off the raw scroll (setUnfill, also called from onScroll)
+         so it carries on past the end of the walk while the hero scrolls
+         away, instead of being squeezed into its last few percent. */
+      var mk = smooth((p - pB) / 0.012);
       st.setProperty('--mark', mk.toFixed(3));
+      setUnfill();
       /* the cue: once the doorway card has gone, while the name is still filling */
       st.setProperty('--cue', (mk * smooth((p - (pD - 0.01)) / 0.02)).toFixed(3));
       /* How far through the doorway stretch he is, 0 → 1: the wordmark's fill
@@ -2264,8 +2275,19 @@ const hallAt = (i: number) => (0.34 + (i * 0.46) / Math.max(1, HALL_ITEMS.length
       if (ready && !looping) { looping = true; requestAnimationFrame(tick); }
     }
 
+    /* The name's wipe out: from a short hold after the fill completes on the
+       built arrival, to 60% of a screen past the end of the walk. */
+    function setUnfill() {
+      if (geoRun <= 0) return;
+      var pFull = pD + (1 - pD) * MEET_EDGE;
+      var start = geoTop + geoRun * (pFull + (1 - pFull) * 0.25);
+      var end = geoTop + geoRun + window.innerHeight * 0.6;
+      st.setProperty('--unfill', clamp((window.scrollY - start) / Math.max(1, end - start), 0, 1).toFixed(4));
+    }
+
     var raf = 0;
     function onScroll() {
+      setUnfill();
       var p = progress();
       watch(p);
       target = timeFor(progress());
