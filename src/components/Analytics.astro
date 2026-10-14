@@ -110,6 +110,10 @@ import { GTM_ID, GA4_ID, PIXEL_ID } from '../lib/tracking-config';
         s = b.getElementsByTagName(e)[0];
         s.parentNode.insertBefore(t, s);
       })(window, document, 'script', 'https://connect.facebook.net/en_US/fbevents.js');
+      // Consent first (14 Oct): the cookie bar promises a visitor can decline,
+      // so the Pixel starts revoked and holds its events until Accept —
+      // ConsentBar grants it; a returning visitor who accepted is granted here.
+      window.fbq('consent', saved === 'granted' ? 'grant' : 'revoke');
       window.fbq('init', PIXEL_ID);
       window.fbq('track', 'PageView');
     };

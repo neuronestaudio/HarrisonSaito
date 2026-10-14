@@ -166,6 +166,7 @@ const configured = TRACKING_ENABLED;
         ad_personalization: value,
         analytics_storage: value,
       });
+      window.fbq?.('consent', value === 'granted' ? 'grant' : 'revoke');
       window.dataLayer?.push({ event: 'consent_decision', consent_state: value });
       bar.hidden = true;
       publishHeight();
