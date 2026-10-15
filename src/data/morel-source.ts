@@ -25,10 +25,10 @@ export const SITE = {
   tagline: 'Martial Artist · Coach',
   locality: 'Chatswood, NSW',
   email: 'harrison.saito3011@gmail.com',
-  phone: '+61424657548',
-  phoneDisplay: '+61 424 657 548',
-  whatsappBase: 'https://wa.me/61424657548',
-  whatsapp: 'https://wa.me/61424657548?text=' + encodeURIComponent("Hi Harrison, I'd like to book a discovery chat."),
+  phone: '+61417884131',
+  phoneDisplay: '+61 417 884 131',
+  whatsappBase: 'https://wa.me/61417884131',
+  whatsapp: 'https://wa.me/61417884131?text=' + encodeURIComponent("Hi Harrison, I'd like to book a discovery chat."),
   instagram: 'https://www.instagram.com/harrison.saito/',
   youtube: 'https://www.youtube.com/@Harrison_saito',
   facebook: 'https://www.facebook.com/shinbukanmartialarts/',
@@ -970,7 +970,7 @@ export const PAGES: InnerPage[] = [
       {
         heading: 'Contact',
         paragraphs: [
-          'Harrison Saito, Chatswood, NSW, Australia. harrison.saito3011@gmail.com · +61 424 657 548',
+          'Harrison Saito, Chatswood, NSW, Australia. harrison.saito3011@gmail.com · +61 417 884 131',
           'This policy has been prepared to reflect how this website actually operates. It is not legal advice. Have it reviewed by an Australian legal practitioner before relying on it, and update it whenever a new data processor is introduced.',
         ],
       },
@@ -1068,7 +1068,7 @@ export const PAGES: InnerPage[] = [
       {
         heading: '13. Contact',
         paragraphs: [
-          'Harrison Saito, Chatswood, NSW, Australia. harrison.saito3011@gmail.com · +61 424 657 548',
+          'Harrison Saito, Chatswood, NSW, Australia. harrison.saito3011@gmail.com · +61 417 884 131',
           'These terms have been drafted to reflect how this business actually operates. They are not legal advice. Have them reviewed by an Australian legal practitioner before relying on them — particularly clauses 3, 4 and 9, which carry commercial risk.',
         ],
       },
