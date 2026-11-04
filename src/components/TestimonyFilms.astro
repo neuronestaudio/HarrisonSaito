@@ -1,0 +1,60 @@
+---
+/**
+ * The two student films (Dion, 4 Nov 2026: "those videos are just solid").
+ * Cut from the 9 Sep shoot, Alex's call and the phone clips; masters and the
+ * cut list are in D:\CLIENTS\HARRISON\2026-11-02 - RTS Iteration 2 Ads\testimony-films.
+ * Used on /testimonials, the home page and MorelHome (/landing, /return-to-self).
+ */
+const FILMS = [
+  { id: 'who-he-is', title: 'Who he is', length: '3:05' },
+  { id: 'what-he-teaches', title: 'What he teaches', length: '4:33' },
+];
+const { eyebrow = 'In their words', section = true } = Astro.props;
+---
+
+{section ? (
+  <section class="section section--white tf-sec" data-section="student-films">
+    <div class="wide">
+      <p class="eyebrow">{eyebrow}</p>
+      <div class="tf-grid">
+        {FILMS.map((f) => (
+          <figure class="tf reveal">
+            <video src={`/video/testimony-${f.id}-v1.mp4`} poster={`/img/testimony/testimony-${f.id}-v1.webp`} aria-label={f.title} controls preload="none" playsinline data-track-video={f.id}></video>
+            <figcaption><b>{f.title}</b> <span>{f.length}</span></figcaption>
+          </figure>
+        ))}
+      </div>
+    </div>
+  </section>
+) : (
+  <div class="tf-grid tf-grid--inline">
+    {FILMS.map((f) => (
+      <figure class="tf reveal">
+        <video src={`/video/testimony-${f.id}-v1.mp4`} poster={`/img/testimony/testimony-${f.id}-v1.webp`} aria-label={f.title} controls preload="none" playsinline data-track-video={f.id}></video>
+        <figcaption><b>{f.title}</b> <span>{f.length}</span></figcaption>
+      </figure>
+    ))}
+  </div>
+)}
+
+<script>
+  // One voice at a time, across every video on the page.
+  document.addEventListener('play', (e) => {
+    document.querySelectorAll('video').forEach((v) => {
+      if (v !== e.target && v.controls) v.pause();
+    });
+  }, true);
+</script>
+
+<style>
+  .tf-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 340px)); gap: 28px; justify-content: center; margin-top: 18px; }
+  .tf-grid--inline { margin: 0 auto var(--sp-60); }
+  .tf { margin: 0; }
+  .tf video { width: 100%; aspect-ratio: 9 / 16; border-radius: 18px; background: #14100d; display: block; box-shadow: 0 30px 60px -30px rgba(20, 16, 13, 0.5); }
+  .tf figcaption { margin-top: 10px; text-align: center; }
+  .tf figcaption b { font-weight: 700; }
+  .tf figcaption span { color: var(--fg4); margin-left: 6px; }
+  @media (max-width: 560px) {
+    .tf-grid { grid-template-columns: minmax(0, 300px); }
+  }
+</style>
