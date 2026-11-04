@@ -1,41 +1,79 @@
 ---
 /**
  * The two student films (Dion, 4 Nov 2026: "those videos are just solid").
- * Cut from the 9 Sep shoot, Alex's call and the phone clips; masters and the
- * cut list are in D:\CLIENTS\HARRISON\2026-11-02 - RTS Iteration 2 Ads\testimony-films.
- * Used on /testimonials, the home page and MorelHome (/landing, /return-to-self).
+ * Beside each film, one line from every student, because someone who watches
+ * one voice can miss the rest (Dion, same day). A line is a real button: it
+ * jumps the film to that student. `at` = where that student starts, measured
+ * from the rendered parts. Lines are word for word from the transcripts,
+ * with hesitations marked by an ellipsis.
+ * Masters + cut list: D:\CLIENTS\HARRISON\2026-11-02 - RTS Iteration 2 Ads\testimony-films.
+ * Used on /testimonials, the home page and MorelHome (/landing, /return-to-self, /lp).
  */
+const F = {
+  John: '/img/face-john-v1-320.webp', James: '/img/face-james-v1-320.webp', Andrew: '/img/face-andrew-v1-320.webp', Jake: '/img/face-jake-v1-320.webp',
+  Alex: '/img/faces/face-alex-v2-160.webp', Aiden: '/img/faces/face-aiden-v2-160.webp', Harshil: '/img/faces/face-harshil-v2-160.webp',
+  Nico: '/img/faces/face-nico-v2-160.webp', Lorenzo: '/img/faces/face-lorenzo-v2-160.webp', Christine: '/img/faces/face-christine-v1-160.webp',
+};
 const FILMS = [
-  { id: 'who-he-is', title: 'Who he is', length: '3:05' },
-  { id: 'what-he-teaches', title: 'What he teaches', length: '4:33' },
+  {
+    id: 'who-he-is', title: 'Who he is', length: '3:03',
+    lines: [
+      { who: 'John', at: 0, q: 'He’s 29, I’m 55, and I find that we vibe very well.' },
+      { who: 'John', at: 27, q: 'Harrison actually teaches you how to become a better person.' },
+      { who: 'John', at: 45.04, q: 'He’s a person that deeply cares… it’s not superficial.' },
+      { who: 'James', at: 66.08, q: 'The deep presence when you’re with Harrison… heartfelt or heart led.' },
+      { who: 'Andrew', at: 80.18, q: 'Calm, compassionate and loving.' },
+      { who: 'Alex', at: 87.78, q: 'Warm, very warm… understanding, patient.' },
+      { who: 'Aiden', at: 94.98, q: 'Grounded, patient and encouraging.' },
+      { who: 'Harshil', at: 100.7, q: 'He’s such a genuine human being… he speaks from experience.' },
+      { who: 'Alex', at: 157.82, q: 'His teachings also come out of experience.' },
+    ],
+  },
+  {
+    id: 'what-he-teaches', title: 'What he teaches', length: '4:31',
+    lines: [
+      { who: 'John', at: 0, q: 'Rather than sitting there and punching more or kicking more… being calm, being present.' },
+      { who: 'Alex', at: 30.5, q: 'He wasn’t afraid to critique my techniques… I was really motivated by that.' },
+      { who: 'Jake', at: 46.1, q: 'He’s very perceptive at seeing where I carry tension.' },
+      { who: 'Jake', at: 62.22, q: 'I leave a session… always more relaxed than I entered it.' },
+      { who: 'Jake', at: 89.92, q: 'How you do one thing is how you do everything.' },
+      { who: 'Nico', at: 140.96, q: 'I thought it was only about martial arts… but I realized it was about life too.' },
+      { who: 'Lorenzo', at: 173.96, q: 'Real strength comes from calm, not from tension.' },
+      { who: 'Christine', at: 182.56, q: 'It doesn’t need to be perfect all the time.' },
+      { who: 'James', at: 231.68, q: 'The sacred pause… a habit and a lesson from Harrison.' },
+    ],
+  },
 ];
+const fmt = (s: number) => `${Math.floor(s / 60)}:${String(Math.floor(s % 60)).padStart(2, '0')}`;
 const { eyebrow = 'In their words', section = true } = Astro.props;
+const Wrap = section ? 'section' : 'div';
 ---
 
-{section ? (
-  <section class="section section--white tf-sec" data-section="student-films">
-    <div class="wide">
-      <p class="eyebrow">{eyebrow}</p>
-      <div class="tf-grid">
-        {FILMS.map((f) => (
-          <figure class="tf reveal">
-            <video src={`/video/testimony-${f.id}-v1.mp4`} poster={`/img/testimony/testimony-${f.id}-v1.webp`} aria-label={f.title} controls preload="none" playsinline data-track-video={f.id}></video>
-            <figcaption><b>{f.title}</b> <span>{f.length}</span></figcaption>
-          </figure>
-        ))}
-      </div>
-    </div>
-  </section>
-) : (
-  <div class="tf-grid tf-grid--inline">
+<Wrap class={section ? 'section section--white tf-sec' : 'tf-inline'} data-section={section ? 'student-films' : undefined}>
+  <div class={section ? 'wide' : undefined}>
+    {section && <p class="eyebrow">{eyebrow}</p>}
     {FILMS.map((f) => (
-      <figure class="tf reveal">
-        <video src={`/video/testimony-${f.id}-v1.mp4`} poster={`/img/testimony/testimony-${f.id}-v1.webp`} aria-label={f.title} controls preload="none" playsinline data-track-video={f.id}></video>
-        <figcaption><b>{f.title}</b> <span>{f.length}</span></figcaption>
-      </figure>
+      <div class="tf reveal" data-tf>
+        <figure>
+          <video src={`/video/testimony-${f.id}-v2.mp4`} poster={`/img/testimony/testimony-${f.id}-v2.webp`} aria-label={f.title} controls preload="none" playsinline></video>
+        </figure>
+        <div class="tf__side">
+          <h3 class="tf__title">{f.title} <span>{f.length}</span></h3>
+          <ol class="tf__lines">
+            {f.lines.map((l) => (
+              <li>
+                <button type="button" class="tf__line" data-at={l.at} aria-label={`Play ${l.who}, from ${fmt(l.at)}`}>
+                  <img src={F[l.who as keyof typeof F]} alt="" width="44" height="44" loading="lazy" decoding="async" />
+                  <span class="tf__q">“{l.q}”<span class="tf__who">{l.who} · {fmt(l.at)}</span></span>
+                </button>
+              </li>
+            ))}
+          </ol>
+        </div>
+      </div>
     ))}
   </div>
-)}
+</Wrap>
 
 <script>
   // One voice at a time, across every video on the page.
@@ -44,17 +82,44 @@ const { eyebrow = 'In their words', section = true } = Astro.props;
       if (v !== e.target && v.controls) v.pause();
     });
   }, true);
+
+  document.querySelectorAll<HTMLElement>('[data-tf]').forEach((tf) => {
+    const v = tf.querySelector('video')!;
+    const lines = [...tf.querySelectorAll<HTMLButtonElement>('.tf__line')];
+    const mark = () => {
+      let cur = -1;
+      lines.forEach((b, i) => { if (v.currentTime >= Number(b.dataset.at) - 0.05) cur = i; });
+      lines.forEach((b, i) => b.classList.toggle('is-on', i === cur && (!v.paused || v.currentTime > 0)));
+    };
+    v.addEventListener('timeupdate', mark);
+    lines.forEach((b) => b.addEventListener('click', () => {
+      const at = Number(b.dataset.at);
+      const go = () => { v.currentTime = at; v.play().catch(() => {}); mark(); };
+      if (v.readyState >= 1) go();
+      else { v.addEventListener('loadedmetadata', go, { once: true }); v.preload = 'metadata'; v.load(); }
+      // On a phone the list sits under the film, so bring the film back into view.
+      if (matchMedia('(max-width: 760px)').matches) v.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+    }));
+  });
 </script>
 
 <style>
-  .tf-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 340px)); gap: 28px; justify-content: center; margin-top: 18px; }
-  .tf-grid--inline { margin: 0 auto var(--sp-60); }
-  .tf { margin: 0; }
-  .tf video { width: 100%; aspect-ratio: 9 / 16; border-radius: 18px; background: #14100d; display: block; box-shadow: 0 30px 60px -30px rgba(20, 16, 13, 0.5); }
-  .tf figcaption { margin-top: 10px; text-align: center; }
-  .tf figcaption b { font-weight: 700; }
-  .tf figcaption span { color: var(--fg4); margin-left: 6px; }
-  @media (max-width: 560px) {
-    .tf-grid { grid-template-columns: minmax(0, 300px); }
+  .tf-inline { margin-bottom: var(--sp-60); }
+  .tf { display: grid; grid-template-columns: minmax(0, 340px) minmax(0, 1fr); gap: 32px; align-items: start; max-width: 960px; margin: 24px auto 44px; }
+  .tf figure { margin: 0; }
+  .tf video { scroll-margin-top: 90px; width: 100%; aspect-ratio: 9 / 16; border-radius: 18px; background: #14100d; display: block; box-shadow: 0 30px 60px -30px rgba(20, 16, 13, 0.5); }
+  .tf__title { font-size: 1.5rem; margin: 0 0 10px; }
+  .tf__title span { font-size: 0.875rem; font-weight: 400; color: var(--fg4); margin-left: 6px; }
+  .tf__lines { list-style: none; margin: 0; padding: 0; display: grid; gap: 2px; }
+  .tf__line { display: flex; gap: 12px; align-items: flex-start; width: 100%; text-align: left; background: transparent; border: 0; border-left: 3px solid transparent; border-radius: 0 8px 8px 0; padding: 9px 10px; cursor: pointer; font: inherit; color: inherit; }
+  .tf__line:hover { background: rgba(20, 16, 13, 0.05); }
+  .tf__line:focus-visible { outline: 2px solid rgba(218, 162, 79, 0.9); outline-offset: 1px; }
+  .tf__line.is-on { border-left-color: rgb(218, 162, 79); background: rgba(218, 162, 79, 0.12); }
+  .tf__line img { flex: none; width: 44px; height: 44px; border-radius: 50%; object-fit: cover; }
+  .tf__q { display: block; line-height: 1.4; }
+  .tf__who { display: block; margin-top: 3px; font-size: 0.8125rem; color: var(--fg4); }
+  @media (max-width: 760px) {
+    .tf { grid-template-columns: minmax(0, 1fr); gap: 18px; }
+    .tf figure { width: min(300px, 100%); margin: 0 auto; }
   }
 </style>
