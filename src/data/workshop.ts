@@ -135,11 +135,13 @@ export const ROOM = {
     ],
   },
   /* the two photographs beside the steps (Dion, 11 Nov): the hand-on-chest session, and Harrison seated on the mat */
+  /* bento: one tile each, laid out by .ws-bento in rts-coaching.astro (a–e) */
   photos: [
-    { slug: 'coaching-chest-v1', w: 960, alt: 'Harrison kneeling beside a client in seiza, one hand resting on the client’s chest while the client sits with eyes closed', pos: '50% 40%' },
-    { slug: 'session-dojo-v1', w: 800, alt: 'Harrison and another man face to face in silhouette against a glowing orange shoji screen', pos: '50% 50%' },
-    { slug: 'session-moon-circle-v1', w: 800, alt: 'Harrison sitting cross-legged on the grass at dusk with a small group, a full moon over the harbour behind him', pos: '50% 30%' },
-    { slug: 'session-moon-backs-v1', w: 800, alt: 'Four people seen from behind, looking up at the moon through the clouds at dusk', pos: '50% 50%' },
+    { cell: 'a', slug: 'coaching-chest-v1', w: 960, alt: 'Harrison kneeling beside a client in seiza, one hand resting on the client’s chest while the client sits with eyes closed', pos: '50% 32%' },
+    { cell: 'b', slug: 'session-dojo-v1', w: 800, alt: 'Harrison and another man face to face in silhouette against a glowing orange shoji screen', pos: '50% 50%' },
+    { cell: 'c', slug: 'session-heart-v1', w: 800, alt: 'Harrison sitting cross-legged on the grass at dusk, eyes closed, both hands held to his chest', pos: '45% 25%' },
+    { cell: 'd', slug: 'session-moon-backs-v1', w: 800, alt: 'Four people seen from behind, looking up at the moon through the clouds at dusk', pos: '50% 50%' },
+    { cell: 'e', slug: 'session-moon-circle-v1', w: 800, alt: 'Harrison sitting cross-legged on the grass at dusk with a small group, a full moon over the harbour behind him', pos: '50% 38%' },
   ],
   facts: ['1:1 with Harrison', `${LENGTH_LINE} · ${DETAILS.price}, full refund if it is not for you`, `In person · ${DETAILS.where}`, 'Bring comfortable clothing and an open mind'],
   note: 'Coaching, not therapy. A practice for one situation that matters to you.',
