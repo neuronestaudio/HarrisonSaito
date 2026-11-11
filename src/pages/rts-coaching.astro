@@ -113,28 +113,19 @@ const schema = graph(personSchema(), localBusinessSchema());
     <section class="section section--white ws-room" id="room" data-section="ws-room">
       <div class="wide ws-room__layout">
         <div class="ws-room__photos reveal reveal--fade">
-          <img
-            class="ws-room__a"
-            src={`/img/${ROOM.photos.main.slug}-960.webp`}
-            srcset={srcset(ROOM.photos.main.slug) || undefined}
-            sizes="(max-width: 900px) 78vw, 36vw"
-            alt={ROOM.photos.main.alt}
-            width="960"
-            height="1280"
-            loading="lazy"
-            decoding="async"
-          />
-          <img
-            class="ws-room__b"
-            src={`/img/${ROOM.photos.second.slug}-800.webp`}
-            srcset={srcset(ROOM.photos.second.slug) || undefined}
-            sizes="(max-width: 900px) 44vw, 20vw"
-            alt={ROOM.photos.second.alt}
-            width="800"
-            height="1422"
-            loading="lazy"
-            decoding="async"
-          />
+          {ROOM.photos.slice(0, 2).map((ph) => (
+            <img
+              src={`/img/${ph.slug}-${ph.w}.webp`}
+              srcset={srcset(ph.slug) || undefined}
+              sizes="(max-width: 900px) 78vw, 36vw"
+              alt={ph.alt}
+              width="960"
+              height="1280"
+              loading="lazy"
+              decoding="async"
+              style={`object-position:${ph.pos}`}
+            />
+          ))}
         </div>
 
         <div class="ws-room__body">
@@ -178,6 +169,21 @@ const schema = graph(personSchema(), localBusinessSchema());
             <a class="btn btn--filled btn--wide" href="#apply" data-track="cta_click" data-track-label="Workshop — Apply for a session (room)">{HERO.cta.label}</a>
           </div>
         </div>
+      </div>
+      <div class="wide ws-room__pair reveal reveal--fade">
+        {ROOM.photos.slice(2).map((ph) => (
+          <img
+            src={`/img/${ph.slug}-${ph.w}.webp`}
+            srcset={srcset(ph.slug) || undefined}
+            sizes="(max-width: 900px) 46vw, 24vw"
+            alt={ph.alt}
+            width="800"
+            height="1066"
+            loading="lazy"
+            decoding="async"
+            style={`object-position:${ph.pos}`}
+          />
+        ))}
       </div>
     </section>
 
@@ -369,9 +375,10 @@ const schema = graph(personSchema(), localBusinessSchema());
   .ws-moves { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: clamp(14px, 2vw, 30px); }
   .ws-move { border-top: 2px solid var(--fg1); padding-top: clamp(14px, 1.6vw, 22px); min-width: 0; }
   .ws-room__layout { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); gap: clamp(2rem, 5vw, 5rem); align-items: start; }
-  .ws-room__photos { position: relative; padding-bottom: 14%; }
-  .ws-room__a { display: block; width: 82%; aspect-ratio: 3 / 4; object-fit: cover; object-position: 50% 40%; border-radius: 20px; box-shadow: 0 30px 60px -34px rgba(20, 16, 13, 0.55); }
-  .ws-room__b { position: absolute; right: 0; bottom: 0; width: 50%; aspect-ratio: 3 / 4; object-fit: cover; object-position: 50% 62%; border-radius: 16px; border: 6px solid var(--bg1, #fcfaf8); box-shadow: 0 26px 50px -26px rgba(20, 16, 13, 0.6); }
+  .ws-room__photos { display: grid; gap: clamp(14px, 1.6vw, 22px); }
+  .ws-room__photos img { display: block; width: 100%; aspect-ratio: 3 / 4; object-fit: cover; border-radius: 20px; box-shadow: 0 30px 60px -34px rgba(20, 16, 13, 0.55); }
+  .ws-room__pair { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: clamp(14px, 1.6vw, 22px); margin-top: clamp(2rem, 4vw, 3.5rem); max-width: 760px; }
+  .ws-room__pair img { display: block; width: 100%; aspect-ratio: 3 / 4; object-fit: cover; border-radius: 20px; box-shadow: 0 30px 60px -34px rgba(20, 16, 13, 0.55); }
   .ws-room__body .ws-head { margin-bottom: clamp(1.2rem, 2.4vw, 2rem); }
   .ws-room__body .ws-head :global(h2) { max-width: none; }
   .ws-room__body .ws-lede { margin: 0.9rem 0 0; }
