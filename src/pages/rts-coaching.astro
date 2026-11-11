@@ -304,6 +304,8 @@ const schema = graph(personSchema(), localBusinessSchema());
   .ws-hero__eyebrow { color: rgba(252, 250, 248, 0.82); }
   .ws-hero :global(h1) { font-size: clamp(2.3rem, 1.4rem + 3.8vw, 4.6rem); line-height: 1.02; max-width: 15ch; margin: 0 0 var(--sp-40); }
   .ws-hero :global(h1 mark) { background: var(--grad-text-dark); background-clip: text; -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+  /* the first three headings read in sentence case, not capitals (client: "too salesy and screaming") */
+  .ws-hero :global(h1), .ws-moments :global(h2), .ws-head--film :global(h2) { text-transform: none; letter-spacing: -0.01em; }
   .ws-hero__lede { max-width: 52ch; margin: 0 0 var(--sp-50); color: rgba(252, 250, 248, 0.86); }
   .ws-hero__ctas { display: flex; flex-wrap: wrap; align-items: center; gap: 1rem 1.6rem; margin-bottom: var(--sp-40); }
   .ws-hero__more {
