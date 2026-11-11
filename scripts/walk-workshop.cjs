@@ -23,7 +23,7 @@ const assert = (c, m) => { if (!c) { console.error('FAIL:', m); process.exitCode
     });
     const errors = [];
     page.on('pageerror', (e) => errors.push(String(e)));
-    await page.goto(`${BASE}/workshop`, { waitUntil: 'networkidle' });
+    await page.goto(`${BASE}/rts-coaching`, { waitUntil: 'networkidle' });
 
     const sf = page.locator('[data-seat-form="workshop"]');
     await sf.scrollIntoViewIfNeeded();

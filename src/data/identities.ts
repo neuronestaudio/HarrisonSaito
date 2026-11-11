@@ -62,7 +62,7 @@ export const IDENTITIES: Identity[] = [
     pick: 'regulation',
     text: 'One comment',
     emphasis: 'takes your whole day.',
-    href: '/workshop',
+    href: '/rts-coaching',
     kind: 'his',
     source: 'badges.ts (core, burnout) — Harrison, consultation cut 03: “Why can one comment ruin your day”',
   },

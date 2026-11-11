@@ -59,7 +59,7 @@ export const DOORS: Door[] = [
     tag: 'Three seats',
     name: 'The Workshop',
     line: 'One room, three people, one hour with Harrison.',
-    href: '/workshop',
+    href: '/rts-coaching',
     /* the seiza two-shot */
     image: '/img/seiza-pair-v1-768.webp',
     pos: '50% 30%',

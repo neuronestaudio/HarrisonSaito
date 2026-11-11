@@ -4,6 +4,11 @@
   "trailingSlash": false,
   "redirects": [
     {
+      "source": "/workshop",
+      "destination": "/rts-coaching",
+      "permanent": true
+    },
+    {
       "source": "/enter",
       "destination": "/landing",
       "permanent": true
