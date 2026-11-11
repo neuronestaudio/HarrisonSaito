@@ -54,14 +54,14 @@ export const DETAILS = {
      seat question is left out and Harrison's call picker is the only step. */
   sessions: [] as { id: string; label: string; time: string }[],
   when: null as string | null,
-  length: 'One hour, 1:1' as string | null,
-  /** Never published until Harrison sets it — two numbers are in circulation
-      and neither is his. The page asks for an application; it does not sell. */
+  length: '45 minutes, 1:1' as string | null,
+  /** $60 and the full-refund line are Dion's terms (11 Nov 2026): pay for the session,
+      full refund if by the end it is not for you. Harrison has not signed them off. */
   price: '$60' as string | null,
 };
 
 /** How the missing facts read on the page. */
-export const WHEN_LINE = '1:1 with Harrison · free to attend · pay only if it suits you';
+export const WHEN_LINE = '1:1 with Harrison · $60 · full refund if it is not for you';
 export const LENGTH_LINE = DETAILS.length ?? 'One session';
 
 /* ---- the fold ------------------------------------------------------------
@@ -121,7 +121,7 @@ export const ROOM = {
       { label: 'Alternative', text: 'I pause and ask what they meant' },
     ],
   },
-  facts: ['1:1 with Harrison', `${LENGTH_LINE} · free to attend`, `In person · ${DETAILS.where}`, 'Bring comfortable clothing and an open mind'],
+  facts: ['1:1 with Harrison', `${LENGTH_LINE} · ${DETAILS.price}, full refund if it is not for you`, `In person · ${DETAILS.where}`, 'Bring comfortable clothing and an open mind'],
   note: 'Coaching, not therapy. A practice for one situation that matters to you.',
 };
 
@@ -167,7 +167,7 @@ export const WORDS: Word[] = [
 export const ANSWERS = [
   {
     q: 'What does it cost?',
-    a: `Attending is free. After the session, if it suits you, the hour is ${DETAILS.price}. If it does not suit you, you pay nothing.`,
+    a: `The session is ${DETAILS.price}. If by the end you decide it is not for you, you get a full refund.`,
   },
   {
     q: 'Do I have to share?',

@@ -36,7 +36,7 @@ import { DETAILS, WHEN_LINE, HERO, EXPLAIN, MOMENTS, GAINS_INTRO, ROOM, WHO, ANS
 
 const title = 'Private Coaching — 1:1 with Harrison Saito | Chatswood, Sydney';
 const description =
-  '1:1 Private Coaching with Harrison Saito: forty-five minutes on one relationship and one recent moment. Pause, recognise, choose. Free to attend, and you pay only if it suits you. Chatswood, Sydney.';
+  '1:1 Private Coaching with Harrison Saito: forty-five minutes on one relationship and one recent moment. Pause, recognise, choose. $60, with a full refund if it is not for you by the end. Chatswood, Sydney.';
 const schema = graph(personSchema(), localBusinessSchema());
 ---
 
@@ -52,6 +52,7 @@ const schema = graph(personSchema(), localBusinessSchema());
           <div class="ws-hero__ctas">
             <a class="btn btn--filled btn--wide" href={HERO.cta.href} data-track="cta_click" data-track-label={`Workshop — ${HERO.cta.label} (hero)`}>{HERO.cta.label}</a>
             <a class="ws-hero__more" href={HERO.more.href}>{HERO.more.label}<span aria-hidden="true">↓</span></a>
+            <a class="ws-hero__more" href="/testimonials" data-track="cta_click" data-track-label="Private coaching — How it felt (hero)">How it felt, in their words<span aria-hidden="true">→</span></a>
           </div>
           <p class="ws-when"><span class="ws-when__dot" aria-hidden="true"></span>{WHEN_LINE}</p>
         </div>

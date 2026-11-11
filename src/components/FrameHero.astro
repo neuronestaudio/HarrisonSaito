@@ -395,7 +395,8 @@ const hallAt = (i: number) => (0.34 + (i * 0.46) / Math.max(1, HALL_ITEMS.length
         </div>
         <p class="arrive__ctas">
           <a class="hero__btn" href={ARRIVE.cta.href} data-track="cta_click" data-track-label="Arrival — Book a discovery chat" data-track-section="hero-arrival"><span class="cta-long">{ARRIVE.cta.label}</span><span class="cta-short">Talk with me</span></a>
-          <a class="hero__more" href="/mens-coaching" data-track="cta_click" data-track-label="Arrival — See the programme" data-track-section="hero-arrival">See the program →</a>
+          <a class="hero__more" href="/rts-personalised-coach" data-track="cta_click" data-track-label="Arrival — See the programme" data-track-section="hero-arrival">See the program →</a>
+          <a class="hero__more hero__proof" href="/testimonials" data-track="cta_click" data-track-label="Arrival — How it felt, in their words" data-track-section="hero-arrival">How it felt, in their words →</a>
         </p>
       </div>
 
@@ -1367,6 +1368,7 @@ const hallAt = (i: number) => (0.34 + (i * 0.46) / Math.max(1, HALL_ITEMS.length
     flex-wrap: wrap;
     gap: 0.7rem 1.4rem;
   }
+  .arrive__ctas .hero__proof { flex: 1 0 100%; }
 
   .arrive__quote {
     position: relative;
@@ -1395,7 +1397,8 @@ const hallAt = (i: number) => (0.34 + (i * 0.46) / Math.max(1, HALL_ITEMS.length
     .arrive {
       display: grid;
       grid-template-rows: auto auto minmax(12px, 3fr) auto minmax(10px, 1fr) auto;
-      padding: clamp(1.2rem, 4vh, 2.6rem) var(--pad-x) var(--pad-b);
+      /* + the cue's height: the button box (now three lines) must sit above "Scroll to continue" */
+      padding: clamp(1.2rem, 4vh, 2.6rem) var(--pad-x) calc(var(--pad-b) + 2.6rem);
     }
     .arrive__photo {
       top: 0;
@@ -1461,6 +1464,9 @@ const hallAt = (i: number) => (0.34 + (i * 0.46) / Math.max(1, HALL_ITEMS.length
     /* the top copy's full-width button rule would push the link out of the row */
     .arrive__ctas .hero__btn { width: auto; flex: 1 1 auto; padding-inline: 0.9rem; font-size: 0.9rem; }
     .arrive__ctas .hero__more { flex: 0 1 auto; font-size: 0.82rem; white-space: nowrap; }
+    /* the third link takes its own line under the button row */
+    .arrive__ctas { flex-wrap: wrap; }
+    .arrive__ctas .hero__proof { flex: 1 0 100%; text-align: center; }
 
     .arrive__quote { font-size: 1.12rem; margin: 0 0 0.3rem; }
     .arrive__big { font-size: clamp(1.6rem, 7vw, 2.4rem); }

@@ -4,6 +4,11 @@
   "trailingSlash": false,
   "redirects": [
     {
+      "source": "/mens-coaching",
+      "destination": "/rts-personalised-coach",
+      "permanent": true
+    },
+    {
       "source": "/workshop",
       "destination": "/rts-coaching",
       "permanent": true
@@ -50,17 +55,17 @@
     },
     {
       "source": "/adult-coaching",
-      "destination": "/mens-coaching",
+      "destination": "/rts-personalised-coach",
       "permanent": true
     },
     {
       "source": "/coaching",
-      "destination": "/mens-coaching",
+      "destination": "/rts-personalised-coach",
       "permanent": true
     },
     {
       "source": "/adults",
-      "destination": "/mens-coaching",
+      "destination": "/rts-personalised-coach",
       "permanent": true
     },
     {
@@ -90,17 +95,17 @@
     },
     {
       "source": "/returntoself",
-      "destination": "/mens-coaching",
+      "destination": "/rts-personalised-coach",
       "permanent": true
     },
     {
       "source": "/programme",
-      "destination": "/mens-coaching",
+      "destination": "/rts-personalised-coach",
       "permanent": true
     },
     {
       "source": "/program",
-      "destination": "/mens-coaching",
+      "destination": "/rts-personalised-coach",
       "permanent": true
     },
     {

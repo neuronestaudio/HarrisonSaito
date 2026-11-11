@@ -68,7 +68,7 @@ export const DOORS: Door[] = [
     icon: 'comment',
     name: '1:1 Coaching',
     line: 'Session by session, at your pace.',
-    href: '/mens-coaching',
+    href: '/rts-personalised-coach',
     /* Dion, 2 Oct: "the photo with him and Danny" — his hand on Danny's chest */
     image: '/img/harrison-danny-v1-768.webp',
     pos: '50% 40%',
@@ -137,7 +137,7 @@ export const ROOMS: Room[] = [
   { icon: 'summit', name: 'Dojo', sub: 'Shinbukan. His father’s school.', href: '/about', thumb: 'room-dojo-v3', thumbAlt: 'Harrison kneeling in seiza on the dojo mats in his gi and black belt, eyes closed' },
   { icon: 'moon', name: 'Temple', sub: 'Koyasan. Attention, not belief.', href: '/about', thumb: 'room-temple-v3', thumbAlt: 'A stone Buddha seated among trees' },
   { icon: 'mirror', name: 'Return to Self', sub: 'The practice: notice, then choose.', href: '/return-to-self', thumb: 'room-rts-v3', thumbAlt: 'Harrison kneeling beside a client, a hand on his chest, the client’s eyes closed' },
-  { icon: 'comment', name: 'One on One', sub: 'Coaching, session by session.', href: '/mens-coaching', thumb: 'room-one-v3', thumbAlt: 'Harrison with a client on the mats' },
+  { icon: 'comment', name: 'One on One', sub: 'Coaching, session by session.', href: '/rts-personalised-coach', thumb: 'room-one-v3', thumbAlt: 'Harrison with a client on the mats' },
   { icon: 'ember', name: 'Breathwork', sub: 'The monthly room. Sixteen seats.', href: '/workshops', thumb: 'room-breath-v3', thumbAlt: 'Harrison and a client sitting cross-legged on the mats, eyes closed' },  /* Dion, 30 Sep: a brighter photo (wall-p55); -v2 because /img is immutable */
 ];
 

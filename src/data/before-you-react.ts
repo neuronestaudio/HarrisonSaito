@@ -24,7 +24,7 @@ import { INTERVIEWS } from './interviews';
 export const VSL = {
   url: '/video/rts-vsl-v8.mp4' as string | null,
   /** a 16:9 still for the player (frame at 1.5 s of v8) */
-  poster: '/img/rts-vsl-v8-poster.webp' as string | null,
+  poster: '/img/rts-vsl-poster-v2.webp' as string | null,
   title: 'Harrison Saito on Return to Self',
 };
 

@@ -49,7 +49,7 @@ export const WHATSAPP = {
  * form field, and matches how the page actually presents itself — as a book.
  */
 export const NAV = [
-  { label: 'Coaching', href: '/mens-coaching' },
+  { label: 'Coaching', href: '/rts-personalised-coach' },
   { label: 'The Story', href: '/about' },
   { label: 'Resources', href: '/media' },
   { label: 'Testimonials', href: '/testimonials' },
@@ -543,6 +543,8 @@ export const VIDEO_IDS = {
   fatherSon: '8vj462byS5w',
   fatherSonShort: 'm-r7VUuoBfc',
   chakra: 'XJ5Xjqmdvo8',
+  /* The Return to Self VSL, full length (Dion, 11 Nov 2026). */
+  vsl: 'o-TCggdIfxU',
 } as const;
 
 /* ------------------------------------------------------------ credentials */

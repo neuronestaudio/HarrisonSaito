@@ -14,7 +14,7 @@ const browser = await chromium.launch();
 const ctx = await browser.newContext({ viewport: { width: 1440, height: 900 } });
 const page = await ctx.newPage();
 
-await page.goto(BASE + '/mens-coaching', { waitUntil: 'networkidle' });
+await page.goto(BASE + '/rts-personalised-coach', { waitUntil: 'networkidle' });
 await page.waitForTimeout(1800);
 
 // Find the pinning trigger by asking GSAP, not by measuring the DOM.

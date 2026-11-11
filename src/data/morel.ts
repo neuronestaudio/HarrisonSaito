@@ -13,8 +13,8 @@ import { LINKS } from './morel-source';
 /** Template route → this site's page for the same thing. */
 const ROUTES: Record<string, string> = {
   '/story': '/about',
-  '/coaching': '/mens-coaching',
-  '/return-to-self': '/mens-coaching',
+  '/coaching': '/rts-personalised-coach',
+  '/return-to-self': '/rts-personalised-coach',
   '/resources': '/media',
   /* /workshops is ported as its own page (src/pages/workshops.astro); /book,
      /privacy, /terms and /#faq exist here under the same paths. */

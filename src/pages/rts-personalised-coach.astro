@@ -70,18 +70,18 @@ const schema = graph(
     name: 'Life Coaching',
     serviceType: 'Life coaching',
     description,
-    url: '/mens-coaching',
+    url: '/rts-personalised-coach',
   }),
   courseSchema(),
   faqSchema(faqs),
   breadcrumbSchema([
     { name: 'Home', url: '/' },
-    { name: 'Coaching', url: '/mens-coaching' },
+    { name: 'Coaching', url: '/rts-personalised-coach' },
   ])
 );
 ---
 
-<Base title={title} description={description} path="/mens-coaching" schema={schema}>
+<Base title={title} description={description} path="/rts-personalised-coach" schema={schema}>
   <MoShell>
     <!-- ============ HERO ============ -->
     <section class="inner-hero on-dark" style="background-image:url(/img/dark-dojo.webp)" data-section="hero">
@@ -102,6 +102,28 @@ const schema = graph(
         <p class="inner-hero__trial">
           <a href="/rts-coaching" data-track="cta_click" data-track-label="Mens hero — RTS Private Coaching Trial">Not sure yet? Try the RTS Private Coaching Trial<span aria-hidden="true"> →</span></a>
         </p>
+      </div>
+    </section>
+
+    <!-- ============ THE FILM: the VSL, full length (Dion, 11 Nov 2026) ============ -->
+    <section class="section section--dark on-dark films" id="film" data-section="vsl">
+      <div class="wide">
+        <div class="sec-head">
+          <div>
+            <p class="eyebrow">The Full Film</p>
+            <h2 class="reveal">Return to Self, <mark>in Harrison’s words.</mark></h2>
+          </div>
+        </div>
+
+        <a class="film film--feature js-video reveal" href={`https://www.youtube.com/watch?v=${VIDEO_IDS.vsl}`} data-video={VIDEO_IDS.vsl} data-track="video_play" data-track-label="VSL — full film" data-track-section="vsl" style="background-image:url(/img/rts-vsl-poster-v2.webp)">
+          <div class="film__inner">
+            <div>
+              <span class="pill">Full film</span>
+              <h3>What Return to Self is, and who it is for</h3>
+            </div>
+            <Fragment set:html={PLAY_ICON} />
+          </div>
+        </a>
       </div>
     </section>
 
@@ -216,7 +238,7 @@ const schema = graph(
         <div class="trial__text">
           <p class="eyebrow">RTS Private Coaching Trial</p>
           <h2 class="reveal">Start with <mark>one session.</mark></h2>
-          <p class="reveal">Forty-five minutes, 1:1 with Harrison, on one relationship and one recent moment. Free to attend. You pay only if it suits you.</p>
+          <p class="reveal">Forty-five minutes, 1:1 with Harrison, on one relationship and one recent moment. $60, with a full refund if it is not for you by the end.</p>
         </div>
         <a class="btn btn--filled btn--wide reveal" href="/rts-coaching" data-track="cta_click" data-track-label="Mens trial band — RTS Private Coaching Trial" data-track-section="trial">See what&rsquo;s involved</a>
       </div>

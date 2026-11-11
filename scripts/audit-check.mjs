@@ -113,7 +113,7 @@ if (indexable.length >= 8 && dupes.length === 0) {
 }
 
 // H3 — titles carry intent + location
-const keyPages = { 'mens-coaching.html': /coach/i, 'hsc-tutoring.html': /hsc|tutor/i };
+const keyPages = { 'rts-personalised-coach.html': /coach/i, 'hsc-tutoring.html': /hsc|tutor/i };
 for (const [p, re] of Object.entries(keyPages)) {
   const t = titles[p] ?? '';
   if (re.test(t) && /sydney|chatswood/i.test(t)) ok('H3', `${p} title has intent + location: "${t}"`);
@@ -205,7 +205,7 @@ for (const p of indexable) {
 if (!fail.some((f) => f.startsWith('M3'))) ok('M3', 'every page has a substantial meta description');
 
 // M4 — real links in nav
-if (/<a[^>]*href="\/mens-coaching"/.test(home)) ok('M4', 'nav uses real anchors, not buttons');
+if (/<a[^>]*href="\/rts-personalised-coach"/.test(home)) ok('M4', 'nav uses real anchors, not buttons');
 else bad('M4', 'nav links not found as anchors');
 
 // M5 — WebP. YouTube serves its own thumbnails as JPEG from i.ytimg.com and

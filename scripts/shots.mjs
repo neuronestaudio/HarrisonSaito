@@ -13,7 +13,7 @@ const OUT = path.resolve(import.meta.dirname, '..', '_shots');
 
 const PAGES = [
   ['home', '/'],
-  ['mens-coaching', '/mens-coaching'],
+  ['rts-personalised-coach', '/rts-personalised-coach'],
   ['hsc-tutoring', '/hsc-tutoring'],
   ['about', '/about'],
   ['media', '/media'],

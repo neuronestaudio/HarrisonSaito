@@ -57,7 +57,7 @@ export default defineConfig({
       lastmod: new Date(),
       serialize(item) {
         if (item.url === `${SITE}/`) item.priority = 1.0;
-        else if (/mens-coaching|hsc-tutoring/.test(item.url)) item.priority = 0.9;
+        else if (/rts-personalised-coach|hsc-tutoring/.test(item.url)) item.priority = 0.9;
         else if (/apply|book|contact/.test(item.url)) item.priority = 0.8;
         else item.priority = 0.6;
         return item;
