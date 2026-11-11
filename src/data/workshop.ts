@@ -46,24 +46,23 @@ import type { WhoCard, WhoSection } from '../components/WhoFor.astro';
 
 /* ---- the facts, or the honest absence of them --------------------------- */
 export const DETAILS = {
-  seats: 3,
+  seats: 1,
   /** Where. His base; the venue itself is Harrison's to name. */
   where: 'Chatswood, Sydney',
   /* Dion, 26 Sep: two rooms, 1–2 pm on the third and the fourth (October
      2026 — a Saturday and a Sunday). The application picks one. */
-  sessions: [
-    { id: 'sat-3-oct', label: 'Saturday 3 October', time: '1–2 pm' },
-    { id: 'sun-4-oct', label: 'Sunday 4 October', time: '1–2 pm' },
-  ],
-  when: 'Saturday 3 or Sunday 4 October · 1–2 pm' as string | null,
-  length: 'One hour' as string | null,
+  /* 11 Nov 2026: Private Coaching is 1:1, so there is no room to pick — the
+     seat question is left out and Harrison's call picker is the only step. */
+  sessions: [] as { id: string; label: string; time: string }[],
+  when: null as string | null,
+  length: 'One hour, 1:1' as string | null,
   /** Never published until Harrison sets it — two numbers are in circulation
       and neither is his. The page asks for an application; it does not sell. */
-  price: null as string | null,
+  price: '$60' as string | null,
 };
 
 /** How the missing facts read on the page. */
-export const WHEN_LINE = DETAILS.when ? `Two rooms: ${DETAILS.when}` : 'Next room: date to be confirmed — applicants hear first';
+export const WHEN_LINE = '1:1 with Harrison · $60 · you choose the time';
 export const LENGTH_LINE = DETAILS.length ?? 'One session';
 
 /* ---- the fold ------------------------------------------------------------
@@ -71,12 +70,12 @@ export const LENGTH_LINE = DETAILS.length ?? 'One session';
    have to react to everything you feel"); the workshop, one session on
    noticing the moment in between, carries the line about that moment. */
 export const HERO = {
-  eyebrow: `The Workshop · ${DETAILS.seats} seats · ${DETAILS.where}`,
+  eyebrow: `Private Coaching · 1:1 · ${DETAILS.where}`,
   title: 'There is a moment <mark>before the reaction.</mark>',
   lede:
-    'Your first reaction may be automatic. What you do next doesn’t have to be. The workshop is one room, three people and one hour with Harrison — learning to notice the moment in between: what you are feeling, what set it off, and what you would rather do next. The first practice of Return to Self, before you commit to any of it.',
-  cta: { label: 'Apply for a seat', href: '#apply' },
-  more: { label: 'What happens in the room', href: '#room' },
+    'Your first reaction may be automatic. What you do next doesn’t have to be. Private Coaching is one hour, just you and Harrison — learning to notice the moment in between: what you are feeling, what set it off, and what you would rather do next. The first practice of Return to Self, his 1:1 personalised coaching over twelve weeks, before you commit to any of it.',
+  cta: { label: 'Apply for a session', href: '#apply' },
+  more: { label: 'What happens in the session', href: '#room' },
   /* Dion, 25 Sep (late): the seiza frame — kneeling on the mats in his gi,
      eyes closed, hands folded — from the 23 Sep dojo stills. */
   portrait: 'workshop-seiza-v1',
@@ -90,11 +89,11 @@ export const HERO = {
    room that answers it (ROOM below). */
 export const FIT: { section: WhoSection; cards: WhoCard[] } = {
   section: {
-    label: 'Who the workshop is for',
+    label: 'Who Private Coaching is for',
     title: 'For people who <mark>know how to keep going.</mark>',
     lede: 'You may recognise yourself here. Each one names the part of the session that answers it.',
-    foot: 'None of this asks you to become someone else. It asks for one session, and three people willing to notice what is already there.',
-    cta: { label: 'Apply for a seat', href: '#apply' },
+    foot: 'None of this asks you to become someone else. It asks for one session, and you willing to notice what is already there.',
+    cta: { label: 'Apply for a session', href: '#apply' },
   },
   cards: [
     {
@@ -150,28 +149,23 @@ export const GAINS_INTRO = {
   eyebrow: 'What people noticed afterwards',
   title: 'Awareness <mark>creates choice.</mark>',
   lede:
-    'These are the changes people who trained with Harrison say they noticed — as written to him, or said on camera. The workshop hands you the first practice behind them.',
-  faces: [
-    { img: 'face-john-v1', name: 'John', role: 'Consultant, 55' },
-    { img: 'face-andrew-v1', name: 'Andrew', role: 'Drummer' },
-    { img: 'face-james-v1', name: 'James', role: 'Construction' },
-    { img: 'face-jake-v1', name: 'Jake', role: 'Musician' },
-  ],
-  facesNote: 'Filmed giving their testimonies, September 2026',
+    'These are the changes people who trained with Harrison say they noticed — as written to him, or said on camera. Private Coaching hands you the first practice behind them.',
+  /* Dion, 11 Nov: the four faces looked scripted. A link to the testimonials instead. */
+  more: { label: 'Hear it from them', href: '/testimonials' },
 };
 
 /* ---- what happens in the room ------------------------------------------ */
 export const ROOM = {
-  eyebrow: 'What happens in the room',
+  eyebrow: 'What happens in the session',
   title: 'Four movements, <mark>in an order that matters.</mark>',
   lede:
-    'That moment can be very small. With practice you begin to notice it — and when you can notice it, you can choose something different. One session, four movements, in the order that makes each one land. No experience needed.',
+    'That moment can be very small. With practice you begin to notice it — and when you can notice it, you can choose something different. One hour, four movements, in the order that makes each one land. No experience needed.',
   movements: [
     {
       n: '01',
       key: 'Share',
       title: 'Say what you are carrying.',
-      body: 'It begins with the three of you and Harrison, and a simple question: what are you navigating right now, and what would you like to understand better? Say as much as you want. Nobody performs, and nobody is watched.',
+      body: 'It begins with you and Harrison, and a simple question: what are you navigating right now, and what would you like to understand better? Say as much as you want. Nobody performs, and nobody else is in the room.',
     },
     {
       n: '02',
@@ -193,12 +187,12 @@ export const ROOM = {
       n: '04',
       key: 'Take home',
       title: 'Leave with one practice.',
-      body: 'The room closes with release and gratitude, and you leave with one practice for the week after — not a folder. If the twelve weeks are yours, this was week one in miniature. If they are not, you still have the practice.',
+      body: 'The session closes with release and gratitude, and you leave with one practice for the week after — not a folder. If Return to Self — twelve weeks of 1:1 personalised coaching — is yours, this was week one in miniature. If it is not, you still have the practice.',
     },
   ],
   facts: [
-    `${DETAILS.seats} seats a room`,
-    DETAILS.when ?? LENGTH_LINE,
+    '1:1 with Harrison',
+    `${LENGTH_LINE} · ${DETAILS.price}`,
     `In person · ${DETAILS.where}`,
     'Bring comfortable clothing, water and an open mind',
   ],
@@ -215,7 +209,7 @@ export const ROOM = {
    words for him, and on the sign-off list like everything else that is not
    on tape. */
 export const WHO = {
-  eyebrow: 'Who is holding the room',
+  eyebrow: 'Who is coaching you',
   title: 'Discipline taught me how to push. <mark>Presence taught me when not to.</mark>',
   /* the standing gi portrait that was the hero until the seiza frame took it */
   portrait: 'workshop-gi-v1',
@@ -247,11 +241,11 @@ export const WORDS: Word[] = [
 export const ANSWERS = [
   {
     q: 'Why apply, rather than just book?',
-    a: 'Because three seats have to be the right three. Harrison reads every application himself and calls you first — a short conversation, so the room works for everyone in it. Nothing to prepare.',
+    a: 'Because Harrison keeps a small number of 1:1 sessions and wants them to be the right fit. He reads every application himself and calls you first — a short conversation. Nothing to prepare.',
   },
   {
-    q: 'Is this a sales pitch for the twelve weeks?',
-    a: 'No. You will hear what Return to Self is, because people ask. You will not be pitched. If you want the twelve weeks afterwards, you ask; if you do not, the workshop was the workshop.',
+    q: 'Is this a sales pitch for Return to Self?',
+    a: 'No. You will hear what Return to Self is — 1:1 personalised coaching over twelve weeks — because people ask. You will not be pitched. If you want it afterwards, you ask; if you do not, the session was the session.',
   },
   {
     /* the first sentence is site copy — the FAQ on the home page */
@@ -266,7 +260,7 @@ export const ANSWERS = [
   {
     q: 'What does it cost?',
     a: DETAILS.price
-      ? `${DETAILS.price}, paid once you have a confirmed seat. Applying costs nothing.`
+      ? `${DETAILS.price} for the hour, paid once your session is confirmed. Applying costs nothing.`
       : 'Ask and Harrison will answer directly — nothing on this page is a pitch, and applying costs nothing. Nothing is charged until you have a confirmed seat.',
   },
   {
@@ -275,17 +269,17 @@ export const ANSWERS = [
     a: 'No. Karate is used as a method for working with the nervous system, attention and pressure. Plenty of people arrive having never trained. The physical practice is adapted to the person in front of me.',
   },
   {
-    q: 'What if the three seats are taken?',
-    a: 'You are first for the next room. Rooms run as three people apply for them, so an application is never wasted.',
+    q: 'What if Harrison is fully booked?',
+    a: 'You are first for the next opening. An application is never wasted.',
   },
 ];
 
 /* ---- the ask ------------------------------------------------------------- */
 export const APPLY = {
-  eyebrow: 'Three seats',
+  eyebrow: 'One to one',
   title: 'Take the <mark>first step.</mark>',
   body:
-    'Pick a session and leave your details, and your spot is under review. Harrison reaches out directly — you choose the window for his call. Three seats a room; if yours is full, you are first for the next.',
+    'Leave your details and your application is under review. Harrison reaches out directly — you choose the window for his call.',
   formLabel: 'Apply — under a minute',
 };
 
@@ -293,11 +287,11 @@ export const APPLY = {
 export const FORM = {
   id: 'workshop',
   sessionLabel: 'Which session?',
-  submit: 'Apply for a seat',
+  submit: 'Apply for a session',
   /* Dion, 26 Sep, as said: thank you, your spot is under review, Harrison will
      reach out directly, select a window for him to call you. */
   successHeading: 'Thank you.',
-  successBody: 'Your spot is under review, and Harrison will reach out directly. Pick up to three windows for his call.',
+  successBody: 'Your application is under review, and Harrison will reach out directly. Pick up to three windows for his call.',
   callLabel: 'When can he call?',
   /* Dion, 26 Sep: "time-block hours to select, UI/UX high end." Then, 30 Sep:
      "the call can start anywhere between 8 and 8, but in windows — 8–10,
@@ -325,8 +319,8 @@ export const FORM = {
     flexibleLabel: 'any time this week',
   },
   doneHeading: 'Done.',
-  doneBody: 'Harrison will call you — {window}. Three seats a room; if yours is taken, you are first for the next.',
-  whatsapp: 'Hi Harrison, I’d like to apply for one of the three seats at the workshop.',
+  doneBody: 'Harrison will call you — {window}. If he is fully booked, you are first for the next opening.',
+  whatsapp: 'Hi Harrison, I’d like to apply for a Private Coaching session.',
   ask: { label: 'In a sentence, what would you like to understand better?', placeholder: 'As much or as little as you like' },
 };
 
