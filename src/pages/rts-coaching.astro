@@ -27,17 +27,16 @@ import Base from '../layouts/Base.astro';
 import MoShell from '../components/MoShell.astro';
 import SeatForm from '../components/SeatForm.astro';
 import CalendlyBook from '../components/CalendlyBook.astro';
-import WhoFor from '../components/WhoFor.astro';
 import GainPills from '../components/GainPills.astro';
 import TestimonyFilms from '../components/TestimonyFilms.astro';
 import { src, srcset } from '../lib/images';
 import { PROOF, SITE } from '../data/site';
 import { graph, personSchema, localBusinessSchema } from '../lib/seo';
-import { DETAILS, WHEN_LINE, HERO, FIT, GAINS_INTRO, ROOM, WHO, ANSWERS, APPLY, FORM } from '../data/workshop';
+import { DETAILS, WHEN_LINE, HERO, EXPLAIN, MOMENTS, GAINS_INTRO, ROOM, WHO, ANSWERS, APPLY, FORM } from '../data/workshop';
 
 const title = 'Private Coaching — 1:1 with Harrison Saito | Chatswood, Sydney';
 const description =
-  'Private 1:1 coaching with Harrison Saito. You talk, then breathe, then sit. The first tools of Return to Self in your hands, and a straight read on whether twelve weeks of personalised coaching are yours. Chatswood, Sydney. Apply for a session.';
+  '1:1 Private Coaching with Harrison Saito: forty-five minutes on one relationship and one recent moment. Pause, recognise, choose. Free to attend, and you pay only if it suits you. Chatswood, Sydney.';
 const schema = graph(personSchema(), localBusinessSchema());
 ---
 
@@ -56,24 +55,37 @@ const schema = graph(personSchema(), localBusinessSchema());
           </div>
           <p class="ws-when"><span class="ws-when__dot" aria-hidden="true"></span>{WHEN_LINE}</p>
         </div>
-        <figure class="ws-hero__portrait reveal reveal--fade">
-          <img
-            src={src(HERO.portrait)}
-            srcset={srcset(HERO.portrait) || undefined}
-            sizes="(max-width: 900px) 84vw, 38vw"
-            alt={HERO.portraitAlt}
-            width="700"
-            height="1050"
-            loading="eager"
-            fetchpriority="high"
-            decoding="async"
-          />
+        <figure class="ws-hero__portrait ws-hero__film reveal reveal--fade">
+          <video src={HERO.film.src} poster={HERO.film.poster} aria-label={HERO.film.title} controls preload="none" playsinline data-track-film="ws-involved"></video>
         </figure>
       </div>
     </section>
 
-    <!-- ============ WHO THE WORKSHOP IS FOR: the six squares ============ -->
-    <WhoFor bare button id="who-benefits" trackSection="ws-fit" section={FIT.section} cards={FIT.cards} />
+    <!-- ============ RECOGNITION: the everyday moments ============ -->
+    <section class="section section--white ws-moments" id="who-benefits" data-section="ws-moments">
+      <div class="wide ws-moments__grid">
+        <header class="ws-head">
+          <p class="eyebrow">{MOMENTS.eyebrow}</p>
+          <h2 class="reveal" set:html={MOMENTS.title} />
+        </header>
+        <ul class="ws-facts ws-facts--moments reveal">
+          {MOMENTS.list.map((m) => <li>{m}</li>)}
+        </ul>
+      </div>
+    </section>
+
+    <!-- ============ THE SECOND FILM: you can't change what happens ============ -->
+    <section class="section section--dark on-dark ws-film" data-section="ws-explain">
+      <div class="wide">
+        <header class="ws-head ws-head--film">
+          <h2 class="reveal" set:html={EXPLAIN.title} />
+          <p class="lede reveal">{EXPLAIN.lead}</p>
+        </header>
+        <div class="ws-film__frame reveal reveal--fade">
+          <video src={EXPLAIN.film.src} poster={EXPLAIN.film.poster} aria-label={EXPLAIN.film.title} controls preload="none" playsinline data-track-film="ws-explain"></video>
+        </div>
+      </div>
+    </section>
 
     <!-- ============ THE PILLS: what people walk away with ============ -->
     <section class="section section--bg4 ws-gains" data-section="ws-gains">
@@ -87,18 +99,6 @@ const schema = graph(personSchema(), localBusinessSchema());
         </header>
         <p class="ws-more reveal"><a href={GAINS_INTRO.more.href} data-track="cta_click" data-track-label="Workshop — testimonials link">{GAINS_INTRO.more.label}<span aria-hidden="true"> →</span></a></p>
         <GainPills />
-      </div>
-    </section>
-
-    <!-- ============ THE FILM: two cuts of the VSL (4:21 and 5:44, v8) ============ -->
-    <section class="section section--dark on-dark ws-film" data-section="ws-film">
-      <div class="wide ws-film__stack">
-        <div class="ws-film__frame reveal reveal--fade">
-          <video src="/video/pc-film-room-v1.mp4" poster="/img/pc-film-room-v1-poster.webp" controls preload="none" playsinline data-track-film="pc-room"></video>
-        </div>
-        <div class="ws-film__frame reveal reveal--fade">
-          <video src="/video/pc-film-work-v1.mp4" poster="/img/pc-film-work-v1-poster.webp" controls preload="none" playsinline data-track-film="pc-work"></video>
-        </div>
       </div>
     </section>
 
@@ -128,6 +128,13 @@ const schema = graph(personSchema(), localBusinessSchema());
             </li>
           ))}
         </ol>
+
+        <div class="ws-leave reveal">
+          <p class="fs-sm">{ROOM.leave.lead}</p>
+          <dl class="ws-leave__ex">
+            {ROOM.leave.example.map((e) => <div><dt>{e.label}</dt><dd>{e.text}</dd></div>)}
+          </dl>
+        </div>
 
         <ul class="ws-facts reveal">
           {ROOM.facts.map((f) => <li>{f}</li>)}
@@ -419,7 +426,20 @@ const schema = graph(personSchema(), localBusinessSchema());
   .ws-more { margin: clamp(10px, 1.4vw, 18px) 0 clamp(16px, 2vw, 26px); }
   .ws-more a { font-weight: 700; color: var(--gold-deep); text-decoration: none; border-bottom: 1px solid currentColor; padding-bottom: 2px; }
   .ws-more a:hover { color: var(--fg1); }
-  .ws-film { padding-block: clamp(2rem, 4vw, 3.5rem); }
+  .ws-film { padding-block: clamp(2.4rem, 5vw, 4.5rem); }
+  .ws-head--film { max-width: 900px; margin-inline: auto; text-align: center; }
+  .ws-head--film :global(h2) { margin: 0 auto 0.8rem; max-width: 24ch; }
+  .ws-head--film :global(.lede) { margin: 0; color: rgba(252, 250, 248, 0.8); }
+  .ws-hero__film { aspect-ratio: 16 / 9; width: min(100%, 560px); }
+  .ws-hero__film video { width: 100%; height: 100%; display: block; object-fit: cover; }
+  .ws-moments__grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: clamp(1.4rem, 4vw, 4rem); align-items: center; }
+  .ws-moments__grid .ws-head { margin-bottom: 0; }
+  .ws-facts--moments { margin: 0; flex-direction: column; align-items: flex-start; }
+  .ws-leave { margin-top: clamp(1.6rem, 3vw, 2.6rem); padding: 1.2rem 1.4rem; border-radius: 18px; background: var(--bg2); }
+  .ws-leave p { margin: 0 0 0.9rem; }
+  .ws-leave__ex { margin: 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+  .ws-leave__ex dt { font-size: 12px; font-weight: 700; letter-spacing: 0.16em; text-transform: uppercase; color: var(--gold-deep); }
+  .ws-leave__ex dd { margin: 0.2rem 0 0; font-family: var(--font-accent); }
   .ws-film__frame { max-width: 960px; margin: 0 auto; aspect-ratio: 16 / 9; border-radius: 20px; overflow: hidden; background: #14100d; box-shadow: 0 40px 90px rgba(0, 0, 0, 0.5); }
   .ws-film__stack { display: grid; gap: clamp(1.2rem, 3vw, 2.2rem); }
   .ws-film__frame video { width: 100%; height: 100%; display: block; object-fit: cover; }
@@ -470,6 +490,7 @@ const schema = graph(personSchema(), localBusinessSchema());
     .ws-hero__grid { grid-template-columns: 1fr; }
     .ws-hero__portrait { justify-self: center; width: min(100%, 420px); aspect-ratio: 4 / 5; }
     .ws-hero__portrait img { object-position: 50% 12%; }
+    .ws-moments__grid, .ws-leave__ex { grid-template-columns: 1fr; }
     .ws-head--split, .ws-who__grid, .ws-faq__grid, .ws-apply__grid { grid-template-columns: 1fr; }
     .ws-who__portrait { max-width: 420px; }
   }

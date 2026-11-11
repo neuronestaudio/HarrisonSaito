@@ -42,7 +42,6 @@
  */
 import { TESTIMONIALS } from './site';
 import { INTERVIEWS } from './interviews';
-import type { WhoCard, WhoSection } from '../components/WhoFor.astro';
 
 /* ---- the facts, or the honest absence of them --------------------------- */
 export const DETAILS = {
@@ -62,141 +61,68 @@ export const DETAILS = {
 };
 
 /** How the missing facts read on the page. */
-export const WHEN_LINE = '1:1 with Harrison · $60 · you choose the time';
+export const WHEN_LINE = '1:1 with Harrison · free to attend · pay only if it suits you';
 export const LENGTH_LINE = DETAILS.length ?? 'One session';
 
 /* ---- the fold ------------------------------------------------------------
-   The guide's §7 line. The home page carries its primary hero ("You don't
-   have to react to everything you feel"); the workshop, one session on
-   noticing the moment in between, carries the line about that moment. */
+   11 Nov 2026: /workshop IS the Before You React relationships workshop
+   (pilot brief, 22 Oct), offered 1:1 as Private Coaching. Nothing on this page
+   talks about the twelve weeks (Dion, 11 Nov). The first video sits right under
+   the heading: Harrison's own words, cut from the VSL (343.9–426.5 s). */
 export const HERO = {
   eyebrow: `Private Coaching · 1:1 · ${DETAILS.where}`,
-  title: 'There is a moment <mark>before the reaction.</mark>',
+  title: '1:1 Private Coaching with Harrison. <mark>What’s involved?</mark>',
   lede:
-    'Your first reaction may be automatic. What you do next doesn’t have to be. Private Coaching is one hour, just you and Harrison — learning to notice the moment in between: what you are feeling, what set it off, and what you would rather do next. The first practice of Return to Self, his 1:1 personalised coaching over twelve weeks, before you commit to any of it.',
+    'Forty-five minutes, just you and Harrison, on one relationship and one recent moment you would like to handle differently. You leave with a practice you can use that week.',
   cta: { label: 'Apply for a session', href: '#apply' },
   more: { label: 'What happens in the session', href: '#room' },
-  /* Dion, 25 Sep (late): the seiza frame — kneeling on the mats in his gi,
-     eyes closed, hands folded — from the 23 Sep dojo stills. */
-  portrait: 'workshop-seiza-v1',
-  portraitAlt: 'Harrison Saito kneeling in seiza on the dojo mats in his gi, eyes closed, hands folded in his lap',
+  film: { src: '/video/ws-involved-v1.mp4', poster: '/img/ws-involved-v1-poster.webp', title: 'What’s involved in 1:1 Private Coaching' },
 };
 
-/* ---- who the workshop is for: the six squares -----------------------------
-   The same panel as the home page (WhoFor.astro), asked for here by Dion as
-   the opening. The lines are the guide's "you may recognise yourself here"
-   list (§12), one to a card; each card's through line is the movement of the
-   room that answers it (ROOM below). */
-export const FIT: { section: WhoSection; cards: WhoCard[] } = {
-  section: {
-    label: 'Who Private Coaching is for',
-    title: 'For people who <mark>know how to keep going.</mark>',
-    lede: 'You may recognise yourself here. Each one names the part of the session that answers it.',
-    foot: 'None of this asks you to become someone else. It asks for one session, and you willing to notice what is already there.',
-    cta: { label: 'Apply for a session', href: '#apply' },
-  },
-  cards: [
-    {
-      icon: 'cycle',
-      text: 'You understand your patterns,',
-      emphasis: 'and you still repeat them.',
-      key: 'Share',
-      sub: 'Movement 01',
-    },
-    {
-      icon: 'comment',
-      text: 'You want greater clarity',
-      emphasis: 'around what actually matters to you.',
-      key: 'Share',
-      sub: 'Movement 01',
-    },
-    {
-      icon: 'pause',
-      text: 'You find it difficult to switch off,',
-      emphasis: 'and being told to relax has never worked.',
-      key: 'Breathe',
-      sub: 'Movement 02',
-    },
-    {
-      icon: 'summit',
-      text: 'You know how to push through,',
-      emphasis: 'and every difficult feeling gets treated like another obstacle.',
-      key: 'Breathe',
-      sub: 'Movement 02',
-    },
-    {
-      icon: 'eye',
-      text: 'You are always thinking about what comes next,',
-      emphasis: 'and rarely here for what is happening now.',
-      key: 'Sit',
-      sub: 'Movement 03',
-    },
-    {
-      icon: 'stairs',
-      text: 'You are not looking for another motivational speech.',
-      emphasis: 'You are looking for a practice.',
-      key: 'Take home',
-      sub: 'Movement 04',
-    },
-  ],
+/* second video: Harrison's explanation, cut from the VSL (260.7–329.2 s) */
+export const EXPLAIN = {
+  title: 'You can’t change what happens. <mark>But you can change how you respond.</mark>',
+  lead: 'Let me explain…',
+  film: { src: '/video/ws-explain-v1.mp4', poster: '/img/ws-explain-v1-poster.webp', title: 'You can’t change what happens, but you can change how you respond' },
 };
 
-/* ---- the pills: what people noticed afterwards ----------------------------
-   With the faces of the people who said it (Dion, 25 Sep: "photos with
-   people here, so they feel like the users saying I want that"). The four
-   filmed on 9 Sep, from the same posters the interview row used. */
+/* the pilot brief's everyday moments */
+export const MOMENTS = {
+  eyebrow: 'You may recognise this',
+  title: 'You keep having the same argument, <mark>just with different words.</mark>',
+  list: ['Your jaw tightens.', 'You go quiet.', 'You over-explain.', 'You say yes reluctantly.', 'You reach for your phone after the tension.'],
+};
+
+/* ---- the pills: what people noticed afterwards ---------------------------- */
 export const GAINS_INTRO = {
   eyebrow: 'What people noticed afterwards',
   title: 'Awareness <mark>creates choice.</mark>',
-  lede:
-    'These are the changes people who trained with Harrison say they noticed — as written to him, or said on camera. Private Coaching hands you the first practice behind them.',
+  lede: 'These are the changes people who trained with Harrison say they noticed, as written to him or said on camera.',
   /* Dion, 11 Nov: the four faces looked scripted. A link to the testimonials instead. */
   more: { label: 'Hear it from them', href: '/testimonials' },
 };
 
-/* ---- what happens in the room ------------------------------------------ */
+/* ---- what happens in the session (the pilot brief's flow, 45 minutes) ------ */
 export const ROOM = {
   eyebrow: 'What happens in the session',
-  title: 'Four movements, <mark>in an order that matters.</mark>',
-  lede:
-    'That moment can be very small. With practice you begin to notice it — and when you can notice it, you can choose something different. One hour, four movements, in the order that makes each one land. No experience needed.',
+  title: 'Pause. Recognise. <mark>Choose.</mark>',
+  lede: 'One recent, manageable moment with one person who matters to you. You notice what happens in your body before you interpret why. Sharing is optional.',
   movements: [
-    {
-      n: '01',
-      key: 'Share',
-      title: 'Say what you are carrying.',
-      body: 'It begins with you and Harrison, and a simple question: what are you navigating right now, and what would you like to understand better? Say as much as you want. Nobody performs, and nobody else is in the room.',
-    },
-    {
-      n: '02',
-      key: 'Breathe',
-      title: 'Notice what the body does first.',
-      /* "the part of you that decides whether to brace or settle does not take
-         instructions in English" — Dion's line, Wa set 21, 22 Sep. */
-      body: 'Breath and stance, taught the way the dojo teaches them: used deliberately to change what the nervous system is doing — the part of you that decides whether to brace or settle, which does not take instructions in English.',
-      /* Harrison, unprompted, 26 Aug 2026 tape — _index-week2-26aug/ALL_TRANSCRIPTS.md [22:18]. */
-      his: { quote: 'The biggest tool that helps me is regulation. I’ve got to regulate my state.', source: 'Harrison, on tape, 26 Aug 2026' },
-    },
-    {
-      n: '03',
-      key: 'Sit',
-      title: 'Then the sitting.',
-      body: 'A guided meditation drawn from the Japanese and Shingon Buddhist practice Harrison was ordained into in 2014. Not about removing difficulty — the pressure still exists. Practice changes the way you meet it: you learn to notice what you feel, then decide what deserves your attention, and what does not.',
-    },
-    {
-      n: '04',
-      key: 'Take home',
-      title: 'Leave with one practice.',
-      body: 'The session closes with release and gratitude, and you leave with one practice for the week after — not a folder. If Return to Self — twelve weeks of 1:1 personalised coaching — is yours, this was week one in miniature. If it is not, you still have the practice.',
-    },
+    { n: '01', key: 'Choose', title: 'Pick the moment.', body: 'You choose one relationship and one recent incident. Harrison asks what happened, what you noticed and how you responded. You say as much or as little as you like.' },
+    { n: '02', key: 'Pause', title: 'Feel your feet. Take a breath.', body: 'Give yourself a moment before anything else. Harrison explains the pattern through one everyday example.' },
+    { n: '03', key: 'Recognise', title: 'Notice what is showing up.', body: 'What do I notice in my body? What feeling, story or usual reaction is here?' },
+    { n: '04', key: 'Practise', title: 'Rehearse something different.', body: 'What matters to me here? You identify an alternative, rehearse it, and choose when you will practise it.' },
   ],
-  facts: [
-    '1:1 with Harrison',
-    `${LENGTH_LINE} · ${DETAILS.price}`,
-    `In person · ${DETAILS.where}`,
-    'Bring comfortable clothing, water and an open mind',
-  ],
-  note: 'Not therapy, and not about becoming endlessly calm. Practice — so that what you feel does not automatically make your decisions for you.',
+  leave: {
+    lead: 'You leave able to name one early signal, one usual reaction and one alternative response to practise.',
+    example: [
+      { label: 'Early signal', text: 'My jaw tightens' },
+      { label: 'Usual reaction', text: 'I defend myself' },
+      { label: 'Alternative', text: 'I pause and ask what they meant' },
+    ],
+  },
+  facts: ['1:1 with Harrison', `${LENGTH_LINE} · free to attend`, `In person · ${DETAILS.where}`, 'Bring comfortable clothing and an open mind'],
+  note: 'Coaching, not therapy. A practice for one situation that matters to you.',
 };
 
 /* ---- who is holding the room --------------------------------------------
@@ -216,7 +142,7 @@ export const WHO = {
   portraitAlt: 'Harrison Saito standing in his gi and black belt in front of a shoji screen',
   lines: [
     'Harrison Saito. 2nd Dan black belt and Shido-In at Shinbukan Karate — the school his father, Kazuo Saito, 10th Dan, founded in 1978. More than seventeen years of discipline, repetition, patience and practice.',
-    'Ordained in 2014 at Koyasan Seizanji. Buddhism here is attention training, not belief — there is nothing you will be asked to sign up to.',
+    'Ordained in 2014 at Koyasan Seizanji.',
     'A practising high-school teacher, featured on SBS World News for his work with young people.',
   ],
   /* His words, 26 Aug 2026 tape (N_C1611 / N_C1612 and the "I used to think" takes). */
@@ -240,33 +166,24 @@ export const WORDS: Word[] = [
 /* ---- straight answers ---------------------------------------------------- */
 export const ANSWERS = [
   {
-    q: 'Why apply, rather than just book?',
-    a: 'Because Harrison keeps a small number of 1:1 sessions and wants them to be the right fit. He reads every application himself and calls you first — a short conversation. Nothing to prepare.',
-  },
-  {
-    q: 'Is this a sales pitch for Return to Self?',
-    a: 'No. You will hear what Return to Self is — 1:1 personalised coaching over twelve weeks — because people ask. You will not be pitched. If you want it afterwards, you ask; if you do not, the session was the session.',
-  },
-  {
-    /* the first sentence is site copy — the FAQ on the home page */
-    q: 'Do I have to share?',
-    a: 'You are never required to disclose more than you choose, or to prove yourself through an exercise. The first movement is a conversation; how much of it is yours to say is yours to decide.',
-  },
-  {
-    /* site copy — the FAQ on the home page */
-    q: 'Is this therapy?',
-    a: 'No. This is coaching — a training framework for the inner world, built on martial arts, Buddhism and honest self-inquiry. It is not therapy, diagnosis or emergency care, and it is not a replacement for any of them. If you are in crisis, contact Lifeline on 13 11 14.',
-  },
-  {
     q: 'What does it cost?',
-    a: DETAILS.price
-      ? `${DETAILS.price} for the hour, paid once your session is confirmed. Applying costs nothing.`
-      : 'Ask and Harrison will answer directly — nothing on this page is a pitch, and applying costs nothing. Nothing is charged until you have a confirmed seat.',
+    a: `Attending is free. After the session, if it suits you, the hour is ${DETAILS.price}. If it does not suit you, you pay nothing.`,
   },
   {
-    /* site copy, opened to everyone */
+    q: 'Do I have to share?',
+    a: 'No. Sharing is optional. You choose one relationship and one recent, manageable moment, and how much of it you say out loud is up to you.',
+  },
+  {
+    q: 'Why apply, rather than just book?',
+    a: 'Harrison keeps a small number of 1:1 sessions and reads every application himself. He calls you first, a short conversation. Nothing to prepare.',
+  },
+  {
+    q: 'Is this therapy?',
+    a: 'No. This is coaching. It is not therapy, diagnosis or emergency care, and it is not a replacement for any of them. If you are in crisis, contact Lifeline on 13 11 14.',
+  },
+  {
     q: 'Do I need to have trained before?',
-    a: 'No. Karate is used as a method for working with the nervous system, attention and pressure. Plenty of people arrive having never trained. The physical practice is adapted to the person in front of me.',
+    a: 'No. Plenty of people arrive having never trained. The practice is adapted to the person in front of me.',
   },
   {
     q: 'What if Harrison is fully booked?',
@@ -333,6 +250,3 @@ for (const w of WORDS) {
   const body = flat(written ? written.quote : filmed!.said.join(' … '));
   if (!body.includes(flat(w.said))) throw new Error(`workshop.ts: "${w.said}" is not in what ${w.from} wrote or said`);
 }
-/* …and every card points at a movement that exists */
-const MOVES = new Set(ROOM.movements.map((m) => m.key));
-for (const c of FIT.cards) if (!MOVES.has(c.key)) throw new Error(`workshop.ts: "${c.key}" is not a movement of the room`);
