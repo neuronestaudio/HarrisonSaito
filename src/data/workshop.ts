@@ -94,7 +94,14 @@ export const EXPLAIN = {
 export const MOMENTS = {
   eyebrow: 'You may recognise this',
   title: 'You keep having the same argument, <mark>just with different words.</mark>',
-  list: ['Your jaw tightens.', 'You go quiet.', 'You over-explain.', 'You say yes reluctantly.', 'You reach for your phone after the tension.'],
+  /* each line wears a mark from the badge set (lib/morel-icons.ts), as on the home page */
+  list: [
+    { icon: 'braced', text: 'Your jaw tightens.' },
+    { icon: 'pause', text: 'You go quiet.' },
+    { icon: 'explain', text: 'You over-explain.' },
+    { icon: 'hands', text: 'You say yes reluctantly.' },
+    { icon: 'phone', text: 'You reach for your phone after the tension.' },
+  ],
 };
 
 /* ---- the pills: what people noticed afterwards ---------------------------- */

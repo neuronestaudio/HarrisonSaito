@@ -75,7 +75,7 @@ import { graph, localBusinessSchema, breadcrumbSchema } from '../lib/seo';
 
 const title = 'Testimonials — Coaching, Martial Arts & HSC | Harrison Saito';
 const description =
-  'Eleven testimonials from coaching clients, martial arts students, HSC students and parents across Sydney — Chatswood High, Cammeraygal, St Pius X and Brigidine College St Ives.';
+  'Testimonials from coaching clients, martial arts students, HSC students and parents across Sydney — Chatswood High, Cammeraygal, St Pius X and Brigidine College St Ives.';
 
 const groups = [
   {
@@ -116,8 +116,8 @@ const schema = graph(
         <p class="eyebrow">Testimonials</p>
         <h1>In their <mark>words.</mark></h1>
         <p class="lede accent">
-          {FILMED.length} on camera, and {TESTIMONIALS.length} in writing — from coaching, martial arts,
-          HSC mentoring and parents. Names and schools included, because
+          On camera and in writing, from coaching clients, martial arts students,
+          HSC students and their parents. Names and schools included, because
           unattributed praise is worth nothing.
         </p>
       </div>
@@ -131,7 +131,6 @@ const schema = graph(
               <p class="eyebrow">{g.label}</p>
               <h2 class="reveal" set:html={g.heading} />
             </div>
-            <p class="fs-xs thread__count">{g.list.length} {g.list.length === 1 ? 'voice' : 'voices'}</p>
           </div>
 
           {'video' in g && g.video && <TestimonyFilms section={false} />}

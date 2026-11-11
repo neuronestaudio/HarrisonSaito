@@ -30,6 +30,7 @@ import CalendlyBook from '../components/CalendlyBook.astro';
 import GainPills from '../components/GainPills.astro';
 import TestimonyFilms from '../components/TestimonyFilms.astro';
 import { src, srcset } from '../lib/images';
+import { forYouIcon } from '../lib/morel-icons';
 import { PROOF, SITE } from '../data/site';
 import { graph, personSchema, localBusinessSchema } from '../lib/seo';
 import { DETAILS, WHEN_LINE, HERO, EXPLAIN, MOMENTS, GAINS_INTRO, ROOM, WHO, ANSWERS, APPLY, FORM } from '../data/workshop';
@@ -70,7 +71,12 @@ const schema = graph(personSchema(), localBusinessSchema());
           <h2 class="reveal" set:html={MOMENTS.title} />
         </header>
         <ul class="ws-facts ws-facts--moments reveal">
-          {MOMENTS.list.map((m) => <li>{m}</li>)}
+          {MOMENTS.list.map((m) => (
+            <li>
+              <Fragment set:html={forYouIcon(m.icon)} />
+              <span>{m.text}</span>
+            </li>
+          ))}
         </ul>
       </div>
     </section>
@@ -477,6 +483,13 @@ const schema = graph(personSchema(), localBusinessSchema());
   .ws-moments__grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: clamp(1.4rem, 4vw, 4rem); align-items: center; }
   .ws-moments__grid .ws-head { margin-bottom: 0; }
   .ws-facts--moments { margin: 0; flex-direction: column; align-items: flex-start; }
+  /* the recognition pills wear a badge mark, the same drawn-on set as the home page's cards */
+  .ws-facts--moments { gap: 12px; }
+  .ws-facts--moments li { display: inline-flex; align-items: center; gap: 12px; padding: 11px 20px 11px 14px; background: rgba(255, 255, 255, 0.55); font-size: clamp(0.9rem, 0.82rem + 0.3vw, 1.08rem); }
+  .ws-facts--moments li :global(.fy__icon) { width: 28px; height: 28px; flex: none; color: var(--gold-deep); }
+  /* morel.css holds the marks undrawn until a card reveals; a pill is not a card, so draw them */
+  .ws-facts--moments li :global(.fy__icon :is(path, circle, ellipse)) { stroke-dasharray: none; stroke-dashoffset: 0; animation: none; }
+  .ws-facts--moments li :global(.fy__icon .ico-ping) { display: none; }
   .ws-leave { margin-top: clamp(1.6rem, 3vw, 2.6rem); padding: 1.2rem 1.4rem; border-radius: 18px; background: var(--bg2); }
   .ws-leave p { margin: 0 0 0.9rem; }
   .ws-leave__ex { margin: 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
