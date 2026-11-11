@@ -25,6 +25,7 @@ const ORDER = ['Alex Wei', 'Harshil Dave', 'Nico Roudier', 'Jeremy Yap', 'Aiden 
 const ROLE: Record<string, string> = {
   'Alex Wei': 'Navy officer · karate, four years', 'Harshil Dave': 'Martial arts student', 'Nico Roudier': 'Martial arts student',
   'Jeremy Yap': 'Karate student', 'Aiden Jacobs': 'Martial arts student, Shinbukan', 'Shehab Khan': 'Martial arts student',
+  'Christine Punzalan': 'Karate student',
   'Lorenzo Ambrose': 'Martial arts student', 'Maksim Belchenko': 'Martial arts student', John: 'Coaching · consultant, 55',
   Andrew: 'Coaching · drummer', James: 'Coaching · construction', Jake: 'Coaching · musician',
 };
@@ -45,9 +46,15 @@ const FILMED = ORDER.map((n) => INTERVIEWS.find((v) => v.name === n)).filter(Boo
   context: `${ROLE[v!.name] ?? v!.role} · on camera`,
   quote: v!.said.join(' … ').replace(/^\s*([a-z])/, (m) => m.toUpperCase()),
 }));
+FILMED.splice(2, 0, {
+  face: '/img/faces/face-christine-v1-160.webp',
+  name: 'Christine Punzalan',
+  context: `${ROLE['Christine Punzalan']} · on camera`,
+  quote: 'One thing Harrison has taught me is to be present. I’m the type of person who plans everything. I want everything to be organized and perfect. But sometimes I’m so focused on doing everything right that I forget to actually enjoy the moment. … Harrison taught me that it doesn’t need to be perfect all the time. Sometimes you just have to be present, enjoy what you’re doing, and trust the process.',
+});
 /* Every filmed clip, one tile each. Files: /video/testimony-<id>-v1.mp4 and
    /img/testimony/testimony-<id>-v1.webp. Lengths measured with ffprobe.
-   Christine's is left out on purpose. The wall keeps testimonials-combo-v1.mp4. */
+   The wall keeps testimonials-combo-v1.mp4. */
 const CLIPS = [
   { id: 'combined', name: 'Four of them together', length: '0:58' },
   { id: 'john', name: 'John', length: '1:16' },
@@ -56,6 +63,7 @@ const CLIPS = [
   { id: 'james', name: 'James', length: '1:00' },
   { id: 'alex', name: 'Alex Wei', length: '0:58' },
   { id: 'harshil', name: 'Harshil Dave', length: '2:53' },
+  { id: 'christine', name: 'Christine Punzalan', length: '0:53' },
   { id: 'nico', name: 'Nico Roudier', length: '0:36' },
   { id: 'aiden', name: 'Aiden Jacobs', length: '0:20' },
   { id: 'jeremy', name: 'Jeremy Yap', length: '0:16' },
