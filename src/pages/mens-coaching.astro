@@ -99,6 +99,9 @@ const schema = graph(
           <a class="btn btn--filled btn--wide" href="/book" data-track="cta_click" data-track-label="Mens hero — Book a discovery chat">Start the conversation</a>
           <a class="btn btn--outline btn--wide is-white" href="#return-to-self">What the twelve weeks contain</a>
         </p>
+        <p class="inner-hero__trial">
+          <a href="/rts-coaching" data-track="cta_click" data-track-label="Mens hero — RTS Private Coaching Trial">Not sure yet? Try the RTS Private Coaching Trial<span aria-hidden="true"> →</span></a>
+        </p>
       </div>
     </section>
 
@@ -204,6 +207,18 @@ const schema = graph(
           <a class="btn btn--filled btn--wide" href="/apply" data-track="cta_click" data-track-label="Mens programme — Apply">Apply for Return to Self</a>
           <a class="btn btn--outline btn--wide" href="/book" data-track="cta_click" data-track-label="Mens programme — Book discovery">Start the conversation</a>
         </div>
+      </div>
+    </section>
+
+    <!-- ============ THE TRIAL: one session first, funnels to /rts-coaching ============ -->
+    <section class="section section--bg4 trial" data-section="trial">
+      <div class="wide trial__row">
+        <div class="trial__text">
+          <p class="eyebrow">RTS Private Coaching Trial</p>
+          <h2 class="reveal">Start with <mark>one session.</mark></h2>
+          <p class="reveal">Forty-five minutes, 1:1 with Harrison, on one relationship and one recent moment. Free to attend. You pay only if it suits you.</p>
+        </div>
+        <a class="btn btn--filled btn--wide reveal" href="/rts-coaching" data-track="cta_click" data-track-label="Mens trial band — RTS Private Coaching Trial" data-track-section="trial">See what&rsquo;s involved</a>
       </div>
     </section>
 
@@ -314,3 +329,13 @@ const schema = graph(
     </section>
   </MoShell>
 </Base>
+
+<style>
+  .inner-hero__trial { margin: 1.2rem 0 0; }
+  .inner-hero__trial a { color: #f2c275; font-weight: 700; text-decoration: none; border-bottom: 1px solid rgba(242, 194, 117, 0.45); padding-bottom: 2px; }
+  .inner-hero__trial a:hover { color: #fcfaf8; border-color: #fcfaf8; }
+  .trial__row { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 1.4rem 3rem; }
+  .trial__text { max-width: 56ch; }
+  .trial__text h2 { margin: 0 0 0.6rem; }
+  .trial__text p:last-child { margin: 0; color: var(--fg3); }
+</style>
