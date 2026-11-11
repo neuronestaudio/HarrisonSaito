@@ -52,8 +52,10 @@ const schema = graph(personSchema(), localBusinessSchema());
           <p class="lede ws-hero__lede">{HERO.lede}</p>
           <div class="ws-hero__ctas">
             <a class="btn btn--filled btn--wide" href={HERO.cta.href} data-track="cta_click" data-track-label={`Workshop — ${HERO.cta.label} (hero)`}>{HERO.cta.label}</a>
-            <a class="ws-hero__more" href={HERO.more.href}>{HERO.more.label}<span aria-hidden="true">↓</span></a>
-            <a class="ws-hero__more" href="/testimonials" data-track="cta_click" data-track-label="Private coaching — How it felt (hero)">How it felt, in their words<span aria-hidden="true">→</span></a>
+            <div class="ws-hero__links">
+              <a class="ws-hero__more" href={HERO.more.href}>{HERO.more.label}<span aria-hidden="true">↓</span></a>
+              <a class="ws-hero__more" href="/testimonials" data-track="cta_click" data-track-label="Private coaching — How it felt (hero)">How it felt, in their words<span aria-hidden="true">→</span></a>
+            </div>
           </div>
           <p class="ws-when"><span class="ws-when__dot" aria-hidden="true"></span>{WHEN_LINE}</p>
         </div>
@@ -297,17 +299,18 @@ const schema = graph(personSchema(), localBusinessSchema());
   }
   .ws-hero__grid {
     display: grid;
-    grid-template-columns: minmax(0, 58fr) minmax(0, 42fr);
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
     gap: clamp(1.6rem, 4vw, 4.5rem);
     align-items: center;
   }
   .ws-hero__eyebrow { color: rgba(252, 250, 248, 0.82); }
-  .ws-hero :global(h1) { font-size: clamp(2.3rem, 1.4rem + 3.8vw, 4.6rem); line-height: 1.02; max-width: 15ch; margin: 0 0 var(--sp-40); }
+  .ws-hero :global(h1) { font-size: clamp(2.3rem, 1.4rem + 3.2vw, 4.4rem); line-height: 1.04; max-width: 18ch; margin: 0 0 var(--sp-40); }
   .ws-hero :global(h1 mark) { background: var(--grad-text-dark); background-clip: text; -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
   /* the first three headings read in sentence case, not capitals (client: "too salesy and screaming") */
   .ws-hero :global(h1), .ws-moments :global(h2), .ws-head--film :global(h2) { text-transform: none; letter-spacing: -0.01em; }
   .ws-hero__lede { max-width: 52ch; margin: 0 0 var(--sp-50); color: rgba(252, 250, 248, 0.86); }
-  .ws-hero__ctas { display: flex; flex-wrap: wrap; align-items: center; gap: 1rem 1.6rem; margin-bottom: var(--sp-40); }
+  .ws-hero__ctas { display: flex; flex-direction: column; align-items: flex-start; gap: 1.3rem; margin-bottom: var(--sp-50); }
+  .ws-hero__links { display: flex; flex-wrap: wrap; align-items: center; gap: 0.9rem 2.2rem; }
   .ws-hero__more {
     display: inline-flex;
     align-items: center;
@@ -479,7 +482,7 @@ const schema = graph(personSchema(), localBusinessSchema());
   .ws-head--film { max-width: 900px; margin-inline: auto; text-align: center; }
   .ws-head--film :global(h2) { margin: 0 auto 0.8rem; max-width: 24ch; }
   .ws-head--film :global(.lede) { margin: 0; color: rgba(252, 250, 248, 0.8); }
-  .ws-hero__film { aspect-ratio: 16 / 9; width: min(100%, 560px); }
+  .ws-hero__film { aspect-ratio: 16 / 9; width: 100%; max-width: 760px; }
   .ws-hero__film video { width: 100%; height: 100%; display: block; object-fit: cover; }
   .ws-moments__grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: clamp(1.4rem, 4vw, 4rem); align-items: center; }
   .ws-moments__grid .ws-head { margin-bottom: 0; }
