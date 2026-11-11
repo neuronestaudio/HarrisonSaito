@@ -161,7 +161,9 @@ const schema = graph(personSchema(), localBusinessSchema());
           </ol>
 
           <div class="ws-leave reveal">
-            <p class="fs-sm">{ROOM.leave.lead}</p>
+            <p class="ws-leave__lead">{ROOM.leave.lead}</p>
+            <p class="fs-sm ws-leave__body">{ROOM.leave.body}</p>
+            <p class="ws-leave__eg">{ROOM.leave.exampleLabel}</p>
             <dl class="ws-leave__ex">
               {ROOM.leave.example.map((e) => <div><dt>{e.label}</dt><dd>{e.text}</dd></div>)}
             </dl>
@@ -492,6 +494,9 @@ const schema = graph(personSchema(), localBusinessSchema());
   .ws-facts--moments li :global(.fy__icon .ico-ping) { display: none; }
   .ws-leave { margin-top: clamp(1.6rem, 3vw, 2.6rem); padding: 1.2rem 1.4rem; border-radius: 18px; background: var(--bg2); }
   .ws-leave p { margin: 0 0 0.9rem; }
+  .ws-leave__lead { font-family: var(--font-accent); font-size: var(--fs-sm); line-height: 1.3; color: var(--fg1); }
+  .ws-leave__body { color: var(--fg3); max-width: 62ch; }
+  .ws-leave p.ws-leave__eg { font-size: 12px; font-weight: 700; letter-spacing: 0.16em; text-transform: uppercase; color: var(--fg4); margin-bottom: 0.6rem; }
   .ws-leave__ex { margin: 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
   .ws-leave__ex dt { font-size: 12px; font-weight: 700; letter-spacing: 0.16em; text-transform: uppercase; color: var(--gold-deep); }
   .ws-leave__ex dd { margin: 0.2rem 0 0; font-family: var(--font-accent); }

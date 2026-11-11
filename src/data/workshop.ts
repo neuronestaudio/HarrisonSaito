@@ -125,7 +125,9 @@ export const ROOM = {
     { n: '04', key: 'Practise', title: 'Rehearse something different.', body: 'Choose when you will practise it.' },
   ],
   leave: {
-    lead: 'You leave with:',
+    lead: 'You leave with the tools to see what is happening inside you, and what stands between you and saying what you actually mean.',
+    body: 'Most people can already name their patterns. What they lack is the space to express themselves, and a way to practise. In the end, it comes down to practice.',
+    exampleLabel: 'For example',
     example: [
       { label: 'Early signal', text: 'My jaw tightens' },
       { label: 'Usual reaction', text: 'I defend myself' },
