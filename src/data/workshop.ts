@@ -71,9 +71,13 @@ export const LENGTH_LINE = DETAILS.length ?? 'One session';
    the heading: Harrison's own words, cut from the VSL (343.9–426.5 s). */
 export const HERO = {
   eyebrow: `Private Coaching · 1:1 · ${DETAILS.where}`,
-  title: '1:1 Private Coaching with Harrison. <mark>What’s involved?</mark>',
+  /* Dion, 11 Nov 2026: "You're waiting on a change that might never happen. You keep repeating the same
+     patterns that ultimately affect your relationship. As much as you understand your own past, you still
+     can't find a way to respond with your true intention." Replaces "1:1 Private Coaching with Harrison.
+     What's involved?" (the eyebrow and the film still say what it is). */
+  title: 'You’re waiting on a change <mark>that might never happen.</mark>',
   lede:
-    'Forty-five minutes, just you and Harrison, on one relationship and one recent moment you would like to handle differently. You leave with a practice you can use that week.',
+    'You keep repeating the same patterns that ultimately affect your relationship. As much as you understand your own past, you still can’t find a way to respond with your true intention.',
   cta: { label: 'Apply for a session', href: '#apply' },
   more: { label: 'What happens in the session', href: '#room' },
   film: { src: '/video/ws-involved-v1.mp4', poster: '/img/ws-involved-v1-poster.webp', title: 'What’s involved in 1:1 Private Coaching' },
