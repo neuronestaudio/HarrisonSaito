@@ -12,6 +12,7 @@
  */
 import Base from '../layouts/Base.astro';
 import MoShell from '../components/MoShell.astro';
+import TestimonyFilms from '../components/TestimonyFilms.astro';
 import { TESTIMONIALS } from '../data/site';
 import { INTERVIEWS } from '../data/interviews';
 
@@ -24,6 +25,7 @@ const ORDER = ['Alex Wei', 'Harshil Dave', 'Nico Roudier', 'Jeremy Yap', 'Aiden 
 const ROLE: Record<string, string> = {
   'Alex Wei': 'Navy officer · karate, four years', 'Harshil Dave': 'Martial arts student', 'Nico Roudier': 'Martial arts student',
   'Jeremy Yap': 'Karate student', 'Aiden Jacobs': 'Martial arts student, Shinbukan', 'Shehab Khan': 'Martial arts student',
+  'Christine Punzalan': 'Karate student',
   'Lorenzo Ambrose': 'Martial arts student', 'Maksim Belchenko': 'Martial arts student', John: 'Coaching · consultant, 55',
   Andrew: 'Coaching · drummer', James: 'Coaching · construction', Jake: 'Coaching · musician',
 };
@@ -44,6 +46,31 @@ const FILMED = ORDER.map((n) => INTERVIEWS.find((v) => v.name === n)).filter(Boo
   context: `${ROLE[v!.name] ?? v!.role} · on camera`,
   quote: v!.said.join(' … ').replace(/^\s*([a-z])/, (m) => m.toUpperCase()),
 }));
+FILMED.splice(2, 0, {
+  face: '/img/faces/face-christine-v1-160.webp',
+  name: 'Christine Punzalan',
+  context: `${ROLE['Christine Punzalan']} · on camera`,
+  quote: 'One thing Harrison has taught me is to be present. I’m the type of person who plans everything. I want everything to be organized and perfect. But sometimes I’m so focused on doing everything right that I forget to actually enjoy the moment. … Harrison taught me that it doesn’t need to be perfect all the time. Sometimes you just have to be present, enjoy what you’re doing, and trust the process.',
+});
+/* Every filmed clip, one tile each. Files: /video/testimony-<id>-v1.mp4 and
+   /img/testimony/testimony-<id>-v1.webp. Lengths measured with ffprobe.
+   The wall keeps testimonials-combo-v1.mp4. */
+const CLIPS = [
+  { id: 'combined', name: 'Four of them together', length: '0:58' },
+  { id: 'john', name: 'John', length: '1:16' },
+  { id: 'andrew', name: 'Andrew', length: '0:42' },
+  { id: 'jake', name: 'Jake', length: '1:06' },
+  { id: 'james', name: 'James', length: '1:00' },
+  { id: 'alex', name: 'Alex Wei', length: '0:58' },
+  { id: 'harshil', name: 'Harshil Dave', length: '2:53' },
+  { id: 'christine', name: 'Christine Punzalan', length: '0:53' },
+  { id: 'nico', name: 'Nico Roudier', length: '0:36' },
+  { id: 'aiden', name: 'Aiden Jacobs', length: '0:20' },
+  { id: 'jeremy', name: 'Jeremy Yap', length: '0:16' },
+  { id: 'shehab', name: 'Shehab Khan', length: '0:14' },
+  { id: 'lorenzo', name: 'Lorenzo Ambrose', length: '0:10' },
+  { id: 'maksim', name: 'Maksim Belchenko', length: '0:04' },
+].map((c) => ({ ...c, role: ROLE[c.name] }));
 import { graph, localBusinessSchema, breadcrumbSchema } from '../lib/seo';
 
 const title = 'Testimonials — Coaching, Martial Arts & HSC | Harrison Saito';
@@ -107,11 +134,20 @@ const schema = graph(
             <p class="fs-xs thread__count">{g.list.length} {g.list.length === 1 ? 'voice' : 'voices'}</p>
           </div>
 
+          {'video' in g && g.video && <TestimonyFilms section={false} />}
           {'video' in g && g.video && (
-            <figure class="tfilm reveal">
-              <video src="/video/testimonials-combo-v1.mp4" poster="/img/wall/wall-combo-v2-720.webp" controls preload="none" playsinline></video>
-              <figcaption class="fs-xs">The combined testimonial, 68 seconds.</figcaption>
-            </figure>
+            <div class="tfilms" data-stagger>
+              {CLIPS.map((c) => (
+                <figure class="tfilm reveal">
+                  <video src={`/video/testimony-${c.id}-v1.mp4`} poster={`/img/testimony/testimony-${c.id}-v1.webp`} aria-label={c.name} controls preload="none" playsinline></video>
+                  <figcaption class="fs-xs">
+                    <b>{c.name}</b>
+                    {c.role && <span>{c.role}</span>}
+                    <span>{c.length}</span>
+                  </figcaption>
+                </figure>
+              ))}
+            </div>
           )}
           <div class="tlist" data-stagger>
             {g.list.map((t) => (
@@ -149,7 +185,20 @@ const schema = graph(
   .tface { flex: none; width: 56px; height: 56px; border-radius: 50%; object-fit: cover; box-shadow: 0 0 0 2px var(--bg1), 0 0 0 3px rgba(218, 162, 79, 0.55); }
   :global(.mo .tlist cite .tname) { display: block; font-weight: 700; color: inherit; }
   :global(.mo .tlist cite .tname > span) { display: block; font-weight: 500; color: var(--fg4); }
-  .tfilm { width: min(360px, 100%); margin: 0 auto var(--sp-60); }
-  .tfilm video { width: 100%; aspect-ratio: 9 / 16; border-radius: 20px; background: #14100d; display: block; box-shadow: 0 30px 60px -30px rgba(20, 16, 13, 0.5); }
-  .tfilm figcaption { text-align: center; margin-top: 10px; color: var(--fg4); }
+  .tfilms { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 28px 14px; margin-bottom: var(--sp-60); }
+  .tfilm { margin: 0; min-width: 0; }
+  .tfilm video { width: 100%; aspect-ratio: 9 / 16; object-fit: contain; border-radius: 14px; background: #14100d; display: block; box-shadow: 0 30px 60px -30px rgba(20, 16, 13, 0.5); }
+  .tfilm figcaption { margin-top: 10px; color: var(--fg4); }
+  .tfilm figcaption b, .tfilm figcaption span { display: block; }
+  .tfilm figcaption b { color: var(--fg1); }
+  @media (min-width: 720px) { .tfilms { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 36px 20px; } }
+  @media (min-width: 1040px) { .tfilms { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
 </style>
+
+<script>
+  /* one voice at a time: starting a clip pauses whichever other one is playing */
+  const films = document.querySelector('.tfilms');
+  films?.addEventListener('play', (e) => {
+    films.querySelectorAll('video').forEach((v) => { if (v !== e.target) v.pause(); });
+  }, true);
+</script>
