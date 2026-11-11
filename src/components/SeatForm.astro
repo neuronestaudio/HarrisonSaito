@@ -95,6 +95,10 @@ const {
 <div class="sf" data-seat-form={formId} data-event={eventName} data-done-body={doneBody}>
   <form class="sf__form" novalidate>
     {/* ---- which room ---- */}
+    {/* no rooms on offer yet (/before-you-react): the question is left out */}
+    <input type="hidden" name="session" value="" />
+    <input type="hidden" name="session_label" value="" />
+    {sessions.length > 0 && (
     <fieldset class="sf__sessions">
       <legend class="sf__label">{sessionLabel}</legend>
       <div class="sf__tiles" role="radiogroup" aria-label={sessionLabel}>
@@ -106,10 +110,9 @@ const {
           </button>
         ))}
       </div>
-      <input type="hidden" name="session" value="" />
-      <input type="hidden" name="session_label" value="" />
       <p class="sf__error" data-error-for="session" hidden></p>
     </fieldset>
+    )}
 
     <div class="sf__fields">
       <div class="sf__field sf__field--wide">
@@ -616,7 +619,7 @@ const {
       root.querySelectorAll<HTMLElement>('[data-error-for]').forEach((el) => { el.hidden = true; el.textContent = ''; });
       let ok = true;
       let first: HTMLElement | null = null;
-      if (!hidden('session').value) {
+      if (root.querySelector('[data-session]') && !hidden('session').value) {
         showError('session', 'Pick a session.');
         ok = false;
         first = root.querySelector<HTMLElement>('[data-session]');

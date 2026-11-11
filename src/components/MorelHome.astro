@@ -28,6 +28,7 @@ import {
 import { forYouIcon, PLAY_ICON } from '../lib/morel-icons';
 import { SITE } from '../data/site';
 import Wall from './Wall.astro';
+import CalendlyBook from './CalendlyBook.astro';
 import WhoFor from './WhoFor.astro';
 
 const book = (href: string) => href === '/book';
@@ -334,6 +335,7 @@ const book = (href: string) => href === '/book';
           <a class={`btn btn--${c.style} btn--wide`} href={c.href} data-track="cta_click" data-track-label={`Close — ${c.label}`}>{c.label}</a>
         ))}
       </div>
+      <CalendlyBook where="Close" class="book-cal--center" or={null} />
     </div>
   </section>
 

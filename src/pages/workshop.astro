@@ -26,6 +26,7 @@
 import Base from '../layouts/Base.astro';
 import MoShell from '../components/MoShell.astro';
 import SeatForm from '../components/SeatForm.astro';
+import CalendlyBook from '../components/CalendlyBook.astro';
 import WhoFor from '../components/WhoFor.astro';
 import GainPills from '../components/GainPills.astro';
 import { src, srcset } from '../lib/images';
@@ -219,6 +220,7 @@ const schema = graph(personSchema(), localBusinessSchema());
           <p class="ws-when reveal"><span class="ws-when__dot" aria-hidden="true"></span>{WHEN_LINE}</p>
         </div>
         <div class="ws-apply__form">
+          <CalendlyBook where="Workshop" />
           <p class="eyebrow facts__label">{APPLY.formLabel}</p>
           <SeatForm
             formId={FORM.id}

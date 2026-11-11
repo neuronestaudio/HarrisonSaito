@@ -16,6 +16,7 @@
 import Base from '../../layouts/Base.astro';
 import MoShell from '../../components/MoShell.astro';
 import LeadForm from '../../components/LeadForm.astro';
+import CalendlyBook from '../../components/CalendlyBook.astro';
 import { PHASES, TESTIMONIALS, PROOF, SITE } from '../../data/site';
 
 const title = 'Return to Self — 12-Week Coaching | Harrison Saito';
@@ -77,6 +78,7 @@ const INCLUDED = [
 
         <!-- The form is in the fold, not below it. -->
         <div class="formgrid__form" id="apply">
+          <CalendlyBook where="LP Return to Self" />
           <p class="eyebrow facts__label">Apply — takes two minutes</p>
           <p class="fs-xs crisis lp-formnote">
             A small number of places at a time. No obligation — an application, then an honest

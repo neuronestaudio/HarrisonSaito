@@ -1,0 +1,81 @@
+---
+/**
+ * Harrison's own Calendly (sent by Dion, 11 Nov 2026), as a click-to-load block.
+ *
+ * Nothing from Calendly loads until the visitor asks for the times, as /privacy
+ * promises. It sits ABOVE the page's request form, never in place of it: the
+ * form is what lands the lead in GHL, the calendar is the faster way for the
+ * ones who are ready.
+ *
+ * One per page. `where` names the page in the click label.
+ */
+const CALENDLY_URL = 'https://calendly.com/harrison-saito3011/30min';
+
+interface Props {
+  where: string;
+  title?: string;
+  sub?: string;
+  or?: string | null;
+  class?: string;
+}
+const {
+  where,
+  title = 'Pick a time now',
+  sub = "Thirty minutes, phone or video. Choose a slot and it goes straight into Harrison's diary.",
+  or = "Or leave your details and he'll come back to you with times.",
+  class: extra = '',
+} = Astro.props;
+---
+
+<section class={`book-cal ${extra}`.trim()} data-book-cal data-url={CALENDLY_URL} aria-label="Pick a time with Harrison">
+  <h2 class="book-cal__title">{title}</h2>
+  <p class="book-cal__sub">{sub}</p>
+  <button class="btn btn--filled" type="button" data-cal-load data-track="cta_click" data-track-label={`${where} — show Calendly times`}>Show available times</button>
+  <div class="book-cal__slot" data-cal-slot hidden></div>
+  {or && <p class="book-cal__or">{or}</p>}
+</section>
+
+<style is:global>
+  .book-cal { margin: 0 0 2.2rem; padding: 0 0 2rem; border-bottom: 1px solid rgba(255,255,255,.14); text-align: left; }
+  .book-cal__title { margin: 0 0 .5rem; }
+  .book-cal__sub { margin: 0 0 1.1rem; opacity: .85; }
+  .book-cal__slot { margin-top: 1.2rem; }
+  .book-cal__slot .calendly-inline-widget { width: 100%; min-width: 300px; height: 720px; }
+  .book-cal__or { margin: 1.4rem 0 0; opacity: .7; font-size: .95em; }
+  .book-cal--center { text-align: center; max-width: 46rem; margin-inline: auto; border-bottom: 0; padding-bottom: 0; margin-top: 2.5rem; }
+</style>
+
+<script>
+  import { track } from '../scripts/tracking';
+
+  const box = document.querySelector<HTMLElement>('[data-book-cal]');
+  const btn = box?.querySelector<HTMLButtonElement>('[data-cal-load]');
+  const slot = box?.querySelector<HTMLElement>('[data-cal-slot]');
+  if (box && btn && slot) {
+    let loaded = false;
+    const load = () => {
+      if (loaded) return;
+      loaded = true;
+      const q = new URLSearchParams({
+        hide_gdpr_banner: '1',
+        background_color: '14110e',
+        text_color: 'f1ece4',
+        primary_color: 'c9a35c',
+      });
+      slot.hidden = false;
+      slot.innerHTML = `<div class="calendly-inline-widget" data-url="${box.dataset.url}?${q}"></div>`;
+      const s = document.createElement('script');
+      s.src = 'https://assets.calendly.com/assets/external/widget.js';
+      s.async = true;
+      document.head.appendChild(s);
+      btn.hidden = true;
+      track('calendly_open', { page_path: location.pathname });
+    };
+    btn.addEventListener('click', load);
+    window.addEventListener('message', (e) => {
+      if (e.origin !== 'https://calendly.com') return;
+      const ev = (e.data && (e.data as { event?: string }).event) || '';
+      if (ev === 'calendly.event_scheduled') track('schedule', { page_path: location.pathname, method: 'calendly' });
+    });
+  }
+</script>

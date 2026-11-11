@@ -1,0 +1,376 @@
+---
+/**
+ * /before-you-react: the relationships workshop. Where Iteration 2's ads land.
+ *
+ * Bare (no nav, no footer): one way through, one thing to do. Every word is
+ * src/data/before-you-react.ts. The film section waits for VSL.url there.
+ */
+import Base from '../layouts/Base.astro';
+import MoShell from '../components/MoShell.astro';
+import SeatForm from '../components/SeatForm.astro';
+import CalendlyBook from '../components/CalendlyBook.astro';
+import { srcset } from '../lib/images';
+import { SITE } from '../data/site';
+import { graph, personSchema, localBusinessSchema } from '../lib/seo';
+import { VSL, HERO, MOMENTS, ROOM, LEAVE, VOICES, WHO, NEXT, ANSWERS, APPLY, FORM } from '../data/before-you-react';
+
+const title = 'Before You React: A Return to Self Relationships Workshop | Harrison Saito';
+const description =
+  'A 45-minute workshop with Harrison Saito. Bring one recent relationship moment, practise Pause, Recognise, Choose, and leave with one alternative response to practise. Register your interest.';
+const schema = graph(personSchema(), localBusinessSchema());
+
+/* A YouTube or Vimeo link becomes a click-to-load embed (no third-party cookies
+   before play, as /privacy promises); anything else is treated as a video file. */
+const yt = VSL.url?.match(/(?:youtu\.be\/|[?&]v=|\/embed\/|\/shorts\/)([\w-]{11})/)?.[1];
+const vimeo = VSL.url?.match(/vimeo\.com\/(?:video\/)?(\d+)/)?.[1];
+const embed = yt
+  ? `https://www.youtube-nocookie.com/embed/${yt}?autoplay=1&rel=0`
+  : vimeo
+    ? `https://player.vimeo.com/video/${vimeo}?autoplay=1&dnt=1`
+    : null;
+const showFilm = Boolean(VSL.url) || import.meta.env.DEV;
+---
+
+<Base title={title} description={description} path="/before-you-react" image="/img/workshop-og-v1.webp" schema={schema} bare>
+  <MoShell modal={false} class="byr">
+    <!-- ============ THE FOLD ============ -->
+    <section class="section section--dark on-dark byr-hero" data-section="byr-hero">
+      <div class="wide byr-hero__grid">
+        <div>
+          <p class="eyebrow byr-hero__eyebrow">{HERO.eyebrow}</p>
+          <h1 set:html={HERO.title} />
+          <p class="lede byr-hero__lede">{HERO.lede}</p>
+          <a class="btn btn--filled btn--wide" href="#register" data-track="cta_click" data-track-label="BYR: Register (hero)">{HERO.cta}</a>
+          <p class="byr-hero__links">
+            {showFilm && <a href="#film" data-track="cta_click" data-track-label="BYR: Watch the film (hero)">{HERO.linkFilm}</a>}
+            <a href="#voices" data-track="cta_click" data-track-label="BYR: Testimony (hero)">{HERO.linkVoices}</a>
+          </p>
+        </div>
+        <figure class="byr-hero__portrait reveal reveal--fade">
+          <img src={`/img/${HERO.portrait}-700.webp`} srcset={srcset(HERO.portrait) || undefined} sizes="(max-width: 900px) 84vw, 38vw" alt={HERO.portraitAlt} width="700" height="1050" loading="eager" fetchpriority="high" decoding="async" />
+        </figure>
+      </div>
+    </section>
+
+    <!-- ============ THE VSL ============ -->
+    {showFilm && (
+      <section class="section section--dark on-dark byr-film" id="film" data-section="byr-film">
+        <div class="wide">
+          <div class="byr-film__frame reveal reveal--fade">
+            {!VSL.url && (
+              <div class="byr-film__slot">
+                <p><strong>VSL goes here</strong></p>
+                <p>Only visible in local dev. Set VSL.url in src/data/before-you-react.ts.</p>
+              </div>
+            )}
+            {embed && (
+              <button class="byr-film__play" type="button" data-embed={embed} data-title={VSL.title} aria-label={`Play: ${VSL.title}`}>
+                {VSL.poster && <img src={VSL.poster} alt="" loading="lazy" decoding="async" />}
+                <span class="byr-film__mark" aria-hidden="true"></span>
+              </button>
+            )}
+            {VSL.url && !embed && <video src={VSL.url} poster={VSL.poster ?? undefined} controls preload="none" playsinline data-track-film="vsl"></video>}
+          </div>
+        </div>
+      </section>
+    )}
+
+    <!-- ============ RECOGNITION ============ -->
+    <section class="section section--dark on-dark byr-moments" data-section="byr-moments">
+      <div class="wide byr-moments__grid">
+        <h2 class="reveal" set:html={MOMENTS.title} />
+        <ul data-stagger>
+          {MOMENTS.list.map((m) => <li class="reveal">{m}</li>)}
+        </ul>
+      </div>
+    </section>
+
+    <!-- ============ THE PRACTICE ============ -->
+    <section class="section section--dark on-dark byr-room" data-section="byr-room">
+      <div class="wide">
+        <h2 class="reveal" set:html={ROOM.title} />
+        <p class="byr-lead reveal">{ROOM.lead}</p>
+        <ol class="byr-steps" data-stagger>
+          {ROOM.steps.map((s) => (
+            <li class="reveal">
+              <strong>{s.key}</strong>
+              <span>{s.body}</span>
+            </li>
+          ))}
+        </ol>
+      </div>
+    </section>
+
+    <!-- ============ WHAT YOU LEAVE WITH ============ -->
+    <section class="section section--dark on-dark byr-leave" data-section="byr-leave">
+      <div class="wide">
+        <p class="byr-leave__lead reveal">{LEAVE.lead}</p>
+        <dl class="byr-line reveal">
+          {LEAVE.example.map((e) => (
+            <div>
+              <dt>{e.label}</dt>
+              <dd>{e.text}</dd>
+            </div>
+          ))}
+        </dl>
+      </div>
+    </section>
+
+    <!-- ============ THE TESTIMONY ============ -->
+    <section class="section section--dark on-dark byr-voices" id="voices" data-section="byr-voices">
+      <div class="wide">
+        <h2 class="reveal" set:html={VOICES.title} />
+        <ul class="byr-films">
+          {VOICES.films.map((f) => (
+            <li class="byr-tile">
+              <video
+                src={`/video/testimony-${f.id}-v1.mp4`}
+                poster={`/img/testimony-${f.id}-v1.webp`}
+                controls
+                preload="none"
+                playsinline
+                width="720"
+                height="1280"
+                data-track-film={f.id}
+                aria-label={`${f.name}'s testimony, ${f.length}`}
+              ></video>
+              <p class="byr-tile__said">“{f.said}”</p>
+              <p class="byr-tile__who"><strong>{f.name}</strong><span>{f.role}</span></p>
+            </li>
+          ))}
+        </ul>
+        <ul class="byr-words" data-stagger>
+          {VOICES.words.map((w) => (
+            <li class="reveal">
+              <img src={w.face} alt="" width="56" height="56" loading="lazy" decoding="async" />
+              <blockquote>
+                <p>“{w.said[0].toUpperCase() + w.said.slice(1)}”</p>
+                <cite>{w.from}, {w.role}</cite>
+              </blockquote>
+            </li>
+          ))}
+        </ul>
+        <a class="byr-link" href="/testimonials" data-track="cta_click" data-track-label="BYR: All testimony">{VOICES.more}</a>
+      </div>
+    </section>
+
+    <!-- ============ HARRISON ============ -->
+    <section class="section section--dark on-dark byr-who" data-section="byr-who">
+      <div class="wide byr-who__grid">
+        <figure class="byr-who__portrait reveal reveal--fade">
+          <img src={`/img/${WHO.portrait}-700.webp`} srcset={srcset(WHO.portrait) || undefined} sizes="(max-width: 900px) 100vw, 40vw" alt={WHO.portraitAlt} width="768" height="960" loading="lazy" decoding="async" />
+        </figure>
+        <div>
+          <h2 class="reveal" set:html={WHO.title} />
+          <p class="byr-lead reveal">{WHO.lead}</p>
+          <ul class="byr-creds reveal">
+            {WHO.lines.map((l) => <li>{l}</li>)}
+          </ul>
+          <a class="byr-link" href={WHO.sbs.href} target="_blank" rel="noopener" data-track="cta_click" data-track-label="BYR: SBS">{WHO.sbs.label}</a>
+        </div>
+      </div>
+      <div class="wide">
+        <ul class="byr-photos">
+          {WHO.photos.map((p) => (
+            <li class="reveal reveal--fade">
+              <img src={`/img/wall/${p.img}-720.webp`} srcset={`/img/wall/${p.img}-400.webp 400w, /img/wall/${p.img}-720.webp 720w`} sizes="(max-width: 700px) 100vw, 33vw" alt={p.alt} style={`object-position:${p.pos}`} width="720" height="900" loading="lazy" decoding="async" />
+              <p>{p.caption}</p>
+            </li>
+          ))}
+        </ul>
+      </div>
+    </section>
+
+    <!-- ============ THE TWELVE WEEKS + ANSWERS ============ -->
+    <section class="section section--dark on-dark byr-next" data-section="byr-next">
+      <div class="wide byr-next__grid">
+        <div>
+          <h2 class="reveal" set:html={NEXT.title} />
+          <p class="byr-lead reveal">{NEXT.lead}</p>
+          <p class="byr-next__body reveal">{NEXT.body}</p>
+        </div>
+        <div class="byr-faq reveal reveal--fade">
+          {ANSWERS.map((f) => (
+            <details>
+              <summary>{f.q}</summary>
+              <p>{f.a}</p>
+            </details>
+          ))}
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ THE FORM ============ -->
+    <section class="section section--dark on-dark byr-apply" id="register" data-section="byr-apply">
+      <div class="wide byr-apply__grid">
+        <h2 class="reveal" set:html={APPLY.title} />
+        <div class="byr-apply__form">
+        <CalendlyBook where="Before You React" />
+        <SeatForm
+          formId={FORM.id}
+          about="workshop"
+          aboutLabel="Before You React"
+          sessions={[]}
+          sessionLabel=""
+          submitLabel={FORM.submit}
+          successHeading={FORM.successHeading}
+          successBody={FORM.successBody}
+          callLabel={FORM.callLabel}
+          call={FORM.call}
+          doneHeading={FORM.doneHeading}
+          doneBody={FORM.doneBody}
+          whatsapp={FORM.whatsapp}
+          ask={FORM.ask}
+          eventName="lead"
+        />
+        </div>
+      </div>
+    </section>
+
+    <footer class="section section--flush lp-foot">
+      <div class="wide">
+        <p class="fs-xs">&copy; {new Date().getFullYear()} Harrison Saito, {SITE.locality}, {SITE.region}</p>
+        <nav class="deets__row" aria-label="Legal">
+          <a href="/privacy">Privacy Policy</a>
+          <a href="/terms">Terms</a>
+          <a href="/">Full site</a>
+        </nav>
+      </div>
+    </footer>
+  </MoShell>
+</Base>
+
+<script>
+  import { track } from '../scripts/tracking';
+
+  /* One film plays at a time. */
+  const films = document.querySelectorAll<HTMLVideoElement>('video[data-track-film]');
+  films.forEach((v) => {
+    v.addEventListener('play', () => {
+      films.forEach((o) => { if (o !== v) o.pause(); });
+      track('video_play', { film: v.dataset.trackFilm, page_path: location.pathname });
+    });
+  });
+
+  /* The VSL embed only loads when it is asked for. */
+  document.querySelectorAll<HTMLButtonElement>('[data-embed]').forEach((b) => {
+    b.addEventListener('click', () => {
+      const f = document.createElement('iframe');
+      f.src = b.dataset.embed!;
+      f.title = b.dataset.title || '';
+      f.allow = 'autoplay; fullscreen; picture-in-picture';
+      f.allowFullscreen = true;
+      b.replaceWith(f);
+      track('video_play', { film: 'vsl', page_path: location.pathname });
+    });
+  });
+</script>
+
+<style>
+  /* One ground from top to bottom: ink. Sections meet without seams. */
+  .section--dark { border-radius: 0; background-color: #14100d; }
+  .byr-moments, .byr-leave, .byr-who { background-color: #1a1511; }
+  h2 { margin: 0 0 1.2rem; max-width: 20ch; }
+  h2 :global(mark), h1 :global(mark) { background: var(--grad-text-dark); background-clip: text; -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+  .byr-lead { margin: 0; max-width: 58ch; font-size: var(--fs-sm); line-height: 1.55; color: rgba(252, 250, 248, 0.88); }
+  .byr-link { display: inline-block; margin-top: 1.6rem; color: #f2c275; font-weight: 700; text-decoration: none; border-bottom: 1px solid rgba(242, 194, 117, 0.42); padding-bottom: 2px; }
+  .byr-link:hover { color: #fcfaf8; border-color: #fcfaf8; }
+
+  /* ---- the fold ---- */
+  .byr-hero { padding-block: clamp(2.5rem, 5vw, 4.5rem) clamp(2rem, 4vw, 3.5rem); }
+  .byr-hero__grid { display: grid; grid-template-columns: minmax(0, 58fr) minmax(0, 42fr); gap: clamp(1.6rem, 4vw, 4.5rem); align-items: center; }
+  .byr-hero__eyebrow { color: rgba(252, 250, 248, 0.82); }
+  .byr-hero h1 { font-size: clamp(3rem, 1.6rem + 5.4vw, 6rem); line-height: 1.02; margin: 0 0 var(--sp-40); }
+  .byr-hero__lede { max-width: 44ch; margin: 0 0 var(--sp-50); color: rgba(252, 250, 248, 0.88); }
+  .byr-hero__links { display: flex; flex-wrap: wrap; gap: 0.7rem 1.6rem; margin: 1.4rem 0 0; }
+  .byr-hero__links a { color: #f2c275; font-weight: 700; text-decoration: none; border-bottom: 1px solid rgba(242, 194, 117, 0.42); padding-bottom: 2px; }
+  .byr-hero__links a:hover { color: #fcfaf8; border-color: #fcfaf8; }
+  .byr-hero__portrait { margin: 0; justify-self: end; width: min(100%, 440px); aspect-ratio: 4 / 5; border-radius: 20px; overflow: hidden; background: #1c1714; }
+  .byr-hero__portrait img { width: 100%; height: 100%; object-fit: cover; object-position: 50% 18%; display: block; }
+
+  /* ---- the film ---- */
+  .byr-film { padding-block: 0 clamp(3rem, 6vw, 5.5rem); }
+  .byr-film__frame { aspect-ratio: 16 / 9; border-radius: 20px; overflow: hidden; background: #1c1714; border: 1px solid rgba(242, 194, 117, 0.22); }
+  .byr-film__frame :global(iframe), .byr-film__frame video { width: 100%; height: 100%; border: 0; display: block; }
+  .byr-film__slot { height: 100%; display: grid; place-content: center; text-align: center; padding: 1rem; color: rgba(252, 250, 248, 0.7); font-size: var(--fs-xs); }
+  .byr-film__slot p { margin: 0.2rem 0; }
+  .byr-film__play { position: relative; width: 100%; height: 100%; padding: 0; border: 0; background: none; cursor: pointer; display: block; }
+  .byr-film__play img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .byr-film__mark { position: absolute; left: 50%; top: 50%; width: 84px; height: 84px; margin: -42px 0 0 -42px; border-radius: 50%; background: linear-gradient(to right, #f2c275, #daa24f); transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1); }
+  .byr-film__mark::after { content: ''; position: absolute; left: 34px; top: 26px; border-style: solid; border-width: 16px 0 16px 26px; border-color: transparent transparent transparent #14100d; }
+  .byr-film__play:hover .byr-film__mark { transform: scale(1.06); }
+
+  /* ---- recognition: the headline beside the moments ---- */
+  .byr-moments__grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: clamp(1.6rem, 5vw, 6rem); align-items: start; }
+  .byr-moments h2 { margin: 0; }
+  .byr-moments ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 1rem; }
+  .byr-moments li { font-family: var(--font-accent); font-size: var(--fs-md); line-height: 1.25; color: #fcfaf8; }
+
+  /* ---- the practice: three rows, the word then what it asks ---- */
+  .byr-steps { list-style: none; margin: clamp(2rem, 4vw, 3.5rem) 0 0; padding: 0; }
+  .byr-steps li { display: grid; grid-template-columns: minmax(0, 2fr) minmax(0, 3fr); gap: 0.5rem 2rem; align-items: baseline; padding-block: clamp(1.2rem, 2.4vw, 2rem); border-top: 1px solid rgba(242, 194, 117, 0.26); }
+  .byr-steps strong { font-size: clamp(2rem, 1.4rem + 2.6vw, 3.6rem); line-height: 1.1; font-weight: 500; color: #f2c275; }
+  .byr-steps span { font-size: var(--fs-sm); line-height: 1.5; color: rgba(252, 250, 248, 0.88); max-width: 46ch; }
+
+  /* ---- the take-home: one line, three parts ---- */
+  .byr-leave__lead { margin: 0 0 clamp(1.6rem, 3vw, 2.6rem); max-width: 30ch; font-family: var(--font-accent); font-size: var(--fs-lg, 2rem); line-height: 1.2; color: #fcfaf8; }
+  .byr-line { margin: 0; display: grid; grid-template-columns: 1fr 1fr 1.4fr; gap: 0; border: 1px solid rgba(242, 194, 117, 0.3); border-radius: 20px; overflow: hidden; }
+  .byr-line div { padding: clamp(1rem, 2vw, 1.6rem); }
+  .byr-line div + div { border-left: 1px solid rgba(242, 194, 117, 0.3); }
+  .byr-line dt { font-size: 0.8rem; font-weight: 700; color: rgba(252, 250, 248, 0.72); margin-bottom: 0.4rem; }
+  .byr-line dd { margin: 0; font-size: var(--fs-sm); font-weight: 700; line-height: 1.3; color: #f2c275; }
+
+  /* ---- the testimony ---- */
+  .byr-films { list-style: none; margin: clamp(1.4rem, 3vw, 2.4rem) 0 0; padding: 0; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: clamp(12px, 1.6vw, 22px); }
+  .byr-tile { min-width: 0; }
+  .byr-tile video { display: block; width: 100%; height: auto; aspect-ratio: 9 / 16; border-radius: 20px; background: #1c1714; object-fit: cover; }
+  .byr-tile__said { margin: 0.9rem 0 0.5rem; font-family: var(--font-accent); font-size: calc(var(--fs-sm) * 1.05); line-height: 1.3; color: #fcfaf8; }
+  .byr-tile__who { margin: 0; display: grid; gap: 1px; font-size: 0.86rem; line-height: 1.3; color: #fcfaf8; }
+  .byr-tile__who span { color: rgba(252, 250, 248, 0.68); font-size: 0.8rem; }
+  .byr-words { list-style: none; margin: clamp(2rem, 4vw, 3.4rem) 0 0; padding: 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: clamp(14px, 2vw, 30px); }
+  .byr-words li { display: flex; gap: 14px; align-items: flex-start; }
+  .byr-words img { flex: none; width: 56px; height: 56px; border-radius: 50%; object-fit: cover; }
+  .byr-words blockquote { margin: 0; }
+  .byr-words p { margin: 0 0 0.3rem; font-family: var(--font-accent); font-size: var(--fs-sm); line-height: 1.3; color: #fcfaf8; }
+  .byr-words cite { font-style: normal; font-size: 0.8rem; color: rgba(252, 250, 248, 0.68); }
+
+  /* ---- Harrison ---- */
+  .byr-who__grid { display: grid; grid-template-columns: minmax(0, 2fr) minmax(0, 3fr); gap: clamp(1.4rem, 4vw, 4.5rem); align-items: center; }
+  .byr-who__portrait { margin: 0; border-radius: 20px; overflow: hidden; aspect-ratio: 4 / 5; }
+  .byr-who__portrait img { width: 100%; height: 100%; object-fit: cover; object-position: 50% 12%; display: block; }
+  .byr-creds { list-style: none; margin: 1.2rem 0 0; padding: 0; display: grid; gap: 0.7rem; }
+  .byr-creds li { color: rgba(252, 250, 248, 0.82); font-size: var(--fs-xs); line-height: 1.55; max-width: 58ch; }
+  .byr-photos { list-style: none; margin: clamp(2rem, 4vw, 3.4rem) 0 0; padding: 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: clamp(10px, 1.4vw, 18px); }
+  .byr-photos img { display: block; width: 100%; aspect-ratio: 4 / 5; object-fit: cover; border-radius: 20px; }
+  .byr-photos p { margin: 0.5rem 0 0; font-size: 0.8rem; color: rgba(252, 250, 248, 0.68); }
+
+  /* ---- twelve weeks + answers ---- */
+  .byr-next__grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: clamp(1.6rem, 5vw, 6rem); align-items: start; }
+  .byr-next__body { margin: 1rem 0 0; max-width: 58ch; font-size: var(--fs-xs); line-height: 1.6; color: rgba(252, 250, 248, 0.78); }
+  .byr-faq details { border-top: 1px solid rgba(242, 194, 117, 0.26); padding-block: 1rem; }
+  .byr-faq details:last-child { border-bottom: 1px solid rgba(242, 194, 117, 0.26); }
+  .byr-faq summary { cursor: pointer; font-weight: 700; color: #fcfaf8; }
+  .byr-faq summary:focus-visible { outline: 2px solid #f2c275; outline-offset: 3px; }
+  .byr-faq details p { margin: 0.7rem 0 0; font-size: var(--fs-xs); line-height: 1.6; color: rgba(252, 250, 248, 0.82); }
+
+  /* ---- the form ---- */
+  .byr-apply__grid { display: grid; grid-template-columns: minmax(0, 46fr) minmax(0, 54fr); gap: clamp(1.6rem, 4vw, 4.5rem); align-items: center; }
+  .byr-apply h2 { margin: 0; max-width: 14ch; }
+
+  @media (max-width: 900px) {
+    .byr-hero__grid, .byr-moments__grid, .byr-who__grid, .byr-next__grid, .byr-apply__grid { grid-template-columns: 1fr; }
+    .byr-hero__portrait { justify-self: center; width: min(100%, 420px); }
+    .byr-who__portrait { max-width: 420px; }
+    /* the four films become a row to swipe, one and a bit at a time */
+    .byr-films { display: flex; overflow-x: auto; scroll-snap-type: x mandatory; margin-inline: calc(var(--pad-x, 20px) * -1); padding-inline: var(--pad-x, 20px); padding-bottom: 6px; }
+    .byr-tile { flex: 0 0 min(68vw, 280px); scroll-snap-align: center; }
+    .byr-words { grid-template-columns: 1fr; }
+  }
+  @media (max-width: 680px) {
+    .byr-hero .btn { width: 100%; text-align: center; }
+    .byr-steps li { grid-template-columns: 1fr; }
+    .byr-line { grid-template-columns: 1fr; }
+    .byr-line div + div { border-left: 0; border-top: 1px solid rgba(242, 194, 117, 0.3); }
+    .byr-photos { grid-template-columns: 1fr; }
+  }
+</style>

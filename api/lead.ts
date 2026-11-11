@@ -238,7 +238,7 @@ async function sendToMeta(env: Env, body: Payload, request: Request): Promise<bo
    this; a workshop applicant posts twice — the application, then the call
    windows — so the first message says a second is coming. */
 
-type Kind = 'workshop-application' | 'workshop-windows' | 'application' | 'discovery-call' | 'message' | 'callback' | 'enquiry';
+type Kind = 'workshop-application' | 'workshop-windows' | 'byr-interest' | 'byr-windows' | 'application' | 'discovery-call' | 'message' | 'callback' | 'enquiry';
 
 /* The six "Who's this for?" cards on the home walk (src/data/identities.ts),
    as the line the visitor recognised. Kept here because the function cannot
@@ -303,6 +303,7 @@ function recognised(body: Payload): string {
 function kindOf(body: Payload): Kind {
   const form = s(body.form_id);
   if (form === 'workshop') return body.event_name === 'schedule' ? 'workshop-windows' : 'workshop-application';
+  if (form === 'before-you-react') return body.event_name === 'schedule' ? 'byr-windows' : 'byr-interest';
   if (form === 'return-to-self-application' || form === 'lp-return-to-self') return 'application';
   if (form === 'discovery-chat') return 'discovery-call';
   if (form === 'general-contact') return 'message';
@@ -349,6 +350,16 @@ export function buildNotice(body: Payload, now = new Date()) {
       steps = [['Call them', when || 'no windows chosen'], ['Session', room], ['Name', name], ['Phone', phone]];
       promise = 'They were told you will call in one of these windows. Three seats a room; if theirs is full, they are first for the next.';
       break;
+    case 'byr-interest':
+      head = 'Before You React interest';
+      steps = [...reachSteps, ['Moment they want to handle differently', words ? `“${words}”` : '']];
+      promise = 'They were told you will reach out directly. They are picking call windows now; a second message follows if they do.';
+      break;
+    case 'byr-windows':
+      head = 'Before You React call windows chosen';
+      steps = [['Call them', when || 'no windows chosen'], ['Name', name], ['Phone', phone]];
+      promise = 'They were told you will call in one of these windows.';
+      break;
     case 'application':
       head = 'Return to Self application';
       steps = [...askSteps, ...reachSteps];
@@ -376,7 +387,7 @@ export function buildNotice(body: Payload, now = new Date()) {
   }
   steps = steps.map(([k, v]) => [k, v || '—'] as [string, string]);
   /* the windows are the same applicant coming back, not a second lead */
-  const intro = kind === 'workshop-windows' ? `Update: ${head}` : `New lead: ${head}`;
+  const intro = kind === 'workshop-windows' || kind === 'byr-windows' ? `Update: ${head}` : `New lead: ${head}`;
   const title = `${intro} · ${name}`;
 
   /* after the steps: what they recognised on the walk, where they came from */
@@ -394,7 +405,7 @@ export function buildNotice(body: Payload, now = new Date()) {
     ...steps.map(line),
     '',
     ...context.map(line),
-    ...(kind === 'workshop-application' ? ['Call windows to follow.'] : []),
+    ...(kind === 'workshop-application' || kind === 'byr-interest' ? ['Call windows to follow.'] : []),
   ].join('\n');
 
   const text = [

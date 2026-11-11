@@ -12,6 +12,7 @@
 import Base from '../layouts/Base.astro';
 import MoShell from '../components/MoShell.astro';
 import LeadForm from '../components/LeadForm.astro';
+import CalendlyBook from '../components/CalendlyBook.astro';
 import { SITE, WHATSAPP } from '../data/site';
 import { graph, breadcrumbSchema, localBusinessSchema } from '../lib/seo';
 
@@ -20,6 +21,7 @@ const description =
   'Book a no-pressure conversation about coaching or HSC mentoring with Harrison Saito. In person around Chatswood and Sydney’s North Shore, or online Australia-wide.';
 
 const bookingUrl = import.meta.env.PUBLIC_BOOKING_URL ?? '';
+
 
 /* Dion, 30 Sep: "take out about half an hour… take out the free… based in
    Middle Cove, Sydney's North Shore — so when they land on this page it's
@@ -82,6 +84,7 @@ const schema = graph(
     <section class="section section--dark on-dark" data-section="book">
       <div class="wide book__stack">
         <div class="formgrid__form">
+          <CalendlyBook where="Book" />
           {bookingUrl ? (
             <div class="book__embed">
               <iframe src={bookingUrl} title="Booking calendar" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
@@ -126,3 +129,4 @@ const schema = graph(
     </section>
   </MoShell>
 </Base>
+
