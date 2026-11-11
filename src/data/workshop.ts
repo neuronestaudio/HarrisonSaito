@@ -106,20 +106,25 @@ export const GAINS_INTRO = {
 export const ROOM = {
   eyebrow: 'What happens in the session',
   title: 'Pause. Recognise. <mark>Choose.</mark>',
-  lede: 'One recent, manageable moment with one person who matters to you. You notice what happens in your body before you interpret why. Sharing is optional.',
+  lede: 'One recent moment with one person who matters to you. Sharing is optional.',
   movements: [
-    { n: '01', key: 'Choose', title: 'Pick the moment.', body: 'You choose one relationship and one recent incident. Harrison asks what happened, what you noticed and how you responded. You say as much or as little as you like.' },
-    { n: '02', key: 'Pause', title: 'Feel your feet. Take a breath.', body: 'Give yourself a moment before anything else. Harrison explains the pattern through one everyday example.' },
-    { n: '03', key: 'Recognise', title: 'Notice what is showing up.', body: 'What do I notice in my body? What feeling, story or usual reaction is here?' },
-    { n: '04', key: 'Practise', title: 'Rehearse something different.', body: 'What matters to me here? You identify an alternative, rehearse it, and choose when you will practise it.' },
+    { n: '01', key: 'Choose', title: 'Pick the moment.', body: 'One relationship, one recent incident.' },
+    { n: '02', key: 'Pause', title: 'Feel your feet. Take a breath.', body: 'A moment before anything else.' },
+    { n: '03', key: 'Recognise', title: 'Notice what is showing up.', body: 'What do I notice in my body?' },
+    { n: '04', key: 'Practise', title: 'Rehearse something different.', body: 'Choose when you will practise it.' },
   ],
   leave: {
-    lead: 'You leave able to name one early signal, one usual reaction and one alternative response to practise.',
+    lead: 'You leave with:',
     example: [
       { label: 'Early signal', text: 'My jaw tightens' },
       { label: 'Usual reaction', text: 'I defend myself' },
       { label: 'Alternative', text: 'I pause and ask what they meant' },
     ],
+  },
+  /* the two photographs beside the steps (Dion, 11 Nov): the hand-on-chest session, and Harrison seated on the mat */
+  photos: {
+    main: { slug: 'coaching-chest-v1', alt: 'Harrison kneeling beside a client in seiza, one hand resting on the client’s chest while the client sits with eyes closed' },
+    second: { slug: 'session-seated-v1', alt: 'Harrison sitting cross-legged on the mat, hands folded, looking into the camera' },
   },
   facts: ['1:1 with Harrison', `${LENGTH_LINE} · ${DETAILS.price}, full refund if it is not for you`, `In person · ${DETAILS.where}`, 'Bring comfortable clothing and an open mind'],
   note: 'Coaching, not therapy. A practice for one situation that matters to you.',

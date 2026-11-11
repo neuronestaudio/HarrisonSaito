@@ -105,45 +105,70 @@ const schema = graph(personSchema(), localBusinessSchema());
 
     <!-- ============ WHAT HAPPENS IN THE ROOM ============ -->
     <section class="section section--white ws-room" id="room" data-section="ws-room">
-      <div class="wide">
-        <header class="ws-head ws-head--split">
-          <div>
-            <p class="eyebrow">{ROOM.eyebrow}</p>
-            <h2 class="reveal" set:html={ROOM.title} />
-          </div>
-          <p class="fs-sm ws-lede reveal reveal--left">{ROOM.lede}</p>
-        </header>
-
-        <ol class="ws-moves" data-stagger>
-          {ROOM.movements.map((m) => (
-            <li class="ws-move reveal">
-              <p class="ws-move__key"><span>{m.n}</span> {m.key}</p>
-              <h3>{m.title}</h3>
-              <p>{m.body}</p>
-              {m.his && (
-                <blockquote class="ws-his">
-                  <p>“{m.his.quote}”</p>
-                  <cite>{m.his.source}</cite>
-                </blockquote>
-              )}
-            </li>
-          ))}
-        </ol>
-
-        <div class="ws-leave reveal">
-          <p class="fs-sm">{ROOM.leave.lead}</p>
-          <dl class="ws-leave__ex">
-            {ROOM.leave.example.map((e) => <div><dt>{e.label}</dt><dd>{e.text}</dd></div>)}
-          </dl>
+      <div class="wide ws-room__layout">
+        <div class="ws-room__photos reveal reveal--fade">
+          <img
+            class="ws-room__a"
+            src={`/img/${ROOM.photos.main.slug}-960.webp`}
+            srcset={srcset(ROOM.photos.main.slug) || undefined}
+            sizes="(max-width: 900px) 78vw, 36vw"
+            alt={ROOM.photos.main.alt}
+            width="960"
+            height="1280"
+            loading="lazy"
+            decoding="async"
+          />
+          <img
+            class="ws-room__b"
+            src={`/img/${ROOM.photos.second.slug}-800.webp`}
+            srcset={srcset(ROOM.photos.second.slug) || undefined}
+            sizes="(max-width: 900px) 44vw, 20vw"
+            alt={ROOM.photos.second.alt}
+            width="800"
+            height="1422"
+            loading="lazy"
+            decoding="async"
+          />
         </div>
 
-        <ul class="ws-facts reveal">
-          {ROOM.facts.map((f) => <li>{f}</li>)}
-        </ul>
+        <div class="ws-room__body">
+          <header class="ws-head">
+            <p class="eyebrow">{ROOM.eyebrow}</p>
+            <h2 class="reveal" set:html={ROOM.title} />
+            <p class="fs-sm ws-lede reveal">{ROOM.lede}</p>
+          </header>
 
-        <div class="ws-room__foot reveal">
-          <p class="fs-xs ws-note">{ROOM.note}</p>
-          <a class="btn btn--filled btn--wide" href="#apply" data-track="cta_click" data-track-label="Workshop — Apply for a session (room)">{HERO.cta.label}</a>
+          <ol class="ws-moves" data-stagger>
+            {ROOM.movements.map((m) => (
+              <li class="ws-move reveal">
+                <p class="ws-move__key"><span>{m.n}</span> {m.key}</p>
+                <h3>{m.title}</h3>
+                <p>{m.body}</p>
+                {m.his && (
+                  <blockquote class="ws-his">
+                    <p>“{m.his.quote}”</p>
+                    <cite>{m.his.source}</cite>
+                  </blockquote>
+                )}
+              </li>
+            ))}
+          </ol>
+
+          <div class="ws-leave reveal">
+            <p class="fs-sm">{ROOM.leave.lead}</p>
+            <dl class="ws-leave__ex">
+              {ROOM.leave.example.map((e) => <div><dt>{e.label}</dt><dd>{e.text}</dd></div>)}
+            </dl>
+          </div>
+
+          <ul class="ws-facts reveal">
+            {ROOM.facts.map((f) => <li>{f}</li>)}
+          </ul>
+
+          <div class="ws-room__foot reveal">
+            <p class="fs-xs ws-note">{ROOM.note}</p>
+            <a class="btn btn--filled btn--wide" href="#apply" data-track="cta_click" data-track-label="Workshop — Apply for a session (room)">{HERO.cta.label}</a>
+          </div>
         </div>
       </div>
     </section>
@@ -335,6 +360,22 @@ const schema = graph(personSchema(), localBusinessSchema());
   /* ---- the room: four movements ---- */
   .ws-moves { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: clamp(14px, 2vw, 30px); }
   .ws-move { border-top: 2px solid var(--fg1); padding-top: clamp(14px, 1.6vw, 22px); min-width: 0; }
+  .ws-room__layout { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); gap: clamp(2rem, 5vw, 5rem); align-items: start; }
+  .ws-room__photos { position: relative; padding-bottom: 14%; }
+  .ws-room__a { display: block; width: 82%; aspect-ratio: 3 / 4; object-fit: cover; object-position: 50% 40%; border-radius: 20px; box-shadow: 0 30px 60px -34px rgba(20, 16, 13, 0.55); }
+  .ws-room__b { position: absolute; right: 0; bottom: 0; width: 50%; aspect-ratio: 3 / 4; object-fit: cover; object-position: 50% 62%; border-radius: 16px; border: 6px solid var(--bg1, #fcfaf8); box-shadow: 0 26px 50px -26px rgba(20, 16, 13, 0.6); }
+  .ws-room__body .ws-head { margin-bottom: clamp(1.2rem, 2.4vw, 2rem); }
+  .ws-room__body .ws-head :global(h2) { max-width: none; }
+  .ws-room__body .ws-lede { margin: 0.9rem 0 0; }
+  .ws-room__body .ws-moves { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: clamp(1rem, 2vw, 1.6rem) clamp(1.2rem, 2.4vw, 2rem); }
+  @media (min-width: 901px) { .ws-room__photos { position: sticky; top: 96px; } }
+  @media (max-width: 900px) {
+    .ws-room__layout { grid-template-columns: 1fr; }
+    .ws-room__photos { max-width: 30rem; }
+  }
+  @media (max-width: 520px) {
+    .ws-room__body .ws-moves { grid-template-columns: 1fr; }
+  }
   .ws-move__key { margin: 0 0 0.7rem; font-size: 12px; font-weight: 700; letter-spacing: 0.2em; text-transform: uppercase; color: var(--gold-deep); }
   .ws-move__key span { color: var(--fg4); margin-right: 0.4em; }
   .ws-move :global(h3) { margin: 0 0 0.6rem; font-size: calc(var(--fs-md) * 0.92); line-height: 1.15; }
