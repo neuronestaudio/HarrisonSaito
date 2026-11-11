@@ -97,8 +97,7 @@ const Wrap = section ? 'section' : 'div';
       const go = () => { v.currentTime = at; v.play().catch(() => {}); mark(); };
       if (v.readyState >= 1) go();
       else { v.addEventListener('loadedmetadata', go, { once: true }); v.preload = 'metadata'; v.load(); }
-      // On a phone the list sits under the film, so bring the film back into view.
-      if (matchMedia('(max-width: 760px)').matches) v.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+      // On a phone the film is pinned above the list (see the CSS), so there is nothing to scroll back to.
     }));
   });
 </script>
@@ -119,7 +118,10 @@ const Wrap = section ? 'section' : 'div';
   .tf__q { display: block; line-height: 1.4; }
   .tf__who { display: block; margin-top: 3px; font-size: 0.8125rem; color: var(--fg4); }
   @media (max-width: 760px) {
-    .tf { grid-template-columns: minmax(0, 1fr); gap: 18px; }
-    .tf figure { width: min(300px, 100%); margin: 0 auto; }
+    .tf { display: block; }
+    /* The film stays pinned while the lines scroll beneath it, so a tap never throws the page. */
+    .tf figure { position: sticky; top: 0; z-index: 3; width: 100%; margin: 0; padding: 8px 0 10px; background: var(--bg1, #fcfaf8); display: flex; justify-content: center; }
+    .tf video { width: auto; height: min(46svh, 420px); max-width: 100%; }
+    .tf__line { scroll-margin-top: 50svh; }
   }
 </style>
