@@ -133,6 +133,8 @@ export type Phase = {
   /** Colour cast for this phase's backdrop in the coverflow. */
   grade: string;
   image: string;
+  /** optional CSS background-position for the plate */
+  pos?: string;
   imageAlt: string;
 };
 
@@ -839,8 +841,9 @@ export const CHAPTERS: Chapter[] = [
       'The circle in the mark on this site is left open on purpose. So is this.',
     ],
     credential: '10+ years coaching · Chatswood, NSW',
-    image: 'coaching-dharma',
-    imageAlt: 'Two men seated on tatami before a Buddhist altar',
+    image: 'coaching-chest-v1',
+    pos: '50% 22%',
+    imageAlt: 'Harrison kneeling beside a client in seiza, one hand resting on the client’s chest as they breathe with eyes closed',
     bg: 'phase-integrate',
     tone: 'oklch(33% 0.045 76)',
   },

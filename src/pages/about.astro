@@ -75,7 +75,7 @@ const schema = graph(
             </div>
             <div
               class="chapter__plate reveal reveal--left"
-              style={`--bg:url(/img/${c.image}.webp)`}
+              style={`--bg:url(/img/${c.image}.webp);${c.pos ? `background-position:${c.pos};` : ''}`}
               role="img"
               aria-label={c.imageAlt}
             >
