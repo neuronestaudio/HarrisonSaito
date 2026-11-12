@@ -2,7 +2,7 @@
  * Calendly -> GoHighLevel. Vercel Function (Web-standard handler).
  *
  * Dion, 12 Nov 2026: the free discovery call is booked on Harrison's own
- * Calendly (60-minute event). Whatever they book must land in GHL as a contact
+ * Calendly (30-minute discovery call event). Whatever they book must land in GHL as a contact
  * and an opportunity, with the booking written in the notes: name, phone,
  * email, when, and which "resonates most" line they tapped on /rts-coaching.
  *
@@ -174,7 +174,7 @@ export async function POST(request: Request): Promise<Response> {
   if (!canceled) lines.push(`Booked: ${when}`);
   if (resonates) lines.push(`Resonates most: "${resonates}"`);
   if (ad || adSet || campaign) lines.push(`Came from: Meta ad${campaign ? ` / Campaign: ${campaign}` : ''}${adSet ? ` / Ad set: ${adSet}` : ''}${ad ? ` / Ad: ${ad}` : ''}`);
-  lines.push(...said, 'Source: /rts-coaching free discovery call funnel (Calendly, 60 minutes)');
+  lines.push(...said, 'Source: /rts-coaching free discovery call funnel (Calendly, 30 minutes)');
   await ghl('POST', `/contacts/${contactId}/notes`, { body: lines.join('\n') });
 
   console.log('[calendly]', JSON.stringify({ event, contactId, oppId, when, pick }));

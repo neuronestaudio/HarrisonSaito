@@ -32,7 +32,7 @@ import { FUNNEL, FORM } from '../data/workshop';
 const OPTIONS = FUNNEL.options;
 ---
 
-<div class="df" data-funnel data-cal="https://calendly.com/harrison-saito3011/60minutes">
+<div class="df" data-funnel data-cal="https://calendly.com/harrison-saito3011/discovery-call-30-minutes">
   <header class="df__head">
     <p class="df__free"><span aria-hidden="true"></span>{FUNNEL.badge}</p>
     <ol class="df__steps" aria-label="Three steps">
@@ -54,7 +54,6 @@ const OPTIONS = FUNNEL.options;
         </button>
       ))}
     </div>
-    <button type="button" class="df__skip" data-skip>{FUNNEL.skip}</button>
   </section>
 
   {/* ---------- 2 + 3 ---------- */}
@@ -98,9 +97,9 @@ const OPTIONS = FUNNEL.options;
   .df__free {
     display: inline-flex; align-items: center; gap: 0.55rem; justify-self: start; margin: 0;
     padding: 0.4rem 0.95rem; border-radius: 999px; font-size: 0.82rem; font-weight: 700; letter-spacing: 0.04em;
-    color: #14100d; background: linear-gradient(to right, #f2c275, #daa24f);
+    color: #f2c275; background: #14100d; border: 1px solid rgba(242, 194, 117, 0.45);
   }
-  .df__free span { width: 7px; height: 7px; border-radius: 50%; background: #14100d; }
+  .df__free span { width: 7px; height: 7px; border-radius: 50%; background: #f2c275; }
 
   .df__steps { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0.5rem; counter-reset: s; }
   .df__steps li {
@@ -139,14 +138,13 @@ const OPTIONS = FUNNEL.options;
   }
   .df__tile[aria-pressed='true'] .df__tick { background: var(--gold); border-color: var(--gold); box-shadow: inset 0 0 0 3px #1c1610; }
 
-  .df__skip, .df__back, .df__fallback {
+  .df__back, .df__fallback {
     display: block; background: none; border: 0; padding: 0.25rem 0.1rem; font: inherit; font-size: 0.86rem; cursor: pointer;
     color: var(--text-on-ink-muted); text-decoration: underline; text-decoration-color: oklch(100% 0 0 / 0.25); text-underline-offset: 0.22em;
   }
-  .df__skip { margin: 0.85rem auto 0; }
   .df__back { margin: 0 0 1rem; text-decoration: none; }
   .df__fallback { margin: 1.1rem 0 0; }
-  .df__skip:hover, .df__back:hover, .df__fallback:hover { color: var(--text-on-ink); text-decoration-color: var(--gold); }
+  .df__back:hover, .df__fallback:hover { color: var(--text-on-ink); text-decoration-color: var(--gold); }
 
   .df__cal { min-height: 12rem; border-radius: 16px; overflow: hidden; }
   .df__cal .calendly-inline-widget { width: 100%; min-width: 300px; height: 700px; }
@@ -234,9 +232,9 @@ const OPTIONS = FUNNEL.options;
       track('calendly_open', { page_path: path });
     };
 
-    const go = (skipped: boolean) => {
+    const go = () => {
       remember();
-      track('form_step', { form_id: 'discovery', step: 1, question: 'resonates', answer: skipped ? 'skipped' : [...picks].join(','), page_path: path });
+      track('form_step', { form_id: 'discovery', step: 1, question: 'resonates', answer: [...picks].join(','), page_path: path });
       show('2');
       loadCalendly();
     };
@@ -245,9 +243,8 @@ const OPTIONS = FUNNEL.options;
       tiles.forEach((t) => t.setAttribute('aria-pressed', String(t === b)));
       picks.clear();
       picks.add(b.dataset.pick!);
-      setTimeout(() => go(false), 220);
+      setTimeout(go, 220);
     }));
-    $<HTMLButtonElement>('[data-skip]').addEventListener('click', () => go(true));
     $<HTMLButtonElement>('[data-back]').addEventListener('click', () => show('1'));
     $<HTMLButtonElement>('[data-fallback]').addEventListener('click', () => {
       track('form_step', { form_id: 'discovery', step: 2, question: 'no-time-suits', page_path: path });
