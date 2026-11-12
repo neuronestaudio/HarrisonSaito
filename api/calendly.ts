@@ -24,6 +24,59 @@
 
 declare const process: { env: Record<string, string | undefined> };
 
+/* ---- text the team (inlined: a relative import crashes under "type":"module") ---- */
+const ALERT_GHL = 'https://services.leadconnectorhq.com';
+
+const ALERT_TEAM: { name: string; phone: string }[] = [
+  { name: 'Dion', phone: '+61478029827' },
+];
+
+const alertHead = (version: string): Record<string, string> => ({
+  Authorization: `Bearer ${process.env.GHL_TOKEN}`,
+  Version: version,
+  Accept: 'application/json',
+  'Content-Type': 'application/json',
+  'User-Agent': 'Mozilla/5.0 (harrisonsaito.com.au alert)',
+});
+
+async function alertContactFor(person: { name: string; phone: string }): Promise<string> {
+  const loc = process.env.GHL_LOCATION_ID as string;
+  const found = await fetch(`${ALERT_GHL}/contacts/search/duplicate?locationId=${loc}&number=${encodeURIComponent(person.phone)}`, {
+    headers: alertHead('2021-07-28'),
+  });
+  if (found.ok) {
+    const id = ((await found.json()) as any)?.contact?.id;
+    if (id) return id;
+  }
+  const up = await fetch(`${ALERT_GHL}/contacts/upsert`, {
+    method: 'POST',
+    headers: alertHead('2021-07-28'),
+    body: JSON.stringify({ locationId: loc, firstName: person.name, lastName: '(team alert)', phone: person.phone, tags: ['internal-team'], source: 'Team alert' }),
+  });
+  if (!up.ok) throw new Error(`team contact HTTP ${up.status}`);
+  const j = (await up.json()) as any;
+  return j.contact?.id ?? j.id;
+}
+
+/** Returns true if at least one text was accepted by GHL. */
+async function textTeam(message: string): Promise<boolean> {
+  if (!process.env.GHL_TOKEN || !process.env.GHL_LOCATION_ID) return false;
+  const results = await Promise.allSettled(
+    ALERT_TEAM.map(async (p) => {
+      const contactId = await alertContactFor(p);
+      const res = await fetch(`${ALERT_GHL}/conversations/messages`, {
+        method: 'POST',
+        headers: alertHead('2021-04-15'),
+        body: JSON.stringify({ type: 'SMS', contactId, message: message.slice(0, 600) }),
+      });
+      if (!res.ok) throw new Error(`SMS HTTP ${res.status}: ${(await res.text()).slice(0, 160)}`);
+    }),
+  );
+  results.forEach((r) => { if (r.status === 'rejected') console.error('[alert] failed:', (r.reason as Error).message); });
+  return results.some((r) => r.status === 'fulfilled');
+}
+
+
 type J = Record<string, any>;
 
 const GHL = 'https://services.leadconnectorhq.com';
@@ -176,6 +229,15 @@ export async function POST(request: Request): Promise<Response> {
   if (ad || adSet || campaign) lines.push(`Came from: Meta ad${campaign ? ` / Campaign: ${campaign}` : ''}${adSet ? ` / Ad set: ${adSet}` : ''}${ad ? ` / Ad: ${ad}` : ''}`);
   lines.push(...said, 'Source: /rts-coaching free discovery call funnel (Calendly, 30 minutes)');
   await ghl('POST', `/contacts/${contactId}/notes`, { body: lines.join('\n') });
+
+  /* ---- text the team: a booking is the thing Harrison is waiting for ---- */
+  if (!rescheduled) {
+    const sms = canceled
+      ? `CALL CANCELLED (Harrison): ${name || email}, was ${when}`
+      : `NEW CALL BOOKED (Harrison): ${name || email}${phoneRaw ? ', ' + human(phoneRaw) : ''}, ${when}` +
+        `${resonates ? ' | "' + resonates + '"' : ''}${ad ? ' | ad: ' + ad : ''}`;
+    try { await textTeam(sms); } catch (e) { console.error('[calendly] alert failed', (e as Error).message); }
+  }
 
   console.log('[calendly]', JSON.stringify({ event, contactId, oppId, when, pick }));
   return reply(200, { ok: true, event, contactId, opportunityId: oppId ?? null });
