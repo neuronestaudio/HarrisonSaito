@@ -19,6 +19,7 @@ declare global {
     dataLayer?: unknown[];
     gtag?: (...args: unknown[]) => void;
     fbq?: (...args: unknown[]) => void;
+    clarity?: ((...args: unknown[]) => void) & { q?: unknown[] };
     __HS_TRACKING__?: { gtm: string; ga4: string; pixel: string };
   }
 }
@@ -38,11 +39,51 @@ export function eventId(): string {
   return `${Date.now()}-${Math.random().toString(16).slice(2)}`;
 }
 
+/* ------------------------------------------------------------- Clarity */
+
+/**
+ * Microsoft Clarity (project yn665w91qb) is loaded by the GTM container, so it
+ * sees pages and behaviour but none of our events. Forwarding the funnel ones
+ * lets recordings be filtered by what the visitor did ("started the form, no
+ * lead"; "opened Calendly, never booked"). Only names, the form id and the step
+ * NUMBER go across: never an answer, a name, a phone or an email.
+ *
+ * clarity() is queued by its own snippet; if our call lands before the tag has
+ * loaded we create the same queue stub so nothing is dropped.
+ */
+const CLARITY_EVENTS = new Set([
+  'lead', 'schedule', 'calendly_open', 'form_start', 'form_step', 'form_error', 'video_play', 'video_open',
+]);
+
+function toClarity(name: string, params: Record<string, unknown>) {
+  try {
+    const w = window as Window;
+    w.clarity =
+      w.clarity ||
+      (function (this: unknown, ...a: unknown[]) {
+        ((w.clarity as { q?: unknown[] }).q = (w.clarity as { q?: unknown[] }).q || []).push(a);
+      } as unknown as NonNullable<Window['clarity']>);
+    if (name === 'cta_click' && typeof params.cta_label === 'string') {
+      const slug = params.cta_label.toLowerCase().replace(/[^a-z0-9]+/g, '_').replace(/^_|_$/g, '').slice(0, 60);
+      if (slug) w.clarity('event', `cta_${slug}`);
+    } else if (CLARITY_EVENTS.has(name)) {
+      w.clarity('event', name);
+    } else {
+      return;
+    }
+    if (typeof params.form_id === 'string') w.clarity('set', 'form_id', params.form_id);
+    if (name === 'form_step' && params.step != null) w.clarity('set', 'form_step', String(params.step));
+  } catch {
+    /* analytics must never break the page */
+  }
+}
+
 export function track(name: string, params: Record<string, unknown> = {}): string {
   const id = (params.event_id as string) ?? eventId();
   const payload = { ...params, event_id: id };
 
   window.dataLayer?.push({ event: name, ...payload });
+  toClarity(name, params);
 
   // Only call gtag directly when GTM is not present, or the event doubles up.
   if (!window.__HS_TRACKING__?.gtm && typeof window.gtag === 'function') {
