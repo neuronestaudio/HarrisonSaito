@@ -21,6 +21,8 @@
  *   TEST_EVENT_CODE                  optional, for Meta's Test Events tab
  */
 
+import { textTeam } from './_notify';
+
 declare const process: { env: Record<string, string | undefined> };
 
 interface Env {
@@ -524,12 +526,18 @@ export async function POST(request: Request): Promise<Response> {
 
   // Integrations run in parallel and are individually non-fatal: a CRM outage
   // must never cost us the lead or show the visitor an error.
-  const names = ['meta', 'ghl', 'webhook', 'email'];
+  const names = ['meta', 'ghl', 'webhook', 'email', 'sms'];
+  const str = (v: unknown) => (typeof v === 'string' ? v.trim() : '');
   const results = await Promise.allSettled([
     sendToMeta(env, body, request),
     sendToGHL(env, body),
     sendToWebhook(env, body),
     sendEmail(env, body),
+    // Text the team (api/_notify.ts), so a lead is never found by chance.
+    textTeam(
+      `NEW LEAD (Harrison): ${str(body.name) || 'no name'}${str(body.phone) ? ', ' + str(body.phone) : ''}${str(body.email) ? ', ' + str(body.email) : ''}` +
+        `${str(body.about_label) ? ' | ' + str(body.about_label) : ''}`,
+    ),
   ]);
   // What each integration did — "unconfigured", "ok", or its error — so a
   // test post from outside can see why a lead went nowhere without anyone
