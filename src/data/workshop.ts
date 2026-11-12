@@ -61,7 +61,7 @@ export const DETAILS = {
 };
 
 /** How the missing facts read on the page. */
-export const WHEN_LINE = '1:1 with Harrison · $60 · full refund if it is not for you';
+export const WHEN_LINE = 'Free discovery call · 1:1 with Harrison';
 export const LENGTH_LINE = DETAILS.length ?? 'One session';
 
 /* ---- the fold ------------------------------------------------------------
@@ -78,7 +78,7 @@ export const HERO = {
   title: 'You’re waiting on a change <mark>that might never happen.</mark>',
   lede:
     'You keep repeating the same patterns that ultimately affect your relationship. As much as you understand your own past, you still can’t find a way to respond with your true intention.',
-  cta: { label: 'Apply for a session', href: '#apply' },
+  cta: { label: 'Book your free call', href: '#apply' },
   more: { label: 'What happens in the session', href: '#room' },
   film: { src: '/video/ws-involved-v1.mp4', poster: '/img/ws-involved-v1-poster.webp', title: 'What’s involved in 1:1 Private Coaching' },
 };
@@ -215,11 +215,33 @@ export const ANSWERS = [
 
 /* ---- the ask ------------------------------------------------------------- */
 export const APPLY = {
-  eyebrow: 'One to one',
+  eyebrow: 'Free discovery call',
   title: 'Take the <mark>first step.</mark>',
   body:
-    'Leave your details and your application is under review. Harrison reaches out directly — you choose the window for his call.',
-  formLabel: 'Apply — under a minute',
+    'A free conversation with Harrison: a space to be heard, and to see whether the tools are right for you. Tell him what sounds like you, choose a time, and you are booked.',
+  formLabel: 'Leave your details',
+};
+
+/* ---- the three steps (Dion, 12 Nov 2026) ---------------------------------
+   1 what sounds like you (the six iteration-one identities + the relationship one),
+   2 a time in Harrison's calendar, 3 your details (Calendly's own screen). */
+export const FUNNEL = {
+  badge: 'Free · 1:1 with Harrison',
+  steps: ['What sounds like you', 'Choose a time', 'Your details'],
+  q1: 'What sounds most like you?',
+  q1hint: 'Pick any that land. There are no wrong answers, and it helps Harrison meet you where you are.',
+  next: 'Continue',
+  skip: 'Not sure yet — skip',
+  relationship: { tag: 'The same argument', line: 'You keep having the same argument, just with different words.' },
+  q2: 'Choose a time for your free call.',
+  q2hint: 'Pick a day and time, then add your details to confirm. It goes straight into Harrison’s diary.',
+  back: 'Change my answer',
+  booked: 'You are booked. A confirmation is on its way to your email.',
+  noTime: 'Can’t find a time? Leave your details instead.',
+  backToCal: 'Back to times',
+  formQ: 'Leave your details and Harrison will come back to you.',
+  formSubmit: 'Request my free call',
+  formSuccess: 'Thank you. Harrison will reach out directly. Pick up to three windows for his call.',
 };
 
 /* ---- the form ------------------------------------------------------------ */

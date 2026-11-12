@@ -1,0 +1,279 @@
+---
+/**
+ * The ask on /rts-coaching, as three steps instead of two competing blocks.
+ * Dion, 12 Nov 2026: "too much friction, too many buttons to pick ... a clear
+ * funnel. Make it very clear the consultation is free. First, how the person
+ * relates to themselves (like iteration one, six or seven options, select what
+ * resonates). Then choose a time slot in the calendar. Final step is personal
+ * details."
+ *
+ *   1  What sounds like you   multi-select tiles (the six iteration-one identities
+ *                             + the relationship one this page is about). Saved to
+ *                             sessionStorage `rts-fy-pick`, the same key the home
+ *                             page's cards use, so the GHL `fy-pick-<slug>` tags and the
+ *                             fallback form pick it up. Also rides into Calendly as
+ *                             utm_content, so Harrison sees it on the booking.
+ *   2  Pick a time            Harrison's own Calendly, loaded when this step opens
+ *                             (the visitor chose to come here).
+ *   3  Your details           Calendly's own name / email / phone screen. The
+ *                             widget tells us when a time is picked, so the step
+ *                             indicator moves on by itself; `event_scheduled` fires
+ *                             the Lead + Schedule events.
+ *
+ * Below the calendar, one quiet line for the person who cannot find a time: it
+ * opens the old SeatForm (details first, Harrison calls). That is the only
+ * route that lands a lead in GHL by itself, so it stays, but out of the way.
+ */
+import SeatForm from './SeatForm.astro';
+import { IDENTITIES } from '../data/identities';
+import { FUNNEL, FORM } from '../data/workshop';
+
+/* The six identities from iteration one, plus the one this page is actually about. */
+const OPTIONS = [
+  { pick: 'relationship', tag: FUNNEL.relationship.tag, line: FUNNEL.relationship.line },
+  ...IDENTITIES.map((i) => ({ pick: i.pick, tag: i.tag, line: `${i.text} ${i.emphasis}` })),
+];
+---
+
+<div class="df" data-funnel data-cal="https://calendly.com/harrison-saito3011/60minutes">
+  <header class="df__head">
+    <p class="df__free"><span aria-hidden="true"></span>{FUNNEL.badge}</p>
+    <ol class="df__steps" aria-label="Three steps">
+      {FUNNEL.steps.map((s, i) => (
+        <li class={i === 0 ? 'is-on' : ''} data-dot={i + 1}><span>{i + 1}</span>{s}</li>
+      ))}
+    </ol>
+  </header>
+
+  {/* ---------- 1 ---------- */}
+  <section class="df__panel" data-step="1" aria-labelledby="df-q1">
+    <h3 class="df__q" id="df-q1">{FUNNEL.q1}</h3>
+    <p class="df__hint">{FUNNEL.q1hint}</p>
+    <div class="df__tiles" role="group" aria-labelledby="df-q1">
+      {OPTIONS.map((o) => (
+        <button type="button" class="df__tile" aria-pressed="false" data-pick={o.pick}>
+          <span class="df__tag">{o.tag}</span>
+          <span class="df__line">{o.line}</span>
+          <span class="df__tick" aria-hidden="true"></span>
+        </button>
+      ))}
+    </div>
+    <button type="button" class="df__next" data-next disabled><span>{FUNNEL.next}</span><span aria-hidden="true">→</span></button>
+    <button type="button" class="df__skip" data-skip>{FUNNEL.skip}</button>
+  </section>
+
+  {/* ---------- 2 + 3 ---------- */}
+  <section class="df__panel" data-step="2" hidden aria-labelledby="df-q2">
+    <button type="button" class="df__back" data-back>← {FUNNEL.back}</button>
+    <h3 class="df__q" id="df-q2">{FUNNEL.q2}</h3>
+    <p class="df__hint" data-cal-hint>{FUNNEL.q2hint}</p>
+    <p class="df__booked" data-booked hidden role="status">{FUNNEL.booked}</p>
+    <div class="df__cal" data-cal-slot></div>
+    <button type="button" class="df__fallback" data-fallback>{FUNNEL.noTime}</button>
+  </section>
+
+  {/* ---------- no time that suits: leave details instead ---------- */}
+  <section class="df__panel df__panel--form" data-step="form" hidden aria-label="Leave your details">
+    <button type="button" class="df__back" data-back-cal>← {FUNNEL.backToCal}</button>
+    <h3 class="df__q">{FUNNEL.formQ}</h3>
+    <SeatForm
+      formId={FORM.id}
+      about="workshop"
+      aboutLabel="Private Coaching · free discovery call"
+      sessions={[]}
+      sessionLabel={FORM.sessionLabel}
+      submitLabel={FUNNEL.formSubmit}
+      successHeading={FORM.successHeading}
+      successBody={FUNNEL.formSuccess}
+      callLabel={FORM.callLabel}
+      call={FORM.call}
+      doneHeading={FORM.doneHeading}
+      doneBody={FORM.doneBody}
+      whatsapp={FORM.whatsapp}
+      ask={FORM.ask}
+      eventName="lead"
+    />
+  </section>
+</div>
+
+<style>
+  .df { --line: oklch(100% 0 0 / 0.14); --tile: oklch(100% 0 0 / 0.06); --tile-hi: oklch(100% 0 0 / 0.1); --wash: oklch(84% 0.11 78 / 0.13); color: var(--text-on-ink); }
+
+  .df__head { display: grid; gap: 1.1rem; margin: 0 0 1.6rem; }
+  .df__free {
+    display: inline-flex; align-items: center; gap: 0.55rem; justify-self: start; margin: 0;
+    padding: 0.4rem 0.95rem; border-radius: 999px; font-size: 0.82rem; font-weight: 700; letter-spacing: 0.04em;
+    color: #14100d; background: linear-gradient(to right, #f2c275, #daa24f);
+  }
+  .df__free span { width: 7px; height: 7px; border-radius: 50%; background: #14100d; }
+
+  .df__steps { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0.5rem; counter-reset: s; }
+  .df__steps li {
+    display: flex; align-items: center; gap: 0.55rem; padding-top: 0.7rem; border-top: 2px solid var(--line);
+    font-size: 0.78rem; line-height: 1.3; color: var(--text-on-ink-faint); transition: color .25s ease, border-color .25s ease;
+  }
+  .df__steps li span {
+    flex: none; display: grid; place-items: center; width: 1.45rem; height: 1.45rem; border-radius: 50%;
+    border: 1px solid var(--line); font-size: 0.72rem; font-weight: 700; font-variant-numeric: tabular-nums;
+  }
+  .df__steps li.is-on { color: var(--text-on-ink); border-top-color: var(--gold); }
+  .df__steps li.is-on span { background: var(--gold); border-color: var(--gold); color: #14100d; }
+  .df__steps li.is-done { color: var(--text-on-ink-muted); border-top-color: oklch(75% 0.12 75 / 0.55); }
+  .df__steps li.is-done span { border-color: var(--gold); color: var(--gold); }
+
+  .df__panel[hidden] { display: none; }
+  .df__panel { animation: df-in .35s var(--ease-out-expo, ease) both; }
+  .df__q { font-family: var(--font-display); font-size: var(--step-2, 1.6rem); font-weight: 300; line-height: 1.2; margin: 0 0 0.45rem; color: var(--text-on-ink); text-transform: none; letter-spacing: 0; }
+  .df__hint { margin: 0 0 1.2rem; font-size: 0.9rem; color: var(--text-on-ink-muted); }
+
+  .df__tiles { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.6rem; }
+  .df__tile {
+    position: relative; display: grid; gap: 0.3rem; align-content: start; text-align: left;
+    padding: 0.9rem 2.6rem 0.95rem 1rem; border-radius: 14px; border: 1px solid var(--line); background: var(--tile);
+    color: var(--text-on-ink); font: inherit; cursor: pointer; box-shadow: inset 0 1px 0 oklch(100% 0 0 / 0.08);
+    transition: background .2s ease, border-color .2s ease, transform .2s var(--ease-out-expo, ease);
+    -webkit-tap-highlight-color: transparent;
+  }
+  .df__tile:hover { background: var(--tile-hi); border-color: oklch(84% 0.11 78 / 0.5); transform: translateY(-1px); }
+  .df__tile:focus-visible { outline: none; border-color: var(--gold); box-shadow: 0 0 0 3px oklch(75% 0.12 75 / 0.28); }
+  .df__tile[aria-pressed='true'] { border-color: var(--gold); background: var(--wash); }
+  .df__tile:last-child:nth-child(odd) { grid-column: 1 / -1; }
+  .df__tag { font-size: 0.66rem; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: var(--gold-light, #f2c275); }
+  .df__line { font-family: var(--font-display); font-size: 1.02rem; line-height: 1.3; }
+  .df__tick {
+    position: absolute; right: 0.85rem; top: 0.9rem; width: 1.15rem; height: 1.15rem; border-radius: 50%;
+    border: 1px solid oklch(100% 0 0 / 0.25); transition: background .2s ease, border-color .2s ease;
+  }
+  .df__tile[aria-pressed='true'] .df__tick { background: var(--gold); border-color: var(--gold); box-shadow: inset 0 0 0 3px #1c1610; }
+
+  .df__next {
+    margin-top: 1.2rem; width: 100%; display: inline-flex; align-items: center; justify-content: center; gap: 0.6rem;
+    padding: 1rem 1.4rem; border: 0; border-radius: 999px; font: inherit; font-size: 1.05rem; font-weight: 700; color: #14100d;
+    background: linear-gradient(to right, #f2c275, #daa24f); cursor: pointer; box-shadow: 0 10px 30px -10px oklch(75% 0.12 75 / 0.7);
+    transition: transform .2s var(--ease-out-expo, ease), opacity .2s ease, filter .2s ease;
+  }
+  .df__next:hover:not([disabled]) { transform: translateY(-1px); filter: brightness(1.04); }
+  .df__next:focus-visible { outline: 2px solid var(--gold); outline-offset: 3px; }
+  .df__next[disabled] { opacity: 0.4; cursor: not-allowed; box-shadow: none; }
+  .df__skip, .df__back, .df__fallback {
+    display: block; background: none; border: 0; padding: 0.25rem 0.1rem; font: inherit; font-size: 0.86rem; cursor: pointer;
+    color: var(--text-on-ink-muted); text-decoration: underline; text-decoration-color: oklch(100% 0 0 / 0.25); text-underline-offset: 0.22em;
+  }
+  .df__skip { margin: 0.85rem auto 0; }
+  .df__back { margin: 0 0 1rem; text-decoration: none; }
+  .df__fallback { margin: 1.1rem 0 0; }
+  .df__skip:hover, .df__back:hover, .df__fallback:hover { color: var(--text-on-ink); text-decoration-color: var(--gold); }
+
+  .df__cal { min-height: 12rem; border-radius: 16px; overflow: hidden; }
+  .df__cal .calendly-inline-widget { width: 100%; min-width: 300px; height: 700px; }
+  .df__booked {
+    margin: 0 0 1rem; padding: 0.8rem 1rem; border-radius: 12px; font-size: 0.95rem;
+    background: var(--wash); border: 1px solid oklch(84% 0.11 78 / 0.35);
+  }
+  .df__booked[hidden] { display: none; }
+
+  @keyframes df-in { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+  @media (max-width: 560px) {
+    .df__tiles { grid-template-columns: 1fr; }
+    .df__steps li { font-size: 0.7rem; gap: 0.4rem; flex-direction: column; align-items: flex-start; }
+    .df__cal .calendly-inline-widget { height: 640px; }
+  }
+  @media (prefers-reduced-motion: reduce) { .df__panel { animation: none; } }
+</style>
+
+<script>
+  import { track } from '../scripts/tracking';
+  import { eventId } from '../scripts/tracking';
+
+  document.querySelectorAll<HTMLElement>('[data-funnel]').forEach((root) => {
+    const $ = <T extends HTMLElement>(s: string) => root.querySelector<T>(s)!;
+    const panels = { '1': $('[data-step="1"]'), '2': $('[data-step="2"]'), form: $('[data-step="form"]') } as Record<string, HTMLElement>;
+    const dots = [...root.querySelectorAll<HTMLElement>('[data-dot]')];
+    const tiles = [...root.querySelectorAll<HTMLButtonElement>('[data-pick]')];
+    const next = $<HTMLButtonElement>('[data-next]');
+    const slot = $('[data-cal-slot]');
+    const booked = $('[data-booked]');
+    const hint = $('[data-cal-hint]');
+    const path = location.pathname;
+    const picks = new Set<string>();
+    let loaded = false;
+
+    const show = (key: string) => {
+      Object.entries(panels).forEach(([k, el]) => { el.hidden = k !== key; });
+      const stage = key === '1' ? 1 : 2;
+      setDots(stage);
+      const head = root.getBoundingClientRect();
+      if (head.top < 0) root.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    };
+    const setDots = (stage: number) => {
+      dots.forEach((d, i) => {
+        d.classList.toggle('is-on', i + 1 === stage);
+        d.classList.toggle('is-done', i + 1 < stage);
+      });
+    };
+
+    tiles.forEach((b) => b.addEventListener('click', () => {
+      const p = b.dataset.pick!;
+      const on = !picks.has(p);
+      on ? picks.add(p) : picks.delete(p);
+      b.setAttribute('aria-pressed', String(on));
+      next.disabled = picks.size === 0;
+    }));
+
+    const remember = () => {
+      try { sessionStorage.setItem('rts-fy-pick', [...picks].join(',')); } catch {}
+    };
+
+    const loadCalendly = () => {
+      if (loaded) return;
+      loaded = true;
+      const q = new URLSearchParams({
+        hide_gdpr_banner: '1',
+        background_color: '14110e',
+        text_color: 'f1ece4',
+        primary_color: 'c9a35c',
+        utm_source: 'rts-coaching',
+        utm_medium: 'funnel',
+      });
+      if (picks.size) q.set('utm_content', [...picks].join('-'));
+      slot.innerHTML = `<div class="calendly-inline-widget" data-url="${root.dataset.cal}?${q}"></div>`;
+      const s = document.createElement('script');
+      s.src = 'https://assets.calendly.com/assets/external/widget.js';
+      s.async = true;
+      document.head.appendChild(s);
+      track('calendly_open', { page_path: path });
+    };
+
+    const go = (skipped: boolean) => {
+      remember();
+      track('form_step', { form_id: 'discovery', step: 1, question: 'resonates', answer: skipped ? 'skipped' : [...picks].join(','), page_path: path });
+      show('2');
+      loadCalendly();
+    };
+    next.addEventListener('click', () => { if (picks.size) go(false); });
+    $<HTMLButtonElement>('[data-skip]').addEventListener('click', () => go(true));
+    $<HTMLButtonElement>('[data-back]').addEventListener('click', () => show('1'));
+    $<HTMLButtonElement>('[data-fallback]').addEventListener('click', () => {
+      track('form_step', { form_id: 'discovery', step: 2, question: 'no-time-suits', page_path: path });
+      show('form');
+    });
+    $<HTMLButtonElement>('[data-back-cal]').addEventListener('click', () => show('2'));
+
+    /* Calendly talks to the page: a time picked = its details screen is next. */
+    window.addEventListener('message', (e) => {
+      if (e.origin !== 'https://calendly.com') return;
+      const ev = (e.data && (e.data as { event?: string }).event) || '';
+      if (ev === 'calendly.date_and_time_selected') {
+        setDots(3);
+        track('form_step', { form_id: 'discovery', step: 2, question: 'time-picked', page_path: path });
+      } else if (ev === 'calendly.event_scheduled') {
+        dots.forEach((d) => { d.classList.remove('is-on'); d.classList.add('is-done'); });
+        booked.hidden = false;
+        hint.hidden = true;
+        const id = eventId();
+        track('lead', { event_id: id, form_id: 'discovery', page_path: path, method: 'calendly' });
+        track('schedule', { event_id: eventId(), form_id: 'discovery', page_path: path, method: 'calendly' });
+      }
+    });
+  });
+</script>
