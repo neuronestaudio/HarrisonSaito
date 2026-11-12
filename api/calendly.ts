@@ -98,7 +98,7 @@ async function pipeline(): Promise<{ pipelineId: string; byName: Record<string, 
 export async function POST(request: Request): Promise<Response> {
   const env = process.env;
   if (!env.GHL_TOKEN || !env.GHL_LOCATION_ID || !env.CALENDLY_HOOK_SECRET) return reply(503, { ok: false, error: 'not configured' });
-  if (new URL(request.url).searchParams.get('s') !== env.CALENDLY_HOOK_SECRET) return reply(401, { ok: false, error: 'no' });
+  if ((new URL(request.url).searchParams.get('s') ?? '').trim() !== env.CALENDLY_HOOK_SECRET.trim()) return reply(401, { ok: false, error: 'no' });
 
   let hook: J;
   try { hook = await request.json(); } catch { return reply(400, { ok: false, error: 'Invalid JSON' }); }
