@@ -218,7 +218,7 @@ export const APPLY = {
   eyebrow: 'Free discovery call',
   title: 'Take the <mark>first step.</mark>',
   body:
-    'A free conversation with Harrison: a space to be heard, and to see whether the tools are right for you. Tell him what sounds like you, choose a time, and you are booked.',
+    'A free conversation with Harrison: a space to be heard, and to see whether the tools are right for you. Tap what resonates, choose a time, and you are booked.',
   formLabel: 'Leave your details',
 };
 
@@ -227,12 +227,21 @@ export const APPLY = {
    2 a time in Harrison's calendar, 3 your details (Calendly's own screen). */
 export const FUNNEL = {
   badge: 'Free · 1:1 with Harrison',
-  steps: ['What sounds like you', 'Choose a time', 'Your details'],
-  q1: 'What sounds most like you?',
-  q1hint: 'Pick any that land. There are no wrong answers, and it helps Harrison meet you where you are.',
-  next: 'Continue',
-  skip: 'Not sure yet — skip',
-  relationship: { tag: 'The same argument', line: 'You keep having the same argument, just with different words.' },
+  steps: ['What resonates', 'Choose a time', 'Your details'],
+  q1: 'What do you resonate with the most?',
+  q1hint: 'Tap the one closest to home. It helps Harrison meet you where you are.',
+  skip: 'None of these — skip',
+  /* The six lines from the Iteration 1 Meta instant form (form 1081970587937312,
+     "which resonates most"), word for word, in the order the GHL report lists them.
+     `pick` rides into Calendly as utm_content. */
+  options: [
+    { pick: 'disconnected', line: 'I feel disconnected from myself or what I actually want' },
+    { pick: 'patterns', line: 'I keep repeating the same patterns in my relationships' },
+    { pick: 'reacting', line: 'I keep reacting in ways I later regret' },
+    { pick: 'switch-off', line: 'I struggle to switch off or slow down' },
+    { pick: 'not-enough', line: 'I keep achieving, but it still doesn’t feel like enough' },
+    { pick: 'change', line: 'I know something needs to change, but I’m not sure what' },
+  ],
   q2: 'Choose a time for your free call.',
   q2hint: 'Pick a day and time, then add your details to confirm. It goes straight into Harrison’s diary.',
   back: 'Change my answer',
