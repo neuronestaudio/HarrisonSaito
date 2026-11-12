@@ -12,7 +12,9 @@
  *                             sessionStorage `rts-fy-pick`, the same key the home
  *                             page's cards use, so the GHL `fy-pick-<slug>` tags and the
  *                             fallback form pick it up. Also rides into Calendly as
- *                             utm_content, so Harrison sees it on the booking.
+ *                             utm_term, so Harrison sees it on the booking. The ad's own
+ *                             UTMs (campaign / ad set / ad) ride along as utm_campaign /
+ *                             utm_medium / utm_content for attribution.
  *   2  Pick a time            Harrison's own Calendly, loaded when this step opens
  *                             (the visitor chose to come here).
  *   3  Your details           Calendly's own name / email / phone screen. The
@@ -205,10 +207,25 @@ const OPTIONS = FUNNEL.options;
         background_color: '14110e',
         text_color: 'f1ece4',
         primary_color: 'c9a35c',
-        utm_source: 'rts-coaching',
-        utm_medium: 'funnel',
       });
-      if (picks.size) q.set('utm_content', [...picks].join('-'));
+      /* Keep the ad's own UTMs (Meta: campaign / ad set / ad) so the booking can be traced
+         to an ad; the resonates pick rides separately as utm_term. */
+      let ad: Record<string, string> = {};
+      try {
+        const sp = new URLSearchParams(location.search);
+        const now: Record<string, string> = {};
+        for (const k of ['utm_source', 'utm_medium', 'utm_campaign', 'utm_content']) {
+          const v = sp.get(k);
+          if (v) now[k] = v;
+        }
+        if (Object.keys(now).length) sessionStorage.setItem('rts-utm', JSON.stringify(now));
+        ad = JSON.parse(sessionStorage.getItem('rts-utm') || '{}');
+      } catch {}
+      q.set('utm_source', ad.utm_source || 'rts-coaching');
+      q.set('utm_medium', ad.utm_medium || 'funnel');
+      if (ad.utm_campaign) q.set('utm_campaign', ad.utm_campaign);
+      if (ad.utm_content) q.set('utm_content', ad.utm_content);
+      if (picks.size) q.set('utm_term', [...picks].join('-'));
       slot.innerHTML = `<div class="calendly-inline-widget" data-url="${root.dataset.cal}?${q}"></div>`;
       const s = document.createElement('script');
       s.src = 'https://assets.calendly.com/assets/external/widget.js';
