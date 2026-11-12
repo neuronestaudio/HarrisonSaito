@@ -22,8 +22,6 @@
  * CALENDLY_HOOK_SECRET.
  */
 
-import { textTeam } from './_notify';
-
 declare const process: { env: Record<string, string | undefined> };
 
 type J = Record<string, any>;
@@ -178,15 +176,6 @@ export async function POST(request: Request): Promise<Response> {
   if (ad || adSet || campaign) lines.push(`Came from: Meta ad${campaign ? ` / Campaign: ${campaign}` : ''}${adSet ? ` / Ad set: ${adSet}` : ''}${ad ? ` / Ad: ${ad}` : ''}`);
   lines.push(...said, 'Source: /rts-coaching free discovery call funnel (Calendly, 30 minutes)');
   await ghl('POST', `/contacts/${contactId}/notes`, { body: lines.join('\n') });
-
-  /* ---- text the team: a booking is the thing Harrison is waiting for ---- */
-  if (!rescheduled) {
-    const sms = canceled
-      ? `CALL CANCELLED (Harrison): ${name || email}, was ${when}`
-      : `NEW CALL BOOKED (Harrison): ${name || email}${phoneRaw ? ', ' + human(phoneRaw) : ''}, ${when}` +
-        `${resonates ? ' | "' + resonates + '"' : ''}${ad ? ' | ad: ' + ad : ''}`;
-    try { await textTeam(sms); } catch (e) { console.error('[calendly] alert failed', (e as Error).message); }
-  }
 
   console.log('[calendly]', JSON.stringify({ event, contactId, oppId, when, pick }));
   return reply(200, { ok: true, event, contactId, opportunityId: oppId ?? null });
