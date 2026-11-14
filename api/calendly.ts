@@ -96,6 +96,18 @@ const RESONATES: Record<string, string> = {
   change: 'I know something needs to change, but I’m not sure what',
 };
 
+/* 14 Nov 2026: step 1 of /rts-coaching is now the six emotions (src/data/workshop.ts
+   FEEL.cards); the slug rides in as utm_term. The six lines above stay so older bookings
+   still read. Change both together. */
+const FEELINGS: Record<string, string> = {
+  anger: 'Anger: “I’m tired of not being heard.”',
+  fear: 'Fear: “What if they reject me?”',
+  shame: 'Shame: “Maybe I’m not good enough.”',
+  guilt: 'Guilt: “I feel bad putting myself first.”',
+  sadness: 'Sadness: “I wish things had been different.”',
+  loneliness: 'Loneliness: “I don’t feel truly understood.”',
+};
+
 const reply = (status: number, body: J) =>
   new Response(JSON.stringify(body), { status, headers: { 'Content-Type': 'application/json', 'Cache-Control': 'no-store' } });
 
@@ -170,7 +182,8 @@ export async function POST(request: Request): Promise<Response> {
   const adSet = String(p.tracking?.utm_medium ?? '').trim();
   const ad = String(p.tracking?.utm_content ?? '').trim();
   const campaign = String(p.tracking?.utm_campaign ?? '').trim();
-  const resonates = RESONATES[pick] ?? (pick ? pick.replace(/-/g, ' ') : '');
+  const feeling = FEELINGS[pick] ?? '';
+  const resonates = feeling ? '' : RESONATES[pick] ?? (pick ? pick.replace(/-/g, ' ') : '');
   const said = qa.filter((q) => q.answer && !/phone|mobile|number/i.test(String(q.question ?? '')))
     .map((q) => `${String(q.question).trim()}: ${String(q.answer).replace(/\s+/g, ' ').trim()}`);
   const parts = name.split(/\s+/).filter(Boolean);
@@ -225,7 +238,8 @@ export async function POST(request: Request): Promise<Response> {
     `Email: ${email || 'not given'}`,
   );
   if (!canceled) lines.push(`Booked: ${when}`);
-  if (resonates) lines.push(`Resonates most: "${resonates}"`);
+  if (feeling) lines.push(`Feeling to work on: ${feeling}`);
+  else if (resonates) lines.push(`Resonates most: "${resonates}"`);
   if (ad || adSet || campaign) lines.push(`Came from: Meta ad${campaign ? ` / Campaign: ${campaign}` : ''}${adSet ? ` / Ad set: ${adSet}` : ''}${ad ? ` / Ad: ${ad}` : ''}`);
   lines.push(...said, 'Source: /rts-coaching free discovery call funnel (Calendly, 30 minutes)');
   await ghl('POST', `/contacts/${contactId}/notes`, { body: lines.join('\n') });
@@ -235,7 +249,7 @@ export async function POST(request: Request): Promise<Response> {
     const sms = canceled
       ? `CALL CANCELLED (Harrison): ${name || email}, was ${when}`
       : `NEW CALL BOOKED (Harrison): ${name || email}${phoneRaw ? ', ' + human(phoneRaw) : ''}, ${when}` +
-        `${resonates ? ' | "' + resonates + '"' : ''}${ad ? ' | ad: ' + ad : ''}`;
+        `${feeling ? ' | ' + feeling : resonates ? ' | "' + resonates + '"' : ''}${ad ? ' | ad: ' + ad : ''}`;
     try { await textTeam(sms); } catch (e) { console.error('[calendly] alert failed', (e as Error).message); }
   }
 

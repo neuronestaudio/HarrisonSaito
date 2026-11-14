@@ -32,7 +32,7 @@ import { src, srcset } from '../lib/images';
 import { forYouIcon } from '../lib/morel-icons';
 import { PROOF, SITE } from '../data/site';
 import { graph, personSchema, localBusinessSchema } from '../lib/seo';
-import { DETAILS, WHEN_LINE, HERO, EXPLAIN, MOMENTS, GAINS_INTRO, ROOM, WHO, ANSWERS, APPLY, FORM } from '../data/workshop';
+import { DETAILS, WHEN_LINE, HERO, EXPLAIN, FEEL, MOMENTS, GAINS_INTRO, ROOM, WHO, ANSWERS, APPLY, FORM } from '../data/workshop';
 
 const title = 'Private Coaching — 1:1 with Harrison Saito | Chatswood, Sydney';
 const description =
@@ -91,6 +91,42 @@ const schema = graph(personSchema(), localBusinessSchema());
         </header>
         <div class="ws-film__frame reveal reveal--fade">
           <video src={EXPLAIN.film.src} poster={EXPLAIN.film.poster} aria-label={EXPLAIN.film.title} controls preload="none" playsinline data-track-film="ws-explain"></video>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ BENEATH THE REACTION: the emotion is what awareness is of ============ -->
+    <section class="section section--white ws-feel" data-section="ws-feel">
+      <div class="wide">
+        <header class="ws-head">
+          <p class="eyebrow">{FEEL.eyebrow}</p>
+          <h2 class="reveal" set:html={FEEL.title} />
+          <p class="fs-sm ws-lede reveal">{FEEL.lede}</p>
+        </header>
+
+        <p class="ws-feel__label">{FEEL.flowLabel}</p>
+        <ol class="ws-flow reveal">
+          {FEEL.flow.map((f) => (
+            <li>
+              <p class="ws-flow__k">{f.label}</p>
+              <p class="ws-flow__t">{f.text}</p>
+            </li>
+          ))}
+        </ol>
+
+        <p class="ws-feel__label ws-feel__label--cards">{FEEL.cardsLabel}</p>
+        <ul class="ws-feels" data-stagger>
+          {FEEL.cards.map((c) => (
+            <li class="ws-feelcard reveal">
+              <h3>{c.name}</h3>
+              <p class="ws-feelcard__say">“{c.line}”</p>
+              <p class="ws-feelcard__shows"><span>{FEEL.showsLabel}</span>{c.shows}</p>
+            </li>
+          ))}
+        </ul>
+
+        <div class="ws-feel__close reveal">
+          {FEEL.close.map((p) => <p>{p}</p>)}
         </div>
       </div>
     </section>
@@ -482,6 +518,24 @@ const schema = graph(personSchema(), localBusinessSchema());
   .ws-leave__ex { margin: 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
   .ws-leave__ex dt { font-size: 12px; font-weight: 700; letter-spacing: 0.16em; text-transform: uppercase; color: var(--gold-deep); }
   .ws-leave__ex dd { margin: 0.2rem 0 0; font-family: var(--font-accent); }
+  /* ---- beneath the reaction: the flow, the six feelings ---- */
+  .ws-feel .ws-head :global(h2) { max-width: 20ch; }
+  .ws-feel .ws-lede { margin: 1rem 0 0; max-width: 62ch; color: var(--fg3); }
+  .ws-feel__label { margin: 0 0 0.8rem; font-size: 12px; font-weight: 700; letter-spacing: 0.18em; text-transform: uppercase; color: var(--fg4); }
+  .ws-feel__label--cards { margin-top: clamp(2rem, 4vw, 3.4rem); }
+  .ws-flow { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: clamp(12px, 1.6vw, 22px); }
+  .ws-flow li { border-top: 2px solid var(--fg1); padding-top: 14px; min-width: 0; }
+  .ws-flow li:nth-child(2), .ws-flow li:nth-child(4) { border-top-color: var(--gold-deep); }
+  .ws-flow__k { margin: 0 0 0.45rem; font-size: 12px; font-weight: 700; letter-spacing: 0.16em; text-transform: uppercase; color: var(--gold-deep); }
+  .ws-flow__t { margin: 0; font-family: var(--font-accent); font-size: var(--fs-sm); line-height: 1.3; color: var(--fg1); }
+  .ws-feels { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: clamp(12px, 1.6vw, 20px); }
+  .ws-feelcard { padding: 1.2rem 1.3rem 1.3rem; border-radius: 18px; background: var(--bg2); min-width: 0; }
+  .ws-feelcard :global(h3) { margin: 0 0 0.6rem; font-size: calc(var(--fs-md) * 0.92); line-height: 1.15; }
+  .ws-feelcard__say { margin: 0 0 1rem; font-family: var(--font-accent); font-size: var(--fs-sm); line-height: 1.3; color: var(--fg1); }
+  .ws-feelcard__shows { margin: 0; font-size: var(--fs-xs); color: var(--fg3); }
+  .ws-feelcard__shows span { display: block; margin-bottom: 0.25rem; font-size: 11px; font-weight: 700; letter-spacing: 0.16em; text-transform: uppercase; color: var(--gold-deep); }
+  .ws-feel__close { margin-top: clamp(1.8rem, 3.4vw, 3rem); max-width: 62ch; }
+  .ws-feel__close p { margin: 0 0 0.7rem; font-family: var(--font-accent); font-size: var(--fs-sm); line-height: 1.35; color: var(--fg1); }
   .ws-film__frame { max-width: 960px; margin: 0 auto; aspect-ratio: 16 / 9; border-radius: 20px; overflow: hidden; background: #14100d; box-shadow: 0 40px 90px rgba(0, 0, 0, 0.5); }
   .ws-film__stack { display: grid; gap: clamp(1.2rem, 3vw, 2.2rem); }
   .ws-film__frame video { width: 100%; height: 100%; display: block; object-fit: cover; }
@@ -527,6 +581,8 @@ const schema = graph(personSchema(), localBusinessSchema());
   @media (max-width: 1080px) {
     .ws-moves { grid-template-columns: repeat(2, minmax(0, 1fr)); }
     .ws-tlist { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .ws-flow { grid-template-columns: repeat(3, minmax(0, 1fr)); row-gap: 1.4rem; }
+    .ws-feels { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   }
   @media (max-width: 900px) {
     .ws-hero__grid { grid-template-columns: 1fr; }
@@ -537,7 +593,7 @@ const schema = graph(personSchema(), localBusinessSchema());
     .ws-who__portrait { max-width: 420px; }
   }
   @media (max-width: 680px) {
-    .ws-moves, .ws-tlist { grid-template-columns: 1fr; }
+    .ws-moves, .ws-tlist, .ws-flow, .ws-feels { grid-template-columns: 1fr; }
     .ws-faces { grid-template-columns: repeat(2, minmax(0, 1fr)); }
     .ws-room__foot { flex-direction: column; align-items: stretch; }
     .ws-room__foot :global(.btn) { text-align: center; }

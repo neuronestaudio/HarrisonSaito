@@ -303,6 +303,13 @@ const IDENTITY_LINES: Record<string, string> = {
   generational: 'carries what was never theirs to choose',
   unresolved: 'an anger underneath they cannot name',
   mask: 'says yes when they mean no',
+  /* /rts-coaching step 1 since 14 Nov 2026: the six emotions (src/data/workshop.ts FEEL.cards) */
+  anger: 'Anger: “I’m tired of not being heard.”',
+  fear: 'Fear: “What if they reject me?”',
+  shame: 'Shame: “Maybe I’m not good enough.”',
+  guilt: 'Guilt: “I feel bad putting myself first.”',
+  sadness: 'Sadness: “I wish things had been different.”',
+  loneliness: 'Loneliness: “I don’t feel truly understood.”',
 };
 
 /** Who the notification speaks to: it goes to Harrison (the email copies Dion). */

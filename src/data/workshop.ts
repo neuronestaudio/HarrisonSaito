@@ -61,7 +61,7 @@ export const DETAILS = {
 };
 
 /** How the missing facts read on the page. */
-export const WHEN_LINE = 'Free discovery call · 1:1 with Harrison';
+export const WHEN_LINE = 'Start with a free 30-minute call · 1:1 with Harrison';
 export const LENGTH_LINE = DETAILS.length ?? 'One session';
 
 /* ---- the fold ------------------------------------------------------------
@@ -75,9 +75,12 @@ export const HERO = {
      patterns that ultimately affect your relationship. As much as you understand your own past, you still
      can't find a way to respond with your true intention." Replaces "1:1 Private Coaching with Harrison.
      What's involved?" (the eyebrow and the film still say what it is). */
-  title: 'You’re waiting on a change <mark>that might never happen.</mark>',
+  /* Harrison, 14 Nov 2026 (his words): headline "You know your patterns. So why do you keep
+     repeating them?" and the line under it, "direct, so niche yet clear". The 30-minute free
+     call stays in the pill below the button (WHEN_LINE), so the button and the line agree. */
+  title: 'You know your patterns. <mark>So why do you keep repeating them?</mark>',
   lede:
-    'You keep repeating the same patterns that ultimately affect your relationship. As much as you understand your own past, you still can’t find a way to respond with your true intention.',
+    'A 60-minute private coaching session to explore one emotional pattern affecting your relationships, and practise a different way of responding.',
   cta: { label: 'Book your free call', href: '#apply' },
   more: { label: 'What happens in the session', href: '#room' },
   film: { src: '/video/ws-involved-v1.mp4', poster: '/img/ws-involved-v1-poster.webp', title: 'What’s involved in 1:1 Private Coaching' },
@@ -88,6 +91,42 @@ export const EXPLAIN = {
   title: 'You can’t change what happens. <mark>But you can change how you respond.</mark>',
   lead: 'Let me explain…',
   film: { src: '/video/ws-explain-v1.mp4', poster: '/img/ws-explain-v1-poster.webp', title: 'You can’t change what happens, but you can change how you respond' },
+};
+
+/* The emotion section, between the second film and "Awareness creates choice".
+   Harrison, 14 Nov 2026: "there could be a section on the emotions, because it is the
+   awareness of emotions that then creates choice. Without the emotion recognised it is not
+   quite awareness ... what Return to Self does is recognise the emotion, process it, and
+   then you can choose more true to yourself. Most of the issue is the avoidance or the
+   excessive looping of the emotion." The six emotions, their quotes, the automatic
+   reactions and the worked example are his draft (from his own ChatGPT), not yet
+   confirmed word for word; no one is named. */
+export const FEEL = {
+  eyebrow: 'Beneath the reaction',
+  title: 'Awareness of the emotion <mark>is what creates choice.</mark>',
+  lede: 'A pattern is easy to name. The feeling underneath it is harder, and most people avoid it or go round and round in it. Return to Self recognises the emotion, makes room for it, and lets you choose from what matters to you.',
+  flowLabel: 'How it plays out',
+  flow: [
+    { label: 'Situation', text: 'My partner criticises something I did.' },
+    { label: 'Emotion', text: 'Shame. I feel inadequate.' },
+    { label: 'Automatic reaction', text: 'I become defensive.' },
+    { label: 'Awareness', text: 'I recognise the shame and my urge to defend.' },
+    { label: 'Conscious choice', text: 'I pause, listen and ask what they mean.' },
+  ],
+  cardsLabel: 'What it can sound like',
+  showsLabel: 'Often shows up as',
+  cards: [
+    { pick: 'anger', name: 'Anger', line: 'I’m tired of not being heard.', shows: 'Defending, blaming, withdrawing or lashing out.' },
+    { pick: 'fear', name: 'Fear', line: 'What if they reject me?', shows: 'Avoiding confrontation, overthinking or seeking reassurance.' },
+    { pick: 'shame', name: 'Shame', line: 'Maybe I’m not good enough.', shows: 'Hiding, becoming defensive or trying to prove yourself.' },
+    { pick: 'guilt', name: 'Guilt', line: 'I feel bad putting myself first.', shows: 'People-pleasing, over-apologising or neglecting your own needs.' },
+    { pick: 'sadness', name: 'Sadness', line: 'I wish things had been different.', shows: 'Withdrawing, suppressing feelings or dwelling on disappointment.' },
+    { pick: 'loneliness', name: 'Loneliness', line: 'I don’t feel truly understood.', shows: 'Seeking excessive validation, disconnecting or avoiding vulnerability.' },
+  ],
+  close: [
+    'Your emotions aren’t your enemy. They can tell you something important about what matters to you.',
+    'But you don’t have to act on every feeling. Return to Self is learning to pause, recognise what you’re feeling and practise choosing how you want to respond.',
+  ],
 };
 
 /* the pilot brief's everyday moments */
@@ -225,27 +264,20 @@ export const APPLY = {
   formLabel: 'Leave your details',
 };
 
-/* ---- the three steps (Dion, 12 Nov 2026) ---------------------------------
-   1 what sounds like you (the six iteration-one identities + the relationship one),
+/* ---- the three steps (Dion, 12 Nov; step 1 replaced 14 Nov 2026) -----------
+   1 the feeling they want to work with (Harrison's six emotions, the same ones as the
+     FEEL section; this replaced the six Iteration 1 "resonates" lines),
    2 a time in Harrison's calendar, 3 your details (Calendly's own screen). */
 export const FUNNEL = {
   badge: 'Free · 1:1 with Harrison',
-  steps: ['What resonates', 'Choose a time', 'Your details'],
-  q1: 'What do you resonate with the most?',
+  steps: ['Your feeling', 'Choose a time', 'Your details'],
+  q1: 'Which feeling do you most want to work with?',
   q1hint: 'Tap the one closest to home. It helps Harrison meet you where you are.',
   skip: 'None of these — skip',
-  /* The six lines from the Iteration 1 Meta instant form (form 1081970587937312,
-     "which resonates most"), word for word, in the order the GHL report lists them.
-     `pick` rides into Calendly as utm_content. */
-  options: [
-    { pick: 'disconnected', line: 'I feel disconnected from myself or what I actually want' },
-    { pick: 'patterns', line: 'I keep repeating the same patterns in my relationships' },
-    { pick: 'reacting', line: 'I keep reacting in ways I later regret' },
-    { pick: 'switch-off', line: 'I struggle to switch off or slow down' },
-    { pick: 'not-enough', line: 'I keep achieving, but it still doesn’t feel like enough' },
-    { pick: 'change', line: 'I know something needs to change, but I’m not sure what' },
-  ],
-  q2: 'Choose a time for your free call.',
+  /* `pick` rides into Calendly as utm_term and into GHL as the fy-pick-<slug> tag;
+     the cards are FEEL.cards, so the page and the funnel never drift apart. */
+  options: FEEL.cards.map((c) => ({ pick: c.pick, name: c.name, line: c.line })),
+  q2: 'Choose a time for your free 30-minute call.',
   q2hint: 'Pick a day and time, then add your details to confirm. It goes straight into Harrison’s diary.',
   back: 'Change my answer',
   booked: 'You are booked. A confirmation is on its way to your email.',
