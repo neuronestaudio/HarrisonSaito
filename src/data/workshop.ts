@@ -113,6 +113,17 @@ export const FEEL = {
     { label: 'Awareness', text: 'I recognise the shame and my urge to defend.' },
     { label: 'Conscious choice', text: 'I pause, listen and ask what they mean.' },
   ],
+  /* Harrison, 14 Nov: the body heat map of emotions (Nummenmaa et al., PNAS 2014). Cited and
+     linked, with no copy of the figure: the paper is not open access (Europe PMC: isOpenAccess N),
+     so the image needs the authors' permission first. n = 701, five experiments, West European
+     and East Asian samples (Europe PMC abstract record). */
+  body: {
+    label: 'In the body',
+    text: 'In a study of 701 people, each coloured the parts of the body where they felt an emotion. Each emotion showed its own pattern, in people from both Europe and East Asia.',
+    cite: 'Nummenmaa, L., Glerean, E., Hari, R. & Hietanen, J. K. (2014). Bodily maps of emotions. Proceedings of the National Academy of Sciences, 111(2), 646–651.',
+    href: 'https://doi.org/10.1073/pnas.1321664111',
+    linkLabel: 'Read the study',
+  },
   cardsLabel: 'What it can sound like',
   showsLabel: 'Often shows up as',
   cards: [

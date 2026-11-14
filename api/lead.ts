@@ -28,6 +28,8 @@ const ALERT_GHL = 'https://services.leadconnectorhq.com';
 
 const ALERT_TEAM: { name: string; phone: string }[] = [
   { name: 'Dion', phone: '+61478029827' },
+  { name: 'Harrison', phone: '+61417884131' },
+  { name: 'Danny', phone: '+61420806960' },
 ];
 
 const alertHead = (version: string): Record<string, string> => ({
