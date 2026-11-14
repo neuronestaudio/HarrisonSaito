@@ -54,7 +54,7 @@ export const DETAILS = {
      seat question is left out and Harrison's call picker is the only step. */
   sessions: [] as { id: string; label: string; time: string }[],
   when: null as string | null,
-  length: '45 minutes, 1:1' as string | null,
+  length: '60 minutes, 1:1' as string | null,
   /** $60 and the full-refund line are Dion's terms (11 Nov 2026): pay for the session,
       full refund if by the end it is not for you. Harrison has not signed them off. */
   price: '$60' as string | null,
@@ -113,7 +113,7 @@ export const GAINS_INTRO = {
   more: { label: 'Hear it from them', href: '/testimonials' },
 };
 
-/* ---- what happens in the session (the pilot brief's flow, 45 minutes) ------ */
+/* ---- what happens in the session (the pilot brief's flow, 60 minutes) ------ */
 export const ROOM = {
   eyebrow: 'What happens in the session',
   title: 'Pause. Recognise. <mark>Choose.</mark>',

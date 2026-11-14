@@ -53,7 +53,7 @@ export const MOMENTS = {
 
 export const ROOM = {
   title: 'Pause. Recognise. <mark>Choose.</mark>',
-  lead: 'Across 45 minutes, I’ll guide you through Pause → Recognise → Choose, using one recent relationship moment you’d like to handle differently, whether you went quiet, became defensive or said yes when you wanted to say no.',
+  lead: 'Across 60 minutes, I’ll guide you through Pause → Recognise → Choose, using one recent relationship moment you’d like to handle differently, whether you went quiet, became defensive or said yes when you wanted to say no.',
   steps: [
     { key: 'Pause', body: 'Feel your feet and take a comfortable breath. Give yourself a moment.' },
     { key: 'Recognise', body: 'What do I notice in my body? What feeling, story or usual reaction is showing up?' },
