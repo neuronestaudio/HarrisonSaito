@@ -52,21 +52,24 @@ export const MOMENTS = {
 };
 
 export const ROOM = {
-  title: 'Pause. Recognise. <mark>Choose.</mark>',
-  lead: 'Across 60 minutes, I’ll guide you through Pause → Recognise → Choose, using one recent relationship moment you’d like to handle differently, whether you went quiet, became defensive or said yes when you wanted to say no.',
+  title: 'Pause. Recognise. Return. <mark>Choose.</mark>',
+  /* Harrison, 13 Nov: same four steps as /rts-coaching; the moment and the person are named
+     up front; "Sharing is optional" lives in the FAQ only. */
+  lead: 'Across 60 minutes, I’ll guide you through Pause → Recognise → Return → Choose. We start with one recent moment, with one person who matters to you, and the emotion it brought up, whether you went quiet, became defensive or said yes when you wanted to say no.',
   steps: [
     { key: 'Pause', body: 'Feel your feet and take a comfortable breath. Give yourself a moment.' },
     { key: 'Recognise', body: 'What do I notice in my body? What feeling, story or usual reaction is showing up?' },
-    { key: 'Choose', body: 'What matters to me here? Identify an alternative and choose one next action.' },
+    { key: 'Return', body: 'Come back to yourself. Settle, so you can respond instead of react.' },
+    { key: 'Choose', body: 'What matters to me here? Choose a response, and when you will practise it.' },
   ],
 };
 
 export const LEAVE = {
-  lead: 'You’ll leave with one early signal to recognise, one usual reaction to notice and one alternative response to practise. Sharing is optional.',
+  lead: 'You’ll leave with the tools to see what is happening inside you, and what stands between you and saying what you actually mean.',
   example: [
-    { label: 'Early signal', text: 'My jaw tightens' },
-    { label: 'Usual reaction', text: 'I defend myself' },
-    { label: 'Alternative', text: 'I pause and ask what they meant' },
+    { label: 'The moment', text: 'I am disagreeing with someone I care about' },
+    { label: 'Usual reaction', text: 'I say nothing and swallow my emotions' },
+    { label: 'Alternative', text: 'I allow myself to feel what I feel but express it calmly without lashing out' },
   ],
 };
 

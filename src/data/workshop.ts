@@ -116,13 +116,16 @@ export const GAINS_INTRO = {
 /* ---- what happens in the session (the pilot brief's flow, 60 minutes) ------ */
 export const ROOM = {
   eyebrow: 'What happens in the session',
-  title: 'Pause. Recognise. <mark>Choose.</mark>',
-  lede: 'One recent moment with one person who matters to you. Sharing is optional.',
+  title: 'Pause. Recognise. Return. <mark>Choose.</mark>',
+  /* Harrison, 13 Nov: the steps are exactly Pause, Recognise, Return, Choose (Choose as 01
+     was confusing); picking the person and the moment lives here instead, and "Sharing is
+     optional" stays in the FAQ only. */
+  lede: 'Start with one recent moment, with one person who matters to you, and the emotion it brought up.',
   movements: [
-    { n: '01', key: 'Choose', title: 'Pick the moment.', body: 'One relationship, one recent incident.' },
-    { n: '02', key: 'Pause', title: 'Feel your feet. Take a breath.', body: 'A moment before anything else.' },
-    { n: '03', key: 'Recognise', title: 'Notice what is showing up.', body: 'What do I notice in my body?' },
-    { n: '04', key: 'Practise', title: 'Rehearse something different.', body: 'Choose when you will practise it.' },
+    { n: '01', key: 'Pause', title: 'Feel your feet. Take a breath.', body: 'A moment before anything else.' },
+    { n: '02', key: 'Recognise', title: 'Notice what is showing up.', body: 'What do I notice in my body?' },
+    { n: '03', key: 'Return', title: 'Come back to yourself.', body: 'Settle, so you can respond instead of react.' },
+    { n: '04', key: 'Choose', title: 'Rehearse something different.', body: 'Choose a response, and when you will practise it.' },
   ],
   leave: {
     lead: 'You leave with the tools to see what is happening inside you, and what stands between you and saying what you actually mean.',
