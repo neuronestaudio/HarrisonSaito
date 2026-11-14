@@ -126,12 +126,12 @@ export const ROOM = {
   ],
   leave: {
     lead: 'You leave with the tools to see what is happening inside you, and what stands between you and saying what you actually mean.',
-    body: 'Most people can already name their patterns. What they lack is the space to express themselves, and a way to practise. In the end, it comes down to practice.',
+    body: 'Most people can already name their patterns. What they lack is the space to express themselves, and a way to practise.',
     exampleLabel: 'For example',
     example: [
-      { label: 'Early signal', text: 'My jaw tightens' },
-      { label: 'Usual reaction', text: 'I defend myself' },
-      { label: 'Alternative', text: 'I pause and ask what they meant' },
+      { label: 'The moment', text: 'I am disagreeing with someone I care about' },
+      { label: 'Usual reaction', text: 'I say nothing and swallow my emotions' },
+      { label: 'Alternative', text: 'I allow myself to feel what I feel but express it calmly without lashing out' },
     ],
   },
   /* the two photographs beside the steps (Dion, 11 Nov): the hand-on-chest session, and Harrison seated on the mat */
