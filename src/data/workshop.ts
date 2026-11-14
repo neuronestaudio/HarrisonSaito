@@ -123,6 +123,16 @@ export const FEEL = {
     cite: 'Nummenmaa, L., Glerean, E., Hari, R. & Hietanen, J. K. (2014). Bodily maps of emotions. Proceedings of the National Academy of Sciences, 111(2), 646–651.',
     href: 'https://doi.org/10.1073/pnas.1321664111',
     linkLabel: 'Read the study',
+    /* Set `img` to the original figure's path (for example '/img/body-maps-nummenmaa-2014.webp') once
+       the file and the authors' permission are in; the panel then shows it beside the text. */
+    /* From the abstract: n = 701, five experiments, West European and East Asian samples. */
+    stats: [
+      { n: '701', l: 'people' },
+      { n: '5', l: 'experiments' },
+      { n: '2', l: 'regions: Europe and East Asia' },
+    ],
+    img: '' as string,
+    imgAlt: 'Colour maps of the body showing where 701 people reported feeling anger, fear, sadness, shame and other emotions.',
   },
   cardsLabel: 'What it can sound like',
   showsLabel: 'Often shows up as',

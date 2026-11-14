@@ -60,10 +60,10 @@ async function alertContactFor(person: { name: string; phone: string }): Promise
 }
 
 /** Returns true if at least one text was accepted by GHL. */
-async function textTeam(message: string): Promise<boolean> {
+async function textTeam(message: string, only?: string[]): Promise<boolean> {
   if (!process.env.GHL_TOKEN || !process.env.GHL_LOCATION_ID) return false;
   const results = await Promise.allSettled(
-    ALERT_TEAM.map(async (p) => {
+    ALERT_TEAM.filter((p) => !only || only.includes(p.name)).map(async (p) => {
       const contactId = await alertContactFor(p);
       const res = await fetch(`${ALERT_GHL}/conversations/messages`, {
         method: 'POST',
@@ -349,6 +349,9 @@ function cameFrom(body: Payload): { from: string; page: string } {
     from = host && !host.endsWith('harrisonsaito.com.au') ? host : 'Direct (typed in or a saved link)';
   }
   if (camp) from += ` · campaign ${camp}`;
+  /* the ad's URL parameters carry {{adset.name}} as utm_term (set up 14 Nov) */
+  const adset = q?.get('utm_term') ?? '';
+  if (adset) from += ` · ad set ${adset}`;
   if (ad) from += ` · ad ${ad}`;
   const page = url ? url.pathname || '/' : s(body.page_path) || '';
   return { from, page };
@@ -587,17 +590,15 @@ export async function POST(request: Request): Promise<Response> {
   // Integrations run in parallel and are individually non-fatal: a CRM outage
   // must never cost us the lead or show the visitor an error.
   const names = ['meta', 'ghl', 'webhook', 'email', 'sms'];
-  const str = (v: unknown) => (typeof v === 'string' ? v.trim() : '');
   const results = await Promise.allSettled([
     sendToMeta(env, body, request),
     sendToGHL(env, body),
     sendToWebhook(env, body),
     sendEmail(env, body),
-    // Text the team (api/_notify.ts), so a lead is never found by chance.
-    textTeam(
-      `NEW LEAD (Harrison): ${str(body.name) || 'no name'}${str(body.phone) ? ', ' + str(body.phone) : ''}${str(body.email) ? ', ' + str(body.email) : ''}` +
-        `${str(body.about_label) ? ' | ' + str(body.about_label) : ''}`,
-    ),
+    // Text Harrison and Danny the same message the GHL workflow already texts Dion ("Hey Harrison,"
+    // then a line per input, then where it came from), so a lead is never found by chance and there is
+    // one text per person, not two. Dion is left out here on purpose: the workflow covers him.
+    textTeam(buildNotice(body).notify_sms, ['Harrison', 'Danny']),
   ]);
   // What each integration did — "unconfigured", "ok", or its error — so a
   // test post from outside can see why a lead went nowhere without anyone

@@ -96,37 +96,55 @@ const schema = graph(personSchema(), localBusinessSchema());
     </section>
 
     <!-- ============ BENEATH THE REACTION: the emotion is what awareness is of ============ -->
-    <section class="section section--white ws-feel" data-section="ws-feel">
+    <section class="section section--dark on-dark ws-feel" data-section="ws-feel">
       <div class="wide">
-        <header class="ws-head">
-          <p class="eyebrow">{FEEL.eyebrow}</p>
-          <h2 class="reveal" set:html={FEEL.title} />
-          <p class="fs-sm ws-lede reveal">{FEEL.lede}</p>
+        <header class="ws-feel__head">
+          <div>
+            <p class="eyebrow">{FEEL.eyebrow}</p>
+            <h2 class="reveal" set:html={FEEL.title} />
+          </div>
+          <p class="ws-feel__lede reveal">{FEEL.lede}</p>
         </header>
 
         <p class="ws-feel__label">{FEEL.flowLabel}</p>
         <ol class="ws-flow reveal">
-          {FEEL.flow.map((f) => (
-            <li>
+          {FEEL.flow.map((f, i) => (
+            <li class={i === 1 || i === 3 ? 'is-key' : ''}>
+              <span class="ws-flow__n" aria-hidden="true">{i + 1}</span>
               <p class="ws-flow__k">{f.label}</p>
               <p class="ws-flow__t">{f.text}</p>
             </li>
           ))}
         </ol>
 
-        <aside class="ws-bodymap reveal" aria-label={FEEL.body.label}>
-          <p class="ws-bodymap__k">{FEEL.body.label}</p>
-          <p class="ws-bodymap__t">{FEEL.body.text}</p>
-          <p class="ws-bodymap__cite">
-            {FEEL.body.cite}
-            <a href={FEEL.body.href} target="_blank" rel="noopener noreferrer" data-track="cta_click" data-track-label="Private coaching — body map study">{FEEL.body.linkLabel}<span aria-hidden="true"> ↗</span></a>
-          </p>
+        <aside class={`ws-bodymap reveal${FEEL.body.img ? ' has-fig' : ''}`} aria-label={FEEL.body.label}>
+          <div class="ws-bodymap__copy">
+            <p class="ws-bodymap__k">{FEEL.body.label}</p>
+            <p class="ws-bodymap__t">{FEEL.body.text}</p>
+            <p class="ws-bodymap__cite">
+              {FEEL.body.cite}
+              <a href={FEEL.body.href} target="_blank" rel="noopener noreferrer" data-track="cta_click" data-track-label="Private coaching — body map study">{FEEL.body.linkLabel}<span aria-hidden="true"> ↗</span></a>
+            </p>
+          </div>
+          {!FEEL.body.img && (
+            <ul class="ws-bodymap__stats">
+              {FEEL.body.stats.map((s) => (
+                <li><strong>{s.n}</strong><span>{s.l}</span></li>
+              ))}
+            </ul>
+          )}
+          {FEEL.body.img && (
+            <figure class="ws-bodymap__fig">
+              <img src={FEEL.body.img} alt={FEEL.body.imgAlt} width="1600" height="900" loading="lazy" decoding="async" />
+            </figure>
+          )}
         </aside>
 
         <p class="ws-feel__label ws-feel__label--cards">{FEEL.cardsLabel}</p>
         <ul class="ws-feels" data-stagger>
-          {FEEL.cards.map((c) => (
+          {FEEL.cards.map((c, i) => (
             <li class="ws-feelcard reveal">
+              <span class="ws-feelcard__n" aria-hidden="true">{String(i + 1).padStart(2, '0')}</span>
               <h3>{c.name}</h3>
               <p class="ws-feelcard__say">“{c.line}”</p>
               <p class="ws-feelcard__shows"><span>{FEEL.showsLabel}</span>{c.shows}</p>
@@ -527,31 +545,62 @@ const schema = graph(personSchema(), localBusinessSchema());
   .ws-leave__ex { margin: 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
   .ws-leave__ex dt { font-size: 12px; font-weight: 700; letter-spacing: 0.16em; text-transform: uppercase; color: var(--gold-deep); }
   .ws-leave__ex dd { margin: 0.2rem 0 0; font-family: var(--font-accent); }
-  /* ---- beneath the reaction: the flow, the six feelings ---- */
-  .ws-feel .ws-head :global(h2) { max-width: 20ch; }
-  .ws-feel .ws-lede { margin: 1rem 0 0; max-width: 62ch; color: var(--fg3); }
-  .ws-feel__label { margin: 0 0 0.8rem; font-size: 12px; font-weight: 700; letter-spacing: 0.18em; text-transform: uppercase; color: var(--fg4); }
+  /* ---- beneath the reaction: dark, glass, gold; the flow, the study, the six feelings ---- */
+  .ws-feel { --ink-line: oklch(100% 0 0 / 0.14); --ink-glass: oklch(100% 0 0 / 0.05); --ink-gold: #f2c275; position: relative; overflow: hidden; }
+  .ws-feel::before {
+    content: ''; position: absolute; inset: 0; pointer-events: none;
+    background: radial-gradient(55% 45% at 88% 0%, oklch(75% 0.12 75 / 0.16), transparent 70%), radial-gradient(45% 40% at 0% 100%, oklch(60% 0.1 40 / 0.1), transparent 70%);
+  }
+  .ws-feel > .wide { position: relative; }
+  .ws-feel__head { display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr); gap: clamp(1.4rem, 4vw, 4rem); align-items: end; margin-bottom: clamp(2rem, 4vw, 3.4rem); }
+  .ws-feel__head :global(h2) { margin: 0.6rem 0 0; max-width: 17ch; }
+  .ws-feel__lede { margin: 0; max-width: 50ch; font-size: var(--fs-sm); line-height: 1.55; color: rgba(252, 250, 248, 0.78); }
+  .ws-feel__label { margin: 0 0 0.9rem; font-size: 12px; font-weight: 700; letter-spacing: 0.18em; text-transform: uppercase; color: rgba(252, 250, 248, 0.5); }
   .ws-feel__label--cards { margin-top: clamp(2rem, 4vw, 3.4rem); }
-  .ws-flow { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: clamp(12px, 1.6vw, 22px); }
-  .ws-flow li { border-top: 2px solid var(--fg1); padding-top: 14px; min-width: 0; }
-  .ws-flow li:nth-child(2), .ws-flow li:nth-child(4) { border-top-color: var(--gold-deep); }
-  .ws-flow__k { margin: 0 0 0.45rem; font-size: 12px; font-weight: 700; letter-spacing: 0.16em; text-transform: uppercase; color: var(--gold-deep); }
-  .ws-flow__t { margin: 0; font-family: var(--font-accent); font-size: var(--fs-sm); line-height: 1.3; color: var(--fg1); }
-  .ws-bodymap { margin-top: clamp(1.8rem, 3.4vw, 3rem); padding: 0.2rem 0 0.2rem clamp(1rem, 2vw, 1.6rem); border-left: 3px solid var(--gold-deep); max-width: 62ch; }
+
+  .ws-flow { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 12px; }
+  .ws-flow li { position: relative; min-width: 0; padding: 1rem 1.05rem 1.15rem; border-radius: 16px; border: 1px solid var(--ink-line); background: var(--ink-glass); box-shadow: inset 0 1px 0 oklch(100% 0 0 / 0.08); }
+  .ws-flow li.is-key { border-color: oklch(84% 0.11 78 / 0.55); background: linear-gradient(160deg, oklch(84% 0.11 78 / 0.18), oklch(84% 0.11 78 / 0.05)); }
+  .ws-flow__n { display: grid; place-items: center; width: 1.5rem; height: 1.5rem; margin-bottom: 0.8rem; border-radius: 50%; border: 1px solid oklch(84% 0.11 78 / 0.6); font-size: 0.72rem; font-weight: 700; color: var(--ink-gold); font-variant-numeric: tabular-nums; }
+  .ws-flow li.is-key .ws-flow__n { background: var(--ink-gold); border-color: var(--ink-gold); color: #14100d; }
+  .ws-flow__k { margin: 0 0 0.45rem; font-size: 11.5px; font-weight: 700; letter-spacing: 0.16em; text-transform: uppercase; color: var(--ink-gold); }
+  .ws-flow__t { margin: 0; font-family: var(--font-accent); font-size: var(--fs-sm); line-height: 1.3; color: var(--text-on-ink, #fcfaf8); }
+
+  .ws-bodymap {
+    margin-top: clamp(1.2rem, 2.4vw, 1.8rem); display: grid; grid-template-columns: 1fr; gap: clamp(1.2rem, 2.6vw, 2.2rem); align-items: center;
+    padding: clamp(1.2rem, 2.6vw, 2rem); border-radius: 22px; border: 1px solid var(--ink-line);
+    background: linear-gradient(140deg, oklch(100% 0 0 / 0.09), oklch(100% 0 0 / 0.03)); box-shadow: inset 0 1px 0 oklch(100% 0 0 / 0.1);
+  }
+  .ws-bodymap.has-fig { grid-template-columns: minmax(0, 1fr) minmax(0, 1.4fr); }
+  .ws-bodymap:not(.has-fig) { grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr); }
+  .ws-bodymap__stats { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+  .ws-bodymap__stats li { padding: 1rem 0.9rem; border-radius: 14px; border: 1px solid var(--ink-line); background: oklch(0% 0 0 / 0.18); text-align: left; }
+  .ws-bodymap__stats strong { display: block; font-family: var(--font-display); font-size: clamp(1.9rem, 1.4rem + 1.6vw, 2.8rem); font-weight: 400; line-height: 1; background: linear-gradient(180deg, #f6d28f, #c28a3c); -webkit-background-clip: text; background-clip: text; color: transparent; }
+  .ws-bodymap__stats span { display: block; margin-top: 0.5rem; font-size: 12px; line-height: 1.35; color: rgba(252, 250, 248, 0.7); }
   .ws-bodymap p { margin: 0; }
-  .ws-bodymap__k { margin-bottom: 0.45rem !important; font-size: 12px; font-weight: 700; letter-spacing: 0.18em; text-transform: uppercase; color: var(--gold-deep); }
-  .ws-bodymap__t { font-family: var(--font-accent); font-size: var(--fs-sm); line-height: 1.35; color: var(--fg1); }
-  .ws-bodymap__cite { margin-top: 0.7rem !important; font-size: 12.5px; line-height: 1.5; color: var(--fg4); }
-  .ws-bodymap__cite a { margin-left: 0.4em; color: var(--fg2); text-decoration: underline; text-decoration-color: var(--gold-deep); text-underline-offset: 0.2em; white-space: nowrap; }
-  .ws-bodymap__cite a:hover { color: var(--fg1); }
-  .ws-feels { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: clamp(12px, 1.6vw, 20px); }
-  .ws-feelcard { padding: 1.2rem 1.3rem 1.3rem; border-radius: 18px; background: var(--bg2); min-width: 0; }
-  .ws-feelcard :global(h3) { margin: 0 0 0.6rem; font-size: calc(var(--fs-md) * 0.92); line-height: 1.15; }
-  .ws-feelcard__say { margin: 0 0 1rem; font-family: var(--font-accent); font-size: var(--fs-sm); line-height: 1.3; color: var(--fg1); }
-  .ws-feelcard__shows { margin: 0; font-size: var(--fs-xs); color: var(--fg3); }
-  .ws-feelcard__shows span { display: block; margin-bottom: 0.25rem; font-size: 11px; font-weight: 700; letter-spacing: 0.16em; text-transform: uppercase; color: var(--gold-deep); }
-  .ws-feel__close { margin-top: clamp(1.8rem, 3.4vw, 3rem); max-width: 62ch; }
-  .ws-feel__close p { margin: 0 0 0.7rem; font-family: var(--font-accent); font-size: var(--fs-sm); line-height: 1.35; color: var(--fg1); }
+  .ws-bodymap__k { margin-bottom: 0.6rem !important; font-size: 12px; font-weight: 700; letter-spacing: 0.18em; text-transform: uppercase; color: var(--ink-gold); }
+  .ws-bodymap__t { font-family: var(--font-accent); font-size: calc(var(--fs-sm) * 1.12); line-height: 1.35; color: var(--text-on-ink, #fcfaf8); max-width: 44ch; }
+  .ws-bodymap__cite { margin-top: 0.9rem !important; font-size: 12.5px; line-height: 1.5; color: rgba(252, 250, 248, 0.5); max-width: 60ch; }
+  .ws-bodymap__cite a { margin-left: 0.4em; color: var(--ink-gold); text-decoration: underline; text-decoration-color: oklch(84% 0.11 78 / 0.5); text-underline-offset: 0.2em; white-space: nowrap; }
+  .ws-bodymap__cite a:hover { color: #fff; }
+  .ws-bodymap__fig { margin: 0; border-radius: 14px; overflow: hidden; background: #fff; }
+  .ws-bodymap__fig img { display: block; width: 100%; height: auto; }
+
+  .ws-feels { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; }
+  .ws-feelcard {
+    position: relative; min-width: 0; padding: 1.4rem 1.4rem 1.5rem; border-radius: 20px; border: 1px solid var(--ink-line); background: var(--ink-glass);
+    box-shadow: inset 0 1px 0 oklch(100% 0 0 / 0.08); transition: border-color 0.25s ease, background 0.25s ease, transform 0.25s var(--ease-out-expo, ease);
+  }
+  .ws-feelcard:hover { border-color: oklch(84% 0.11 78 / 0.5); background: oklch(100% 0 0 / 0.08); transform: translateY(-2px); }
+  .ws-feelcard__n { position: absolute; top: 1.2rem; right: 1.3rem; font-size: 0.78rem; font-weight: 700; letter-spacing: 0.14em; color: oklch(84% 0.11 78 / 0.7); font-variant-numeric: tabular-nums; }
+  .ws-feelcard :global(h3) { margin: 0 0 0.9rem; font-size: calc(var(--fs-md) * 0.95); line-height: 1.1; color: var(--text-on-ink, #fcfaf8); }
+  .ws-feelcard__say { margin: 0 0 1.1rem; font-family: var(--font-accent); font-size: calc(var(--fs-sm) * 1.1); line-height: 1.3; color: var(--text-on-ink, #fcfaf8); }
+  .ws-feelcard__shows { margin: 0; padding-top: 1rem; border-top: 1px solid var(--ink-line); font-size: var(--fs-xs); line-height: 1.5; color: rgba(252, 250, 248, 0.72); }
+  .ws-feelcard__shows span { display: block; margin-bottom: 0.35rem; font-size: 11px; font-weight: 700; letter-spacing: 0.16em; text-transform: uppercase; color: var(--ink-gold); }
+
+  .ws-feel__close { margin-top: clamp(2rem, 4vw, 3.2rem); padding-top: clamp(1.4rem, 2.6vw, 2rem); border-top: 1px solid var(--ink-line); display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: clamp(1rem, 3vw, 3rem); }
+  .ws-feel__close p { margin: 0; max-width: 48ch; font-family: var(--font-accent); font-size: calc(var(--fs-sm) * 1.1); line-height: 1.4; color: var(--text-on-ink, #fcfaf8); }
+  .ws-feel__close p + p { color: rgba(252, 250, 248, 0.72); }
   .ws-film__frame { max-width: 960px; margin: 0 auto; aspect-ratio: 16 / 9; border-radius: 20px; overflow: hidden; background: #14100d; box-shadow: 0 40px 90px rgba(0, 0, 0, 0.5); }
   .ws-film__stack { display: grid; gap: clamp(1.2rem, 3vw, 2.2rem); }
   .ws-film__frame video { width: 100%; height: 100%; display: block; object-fit: cover; }
@@ -597,19 +646,23 @@ const schema = graph(personSchema(), localBusinessSchema());
   @media (max-width: 1080px) {
     .ws-moves { grid-template-columns: repeat(2, minmax(0, 1fr)); }
     .ws-tlist { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-    .ws-flow { grid-template-columns: repeat(3, minmax(0, 1fr)); row-gap: 1.4rem; }
+    .ws-flow { grid-template-columns: repeat(3, minmax(0, 1fr)); }
     .ws-feels { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   }
   @media (max-width: 900px) {
     .ws-hero__grid { grid-template-columns: 1fr; }
     .ws-hero__portrait { justify-self: center; width: min(100%, 420px); aspect-ratio: 4 / 5; }
     .ws-hero__portrait img { object-position: 50% 12%; }
-    .ws-moments__grid, .ws-leave__ex { grid-template-columns: 1fr; }
+    .ws-moments__grid, .ws-leave__ex, .ws-feel__head, .ws-bodymap.has-fig, .ws-bodymap:not(.has-fig) { grid-template-columns: 1fr; }
+    .ws-feel__head { align-items: start; }
     .ws-head--split, .ws-who__grid, .ws-faq__grid, .ws-apply__grid { grid-template-columns: 1fr; }
     .ws-who__portrait { max-width: 420px; }
   }
   @media (max-width: 680px) {
-    .ws-moves, .ws-tlist, .ws-flow, .ws-feels { grid-template-columns: 1fr; }
+    .ws-moves, .ws-tlist, .ws-flow, .ws-feels, .ws-feel__close { grid-template-columns: 1fr; }
+    .ws-bodymap__stats { grid-template-columns: 1fr; gap: 8px; }
+    .ws-bodymap__stats li { display: flex; align-items: baseline; gap: 0.9rem; padding: 0.8rem 1rem; }
+    .ws-bodymap__stats span { margin-top: 0; }
     .ws-faces { grid-template-columns: repeat(2, minmax(0, 1fr)); }
     .ws-room__foot { flex-direction: column; align-items: stretch; }
     .ws-room__foot :global(.btn) { text-align: center; }

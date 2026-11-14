@@ -61,10 +61,10 @@ async function alertContactFor(person: { name: string; phone: string }): Promise
 }
 
 /** Returns true if at least one text was accepted by GHL. */
-async function textTeam(message: string): Promise<boolean> {
+async function textTeam(message: string, only?: string[]): Promise<boolean> {
   if (!process.env.GHL_TOKEN || !process.env.GHL_LOCATION_ID) return false;
   const results = await Promise.allSettled(
-    ALERT_TEAM.map(async (p) => {
+    ALERT_TEAM.filter((p) => !only || only.includes(p.name)).map(async (p) => {
       const contactId = await alertContactFor(p);
       const res = await fetch(`${ALERT_GHL}/conversations/messages`, {
         method: 'POST',
@@ -180,8 +180,11 @@ export async function POST(request: Request): Promise<Response> {
   const phoneRaw = String(p.text_reminder_number || phoneAnswer || '').trim();
   const start = String(p.scheduled_event?.start_time ?? '');
   const when = start ? sydney(start) : 'time not given';
-  const pick = String(p.tracking?.utm_term ?? '').trim().toLowerCase();
-  const adSet = String(p.tracking?.utm_medium ?? '').trim();
+  /* utm_term arrives as "<emotion>~<ad set>": the funnel puts the emotion first and the ad's own
+     utm_term ({{adset.name}} in the ad's URL parameters) after the tilde. Older bookings are just the pick. */
+  const [termPick, ...termRest] = String(p.tracking?.utm_term ?? '').split('~');
+  const pick = termPick.trim().toLowerCase();
+  const adSet = termRest.join('~').trim();
   const ad = String(p.tracking?.utm_content ?? '').trim();
   const campaign = String(p.tracking?.utm_campaign ?? '').trim();
   const feeling = FEELINGS[pick] ?? '';
@@ -242,16 +245,29 @@ export async function POST(request: Request): Promise<Response> {
   if (!canceled) lines.push(`Booked: ${when}`);
   if (feeling) lines.push(`Feeling to work on: ${feeling}`);
   else if (resonates) lines.push(`Resonates most: "${resonates}"`);
-  if (ad || adSet || campaign) lines.push(`Came from: Meta ad${campaign ? ` / Campaign: ${campaign}` : ''}${adSet ? ` / Ad set: ${adSet}` : ''}${ad ? ` / Ad: ${ad}` : ''}`);
+  const cameFrom = ad || adSet || campaign
+    ? `Meta ad${campaign ? ` · campaign ${campaign}` : ''}${adSet ? ` · ad set ${adSet}` : ''}${ad ? ` · ad ${ad}` : ''}`
+    : 'Direct (no ad tracking)';
+  lines.push(`Came from: ${cameFrom}`);
   lines.push(...said, 'Source: /rts-coaching free discovery call funnel (Calendly, 30 minutes)');
   await ghl('POST', `/contacts/${contactId}/notes`, { body: lines.join('\n') });
 
   /* ---- text the team: a booking is the thing Harrison is waiting for ---- */
   if (!rescheduled) {
-    const sms = canceled
-      ? `CALL CANCELLED (Harrison): ${name || email}, was ${when}`
-      : `NEW CALL BOOKED (Harrison): ${name || email}${phoneRaw ? ', ' + human(phoneRaw) : ''}, ${when}` +
-        `${feeling ? ' | ' + feeling : resonates ? ' | "' + resonates + '"' : ''}${ad ? ' | ad: ' + ad : ''}`;
+    /* one text, in the layout of the form-lead notification ("Hey Harrison," then a line per input),
+       so every alert reads the same: Dion, 14 Nov. */
+    const sms = [
+      'Hey Harrison,',
+      canceled ? 'Call cancelled: free discovery call' : 'New call booked: free discovery call',
+      '',
+      `Name: ${name || '—'}`,
+      `Phone: ${phoneRaw ? human(phoneRaw) : '—'}`,
+      `Email: ${email || '—'}`,
+      canceled ? `Was: ${when}` : `Booked: ${when}`,
+      ...(feeling ? [`Feeling to work on: ${feeling}`] : resonates ? [`Resonates most: "${resonates}"`] : []),
+      '',
+      `Came from: ${cameFrom}`,
+    ].join('\n');
     try { await textTeam(sms); } catch (e) { console.error('[calendly] alert failed', (e as Error).message); }
   }
 

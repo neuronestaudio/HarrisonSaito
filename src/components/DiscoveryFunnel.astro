@@ -216,7 +216,7 @@ const OPTIONS = FUNNEL.options;
       try {
         const sp = new URLSearchParams(location.search);
         const now: Record<string, string> = {};
-        for (const k of ['utm_source', 'utm_medium', 'utm_campaign', 'utm_content']) {
+        for (const k of ['utm_source', 'utm_medium', 'utm_campaign', 'utm_content', 'utm_term']) {
           const v = sp.get(k);
           if (v) now[k] = v;
         }
@@ -227,7 +227,9 @@ const OPTIONS = FUNNEL.options;
       q.set('utm_medium', ad.utm_medium || 'funnel');
       if (ad.utm_campaign) q.set('utm_campaign', ad.utm_campaign);
       if (ad.utm_content) q.set('utm_content', ad.utm_content);
-      if (picks.size) q.set('utm_term', [...picks].join('-'));
+      /* Calendly has five UTM slots and the ad uses four, so the emotion and the ad set share
+         utm_term as "<emotion>~<ad set>"; api/calendly.ts splits it. */
+      if (picks.size || ad.utm_term) q.set('utm_term', `${[...picks].join('-')}~${ad.utm_term || ''}`);
       slot.innerHTML = `<div class="calendly-inline-widget" data-url="${root.dataset.cal}?${q}"></div>`;
       const s = document.createElement('script');
       s.src = 'https://assets.calendly.com/assets/external/widget.js';
